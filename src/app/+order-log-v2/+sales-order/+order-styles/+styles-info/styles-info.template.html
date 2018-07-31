@@ -1,0 +1,30 @@
+<div class="style-cancelled" role="alert" *ngIf="!isOrderCancelled && styleInfo.id && styleInfo.isCancelled">
+  This style has been cancelled!
+</div>
+<div class="panel panel-transparent py-2 px-2">
+  <ul class="nav nav-tabs full-width">
+    <li class="text-center nav-item" *ngFor="let tab of tabs; let i=index"
+        [ngClass]="{'active': tab.isActive, 'disappear': tab.isDisable}"
+        (click)="switchTab($event, i)">
+      <a class="justify-center nav-link"
+         href="javascript:void(0)" aria-expanded="true">
+        <span>{{tab.name}}</span>
+      </a>
+    </li>
+  </ul>
+  <div class="cancel-style">
+    <a class="p-link" href="javascript:void(0)"
+       *ngIf="canViewPendingSamples"
+       [routerLink]="['/schedules-print/pending-samples']">Pending Samples</a>
+    <a class="p-link m-l-20" href="javascript:void(0)"
+       *ngIf="canViewSamples"
+       [routerLink]="['/schedules-print/samples']">Samples</a>
+    <button class="btn btn-complete btn-cons m-l-20"
+            *ngIf="!isPageReadOnly && !isOrderCancelled && !isA2000Order && styleInfo.id && !styleInfo.isCancelled"
+            (click)="cancelStyle()">Cancel Style
+    </button>
+  </div>
+  <div class="order-general">
+    <router-outlet></router-outlet>
+  </div>
+</div>

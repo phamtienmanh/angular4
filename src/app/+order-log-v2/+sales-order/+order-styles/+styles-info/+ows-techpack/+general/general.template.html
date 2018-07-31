@@ -1,0 +1,103 @@
+<div class="row px-3 py-2">
+  <div class="col-sm-12">
+    <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()">
+      <div class="row">
+        <div class="col-lg-5 col-md-12">
+          <div class="row flex py-1"
+               [ngClass]="{'required': frm.get('formRequires').value['techPackReadyDateOnUtc'].required}">
+            <div class="col-sm-4 control-label text-right">
+              <label class="right nowrap">OWS / Tech Pack Ready Date</label>
+            </div>
+            <div class="col-sm-6"
+                 [ngClass]="{'has-error':!frm.get('techPackReadyDateOnUtc').valid}">
+              <my-date-picker [options]="myDatePickerOptions"
+                              #techPackReadyDatePicker
+                              formControlName='techPackReadyDate'
+                              [disabled]="!canModifyOws"
+                              [ngClass]="{'disabled': !canModifyOws}"
+                              (dateChanged)="onDateChangedBy($event, frm, 'techPackReadyDateOnUtc')"
+                              (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, techPackReadyDatePicker)"
+                              (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, techPackReadyDatePicker, frm.get('techPackReadyDateOnUtc'))"></my-date-picker>
+              <label class="error"
+                     *ngIf="frm.get('techPackReadyDateOnUtc').hasError('required') && !frm.get('techPackReadyDateOnUtc').pristine">
+                {{validationMessages['techPackReadyDateOnUtc'].required}}</label>
+            </div>
+          </div>
+          <div class="row flex py-1"
+               [ngClass]="{'required': frm.get('formRequires').value['orderWorkSheetFiles'].required}">
+            <div class="col-sm-4 control-label text-right">
+              <label class="right nowrap">Order Work Sheets</label>
+            </div>
+            <div class="col-sm-1">
+                    <span class="cursor"
+                          (click)="openUploader(frm, styleUploadedType.OrderWorkSheets)"
+                          *ngIf="canModifyOws && !checkLengthUploaderByType(frm, styleUploadedType.OrderWorkSheets)">
+                      <i class="fa fa-upload fa-lg" aria-hidden="true"></i>
+                    </span>
+              <span class="cursor"
+                    (click)="openUploader(frm, styleUploadedType.OrderWorkSheets)"
+                    *ngIf="checkLengthUploaderByType(frm, styleUploadedType.OrderWorkSheets)">
+                      <i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"></i>
+                    </span>
+            </div>
+          </div>
+          <div class="row flex py-1"
+               [ngClass]="{'required': frm.get('formRequires').value['techPackFiles'].required}">
+            <div class="col-sm-4 control-label text-right">
+              <label class="right nowrap">Tech Pack(s)</label>
+            </div>
+            <div class="col-sm-1">
+                    <span class="cursor"
+                          (click)="openUploader(frm, styleUploadedType.TechPacks)"
+                          *ngIf="canModifyOws && !checkLengthUploaderByType(frm, styleUploadedType.TechPacks)">
+                      <i class="fa fa-upload fa-lg" aria-hidden="true"></i>
+                    </span>
+              <span class="cursor"
+                    (click)="openUploader(frm, styleUploadedType.TechPacks)"
+                    *ngIf="checkLengthUploaderByType(frm, styleUploadedType.TechPacks)">
+                      <i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"></i>
+                    </span>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-7 col-md-12" formArrayName="styleList">
+          <div class="row flex py-1"
+               *ngIf="frm.get('styleList').controls && frm.get('styleList').controls.length">
+            <div class="col-sm-1"></div>
+            <div class="col-sm-11"><b>Apply to these styles</b></div>
+          </div>
+          <div class="row flex"
+               *ngFor="let style of frm.get('styleList').controls; let index = index;" [formGroupName]="index">
+            <div class="col-sm-1"></div>
+            <div class="col-sm-11 p-l-10">
+              <div class="checkbox mt-0 mb-0">
+                <input type="checkbox" [id]="'style-' + index"
+                       formControlName='isSelected'
+                       [attr.disabled]="(style.get('styleId').value === styleId) || !canModifyOws ? true : null">
+                <label class="style-label" [for]="'style-' + index">
+                  {{style.get('styleFullName').value}}
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row"
+           *ngIf="canModifyOws">
+        <div class="col-4 py-2">
+          <div class="row flex py-1 mx-1">
+            <div class="col-4">
+            </div>
+            <div class="col-8">
+              <button class="btn btn-complete" type="submit">Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="sticky-btn"
+           *ngIf="canModifyOws && isShowStickyBtn">
+        <button class="btn btn-complete" type="submit">Save</button>
+      </div>
+    </form>
+  </div>
+</div>

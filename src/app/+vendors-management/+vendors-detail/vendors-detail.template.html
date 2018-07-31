@@ -1,0 +1,107 @@
+<div class="row">
+  <div class="col-lg-8 m-b-10">
+    <div class="col-sm-12 detail-box">
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="form-detail" [ngClass]="{'border-bottom-ccc': vendorInfo?.contacts.length}">
+            <label>
+              <strong>{{vendorInfo?.company}}</strong>
+            </label>
+            <button class="btn btn-complete ml-2" (click)="goToEditVendor()" *ngIf="!isPageReadOnly">Edit</button>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-3 contact" *ngFor="let contact of vendorInfo?.contacts">
+          <div class="contact-box">
+            <div class="contact-name">
+              <span>{{contact.firstName}} {{contact.lastName}}</span>
+            </div>
+            <div class="contact-email">
+              <span>{{contact.email}}</span>
+            </div>
+            <div class="contact-detail">
+              <div class="phone" *ngIf="contact.phone">
+                <span><i class="fa fa-phone" aria-hidden="true"></i>{{contact.phone}}</span>
+              </div>
+              <div class="tax" *ngIf="contact.fax">
+                <span><i class="fa fa-fax" aria-hidden="true"></i>{{contact.fax}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <vendor-purchase-order></vendor-purchase-order>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="col-sm-12 reminder-box">
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="form-detail border-bottom-ccc">
+            <label>
+              <strong>Reminders</strong>
+            </label>
+          </div>
+        </div>
+        <div class="col-sm-12 p-t-20 p-b-20" *ngIf="vendorInfo?.reminders.length">
+          <div class="row detail border-bottom-ccc"
+               *ngFor="let reminder of vendorInfo?.reminders">
+            <div class="col-sm-5"
+                 (click)="editReminder(reminder)">
+              <span>{{reminder.content}}</span>
+            </div>
+            <div class="col-sm-4"
+                 (click)="editReminder(reminder)">
+              <span>{{reminder.fullName}}</span>
+            </div>
+            <div class="col-sm-2"
+                 (click)="editReminder(reminder)">
+              <span>{{reminder.remindDateOnUtc | amDateFormat: 'MMM DD'}}</span>
+            </div>
+            <div class="col-sm-1 action-btn" *ngIf="!isPageReadOnly">
+              <button class="btn btn-danger" (click)="deleteReminder(reminder.id)">
+                <i class="fa fa-trash" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row create p-t-20 p-b-10" *ngIf="!isPageReadOnly">
+        <div class="col-sm-12">
+          <input type="text" class="form-control left" placeholder="Add Reminder" [(ngModel)]="newReminder.content">
+        </div>
+        <div class="col-sm-6 p-t-10">
+          <span class="p-l-5">Assigned To</span>
+          <ng-select [items]="listUser" #userSelect
+                     [virtualScroll]="true"
+                     [placeholder]="!isPageReadOnly ? 'Select User' : ''"
+                     (focus)="onSelectFocused(userSelect)"
+                     (open)="userSelect.filterValue = !!newReminder.userName ? newReminder.userName : ''"
+                     (add)="newReminder.userName = $event.fullName"
+                     (clear)="newReminder.userName = null"
+                     bindLabel="fullName"
+                     bindValue="id"
+                     [(ngModel)]="newReminder.userId"></ng-select>
+        </div>
+        <div class="col-sm-6 p-t-10">
+          <span class="p-l-5">Due Date</span>
+          <my-date-picker [options]="myDateRangePickerOptions"
+                          [(ngModel)]="newReminder['remindDate']"
+                          (dateChanged)="onDateChanged($event)"
+                          #remindDatePicker
+                          (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, remindDatePicker)"
+                          (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, remindDatePicker)"></my-date-picker>
+        </div>
+        <div class="col-sm-12 submit">
+          <button class="btn btn-complete"
+                  [disabled]="!newReminder.content || !newReminder.userId"
+                  (click)="createReminder()">Add
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

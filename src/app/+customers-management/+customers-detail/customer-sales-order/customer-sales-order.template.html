@@ -1,0 +1,138 @@
+<div class="m-t-15 m-b-15">
+  <strong>Sales Orders</strong>
+  <button class="btn btn-complete ml-2" (click)="goToNewSalesOrder()" *ngIf="!isPageReadOnly">Create New</button>
+</div>
+<div class="sales-orders-box">
+  <div class="row">
+    <div class="col-sm-12 table-box">
+      <div class="row" *ngIf="lock">
+        <div class="col-sm-12 col-md-10 col-lg-10 m-b-10">
+          <div class="input-icon">
+            <input-debounce placeholder="Search by customer PO #, retailer PO #, style name"
+                            title="Search by customer PO #, retailer PO #, style name"
+                            (value)="onSearchChanged($event)" [inputValue]="searchText"></input-debounce>
+          </div>
+        </div>
+      </div>
+      <ng-container *ngTemplateOutlet="pagination"></ng-container>
+      <perfect-scrollbar [config]="{suppressScrollX: false}">
+        <ngx-datatable
+          class="material striped ngx-table-hover break-word"
+          [rows]="salesOrderData.data"
+          [columnMode]="'force'"
+          [footerHeight]="0"
+          [headerHeight]="'auto'"
+          [rowHeight]="'auto'"
+          [sorts]="[{prop: 'retailerPo', dir: 'asc'}]"
+          (sort)="onSort($event)">
+          <ngx-datatable-column [name]="'Retailer PO'"
+                                [prop]="'retailerPo'"
+                                [width]="85"
+                                [minWidth]="85"
+                                [resizeable]="false"
+                                [draggable]="false">
+            <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+              <a class="p-link" href="javascript:void(0)"
+                 (click)="goToOrderDetail(row)">{{row.retailerPo}}</a>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column [name]="'Customer PO'"
+                                [prop]="'customerPo'"
+                                [width]="100"
+                                [minWidth]="100"
+                                [resizeable]="false"
+                                [draggable]="false">
+            <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+              <a class="p-link" href="javascript:void(0)"
+                 (click)="goToOrderDetail(row)">{{row.customerPo}}</a>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column [name]="'Order Date'"
+                                [prop]="'orderDateOnUtc'"
+                                [width]="80"
+                                [minWidth]="80"
+                                [resizeable]="false"
+                                [draggable]="false">
+            <ng-template let-value="value" ngx-datatable-cell-template>
+              <span>{{value | date: 'MM/dd/yyyy'}}</span>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column [name]="'Start Date'"
+                                [prop]="'startShipDateOnUtc'"
+                                [width]="80"
+                                [minWidth]="80"
+                                [resizeable]="false"
+                                [draggable]="false">
+            <ng-template let-value="value" ngx-datatable-cell-template>
+              <span>{{value | date: 'MM/dd/yyyy'}}</span>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column [name]="'Cancel Date'"
+                                [prop]="'cancelDateOnUtc'"
+                                [width]="90"
+                                [minWidth]="90"
+                                [resizeable]="false"
+                                [draggable]="false">
+            <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+              <span *ngIf="value">{{value | amDateFormat: 'MM/DD/YYYY'}}</span>
+              <span *ngIf="!value">{{row.lastDateToShipOnUtc | amDateFormat: 'MM/DD/YYYY'}}</span>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column [name]="'Styles'"
+                                [prop]="styles"
+                                [width]="120"
+                                [minWidth]="120"
+                                [resizeable]="false"
+                                [draggable]="false">
+            <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+              <span *ngFor="let style of row.orderDetails; let isLast=last">
+                        <a class="p-link" href="javascript:void(0)"
+                           (click)="goToDesignDetail($event, row, style)">{{style.styleName}}</a>
+                        <span *ngIf="!isLast" [ngStyle]="{'margin-left': '-3px'}">,</span>
+                      </span>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column [name]="'# Units'"
+                                [prop]="'units'"
+                                [width]="70"
+                                [minWidth]="70"
+                                [resizeable]="false"
+                                [draggable]="false">
+          </ngx-datatable-column>
+          <ngx-datatable-column [name]="'Type'"
+                                [prop]="'type'"
+                                [width]="85"
+                                [minWidth]="85"
+                                [resizeable]="false"
+                                [draggable]="false">
+          </ngx-datatable-column>
+          <ngx-datatable-column [name]="'Status'"
+                                [prop]="'status'"
+                                [width]="75"
+                                [minWidth]="75"
+                                [resizeable]="false"
+                                [draggable]="false">
+          </ngx-datatable-column>
+        </ngx-datatable>
+      </perfect-scrollbar>
+      <ng-container *ngTemplateOutlet="paginationTop"></ng-container>
+
+      <ng-template #pagination>
+        <pagination-control [totalRecord]="salesOrderData.totalRecord" *ngIf="salesOrderData.data && salesOrderData.data.length"
+                            [pageSize]="tableConfig.pageSize"
+                            [currentPage]="tableConfig.currentPage"
+                            (onSelectedPageSize)="onSelectedPageSize($event)"
+                            (onPageChange)="onPageChange($event)">
+        </pagination-control>
+      </ng-template>
+      <ng-template #paginationTop>
+        <pagination-control [totalRecord]="salesOrderData.totalRecord" *ngIf="salesOrderData.data && salesOrderData.data.length"
+                            [pageSize]="tableConfig.pageSize"
+                            [currentPage]="tableConfig.currentPage"
+                            [dropdownPosition]="'top-left'"
+                            (onSelectedPageSize)="onSelectedPageSize($event)"
+                            (onPageChange)="onPageChange($event)"></pagination-control>
+      </ng-template>
+    </div>
+  </div>
+</div>

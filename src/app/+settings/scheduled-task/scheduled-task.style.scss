@@ -1,0 +1,65 @@
+﻿scheduled-task {
+  a.disabled {
+    cursor: not-allowed;
+  }
+
+  perfect-scrollbar {
+    @media (min-width: 769px) {
+      .ps__rail-x {
+        position: fixed !important;
+        left: 7em !important;
+        right: 1em !important;
+      }
+    }
+    @media (max-width: 768px) {
+      .ps__rail-x {
+        position: fixed !important;
+        left: 1em !important;
+        right: 1em !important;
+      }
+    }
+  }
+  .ngx-datatable {
+    .checkbox {
+      transform: translateY(-55%);
+      label {
+        margin-right: 0;
+        margin-bottom: 0 !important;
+        &:before {
+          top: -1.4px !important;
+          margin-right: 0;
+        }
+        &:after {
+          top: -1.4px !important;
+        }
+      }
+    }
+    .centerBtn {
+      &.datatable-body-cell {
+        display: flex !important;
+        justify-content: center;
+      }
+    }
+  }
+  .scroll-nav {
+    .ps__rail-x {
+      left: 15px !important;
+      top: 161px !important;
+    }
+    @media (max-width: 640px) {
+      .ps__rail-x {
+        top: 149px !important;
+      }
+    }
+  }
+  .datatable-row-detail {
+    background-color: #e0e0e0 !important;
+  }
+
+  .job-btn {
+    position: absolute;
+    z-index: 9;
+    right: 0;
+    top: -32px;
+  }
+}

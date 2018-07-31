@@ -1,0 +1,64 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0">{{title}}</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()">
+    <div class="row flex py-1"
+         [ngClass]="{'required': true}">
+      <div class="col-sm-2 control-label">
+        <label>Name</label>
+      </div>
+      <div class="col-sm-10 m-t-4">
+        <span>{{frm.get('fullName').value}}</span>
+      </div>
+    </div>
+    <div class="row flex py-1"
+         [ngClass]="{'required': true}">
+      <div class="col-sm-2 control-label">
+        <label>Email</label>
+      </div>
+      <div class="col-sm-10"
+           [ngClass]="{'has-error':!frm.get('email').valid}">
+        <input formControlName='email'
+               type="text"
+               placeholder="Email"
+               class="form-control">
+        <label class="error"
+               *ngIf="frm.get('email').hasError('required') && !frm.get('email').pristine">
+          {{validationMessages['email'].required}}</label>
+        <label class="error"
+               *ngIf="frm.get('email').hasError('pattern') && !frm.get('email').pristine">
+          {{validationMessages['email'].pattern}}</label>
+      </div>
+    </div>
+    <div class="row flex py-1"
+         [ngClass]="{'required': true}">
+      <div class="col-sm-12 control-label">
+        <label>Message</label>
+      </div>
+      <div class="col-sm-12 messageHeight"
+           [ngClass]="{'has-error':!frm.get('message').valid}">
+          <textarea formControlName='message'
+                    type="text"
+                    placeholder="Message"
+                    class="form-control"></textarea>
+        <label class="error"
+               *ngIf="frm.get('message').hasError('required') && !frm.get('message').pristine">
+          {{validationMessages['message'].required}}</label>
+      </div>
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-complete" [disabled]="isSubmitting"
+          (click)="onSubmitForm()">
+    Submit
+  </button>
+  <button class="btn btn-default"
+          (click)="activeModal.dismiss()">
+    Cancel
+  </button>
+</div>

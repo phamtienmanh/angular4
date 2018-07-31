@@ -1,0 +1,367 @@
+<div class="row pb-2 separate-border relative">
+  <div class="col-sm-12">
+    <collapse-panel [formValue]="searchedObj">
+      <div class="row">
+        <form class="full-width" [formGroup]="frm" role="form" novalidate="" (ngSubmit)="filter()">
+          <div class="col-lg-6 col-xl-6 left px-1">
+            <div class="row">
+              <div class="col-sm-6 col-lg-6 col-xl-6 m-b-5">
+                <div class="row align-items-center">
+                  <div class="col-4 col-sm-4 col-lg-5">
+                    <span class="right nowrap">Entered By:</span>
+                  </div>
+                  <div class="col-8 col-sm-8 col-lg-7">
+                    <input type="text" (keyup)="onKeyup($event)"
+                           name="enteredBy"
+                           [placeholder]="'Entered By'"
+                           formControlName='enteredBy'
+                           class="form-control">
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-lg-6 col-xl-6 m-b-5">
+                <div class="row align-items-center">
+                  <div class="col-4 col-sm-4 col-lg-5">
+                    <span class="right">Customer:</span>
+                  </div>
+                  <div class="col-8 col-sm-8 col-lg-7">
+                    <input type="text" (keyup)="onKeyup($event)"
+                           name="customer"
+                           [placeholder]="'Customer Name'"
+                           formControlName='customer'
+                           class="form-control">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6 col-lg-6 col-xl-6 m-b-5">
+                <div class="row align-items-center">
+                  <div class="col-4 col-sm-4 col-lg-5">
+                    <span class="right nowrap">PO #:</span>
+                  </div>
+                  <div class="col-8 col-sm-8 col-lg-7">
+                    <input type="text" (keyup)="onKeyup($event)"
+                           name="poId"
+                           [placeholder]="'PO #'"
+                           formControlName='poId'
+                           class="form-control">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6 col-xl-6 right px-1">
+            <div class="row m-b-5">
+              <div class="col-2 col-sm-2">
+                <span class="right nowrap m-t-5">Cancel Date:</span>
+              </div>
+              <div class="p-l-5"
+                   [ngClass]="{'has-error':!frm.get('cancelledDateFromOnUtc').valid}">
+                <my-date-picker class="flex" [options]="cancelledDateFromOptions"
+                                #cancelledDateFromPicker
+                                [defaultMonth]="myDatePickerService.configDefaultMonth(frm.get('cancelledDateTo').value, true)"
+                                formControlName='cancelledDateFrom'
+                                (dateChanged)="onDateChanged($event, 'cancelledDateFromOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, cancelledDateFromPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, cancelledDateFromPicker, frm.get('cancelledDateFromOnUtc'))"></my-date-picker>
+                <!--<label class="error nowrap"-->
+                <!--*ngIf="frm.get('cancelledDateFromOnUtc').hasError('pattern') && !frm.get('cancelledDateFromOnUtc').pristine">-->
+                <!--{{validationMessages['default'].pattern}}</label>-->
+                <label class="error nowrap"
+                       *ngIf="frm.get('cancelledDateFromOnUtc').hasError('maxDate') && !frm.get('cancelledDateFromOnUtc').pristine">
+                  {{validationMessages['cancelledDateFromOnUtc'].maxLength}}</label>
+              </div>
+              <div class="px-2 flex center">
+                <span class="m-t-4">to</span>
+              </div>
+              <div class=""
+                   [ngClass]="{'has-error':!frm.get('cancelledDateToOnUtc').valid}">
+                <my-date-picker class="flex" [options]="cancelledDateToOptions"
+                                #cancelledDateToPicker
+                                [defaultMonth]="myDatePickerService.configDefaultMonth(frm.get('cancelledDateFrom').value)"
+                                formControlName='cancelledDateTo'
+                                (dateChanged)="onDateChanged($event, 'cancelledDateToOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, cancelledDateToPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, cancelledDateToPicker, frm.get('cancelledDateToOnUtc'))"></my-date-picker>
+                <!--<label class="error nowrap"-->
+                <!--*ngIf="frm.get('cancelledDateToOnUtc').hasError('pattern') && !frm.get('cancelledDateToOnUtc').pristine">-->
+                <!--{{validationMessages['default'].pattern}}</label>-->
+                <label class="error nowrap"
+                       *ngIf="frm.get('cancelledDateToOnUtc').hasError('minDate') && !frm.get('cancelledDateToOnUtc').pristine">
+                  {{validationMessages['cancelledDateToOnUtc'].maxLength}}</label>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-12 col-xl-12 left px-1">
+            <div class="row">
+              <div class="col-lg-12 center ">
+                <button class="btn btn-primary center" type="submit">Search</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </collapse-panel>
+  </div>
+  <div class="absolute export-filter" *ngIf="tableData.data && tableData.data.length">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="flex justify-content-end">
+          <a class="mx-1" href="javascript:void(0)" (click)="exportOrderNotification('xlsx')">
+            <i class="fa fa-file-excel-o fa-2x text-success" aria-hidden="true"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row py-2">
+  <div class="col-lg-6">
+    <button class="btn btn-complete btn-cons" (click)="addOrder()" *ngIf="getAddOrderFunc()">+ Add Order</button>
+  </div>
+</div>
+<div class="py-2" [hidden]="tableData.data && tableData.data.length">
+  <span class="font-size-16">No order notifications match your search criteria.</span>
+</div>
+<div class="py-2" [hidden]="!tableData.data || !tableData.data.length" id="orderLogTable">
+  <div class="ngx-datatable material custom-ngx-dtb" id="header"
+       [ngStyle]="myConfigStyleHeader"></div>
+  <ng-container *ngTemplateOutlet="pagination"></ng-container>
+  <!--   <table class="style-table" *ngIf="tableData">
+      <thead>
+        <tr>
+          <th>Date added</th>
+          <th>Date Imported</th>
+          <th>Entered By</th>
+          <th>Customer</th>
+          <th>Retailer/Licensor</th>
+          <th>Customer PO</th>
+          <th>Cancel Date</th>
+          <th># Styles</th>
+          <th># Units</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let data of tableData.data">
+          <td>{{data.createdOnUtc | amFromUtc | amLocal | amDateFormat: 'M/D/YY hh:mm A'}}</td>
+          <td *ngIf="data.orderNotificationImportedDateOnUtc">{{data.orderNotificationImportedDateOnUtc | amFromUtc | amLocal | amDateFormat: 'M/D/YY hh:mm A'}}</td>
+          <td *ngIf="!data.orderNotificationImportedDateOnUtc"></td>
+          <td>{{data.enteredBy}}</td>
+          <td>{{data.customer}}</td>
+          <td>{{data.customer2}}</td>
+          <td>{{data.customerPoId}}</td>
+          <td>{{data.cancelDateOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YYYY'}}</td>
+          <td>{{data.styles}}</td>
+          <td>{{data.units}}</td>
+          <td>
+            <button
+            class="btn btn-complete btn-small"
+            (click)="editOrder(data)"><i class="fa fa-pencil"></i></button>
+            <button
+            class="btn btn-danger btn-small"
+            (click)="deleteOrder(data)"><i class="fa fa-trash"></i></button>
+          </td>
+        </tr>
+      </tbody>
+    </table> -->
+  <div class="relative">
+  <perfect-scrollbar [config]="{suppressScrollX: false}" (psScrollX)="onScrollX($event)">
+    <div class="table-wrapper" #tableWrapper>
+      <ngx-datatable #table
+                     class="material ngx-table-hover"
+                     [rows]="tableData.data"
+                     [columnMode]="'force'"
+                     [footerHeight]="0"
+                     [headerHeight]="'auto'"
+                     [rowHeight]="'auto'"
+                     [externalSorting]="true"
+                     [loadingIndicator]="tableConfig.loading"
+                     [sorts]="[{prop: this.tableConfig.keysort, dir: this.tableConfig.orderDescending ? 'desc' : 'asc'}]"
+                     (sort)="onSort($event)">
+        <ngx-datatable-column
+          [name]="'Date Added'"
+          [prop]="'createdOnUtc'"
+          [minWidth]="110"
+          [maxWidth]="160"
+          [resizeable]="false"
+          [draggable]="false">
+          <ng-template let-row="row" let-sort="sortFn" ngx-datatable-header-template>
+            <div class="full-width cursor" (click)="sort()">Date Added</div>
+          </ng-template>
+          <ng-template let-value="value" ngx-datatable-cell-template>
+                <span class="inline"
+                      *ngIf="value">{{value | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}</span>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'Date Imported'"
+          [prop]="'orderNotificationImportedDateOnUtc'"
+          [minWidth]="110"
+          [maxWidth]="160"
+          [resizeable]="false"
+          [draggable]="false">
+          <ng-template let-row="row" let-sort="sortFn" ngx-datatable-header-template>
+            <div class="full-width cursor" (click)="sort()">Date Imported</div>
+          </ng-template>
+          <ng-template let-value="value" ngx-datatable-cell-template>
+                <span class="inline"
+                      *ngIf="value">{{value | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}</span>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'Date Published'"
+          [prop]="'publishedDateOnUtc'"
+          [minWidth]="110"
+          [maxWidth]="160"
+          [resizeable]="false"
+          [draggable]="false">
+          <ng-template let-row="row" let-sort="sortFn" ngx-datatable-header-template>
+            <div class="full-width cursor" (click)="sort()">Date Published</div>
+          </ng-template>
+          <ng-template let-value="value" ngx-datatable-cell-template>
+                <span class="inline"
+                      *ngIf="value">{{value | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}</span>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'Entered By'"
+          [prop]="'enteredBy'"
+          [minWidth]="110"
+          [maxWidth]="160"
+          [resizeable]="false"
+          [draggable]="false">
+          <ng-template let-row="row" let-sort="sortFn" ngx-datatable-header-template>
+            <div class="full-width cursor" (click)="sort()">Entered By</div>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'Customer'"
+          [prop]="'customer'"
+          [minWidth]="110"
+          [maxWidth]="160"
+          [resizeable]="false"
+          [draggable]="false">
+          <ng-template let-row="row" let-sort="sortFn" ngx-datatable-header-template>
+            <div class="full-width cursor" (click)="sort()">Customer</div>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'Retailer/Licensor'"
+          [prop]="'customer2'"
+          [minWidth]="110"
+          [maxWidth]="160"
+          [resizeable]="false"
+          [draggable]="false">
+          <ng-template let-row="row" let-sort="sortFn" ngx-datatable-header-template>
+            <div class="full-width cursor" (click)="sort()">Retailer/Licensor</div>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'Customer PO'"
+          [prop]="'customerPoId'"
+          [minWidth]="110"
+          [maxWidth]="160"
+          [resizeable]="false"
+          [draggable]="false">
+          <ng-template let-row="row" let-sort="sortFn" ngx-datatable-header-template>
+            <div class="full-width cursor" (click)="sort()">Customer PO</div>
+          </ng-template>
+          <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+              <span class="p-link" (click)="goToOrderInfo(row.id)"
+                    *ngIf="value && row.orderNotificationImportedDateOnUtc">{{value}}</span>
+              <span *ngIf="value && !row.orderNotificationImportedDateOnUtc">{{value}}</span>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'PO Range'"
+          [prop]="'poRange'"
+          [minWidth]="200"
+          [maxWidth]="250"
+          [resizeable]="false"
+          [draggable]="false">
+          <ng-template let-row="row" let-sort="sortFn" ngx-datatable-header-template>
+            <div class="full-width cursor" (click)="sort()">PO Range</div>
+          </ng-template>
+          <ng-template let-value="value" let-row="row" ngx-datatable-cell-template>
+            <div class="break-all" [title]="value">{{row.poRangeShorten ? row.poRangeShorten : value}}</div>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'Cancel Date'"
+          [prop]="'cancelDateOnUtc'"
+          [minWidth]="80"
+          [maxWidth]="100"
+          [resizeable]="false"
+          [draggable]="false">
+          <ng-template let-row="row" let-sort="sortFn" ngx-datatable-header-template>
+            <div class="full-width cursor" (click)="sort()">Cancel Date</div>
+          </ng-template>
+          <ng-template let-value="value" ngx-datatable-cell-template>
+                <span class="inline"
+                      *ngIf="value">{{value | amFromUtc | amLocal | amDateFormat: 'MM/DD/YYYY'}}</span>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'# Styles'"
+          [prop]="'styles'"
+          [minWidth]="80"
+          [maxWidth]="100"
+          [resizeable]="false"
+          [draggable]="false">
+          <ng-template let-row="row" let-sort="sortFn" ngx-datatable-header-template>
+            <div class="full-width cursor" (click)="sort()"># Styles</div>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'# Units'"
+          [prop]="'units'"
+          [minWidth]="80"
+          [maxWidth]="100"
+          [resizeable]="false"
+          [draggable]="false">
+          <ng-template let-row="row" let-sort="sortFn" ngx-datatable-header-template>
+            <div class="full-width cursor" (click)="sort()"># Units</div>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="''"
+          [resizeable]="false"
+          [minWidth]="140"
+          [maxWidth]="140"
+          [cellClass]="'flex justify-center'"
+          [sortable]="false"
+          [draggable]="false">
+          <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+            <ng-container *ngIf="getEditFunc(row)">
+              <button class="btn btn-complete btn-small" *ngIf="!row.orderNotificationImportedDateOnUtc"
+                      (click)="editOrder(row)"><i class="fa fa-pencil"></i></button>
+              <button class="btn btn-danger btn-small m-l-5"
+                      (click)="deleteOrder(row)"><i class="fa fa-trash"></i></button>
+            </ng-container>
+          </ng-template>
+        </ngx-datatable-column>
+      </ngx-datatable>
+    </div>
+  </perfect-scrollbar>
+  </div>
+  <ng-container *ngTemplateOutlet="paginationTop"></ng-container>
+</div>
+<ng-template #pagination>
+  <pagination-control [totalRecord]="tableData.totalRecord"
+                      *ngIf="tableData && tableData.data && tableData.data.length"
+                      [pageSize]="tableConfig.pageSize"
+                      [currentPage]="tableConfig.currentPage"
+                      (onSelectedPageSize)="onSelectedPageSize($event)"
+                      (onPageChange)="onPageChange($event)"></pagination-control>
+</ng-template>
+<ng-template #paginationTop>
+  <pagination-control [totalRecord]="tableData.totalRecord"
+                      *ngIf="tableData && tableData.data && tableData.data.length"
+                      [pageSize]="tableConfig.pageSize"
+                      [currentPage]="tableConfig.currentPage"
+                      [dropdownPosition]="'top-left'"
+                      (onSelectedPageSize)="onSelectedPageSize($event)"
+                      (onPageChange)="onPageChange($event)"></pagination-control>
+</ng-template>

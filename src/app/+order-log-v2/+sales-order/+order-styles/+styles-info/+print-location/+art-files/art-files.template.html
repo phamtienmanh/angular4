@@ -1,0 +1,122 @@
+<div class="px-3 pb-3">
+  <div class="row m-t-20" *ngIf="!isNoLabelData && !isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled">
+    <button class="btn btn-complete btn-cons m-l-5" (click)="openModal()">+ Art Files</button>
+  </div>
+  <p *ngIf="isNoLabelData" class="m-t-10">No Neck Label</p>
+  <perfect-scrollbar [config]="{suppressScrollX: false}">
+    <div class="table-wrapper" #tableWrapper *ngIf="userData.data && userData.data.length > 0">
+      <ngx-datatable #table
+                     class="material ngx-table-hover"
+                     [rows]="userData.data"
+                     [columnMode]="'force'"
+                     [footerHeight]="0"
+                     [headerHeight]="'auto'"
+                     [rowHeight]="'auto'"
+                     [externalSorting]="true"
+                     [loadingIndicator]="tableConfig.loading"
+                     [sorts]="[{prop: 'uploaded', dir: 'desc'}]"
+                     (sort)="onSort($event)">
+        <ngx-datatable-column
+          [name]="' '"
+          [prop]="'absoluteUrl'"
+          [minWidth]="60"
+          [sortable]="false"
+          [resizeable]="false"
+          [draggable]="false">
+          <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+            <img [src]="value" height="50" width="50" *ngIf="getExtension(value) === 'image'" imgZoomClick/>
+            <a [href]="value" target="_blank" *ngIf="getExtension(value) === 'pdf'">
+              <i class="fa fa-file-pdf-o fa-4x text-danger" aria-hidden="true"></i>
+            </a>
+            <a [href]="value" target="_blank" *ngIf="getExtension(value) === 'file'">
+              <i class="fa fa-file-o fa-4x" aria-hidden="true"></i>
+            </a>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'File name'"
+          [prop]="'fileName'"
+          [resizeable]="false"
+          [minWidth]="60"
+          [cellClass]="'wrap-row'"
+          [draggable]="false">
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'Description'"
+          [prop]="'description'"
+          [resizeable]="false"
+          [minWidth]="85"
+          [cellClass]="'wrap-row'"
+          [draggable]="false">
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'Size'"
+          [cellClass]="'wrap-row'"
+          [minWidth]="40"
+          [draggable]="false"
+          [resizeable]="false">
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'Uploaded'"
+          [prop]="'uploadedOnUtc'"
+          [minWidth]="80"
+          [draggable]="false"
+          [resizeable]="false">
+          <ng-template let-value="value" ngx-datatable-cell-template>
+            <span>{{value | amFromUtc | amLocal | amDateFormat: 'MM/DD/YYYY hh:mm A'}}</span>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'Type'"
+          [prop]="'artFileTypeName'"
+          [minWidth]="75"
+          [sortable]="true"
+          [resizeable]="false"
+          [draggable]="false">
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'Uploaded By'"
+          [prop]="'uploadedByUser'"
+          [minWidth]="80"
+          [sortable]="true"
+          [resizeable]="false"
+          [draggable]="false">
+        </ngx-datatable-column>
+        <!-- <ngx-datatable-column
+          [name]="'Approved?'"
+          [prop]="'isApproved'"
+          [minWidth]="80"
+          [sortable]="false"
+          [resizeable]="false"
+          [draggable]="false">
+          <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+              <div class="checkbox check-active">
+              <input type="checkbox" [checked]="value" disabled>
+              <label></label>
+              </div>
+          </ng-template>
+          </ngx-datatable-column> -->
+        <ngx-datatable-column
+          [name]="''"
+          [minWidth]="110"
+          [maxWidth]="110"
+          [sortable]="false"
+          [resizeable]="false"
+          [draggable]="false">
+          <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+            <div *ngIf="!isPageReadOnly && !isStyleReadOnly">
+              <button
+                class="btn btn-complete btn-small"
+                (click)="openModal(row)"><i class="fa fa-pencil"></i> Update
+              </button>
+              <button
+                class="btn btn-danger btn-small m-t-5"
+                (click)="deleteArtFile(row)"><i class="fa fa-trash"></i> Remove
+              </button>
+            </div>
+          </ng-template>
+        </ngx-datatable-column>
+      </ngx-datatable>
+    </div>
+  </perfect-scrollbar>
+</div>

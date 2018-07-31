@@ -1,0 +1,211 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0">Invoiced - Change Status</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <div
+    *ngIf="!frm.get('isA2000Import').value && !frm.get('isManualInvoice').value; then thenBlock else elseBlock"></div>
+  <ng-template #thenBlock>
+    <p>An A2000 sales order invoice has not been created for this style.</p>
+  </ng-template>
+  <ng-template #elseBlock>
+    <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()">
+      <div class="row">
+        <div class="col-sm-5">
+          <div class="row flex py-1"
+               [ngClass]="{'required': true}">
+            <div class="col-sm-6 control-label text-right">
+              <label>Status</label>
+            </div>
+            <div class="col-sm-6"
+                 [ngClass]="{'has-error':!frm.get('status').valid, 'disabled': isPageReadOnly}">
+              <ng-select [items]="statusData"
+                         [placeholder]="!isPageReadOnly ? 'Status' : ''"
+                         [searchable]="false" #statusSelect
+                         (focus)="onSelectFocused(statusSelect)"
+                         bindLabel="name"
+                         bindValue="id"
+                         formControlName="status"></ng-select>
+              <label class="error"
+                     *ngIf="frm.get('status').hasError('required') && !frm.get('status').pristine">
+                {{validationMessages['default'].required}}</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--<div formArrayName="listInvoiced">-->
+      <!--<div *ngFor="let invoice of listInvoiced.controls; index as i; first as first; last as last" [formGroupName]="i">-->
+      <ng-container *ngIf="frm.get('status').value !== null && frm.get('status').value !== undefined">
+        <ng-container *ngIf="frm.get('isA2000Import').value">
+          <div class="row my-2" *ngIf="frm.get('isManualInvoice').value">
+            <div class="col-12">
+              <p class="p-readonly">Sales Order Invoice:</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-5">
+              <div class="row flex py-1"
+                   [ngClass]="{'required': frm.get('formRequires').value['a2000ImportInvoicedId'].required}">
+                <div class="col-sm-6 control-label text-right">
+                  <label>Invoice #</label>
+                </div>
+                <div class="col-sm-6"
+                     [ngClass]="{'has-error':!frm.get('a2000ImportInvoicedId').valid}">
+                  <input formControlName='a2000ImportInvoicedId'
+                         type="text"
+                         [placeholder]="''"
+                         [attr.disabled]="true"
+                         class="form-control">
+                  <label class="error"
+                         *ngIf="frm.get('a2000ImportInvoicedId').hasError('required') && !frm.get('a2000ImportInvoicedId').pristine">
+                    {{validationMessages['default'].required}}</label>
+                </div>
+              </div>
+              <div class="row flex py-1"
+                   [ngClass]="{'required': frm.get('formRequires').value['a2000ImportInvoicedOnUtc'].required}">
+                <div class="col-sm-6 control-label text-right">
+                  <label>Invoice Date</label>
+                </div>
+                <div class="col-sm-6"
+                     [ngClass]="{'has-error':!frm.get('a2000ImportInvoicedOnUtc').valid}">
+                  <my-date-picker [options]="myDatePickerOptions"
+                                  #a2000ImportInvoicedPicker
+                                  formControlName="a2000ImportInvoiced"
+                                  [ngClass]="{'disabled': true}"
+                                  [disabled]="true"
+                                  (dateChanged)="onDateChangedBy($event, frm, 'a2000ImportInvoicedOnUtc')"
+                                  (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, a2000ImportInvoicedPicker)"
+                                  (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, a2000ImportInvoicedPicker, frm.get('a2000ImportInvoicedOnUtc'))"></my-date-picker>
+                  <label class="error"
+                         *ngIf="frm.get('a2000ImportInvoicedOnUtc').hasError('required') && !frm.get('a2000ImportInvoicedOnUtc').pristine">
+                    {{validationMessages['default'].required}}</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="frm.get('isRequiredManualInvoice').value">
+          <div class="row my-2" *ngIf="!frm.get('isA2000Import').value">
+            <div class="col-12">
+              <p class="p-readonly">The A2000 sales order invoice has not been created for this style. </p>
+            </div>
+          </div>
+          <hr>
+          <div class="row my-2">
+            <div class="col-12">
+              <p class="p-readonly red">This customer may require a manual invoice.</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-5">
+              <ng-container
+                *ngIf="+frm.get('status').value === taskStatus.DONE || +frm.get('status').value === taskStatus.PARTIAL">
+                <div class="row flex py-1"
+                     [ngClass]="{'required': frm.get('formRequires').value['invoicedId'].required}">
+                  <div class="col-sm-6 control-label text-right">
+                    <label>Invoice #</label>
+                  </div>
+                  <div class="col-sm-6"
+                       [ngClass]="{'has-error':!frm.get('invoicedId').valid}">
+                    <input formControlName='invoicedId'
+                           type="text"
+                           [placeholder]="!isPageReadOnly ? 'Invoice #' : ''"
+                           [attr.disabled]="isReadOnly === true ? true : null"
+                           class="form-control">
+                    <label class="error"
+                           *ngIf="frm.get('invoicedId').hasError('required') && !frm.get('invoicedId').pristine">
+                      {{validationMessages['default'].required}}</label>
+                  </div>
+                </div>
+                <div class="row flex py-1"
+                     [ngClass]="{'required': frm.get('formRequires').value['invoicedOnUtc'].required}">
+                  <div class="col-sm-6 control-label text-right">
+                    <label>Invoice Date</label>
+                  </div>
+                  <div class="col-sm-6"
+                       [ngClass]="{'has-error':!frm.get('invoicedOnUtc').valid}">
+                    <my-date-picker [options]="myDatePickerOptions"
+                                    #invoicedPicker
+                                    formControlName="invoiced"
+                                    (dateChanged)="onDateChangedBy($event, frm, 'invoicedOnUtc')"
+                                    (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, invoicedPicker)"
+                                    (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, invoicedPicker, frm.get('invoicedOnUtc'))"></my-date-picker>
+                    <label class="error"
+                           *ngIf="frm.get('invoicedOnUtc').hasError('required') && !frm.get('invoicedOnUtc').pristine">
+                      {{validationMessages['default'].required}}</label>
+                    <label class="error"
+                           *ngIf="frm.get('invoicedOnUtc').hasError('maxToday') && !frm.get('invoicedOnUtc').pristine">
+                      {{validationMessages['invoicedOnUtc'].maxLength}}</label>
+                  </div>
+                </div>
+                <!--<div class="row flex py-1"-->
+                <!--[ngClass]="{'required': frm.get('formRequires').value['folderReceivedDateOnUtc'].required}">-->
+                <!--<div class="col-sm-6 control-label text-right">-->
+                <!--<label>Folder Received Date</label>-->
+                <!--</div>-->
+                <!--<div class="col-sm-6"-->
+                <!--[ngClass]="{'has-error':!frm.get('folderReceivedDateOnUtc').valid}">-->
+                <!--<my-date-picker [options]="myDatePickerOptions"-->
+                <!--#folderReceivedPicker-->
+                <!--formControlName="folderReceivedDate"-->
+                <!--(dateChanged)="onDateChangedBy($event, frm, 'folderReceivedDateOnUtc')"-->
+                <!--(inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, folderReceivedPicker, frm.get('folderReceivedDateOnUtc'))"></my-date-picker>-->
+                <!--<label class="error"-->
+                <!--*ngIf="frm.get('folderReceivedDateOnUtc').hasError('required') && !frm.get('folderReceivedDateOnUtc').pristine">-->
+                <!--{{validationMessages['default'].required}}</label>-->
+                <!--<label class="error"-->
+                <!--*ngIf="frm.get('folderReceivedDateOnUtc').hasError('maxToday') && !frm.get('folderReceivedDateOnUtc').pristine">-->
+                <!--{{validationMessages['folderReceivedDateOnUtc'].maxLength}}</label>-->
+                <!--</div>-->
+                <!--</div>-->
+              </ng-container>
+            </div>
+            <div class="col-sm-7">
+              <div class="row flex py-1" *ngIf="styleList && styleList.length">
+                <p class="mb-0 bold">Apply to these styles:</p>
+              </div>
+              <div class="row flex py-1" *ngFor="let style of styleList; index as ii">
+                <div class="checkbox">
+                  <input type="checkbox" [id]="i + '-' + ii + '-style'"
+                         [disabled]="style.orderDetailId === orderDetailId"
+                         [checked]="activeStylesChanges(frm, style.orderDetailId)"
+                         (change)="onSelectStyle(frm, style.orderDetailId)">
+                  <label [for]="i + '-' + ii + '-style'">
+                    {{getLabelString(style.styleInfo ? style.styleInfo : style)}}
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </ng-container>
+      <!--<div class="row flex justify-content-end pb-2 border-bottom-ccc mx-1 my-2">-->
+      <!--<button type="button" class="btn btn-danger" (click)="deleteInvoice(i)"-->
+      <!--*ngIf="listInvoiced.controls.length > 1">-->
+      <!--Delete This Invoice-->
+      <!--</button>-->
+      <!--</div>-->
+      <!--</div>-->
+      <!--</div>-->
+      <!--<div class="row flex justify-content-end mx-1">-->
+      <!--<button class="btn btn-complete" type="button" (click)="addInvoice()">-->
+      <!--+ Add an Invoice-->
+      <!--</button>-->
+      <!--</div>-->
+    </form>
+  </ng-template>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-complete" *ngIf="frm.get('isManualInvoice').value"
+          (click)="onSubmitForm()">
+    Save
+  </button>
+  <button class="btn btn-default"
+          (click)="activeModal.dismiss()">
+    Cancel
+  </button>
+</div>
+

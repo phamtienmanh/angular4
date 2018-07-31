@@ -1,0 +1,38 @@
+config-finishing-processes {
+  .style-table {
+    margin: 0;
+    input {
+      height: 18px !important;
+      border: none !important;
+      border-bottom: 1px solid #80bdff !important;
+    }
+    td, th {
+      background: #fff !important;
+      padding: 0.2em 0 !important;
+      color: #2c2c2c !important;
+      text-align: center !important;
+      font-size: inherit;
+      border: 1px solid hsla(0, 0%, 90%, .8);
+      min-width: 30px;
+    }
+    tbody {
+      border-top: 1px solid hsla(0, 0%, 90%, .8);
+    }
+    th {
+      font-weight: 300 !important;
+      background-color: #f1f1f1 !important;
+      &:first-child {
+        padding-left: 0 !important;
+      }
+    }
+  }
+  .runTimeInput {
+    width: 50px;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    font-size: 13px;
+    color: #626262;
+    text-align: center;
+  }
+}

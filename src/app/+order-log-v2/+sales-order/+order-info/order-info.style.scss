@@ -1,0 +1,83 @@
+order-info {
+  @media (max-width: 1400px){
+    .custom-radio {
+      padding-top: 0 !important;
+    }
+  }
+
+  .checkbox {
+    margin-top: 0 !important;
+    label {
+      padding-left: 0 !important;
+      margin-right: 0 !important;
+      padding-top: 2px;
+      &:after {
+        top: 1px !important;
+      }
+    }
+  }
+  .radio {
+    margin-top: -3px !important;
+    label {
+      margin-bottom: .5rem !important;
+    }
+  }
+  .selectiongroup {
+    width: 100%;
+  }
+  .btncleardisabled {
+    display: none;
+  }
+  .btnpickerdisabled {
+    display: none;
+  }
+  .link-upload {
+    position: absolute;
+    top: 5px;
+  }
+  .input-group .form-control:not(:last-child), .input-group-addon:not(:last-child), .input-group-btn:not(:last-child) > .btn, .input-group-btn:not(:last-child) > .btn-group > .btn, .input-group-btn:not(:last-child) > .dropdown-toggle, .input-group-btn:not(:first-child) > .btn:not(:last-child):not(.dropdown-toggle), .input-group-btn:not(:first-child) > .btn-group:not(:last-child) > .btn {
+    border-right: 0 !important;
+  }
+  .input-group .input-group-addon {
+    background: white !important;
+    border-color: #ccc;
+    color: #626262 !important;
+  }
+
+  .nowrap-absolute {
+    white-space: nowrap;
+    position: absolute;
+    right: 0;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .general-title {
+    border-bottom: 1px solid #626262;
+    span {
+      font-size: 14px;
+    }
+  }
+
+  .custom-radio-label {
+    padding-top: 3px;
+    text-align: right;
+    label {
+      margin-bottom: 0 !important;
+    }
+  }
+
+  .custom-radio {
+    width: 25px;
+    padding-left: 5px;
+    padding-top: 3px;
+  }
+
+  my-date-picker.red {
+    .selection {
+      color: red !important;
+    }
+  }
+}

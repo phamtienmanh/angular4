@@ -1,0 +1,26 @@
+<create-or-update-role (onSwitchTab)="onAppScroll($event)">
+  <button class="btn btn-complete btn-cons pull-left m-r-5" (click)="onSubmit()" *ngIf="!isPageReadOnly">
+    Save
+  </button>
+  <div class="sticky-btn" *ngIf="!isPageReadOnly && isShowStickyBtn">
+    <button class="btn btn-complete btn-cons" (click)="onSubmit()">
+      Save
+    </button>
+  </div>
+  <!--<button class="btn btn-default btn-cons pull-left" type="button" (click)="cancel()">-->
+    <!--Cancel-->
+  <!--</button>-->
+</create-or-update-role>
+
+<!--Show in small screen-->
+<div class="row justify-center button-group-small m-t-15" *ngIf="!isPageReadOnly">
+  <div class="col-sm-2 col-xl-3"></div>
+  <div class="col-sm-9">
+    <button class="btn btn-complete btn-cons pull-left m-r-5" (click)="onSubmit()">
+      Save
+    </button>
+    <!--<button class="btn btn-default btn-cons pull-left" type="button" (click)="cancel()">-->
+      <!--Cancel-->
+    <!--</button>-->
+  </div>
+</div>

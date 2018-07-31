@@ -1,0 +1,106 @@
+<div class="modal-header m-b-10">
+  <h4 class="modal-title">
+    {{!finishingProcess ? 'Configure Scheduled Units' :
+    ('Configure Scheduled Units – Process # ' + finishingProcess + ' ' + processName)}}
+  </h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.close(false)">
+    <span aria-hidden="true">×</span>
+  </button>
+</div>
+
+<div class="modal-body">
+  <perfect-scrollbar [config]="{suppressScrollX: false}" id="perfect-scrollbar">
+    <div class="table-wrapper" #tableWrapper>
+      <!-- QTY SECTION -->
+      <table class="table table-sm style-table">
+        <thead>
+        <tr>
+          <th></th>
+          <th *ngFor="let sizeSelected of tableData[sizesList[mainSizeId].prop]">
+            {{sizeSelected.name}}
+          </th>
+          <th>Total</th>
+        </tr>
+        </thead>
+        <tbody>
+        <ng-template ngFor let-row [ngForOf]="sizesList">
+          <tr *ngIf="row.display"
+            [ngClass]="row.class">
+            <td>{{row.name}}</td>
+            <td
+              *ngFor="let cell of tableData[row.prop]">
+              <div class="full-width text-center">
+                <span>{{cell.qty}}</span>
+              </div>
+            </td>
+            <td>{{tableData[row.prop]?.totalQty}}</td>
+          </tr>
+        </ng-template>
+
+        <tr class="break-row"></tr>
+
+        <!-- SCHEDULED SECTION -->
+        <tr class="last-row">
+          <td>Scheduled Qtys<br/>(other Jobs)</td>
+          <td *ngFor="let scheduled of tableData.schedOtherJobsSizes">
+            <div class="full-width text-center">
+              <span>{{scheduled.qty}}</span>
+            </div>
+          </td>
+          <td>{{tableData.schedOtherJobsSizes?.totalQty}}</td>
+        </tr>
+        <tr>
+          <td>Schedule Qtys<br/>(this Job)</td>
+          <td *ngFor="let scheduled of tableData[sizesList[5].prop]; let sizeIndex = index">
+            <div class="full-width text-center" (mousedown)="onDoubleClicked($event, 'sched', sizeIndex)" #inputParent>
+              <span *ngIf="!editing[sizeIndex + '-sched']" [ngClass]="{'p-link': !isPageReadOnly}">{{scheduled.qty}}</span>
+              <input #inputQty [id]="sizeIndex + '-sched'" [focusOnInit]="true"
+                    IntegerNumber
+                    (blur)="onUpdateValue($event, sizesList[5].prop, sizeIndex)"
+                    (keydown)="onKeydown($event, sizesList[5].prop, 'sched', sizeIndex)"
+                    (keyup)="invalidQty(sizeIndex)"
+                    *ngIf="editing[sizeIndex + '-sched'] && !isPageReadOnly"
+                    type="text"
+                    [value]="scheduled.qty"
+                    class="text-center"/>
+              <p class="text-danger" *ngIf="invalidQty(sizeIndex)">
+                <span *ngIf="!isShortage">
+                  Must be {{this.tableDataOrigin[sizesList[mainSizeId].prop][sizeIndex].qty - this.tableDataOrigin[sizesList[4].prop][sizeIndex].qty}} or less!
+                </span>
+                <span *ngIf="isShortage">
+                  Must be {{this.tableDataOrigin[sizesList[5].prop][sizeIndex].qty}} or less!
+                </span>
+              </p>
+            </div>
+          </td>
+          <td>{{tableData.schedThisJobSizes?.totalQty}}</td>
+        </tr>
+
+        <tr class="break-row"></tr>
+
+        <!-- UNSCHEDULED SECTION -->
+        <tr class="last-row">
+          <td>Unscheduled Qtys</td>
+          <td *ngFor="let unscheduled of tableData.unscheduledQtys">
+            <div class="full-width text-center">
+              <span>{{unscheduled}}</span>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </perfect-scrollbar>
+</div>
+
+<div class="modal-footer">
+  <button class="btn btn-complete"
+          *ngIf="!isPageReadOnly"
+          (click)="onSubmit()">
+    Save
+  </button>
+  <button class="btn btn-default"
+          (click)="activeModal.close(false)">
+    Cancel
+  </button>
+</div>

@@ -1,0 +1,90 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0">
+    <span>Add Change</span>
+  </h4>
+  <button type="button" class="close cursor" aria-label="Close"
+          (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <div>
+    <div class="row" [ngClass]="{'required': true}">
+      <div class="col-sm-4 control-label text-right">
+        <label>Change</label>
+      </div>
+      <div class="col-sm-6">
+        <ng-select [items]="changeList" #changeListSelect
+                   [virtualScroll]="true"
+                   [addTag]="true"
+                   [placeholder]="'Change'"
+                   (focus)="onSelectFocused(changeListSelect)"
+                   (add)="jobChange.changeJobId = $event.id"
+                   (clear)="jobChange.changeJobId = null"
+                   bindLabel="name"
+                   bindValue="name"
+                   [(ngModel)]="jobChange.changeJobName"></ng-select>
+        <label class="error"
+               *ngIf="isSubmitted && this.jobChange.changeJobName === ''">Job Change is required.</label>
+      </div>
+    </div>
+    <div class="row m-t-5" [ngClass]="{'required': true}">
+      <div class="col-sm-4 control-label text-right">
+        <label>Process Time</label>
+      </div>
+      <div class="col-sm-6">
+        <input type="text" maxlength="5"
+               (change)="convertTime($event.target.value)"
+               [placeholder]="'00:00'"
+               [(ngModel)]="jobChange.timeConvert"
+               class="form-control"/>
+        <label class="error"
+               *ngIf="isSubmitted && this.jobChange.processTime === 0">You must enter a time in hh:mm format.</label>
+      </div>
+    </div>
+    <div class="row m-t-5" [ngClass]="{'required': true}">
+      <div class="col-sm-4 control-label text-right">
+        <label>Location</label>
+      </div>
+      <div class="col-sm-6">
+        <ng-select [items]="locationList" #locationListSelect
+                   [virtualScroll]="true"
+                   [placeholder]="'Location'"
+                   (focus)="onSelectFocused(locationListSelect)"
+                   (add)="jobChange.locationName = $event.name"
+                   (clear)="jobChange.locationName = null"
+                   bindLabel="name"
+                   bindValue="id"
+                   [(ngModel)]="jobChange.printLocationId"></ng-select>
+        <label class="error"
+               *ngIf="isSubmitted && this.jobChange.printLocationId === ''">Location is required.</label>
+      </div>
+    </div>
+    <div class="row m-t-5">
+      <div class="col-sm-4 control-label text-right">
+        <label>Comment</label>
+      </div>
+      <div class="col-sm-6">
+        <textarea type="text"
+                  [(ngModel)]="jobChange.comment"
+                  [placeholder]="'Comment'"
+                  style="min-height: 80px !important;"
+                  class="form-control"></textarea>
+      </div>
+    </div>
+    <div class="row m-t-5">
+      <div class="col-sm-4"></div>
+      <div class="col-sm-6 text-right">
+        <button class="btn btn-complete"
+                (click)="onSubmit()">
+          Save
+        </button>
+        <button class="btn btn-default"
+                (click)="onCancel()">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+

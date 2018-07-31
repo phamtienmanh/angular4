@@ -1,0 +1,9 @@
+confirm-reorder {
+    .datatable-body-cell-label {
+        width: 100%;
+        text-align: center;
+    }
+    .checkbox label::after {
+        left: 0.3px;
+    }
+}

@@ -1,0 +1,118 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0 nowrap">Phys. Sample Ex-Factory Date (PP) - Change Status</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()">
+    <lead-eta [rowDetail]="rowDetail" [isPageReadOnly]="isLeadTimeReadOnly || isPageReadOnly"></lead-eta>
+    <div class="row flex py-1"
+         [ngClass]="{'required': frm.get('formRequires').value['physSampleExFactoryDatePpStatus'].required}">
+      <div class="col-7">
+        <div class="row">
+          <div class="col-6 control-label text-right">
+            <label>Status</label>
+          </div>
+          <div class="col-6"
+               [ngClass]="{'has-error': !frm.get('physSampleExFactoryDatePpStatus').valid,
+                    'disabled': isPageReadOnly}">
+            <ng-select [items]="statusData"
+                       [placeholder]="!isPageReadOnly ? 'Status' : ''"
+                       [searchable]="false" #statusSelect
+                       (focus)="onSelectFocused(statusSelect)"
+                       bindLabel="name"
+                       bindValue="id"
+                       formControlName="physSampleExFactoryDatePpStatus">
+            </ng-select>
+            <label class="error"
+                   *ngIf="frm.get('physSampleExFactoryDatePpStatus').hasError('required') && !frm.get('physSampleExFactoryDatePpStatus').pristine">
+              {{validationMessages['default'].required}}</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ng-container *ngIf="frm.get('physSampleExFactoryDatePpStatus').value && frm.get('physSampleExFactoryDatePpStatus').value !== taskStatus.BLANK">
+      <div class="row py-1">
+        <div class="col-7">
+          <ng-container *ngIf="frm.get('physSampleExFactoryDatePpStatus').value === taskStatus.DONE">
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['physSampleExFactoryDatePpCarrierId'].required}">
+              <div class="col-6 control-label text-right">
+                <label class="nowrap">Carrier</label>
+              </div>
+              <div class="col-6"
+                   [ngClass]="{'has-error':!frm.get('physSampleExFactoryDatePpCarrierId').valid,
+                    'disabled': isPageReadOnly}">
+                <ng-select [items]="shippingCarrier"
+                           [placeholder]="!isPageReadOnly ? 'Carrier' : ''"
+                           [searchable]="false" #carrierSelect
+                           (focus)="onSelectFocused(carrierSelect)"
+                           bindLabel="name"
+                           bindValue="id"
+                           formControlName="physSampleExFactoryDatePpCarrierId"></ng-select>
+                <label class="error"
+                       *ngIf="frm.get('physSampleExFactoryDatePpCarrierId').hasError('required') && !frm.get('physSampleExFactoryDatePpCarrierId').pristine">
+                  {{validationMessages['default'].required}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['physSampleExFactoryDatePpTracking'].required}">
+              <div class="col-6 control-label text-right">
+                <label class="nowrap">Tracking #</label>
+              </div>
+              <div class="col-6"
+                   [ngClass]="{'has-error':!frm.get('physSampleExFactoryDatePpTracking').valid}">
+                <input formControlName='physSampleExFactoryDatePpTracking'
+                       type="text"
+                       [attr.disabled]="isPageReadOnly ? true : null"
+                       [placeholder]="!isPageReadOnly ? 'Tracking #' : ''"
+                       class="form-control">
+                <label class="error"
+                       *ngIf="frm.get('physSampleExFactoryDatePpTracking').hasError('required') && !frm.get('physSampleExFactoryDatePpTracking').pristine">
+                  {{validationMessages['default'].required}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['physSampleExFactoryDatePpOnUtc'].required}">
+              <div class="col-6 control-label text-right">
+                <label class="nowrap">Date Shipped</label>
+              </div>
+              <div class="col-6"
+                   [ngClass]="{'has-error':!frm.get('physSampleExFactoryDatePpOnUtc').valid}">
+                <my-date-picker class="flex" [options]="myTodayPickerOptions"
+                                #physSampleExFactoryDatePpPicker
+                                formControlName='physSampleExFactoryDatePp'
+                                [ngClass]="{'disabled': isPageReadOnly}"
+                                [disabled]="isPageReadOnly"
+                                (dateChanged)="onDateChangedBy($event, 'physSampleExFactoryDatePpOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, physSampleExFactoryDatePpPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, physSampleExFactoryDatePpPicker, frm.get('physSampleExFactoryDatePpOnUtc'))"></my-date-picker>
+                <label class="error"
+                       *ngIf="frm.get('physSampleExFactoryDatePpOnUtc').hasError('required') && !frm.get('physSampleExFactoryDatePpOnUtc').pristine">
+                  {{validationMessages['default'].required}}</label>
+                <label class="error"
+                       *ngIf="frm.get('physSampleExFactoryDatePpOnUtc').hasError('maxDate') && !frm.get('physSampleExFactoryDatePpOnUtc').pristine">
+                  {{validationMessages['default'].maxLength}}
+                </label>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </ng-container>
+  </form>
+</div>
+<div class="modal-footer">
+  <ng-container *ngIf="!isPageReadOnly">
+    <button class="btn btn-complete"
+            (click)="onSubmitForm()">
+      Save
+    </button>
+  </ng-container>
+  <button class="btn btn-default"
+          (click)="activeModal.dismiss()">
+    Cancel
+  </button>
+</div>
+

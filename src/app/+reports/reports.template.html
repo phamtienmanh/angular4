@@ -1,0 +1,163 @@
+<breadcrumb></breadcrumb>
+<div class="panel panel-transparent py-3">
+  <div class="py-2" [hidden]="reportsData.data && reportsData.data.length">
+    <span class="font-size-16">No reports.</span>
+  </div>
+  <div class="py-2" [hidden]="!reportsData.data || !reportsData.data.length">
+    <div class="ngx-datatable material" id="header"></div>
+    <ng-container *ngTemplateOutlet="pagination"></ng-container>
+    <perfect-scrollbar [config]="{suppressScrollX: false}">
+      <div class="table-wrapper" #tableWrapper id="tableWrapper">
+        <ngx-datatable #reportsTable
+                       class="material ngx-table-hover"
+                       [rows]="reportsData.data"
+                       [columnMode]="'force'"
+                       [footerHeight]="0"
+                       [headerHeight]="'auto'"
+                       [rowHeight]="'auto'"
+                       [externalSorting]="true"
+                       [loadingIndicator]="tableConfig.loading"
+                       [sorts]="[{prop: 'name', dir: 'asc'}]"
+                       (sort)="onSort($event)">
+          <ngx-datatable-column [name]="'Name'"
+                                [prop]="'name'"
+                                [width]="120"
+                                [minWidth]="120"
+                                [resizeable]="false"
+                                [draggable]="false">
+          </ngx-datatable-column>
+          <ngx-datatable-column [name]="'Emails'"
+                                [prop]="'emailDisplay'"
+                                [width]="260"
+                                [minWidth]="260"
+                                [resizeable]="false"
+                                [draggable]="false">
+          </ngx-datatable-column>
+          <ngx-datatable-column [name]="'Title'"
+                                [prop]="'title'"
+                                [width]="140"
+                                [minWidth]="140"
+                                [maxWidth]="180"
+                                [resizeable]="false"
+                                [draggable]="false">
+          </ngx-datatable-column>
+          <ngx-datatable-column [name]="'Email Subject'"
+                                [prop]="'emailSubject'"
+                                [width]="120"
+                                [minWidth]="120"
+                                [resizeable]="false"
+                                [draggable]="false">
+          </ngx-datatable-column>
+          <ngx-datatable-column [name]="'Users'"
+                                [prop]="'users'"
+                                [width]="120"
+                                [minWidth]="120"
+                                [resizeable]="false"
+                                [draggable]="false">
+          </ngx-datatable-column>
+          <ngx-datatable-column [name]="'Roles'"
+                                [prop]="'roles'"
+                                [width]="100"
+                                [minWidth]="100"
+                                [resizeable]="false"
+                                [draggable]="false">
+          </ngx-datatable-column>
+          <ngx-datatable-column [name]="'Report Scheduler'"
+                                [prop]="'reportScheduler'"
+                                [width]="360"
+                                [minWidth]="360"
+                                [maxWidth]="360"
+                                [resizeable]="false"
+                                [draggable]="false">
+            <ng-template let-row="row" let-sort="sortFn" ngx-datatable-header-template>
+              <div class="full-width center cursor" (click)="sort()">Report Scheduler</div>
+            </ng-template>
+            <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+              <button class="btn btn-complete m-b-5 m-r-5 btn-xs"
+                      [disabled]="isPageReadOnly"
+                      (click)="editSchedule(row.id, value)">
+                <span *ngIf="value.recurValue">
+                  Every {{value.recurValue}} {{recurValues[value.recurType]}}
+                {{value.startedDateOnUtc ? (' starting on ' + (value.startedDateOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A')) : ''}}
+                </span>
+                <span *ngIf="!value.recurValue">
+                  Create Schedule
+                </span>
+              </button>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column [name]="'Last Generated'"
+                                [prop]="'reportScheduler'"
+                                [width]="120"
+                                [minWidth]="120"
+                                [maxWidth]="120"
+                                [resizeable]="false"
+                                [draggable]="false">
+            <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+              <p class="center p-link" *ngIf="value.lastSentOnUtc">
+                {{value.lastSentOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+              </p>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column
+            [name]="'Active'"
+            [prop]="'active'"
+            [width]="60"
+            [minWidth]="60"
+            [maxWidth]="60"
+            [cellClass]="'flex justify-center'"
+            [sortable]="false"
+            [canAutoResize]="false"
+            [resizeable]="false"
+            [draggable]="false">
+            <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+              <div class="checkbox check-active">
+                <input type="checkbox" [checked]="value" disabled>
+                <label></label>
+              </div>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column *ngIf="!isPageReadOnly"
+            [name]="' '"
+            [width]="120"
+            [minWidth]="120"
+            [maxWidth]="120"
+            [draggable]="false"
+            [cellClass]="'flex justify-center'"
+            [resizeable]="false">
+            <ng-template ngx-datatable-cell-template let-row="row">
+              <div class="relative">
+                <div class="text-center mt-1">
+                  <button class="btn btn-complete btn-small"
+                          (click)="editReport(row)"><i class="fa fa-pencil"></i></button>
+                  <button class="btn btn-success btn-small m-l-5"
+                          (click)="generateReport(row.id)"><i class="fa fa-file"></i></button>
+                  <!--<button class="btn btn-danger btn-small m-l-5"-->
+                          <!--(click)="deleteReport(row)"><i class="fa fa-trash"></i></button>-->
+                </div>
+              </div>
+            </ng-template>
+          </ngx-datatable-column>
+        </ngx-datatable>
+      </div>
+    </perfect-scrollbar>
+    <ng-container *ngTemplateOutlet="paginationTop"></ng-container>
+  </div>
+  <ng-template #pagination>
+    <pagination-control [totalRecord]="reportsData.totalRecord" *ngIf="reportsData.data && reportsData.data.length"
+                        [pageName]="'reports'"
+                        [pageSize]="tableConfig.pageSize"
+                        [currentPage]="tableConfig.currentPage"
+                        (onSelectedPageSize)="onSelectedPageSize($event)"
+                        (onPageChange)="onPageChange($event)"></pagination-control>
+  </ng-template>
+  <ng-template #paginationTop>
+    <pagination-control [totalRecord]="reportsData.totalRecord" *ngIf="reportsData.data && reportsData.data.length"
+                        [pageName]="'reports'"
+                        [pageSize]="tableConfig.pageSize"
+                        [currentPage]="tableConfig.currentPage"
+                        [dropdownPosition]="'top-left'"
+                        (onSelectedPageSize)="onSelectedPageSize($event)"
+                        (onPageChange)="onPageChange($event)"></pagination-control>
+  </ng-template>
+</div>

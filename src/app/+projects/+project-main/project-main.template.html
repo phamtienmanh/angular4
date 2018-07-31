@@ -1,0 +1,232 @@
+<div class="panel panel-transparent" id="projectTable">
+  <project-main-filter (onUpdateFilter)="onUpdateFilter($event)"
+                       (onFilter)="onFilter($event)"></project-main-filter>
+  <div class="row mt-3" *ngIf="isProjectManager">
+    <div class="col-sm-12 col-md-5 col-lg-6 m-b-10">
+      <div class="pull-left">
+        <button class="btn btn-complete btn-cons" (click)="goToProjectInfo()">New Project</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="py-2" *ngIf="projectsData.data && !projectsData.data.length">
+    <span class="font-size-16">{{!isFilter ? 'You do not have rights to view any projects.' : 'No projects match the current selections.'}}</span>
+  </div>
+  <div class="py-2" [hidden]="!projectsData.data || !projectsData.data.length">
+    <div class="ngx-datatable material" id="header"
+         [ngStyle]="myConfigStyleHeader"></div>
+    <ng-container *ngTemplateOutlet="pagination"></ng-container>
+    <perfect-scrollbar [config]="{suppressScrollX: false}">
+      <div class="table-wrapper" #tableWrapper>
+        <ngx-datatable #projectTable
+                       class="material ngx-table-hover"
+                       [rows]="projectsData.data"
+                       [columnMode]="'force'"
+                       [footerHeight]="0"
+                       [headerHeight]="'auto'"
+                       [rowHeight]="'auto'"
+                       [externalSorting]="true"
+                       [loadingIndicator]="tableConfig.loading"
+                       (activate)="onActivate($event)"
+                       [sorts]="[{prop: 'projectName', dir: 'asc'}]"
+                       (sort)="onSort($event)">
+          <ngx-datatable-column
+            [name]="'Project Name'"
+            [prop]="'name'"
+            [resizeable]="false"
+            [width]="125"
+            [minWidth]="125"
+            [draggable]="false">
+            <ng-template let-row="row" let-sort="sortFn" ngx-datatable-header-template>
+              <div class="center cursor" (click)="sort()">Project Name</div>
+            </ng-template>
+            <ng-template ngx-datatable-cell-template let-row="row">
+              <ng-container *ngIf="isViewProject(row); else normalTxt">
+                <div class="p-link" (click)="goToProjectInfo(row.id)">
+                  {{row.name}}
+                </div>
+              </ng-container>
+              <ng-template #normalTxt>
+                {{row.name}}
+              </ng-template>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column
+            [name]="'Retailer'"
+            [prop]="'retailerName'"
+            [width]="100"
+            [minWidth]="100"
+            [draggable]="false"
+            [resizeable]="false">
+            <ng-template let-row="row" let-sort="sortFn" ngx-datatable-header-template>
+              <div class="center cursor" (click)="sort()">Retailer</div>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column
+            [name]="'# Products (Priority)'"
+            [prop]="'totalProductsPrimary'"
+            [width]="70"
+            [minWidth]="70"
+            [draggable]="false"
+            [resizeable]="false">
+            <ng-template let-row="row" let-sort="sortFn" ngx-datatable-header-template>
+              <div class="center cursor" (click)="sort()"># Products<br>(Priority)</div>
+            </ng-template>
+            <ng-template ngx-datatable-cell-template let-row="row">
+              <ng-container *ngIf="isViewProject(row); else normalTxt2">
+                <div class="p-link" (click)="goToProductPrimary(row.id)">
+                  {{row.totalProductsPrimary}}
+                </div>
+              </ng-container>
+              <ng-template #normalTxt2>
+                {{row.totalProductsPrimary}}
+              </ng-template>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column
+            [name]="'# Products (Secondary)'"
+            [prop]="'totalProductsSecondary'"
+            [width]="75"
+            [minWidth]="75"
+            [draggable]="false"
+            [resizeable]="false">
+            <ng-template let-row="row" let-sort="sortFn" ngx-datatable-header-template>
+              <div class="center cursor" (click)="sort()"># Products<br>(Secondary)</div>
+            </ng-template>
+            <ng-template ngx-datatable-cell-template let-row="row">
+              <ng-container *ngIf="isViewProject(row); else normalTxt3">
+                <div class="p-link" (click)="goToProductSecondary(row.id)">
+                  {{row.totalProductsSecondary}}
+                </div>
+              </ng-container>
+              <ng-template #normalTxt3>
+                {{row.totalProductsSecondary}}
+              </ng-template>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column
+            [name]="'x-Factory Date'"
+            [prop]="'xFactoryDate'"
+            [width]="125"
+            [minWidth]="125"
+            [draggable]="false"
+            [resizeable]="false">
+            <ng-template ngx-datatable-cell-template let-row="row" let-date="row.xFactoryDate">
+              <div>
+                <span *ngIf="date.etaDateMinOnUtc">
+                  {{date.etaDateMinOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+                <span *ngIf="date.etaDateMaxOnUtc && date.etaDateMaxOnUtc !== date.etaDateMinOnUtc">
+                  - {{date.etaDateMaxOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+              </div>
+              <div *ngIf="date.doneDateMaxOnUtc" class="m-t-5">
+                <span>Done: {{row.doneDateMaxOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+              </div>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column
+            [name]="'Ready to Ship @ 3PL'"
+            [prop]="'readyRoShip3PL'"
+            [width]="125"
+            [minWidth]="125"
+            [draggable]="false"
+            [resizeable]="false">
+            <ng-template let-row="row" let-sort="sortFn" ngx-datatable-header-template>
+              <div class="center cursor" (click)="sort()">Ready to<br>Ship @ 3PL</div>
+            </ng-template>
+            <ng-template ngx-datatable-cell-template let-row="row" let-date="row.readyToShip3Pl">
+              <div>
+                <span *ngIf="date.etaDateMinOnUtc">
+                  {{date.etaDateMinOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+                <span *ngIf="date.etaDateMaxOnUtc && date.etaDateMaxOnUtc !== date.etaDateMinOnUtc">
+                  - {{date.etaDateMaxOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+              </div>
+              <div *ngIf="date.doneDateMaxOnUtc" class="m-t-5">
+                <span>Done: {{date.doneDateMaxOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+              </div>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column
+            [name]="'In DC/Store Date'"
+            [prop]="'inDCStoreDate'"
+            [width]="125"
+            [minWidth]="125"
+            [draggable]="false"
+            [cellClass]="'flex justify-center'"
+            [resizeable]="false">
+            <ng-template let-row="row" let-sort="sortFn" ngx-datatable-header-template>
+              <div class="center cursor" (click)="sort()">In DC/Store Date</div>
+            </ng-template>
+            <ng-template ngx-datatable-cell-template let-row="row">
+              <div *ngIf="row.inDcStoreDateOnUtc">
+                <span>{{row.inDcStoreDateOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+              </div>
+              <div *ngIf="row.inDcStoreDoneDateOnUtc" class="m-t-5">
+                <span>Done: {{row.inDcStoreDoneDateOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+              </div>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column
+            [name]="'Project Managers'"
+            [prop]="'projectManagerNames'"
+            [width]="125"
+            [minWidth]="125"
+            [draggable]="false"
+            [cellClass]="'flex justify-center'"
+            [resizeable]="false">
+            <ng-template let-row="row" let-sort="sortFn" ngx-datatable-header-template>
+              <div class="center cursor" (click)="sort()">Project Managers</div>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column *ngIf="isProjectManager"
+                                [name]="'Can Edit'"
+                                [prop]="'projectEditorNames'"
+                                [width]="100"
+                                [minWidth]="100"
+                                [draggable]="false"
+                                [resizeable]="false">
+          </ngx-datatable-column>
+          <ngx-datatable-column *ngIf="isProjectManager"
+                                [name]="'Can View'"
+                                [prop]="'projectViewerNames'"
+                                [width]="100"
+                                [minWidth]="100"
+                                [draggable]="false"
+                                [resizeable]="false">
+          </ngx-datatable-column>
+          <ngx-datatable-column *ngIf="isProjectManager"
+                                [name]="''"
+                                [minWidth]="60"
+                                [sortable]="false"
+                                [resizeable]="false"
+                                [cellClass]="'centerBtn'"
+                                [draggable]="false">
+            <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+              <button class="btn btn-danger btn-small"
+                      (click)="deleteProject(row)"><i class="fa fa-trash"></i></button>
+            </ng-template>
+          </ngx-datatable-column>
+        </ngx-datatable>
+      </div>
+    </perfect-scrollbar>
+    <ng-container *ngTemplateOutlet="paginationTop"></ng-container>
+  </div>
+  <ng-template #pagination>
+    <pagination-control [totalRecord]="projectsData.totalRecord"
+                        *ngIf="projectsData.data && projectsData.data.length"
+                        [pageName]="'projectMain'"
+                        [pageSize]="tableConfig.pageSize"
+                        [currentPage]="tableConfig.currentPage"
+                        (onSelectedPageSize)="onSelectedPageSize($event)"
+                        (onPageChange)="onPageChange($event)"></pagination-control>
+  </ng-template>
+  <ng-template #paginationTop>
+    <pagination-control [totalRecord]="projectsData.totalRecord"
+                        *ngIf="projectsData.data && projectsData.data.length"
+                        [pageName]="'projectMain'"
+                        [pageSize]="tableConfig.pageSize"
+                        [currentPage]="tableConfig.currentPage"
+                        [dropdownPosition]="'top-left'"
+                        (onSelectedPageSize)="onSelectedPageSize($event)"
+                        (onPageChange)="onPageChange($event)"></pagination-control>
+  </ng-template>
+</div>

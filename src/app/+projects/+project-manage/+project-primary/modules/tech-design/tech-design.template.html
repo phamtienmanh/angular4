@@ -1,0 +1,133 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0 nowrap">Tech Design Review Date (PP) - Change Status</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()">
+    <lead-eta [rowDetail]="rowDetail" [isPageReadOnly]="isPageReadOnly"></lead-eta>
+    <div class="row flex py-1"
+         [ngClass]="{'required': frm.get('formRequires').value['techDesignReviewDatePpStatus'].required}">
+      <div class="col-7">
+        <div class="row">
+          <div class="col-6 control-label text-right">
+            <label>Status</label>
+          </div>
+          <div class="col-6"
+               [ngClass]="{'has-error': !frm.get('techDesignReviewDatePpStatus').valid,
+                    'disabled': isPageReadOnly}">
+            <ng-select [items]="statusData"
+                       [placeholder]="!isPageReadOnly ? 'Status' : ''"
+                       [searchable]="false" #statusSelect
+                       (focus)="onSelectFocused(statusSelect)"
+                       bindLabel="name"
+                       bindValue="id"
+                       formControlName="techDesignReviewDatePpStatus">
+            </ng-select>
+            <label class="error"
+                   *ngIf="frm.get('techDesignReviewDatePpStatus').hasError('required') && !frm.get('techDesignReviewDatePpStatus').pristine">
+              {{validationMessages['default'].required}}</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ng-container *ngIf="frm.get('techDesignReviewDatePpStatus').value && frm.get('techDesignReviewDatePpStatus').value !== taskStatus.BLANK">
+      <div class="row py-1">
+        <div class="col-7">
+          <ng-container *ngIf="frm.get('techDesignReviewDatePpStatus').value === taskStatus.APPROVED">
+            <ng-container *ngTemplateOutlet="approvedDateField"></ng-container>
+          </ng-container>
+          <ng-container *ngIf="frm.get('techDesignReviewDatePpStatus').value === taskStatus.APPROVEDWCHANGES">
+            <ng-container *ngTemplateOutlet="approvedDateField"></ng-container>
+            <ng-container *ngTemplateOutlet="commentField"></ng-container>
+          </ng-container>
+          <ng-container *ngIf="frm.get('techDesignReviewDatePpStatus').value === taskStatus.REJECTED">
+            <ng-container *ngTemplateOutlet="rejectedDateField"></ng-container>
+            <ng-container *ngTemplateOutlet="commentField"></ng-container>
+          </ng-container>
+          <ng-template #approvedDateField>
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['techDesignReviewDatePpDateApprovedOnUtc'].required}">
+              <div class="col-6 control-label text-right">
+                <label class="nowrap">Date Approved</label>
+              </div>
+              <div class="col-6"
+                   [ngClass]="{'has-error':!frm.get('techDesignReviewDatePpDateApprovedOnUtc').valid}">
+                <my-date-picker class="flex" [options]="myTodayPickerOptions"
+                                #techDesignReviewDatePpDateApprovedPicker
+                                formControlName='techDesignReviewDatePpDateApproved'
+                                [ngClass]="{'disabled': isPageReadOnly}"
+                                [disabled]="isPageReadOnly"
+                                (dateChanged)="onDateChangedBy($event, 'techDesignReviewDatePpDateApprovedOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, techDesignReviewDatePpDateApprovedPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, techDesignReviewDatePpDateApprovedPicker, frm.get('techDesignReviewDatePpDateApprovedOnUtc'))"></my-date-picker>
+                <label class="error"
+                       *ngIf="frm.get('techDesignReviewDatePpDateApprovedOnUtc').hasError('required') && !frm.get('techDesignReviewDatePpDateApprovedOnUtc').pristine">
+                  {{validationMessages['default'].required}}</label>
+                <label class="error"
+                       *ngIf="frm.get('techDesignReviewDatePpDateApprovedOnUtc').hasError('maxDate') && !frm.get('techDesignReviewDatePpDateApprovedOnUtc').pristine">
+                  {{validationMessages['default'].maxLength}}
+                </label>
+              </div>
+            </div>
+          </ng-template>
+          <ng-template #rejectedDateField>
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['techDesignReviewDatePpDateRejectedOnUtc'].required}">
+              <div class="col-6 control-label text-right">
+                <label class="nowrap">Date Rejected</label>
+              </div>
+              <div class="col-6"
+                   [ngClass]="{'has-error':!frm.get('techDesignReviewDatePpDateRejectedOnUtc').valid}">
+                <my-date-picker class="flex" [options]="myTodayPickerOptions"
+                                #techDesignReviewDatePpDateRejectedPicker
+                                formControlName='techDesignReviewDatePpDateRejected'
+                                [ngClass]="{'disabled': isPageReadOnly}"
+                                [disabled]="isPageReadOnly"
+                                (dateChanged)="onDateChangedBy($event, 'techDesignReviewDatePpDateRejectedOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, techDesignReviewDatePpDateRejectedPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, techDesignReviewDatePpDateRejectedPicker, frm.get('techDesignReviewDatePpDateRejectedOnUtc'))"></my-date-picker>
+                <label class="error"
+                       *ngIf="frm.get('techDesignReviewDatePpDateRejectedOnUtc').hasError('required') && !frm.get('techDesignReviewDatePpDateRejectedOnUtc').pristine">
+                  {{validationMessages['default'].required}}</label>
+                <label class="error"
+                       *ngIf="frm.get('techDesignReviewDatePpDateRejectedOnUtc').hasError('maxDate') && !frm.get('techDesignReviewDatePpDateRejectedOnUtc').pristine">
+                  {{validationMessages['default'].maxLength}}
+                </label>
+              </div>
+            </div>
+          </ng-template>
+          <ng-template #commentField>
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['techDesignReviewDatePpComments'].required}">
+              <div class="col-6 control-label text-right">
+                <label>Comments</label>
+              </div>
+              <div class="col-6 my-textarea">
+                <textarea formControlName='techDesignReviewDatePpComments'
+                          type="text"
+                          [placeholder]="!isPageReadOnly ? 'Comments' : ''"
+                          [attr.disabled]="isPageReadOnly ? true : null"
+                          class="form-control"></textarea>
+              </div>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </ng-container>
+  </form>
+</div>
+<div class="modal-footer">
+  <ng-container *ngIf="!isPageReadOnly">
+    <button class="btn btn-complete"
+            (click)="onSubmitForm()">
+      Save
+    </button>
+  </ng-container>
+  <button class="btn btn-default"
+          (click)="activeModal.dismiss()">
+    Cancel
+  </button>
+</div>
+

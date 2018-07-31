@@ -1,0 +1,23 @@
+<create-or-update-user (onValueChange)="submitData($event)">
+  <button class="btn btn-complete btn-cons" (click)="onSubmit()">
+    Save
+  </button>
+  <div class="sticky-btn" *ngIf="isShowStickyBtn">
+    <button class="btn btn-complete btn-cons" (click)="onSubmit()">
+      Save
+    </button>
+  </div>
+  <!--<button class="btn btn-default btn-cons" type="button" (click)="cancel()">-->
+    <!--Cancel-->
+  <!--</button>-->
+</create-or-update-user>
+
+<!--Show in small screen-->
+<div class="row justify-center button-group-small m-t-15">
+  <button class="btn btn-complete btn-cons" (click)="onSubmit()">
+    Save
+  </button>
+  <!--<button class="btn btn-default btn-cons" type="button" (click)="cancel()">-->
+    <!--Cancel-->
+  <!--</button>-->
+</div>

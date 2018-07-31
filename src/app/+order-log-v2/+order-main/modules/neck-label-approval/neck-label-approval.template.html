@@ -1,0 +1,150 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0">Neck Label Approval - Change Status</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()">
+    <div class="row flex py-1"
+         [ngClass]="{'required': true}">
+      <div class="col-sm-7">
+        <div class="row">
+          <div class="col-sm-6 control-label text-right">
+            <label>Status</label>
+          </div>
+          <div class="col-sm-6"
+               [ngClass]="{'has-error':!frm.get('status').valid, 'disabled': isPageReadOnly}">
+            <ng-select [items]="statusData"
+                       [placeholder]="!isPageReadOnly ? 'Status' : ''"
+                       [searchable]="false" #statusSelect
+                       (focus)="onSelectFocused(statusSelect)"
+                       bindLabel="name"
+                       bindValue="id"
+                       formControlName="status"></ng-select>
+            <label class="error"
+                   *ngIf="frm.get('status').hasError('required') && !frm.get('status').pristine">
+              {{validationMessages['default'].required}}</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div [hidden]="+frm.get('status').value !== taskStatus.SCHEDULED
+        && +frm.get('status').value !== taskStatus.APPROVED">
+      <div class="row flex py-1"
+           [ngClass]="{'required': frm.get('formRequires').value['approvalTypes'].required}">
+        <div class="col-sm-7">
+          <div class="row">
+            <div class="col-sm-6 control-label text-right">
+              <label>Approval Process</label>
+            </div>
+            <div class="col-sm-6"
+                 [ngClass]="{'has-error':!frm.get('approvalTypes').valid}">
+              <ng-select [items]="approvalProcessDataOrigin"
+                         [multiple]="true"
+                         [closeOnSelect]="false"
+                         [hideSelected]="true"
+                         [placeholder]="!isPageReadOnly ? 'Approval Process' : ''"
+                         [searchable]="false" #multiprocess
+                         (focus)="onSelectFocused(multiprocess)"
+                         bindLabel="name"
+                         bindValue="name"
+                         formControlName="approvalTypes"></ng-select>
+              <label class="error"
+                     *ngIf="frm.get('approvalTypes').hasError('required') && !frm.get('approvalTypes').pristine">
+                {{validationMessages['default'].required}}</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="+frm.get('status').value === taskStatus.SCHEDULED">
+      <div class="row flex py-1">
+        <div class="col-sm-7 col-lg-7 col-xl-7">
+          <div class="row flex py-1"
+               [ngClass]="{'required': frm.get('formRequires').value['neckLabelApprovalScheduledFromDateOnUtc'].required}">
+            <div class="col-6 col-sm-6 control-label text-right">
+              <label class="nowrap">Neck Label Approval Date</label>
+            </div>
+            <div class="col-6 col-sm-6"
+                 [ngClass]="{'has-error':!frm.get('neckLabelApprovalScheduledFromDateOnUtc').valid}">
+              <my-date-picker class="flex" [options]="neckLabelApprovalScheduledDateFromOptions"
+                              #neckLabelDateFromPicker
+                              formControlName='neckLabelApprovalScheduledDateFrom'
+                              (dateChanged)="onDateChangedBy($event, 'neckLabelApprovalScheduledFromDateOnUtc')"
+                              (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, neckLabelDateFromPicker)"
+                              (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, neckLabelDateFromPicker, frm.get('neckLabelApprovalScheduledFromDateOnUtc'))"></my-date-picker>
+              <label class="error"
+                     *ngIf="frm.get('neckLabelApprovalScheduledFromDateOnUtc').hasError('required') && !frm.get('neckLabelApprovalScheduledFromDateOnUtc').pristine">
+                {{validationMessages['default'].required}}</label>
+              <label class="error"
+                     *ngIf="frm.get('neckLabelApprovalScheduledFromDateOnUtc').hasError('maxDate') && !frm.get('neckLabelApprovalScheduledFromDateOnUtc').pristine">
+                {{validationMessages['neckLabelApprovalScheduledFromDateOnUtc'].maxLength}}</label>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-5 col-lg-5 col-xl-5">
+          <div class="row flex py-1">
+            <div class="col-4 col-sm-4 flex justify-content-center">
+              <span class="m-t-4">to</span>
+            </div>
+            <div class="col-8 col-sm-8"
+                 [ngClass]="{'has-error':!frm.get('neckLabelApprovalScheduledToDateOnUtc').valid}">
+              <my-date-picker class="flex" [options]="neckLabelApprovalScheduledDateToOptions"
+                              #neckLabelDateToPicker
+                              [defaultMonth]="myDatePickerService.configDefaultMonth(frm.get('neckLabelApprovalScheduledDateFrom').value)"
+                              formControlName='neckLabelApprovalScheduledDateTo'
+                              (dateChanged)="onDateChangedBy($event, 'neckLabelApprovalScheduledToDateOnUtc')"
+                              (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, neckLabelDateToPicker)"
+                              (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, neckLabelDateToPicker, frm.get('neckLabelApprovalScheduledToDateOnUtc'))"></my-date-picker>
+              <label class="error"
+                     *ngIf="frm.get('neckLabelApprovalScheduledToDateOnUtc').hasError('required') && !frm.get('neckLabelApprovalScheduledToDateOnUtc').pristine">
+                {{validationMessages['default'].required}}</label>
+              <label class="error"
+                     *ngIf="frm.get('neckLabelApprovalScheduledToDateOnUtc').hasError('minDate') && !frm.get('neckLabelApprovalScheduledToDateOnUtc').pristine">
+                {{validationMessages['neckLabelApprovalScheduledToDateOnUtc'].maxLength}}</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="+frm.get('status').value === taskStatus.APPROVED">
+      <div class="row flex py-1">
+        <div class="col-sm-7 col-lg-7 col-xl-7">
+          <div class="row flex py-1"
+               [ngClass]="{'required': frm.get('formRequires').value['neckLabelApprovalApprovedDateOnUtc'].required}">
+            <div class="col-sm-6 control-label text-right">
+              <label class="nowrap">Neck Label Approval Date</label>
+            </div>
+            <div class="col-sm-6"
+                 [ngClass]="{'has-error':!frm.get('neckLabelApprovalApprovedDateOnUtc').valid}">
+              <my-date-picker class="flex" [options]="neckLabelApprovalApprovedDateOptions"
+                              #neckLabelApprovedDatePicker
+                              formControlName='neckLabelApprovalApprovedDate'
+                              (dateChanged)="onDateChangedBy($event, 'neckLabelApprovalApprovedDateOnUtc')"
+                              (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, neckLabelApprovedDatePicker)"
+                              (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, neckLabelApprovedDatePicker, frm.get('neckLabelApprovalApprovedDateOnUtc'))"></my-date-picker>
+              <label class="error"
+                     *ngIf="frm.get('neckLabelApprovalApprovedDateOnUtc').hasError('required') && !frm.get('neckLabelApprovalApprovedDateOnUtc').pristine">
+                {{validationMessages['default'].required}}</label>
+              <label class="error"
+                     *ngIf="frm.get('neckLabelApprovalApprovedDateOnUtc').hasError('maxToday') && !frm.get('neckLabelApprovalApprovedDateOnUtc').pristine">
+                {{validationMessages['default'].maxLength}}</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-complete"
+          (click)="onSubmitForm()">
+    Save
+  </button>
+  <button class="btn btn-default"
+          (click)="activeModal.dismiss()">
+    Cancel
+  </button>
+</div>
+

@@ -1,0 +1,18 @@
+<breadcrumb></breadcrumb>
+<div class="py-2">
+  <div class="py-2">
+    <ul class="nav nav-tabs">
+      <ng-template ngFor [ngForOf]="tabs" let-tab let-i="index">
+        <li class="text-center nav-item" *ngIf="tab.isView"
+            [ngClass]="{'active': tab.isActive}"
+            [permission]="tab.permission"
+            (click)="switchTab(i)">
+          <a class="justify-center nav-link" href="javascript:void(0)" aria-expanded="true">
+            <span>{{tab.name}}</span>
+          </a>
+        </li>
+      </ng-template>
+    </ul>
+  </div>
+  <router-outlet></router-outlet>
+</div>

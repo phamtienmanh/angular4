@@ -1,0 +1,155 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0 nowrap">Final Approval (PP) - Change Status</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()">
+    <lead-eta [rowDetail]="rowDetail" [isPageReadOnly]="isPageReadOnly || isLeadTimeReadOnly"></lead-eta>
+    <div class="row flex py-1"
+         [ngClass]="{'required': frm.get('formRequires').value['printApprovalStatus'].required}">
+      <div class="col-7">
+        <div class="row">
+          <div class="col-6 control-label text-right">
+            <label>Status</label>
+          </div>
+          <div class="col-6"
+               [ngClass]="{'has-error': !frm.get('printApprovalStatus').valid,
+                    'disabled': isPageReadOnly}">
+            <ng-select [items]="statusData"
+                       [placeholder]="!isPageReadOnly ? 'Status' : ''"
+                       [searchable]="false" #statusSelect
+                       (focus)="onSelectFocused(statusSelect)"
+                       bindLabel="name"
+                       bindValue="id"
+                       formControlName="printApprovalStatus">
+            </ng-select>
+            <label class="error"
+                   *ngIf="frm.get('printApprovalStatus').hasError('required') && !frm.get('printApprovalStatus').pristine">
+              {{validationMessages['default'].required}}</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ng-container *ngIf="frm.get('printApprovalStatus').value && frm.get('printApprovalStatus').value !== taskStatus.BLANK">
+      <div class="row py-1">
+        <div class="col-7">
+          <ng-container *ngIf="frm.get('printApprovalStatus').value === taskStatus.REJECTED">
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['printApprovedDateRejectedOnUtc'].required}">
+              <div class="col-6 control-label text-right">
+                <label class="nowrap">Date Rejected</label>
+              </div>
+              <div class="col-6"
+                   [ngClass]="{'has-error':!frm.get('printApprovedDateRejectedOnUtc').valid}">
+                <my-date-picker class="flex" [options]="myTodayPickerOptions"
+                                #printApprovedDateRejectedPicker
+                                formControlName='printApprovedDateRejected'
+                                [ngClass]="{'disabled': isPageReadOnly}"
+                                [disabled]="isPageReadOnly"
+                                (dateChanged)="onDateChangedBy($event, 'printApprovedDateRejectedOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, printApprovedDateRejectedPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, printApprovedDateRejectedPicker, frm.get('printApprovedDateRejectedOnUtc'))"></my-date-picker>
+                <label class="error"
+                       *ngIf="frm.get('printApprovedDateRejectedOnUtc').hasError('required') && !frm.get('printApprovedDateRejectedOnUtc').pristine">
+                  {{validationMessages['default'].required}}</label>
+                <label class="error"
+                       *ngIf="frm.get('printApprovedDateRejectedOnUtc').hasError('maxDate') && !frm.get('printApprovedDateRejectedOnUtc').pristine">
+                  {{validationMessages['default'].maxLength}}
+                </label>
+              </div>
+            </div>
+          </ng-container>
+          <ng-container
+            *ngIf="frm.get('printApprovalStatus').value === taskStatus.APPROVED || frm.get('printApprovalStatus').value === taskStatus.APPROVEDWCHANGES">
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['printApprovedDateOnUtc'].required}">
+              <div class="col-6 control-label text-right">
+                <label class="nowrap">Date Approved</label>
+              </div>
+              <div class="col-6"
+                   [ngClass]="{'has-error':!frm.get('printApprovedDateOnUtc').valid}">
+                <my-date-picker class="flex" [options]="myTodayPickerOptions"
+                                #printApprovedDatePicker
+                                formControlName='printApprovedDate'
+                                [ngClass]="{'disabled': isPageReadOnly}"
+                                [disabled]="isPageReadOnly"
+                                (dateChanged)="onDateChangedBy($event, 'printApprovedDateOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, printApprovedDatePicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, printApprovedDatePicker, frm.get('printApprovedDateOnUtc'))"></my-date-picker>
+                <label class="error"
+                       *ngIf="frm.get('printApprovedDateOnUtc').hasError('required') && !frm.get('printApprovedDateOnUtc').pristine">
+                  {{validationMessages['default'].required}}</label>
+                <label class="error"
+                       *ngIf="frm.get('printApprovedDateOnUtc').hasError('maxDate') && !frm.get('printApprovedDateOnUtc').pristine">
+                  {{validationMessages['default'].maxLength}}
+                </label>
+              </div>
+            </div>
+          </ng-container>
+          <ng-container
+            *ngIf="frm.get('printApprovalStatus').value === taskStatus.DROPPED">
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['printApprovedDateDroppedOnUtc'].required}">
+              <div class="col-6 control-label text-right">
+                <label class="nowrap">Date Dropped</label>
+              </div>
+              <div class="col-6"
+                   [ngClass]="{'has-error':!frm.get('printApprovedDateDroppedOnUtc').valid}">
+                <my-date-picker class="flex" [options]="myTodayPickerOptions"
+                                #printApprovedDateDroppedPicker
+                                formControlName='printApprovedDateDropped'
+                                [ngClass]="{'disabled': isPageReadOnly}"
+                                [disabled]="isPageReadOnly"
+                                (dateChanged)="onDateChangedBy($event, 'printApprovedDateDroppedOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, printApprovedDateDroppedPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, printApprovedDateDroppedPicker, frm.get('printApprovedDateDroppedOnUtc'))"></my-date-picker>
+                <label class="error"
+                       *ngIf="frm.get('printApprovedDateDroppedOnUtc').hasError('required') && !frm.get('printApprovedDateDroppedOnUtc').pristine">
+                  {{validationMessages['default'].required}}</label>
+                <label class="error"
+                       *ngIf="frm.get('printApprovedDateDroppedOnUtc').hasError('maxDate') && !frm.get('printApprovedDateDroppedOnUtc').pristine">
+                  {{validationMessages['default'].maxLength}}
+                </label>
+              </div>
+            </div>
+          </ng-container>
+          <ng-container
+            *ngIf="frm.get('printApprovalStatus').value === taskStatus.REJECTED || frm.get('printApprovalStatus').value === taskStatus.APPROVEDWCHANGES">
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['printApprovedDateComment'].required}">
+              <div class="col-6 control-label text-right">
+                <label class="nowrap">Comments</label>
+              </div>
+              <div class="col-6 my-textarea"
+                   [ngClass]="{'has-error':!frm.get('printApprovedDateComment').valid}">
+                  <textarea formControlName='printApprovedDateComment'
+                            type="text"
+                            [attr.disabled]="isPageReadOnly ? true : null"
+                            [placeholder]="!isPageReadOnly ? 'Comments' : ''"
+                            class="form-control"></textarea>
+                <label class="error"
+                       *ngIf="frm.get('printApprovedDateComment').hasError('required') && !frm.get('printApprovedDateComment').pristine">
+                  {{validationMessages['default'].required}}</label>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </ng-container>
+  </form>
+</div>
+<div class="modal-footer">
+  <ng-container *ngIf="!isPageReadOnly">
+    <button class="btn btn-complete"
+            (click)="onSubmitForm()">
+      Save
+    </button>
+  </ng-container>
+  <button class="btn btn-default"
+          (click)="activeModal.dismiss()">
+    Cancel
+  </button>
+</div>
+

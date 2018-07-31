@@ -1,0 +1,228 @@
+<div class="px-3 py-2">
+  <form [formGroup]="frm" role="form" novalidate="">
+    <!-- <div class="row">
+      <div class="col-lg-12 general-title">
+        <span class="bold">Factory</span>
+      </div>
+    </div> -->
+    <div class="row">
+      <div class="col-xxl-6 col-xl-8 col-lg-10 col-sm-12">
+        <ng-template [ngIf]="!isDomesticStyle">
+        <div class="row flex py-1">
+          <div class="col-sm-4 control-label text-right">
+            <label>Due Date</label>
+          </div>
+          <div class="col-sm-6">
+            <my-date-picker [options]="myDatePickerOptions"
+                            #dueDate
+                            formControlName='dueDate'
+                            [disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled"
+                            [ngClass]="{'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled}"
+                            (dateChanged)="onDateChangedBy($event, 'dueDateOnUtc')"
+                            (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, dueDate)"
+                            (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, dueDate, frm.get('dueDateOnUtc'))"></my-date-picker>
+            <!-- <label class="error"
+                   *ngIf="frm.get('dueDateOnUtc').hasError('required') && !frm.get('dueDateOnUtc').pristine">
+              {{validationMessages['dueDateOnUtc'].required}}</label> -->
+          </div>
+        </div>
+        <div class="row flex py-1 m-t-15">
+          <div class="col-sm-4 control-label text-right">
+            <label class="label-no-wrap">Phys. Sample Ex-Factory Date</label>
+          </div>
+          <div class="col-sm-6">
+            <my-date-picker [options]="myDatePickerOptions"
+                            #physSampleExFactoryDate
+                            formControlName='physSampleExFactoryDate'
+                            [disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled"
+                            [ngClass]="{'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled}"
+                            (dateChanged)="onDateChangedBy($event, 'physSampleExFactoryDateOnUtc')"
+                            (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, physSampleExFactoryDate)"
+                            (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, physSampleExFactoryDate, frm.get('physSampleExFactoryDateOnUtc'))"></my-date-picker>
+            <!-- <label class="error"
+                    *ngIf="frm.get('physSampleExFactoryDateOnUtc').hasError('required') && !frm.get('physSampleExFactoryDateOnUtc').pristine">
+              {{validationMessages['physSampleExFactoryDateOnUtc'].required}}</label> -->
+          </div>
+        </div>
+        <div class="row flex py-1">
+          <div class="col-sm-4 control-label text-right">
+            <label>Carrier</label>
+          </div>
+          <div class="col-sm-6" [ngClass]="{'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled}">
+            <ng-select [items]="shippingCarrier" #shippingCarrierSelect
+                       [virtualScroll]="true"
+                       [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled ? 'Carrier' : ''"
+                       (focus)="onSelectFocused(shippingCarrierSelect)"
+                       (open)="shippingCarrierSelect.filterValue = !!frm.get('physSampleExFactoryDateCarrierId').value ? frm.get('physSampleExFactoryDateCarrierName').value : ''"
+                       (add)="onSelectItem($event, frm, 'name', 'physSampleExFactoryDateCarrierName')"
+                       (clear)="frm.get('physSampleExFactoryDateCarrierName').patchValue('')"
+                       bindLabel="name"
+                       bindValue="id"
+                       formControlName="physSampleExFactoryDateCarrierId"></ng-select>
+            <!-- <label class="error"
+                   *ngIf="frm.get('physSampleExFactoryDateCarrierName').hasError('required') && !frm.get('physSampleExFactoryDateCarrierName').pristine">
+              {{validationMessages['physSampleExFactoryDateCarrierName'].required}}</label> -->
+          </div>
+        </div>
+        <div class="row flex py-1">
+          <div class="col-sm-4 control-label text-right">
+            <label>Tracking #</label>
+          </div>
+          <div class="col-sm-6">
+            <input formControlName='physSampleExFactoryDateTracking'
+                    type="text"
+                    [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled ? 'Tracking #' : ''"
+                    [attr.disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled ? true : null"
+                    class="form-control">
+          </div>
+        </div>
+        <div class="row flex py-1 m-t-15">
+          <div class="col-sm-4 control-label text-right">
+            <label class="label-no-wrap">Phys. Sample Actual Date Delivered</label>
+          </div>
+          <div class="col-sm-6">
+            <my-date-picker [options]="myDatePickerOptions"
+                            #physSampleActualDateDelivered
+                            formControlName='physSampleActualDateDelivered'
+                            [disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled"
+                            [ngClass]="{'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled}"
+                            (dateChanged)="onDateChangedBy($event, 'physSampleActualDateDeliveredOnUtc')"
+                            (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, physSampleActualDateDelivered)"
+                            (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, physSampleActualDateDelivered, frm.get('physSampleActualDateDeliveredOnUtc'))"></my-date-picker>
+            <!-- <label class="error"
+                    *ngIf="frm.get('physSampleActualDateDeliveredOnUtc').hasError('required') && !frm.get('physSampleActualDateDeliveredOnUtc').pristine">
+              {{validationMessages['physSampleActualDateDeliveredOnUtc'].required}}</label> -->
+          </div>
+        </div>
+        <div class="row flex py-1">
+          <div class="col-sm-4 control-label text-right">
+            <label>Carrier</label>
+          </div>
+          <div class="col-sm-6" [ngClass]="{'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled}">
+            <ng-select [items]="shippingCarrier" #shippingCarrier2Select
+                       [virtualScroll]="true"
+                       [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled ? 'Carrier' : ''"
+                       (focus)="onSelectFocused(shippingCarrier2Select)"
+                       (open)="shippingCarrier2Select.filterValue = !!frm.get('physSampleActualDateDeliveredCarrierId').value ? frm.get('physSampleActualDateDeliveredCarrierName').value : ''"
+                       (add)="onSelectItem($event, frm, 'name', 'physSampleActualDateDeliveredCarrierName')"
+                       (clear)="frm.get('physSampleActualDateDeliveredCarrierName').patchValue('')"
+                       bindLabel="name"
+                       bindValue="id"
+                       formControlName="physSampleActualDateDeliveredCarrierId"></ng-select>
+            <!-- <label class="error"
+                    *ngIf="frm.get('physSampleActualDateDeliveredCarrierName').hasError('required') && !frm.get('physSampleActualDateDeliveredCarrierName').pristine">
+              {{validationMessages['physSampleActualDateDeliveredCarrierName'].required}}</label> -->
+          </div>
+        </div>
+        <div class="row flex py-1">
+          <div class="col-sm-4 control-label text-right">
+            <label>Tracking #</label>
+          </div>
+          <div class="col-sm-6">
+            <input formControlName='physSampleActualDateDeliveredTracking'
+                    type="text"
+                    [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled ? 'Tracking #' : ''"
+                    [attr.disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled ? true : null"
+                    class="form-control">
+          </div>
+        </div>
+        <div class="row flex py-1 m-t-15">
+          <div class="col-sm-4 control-label text-right">
+            <label class="label-no-wrap">QC Sample Date</label>
+          </div>
+          <div class="col-sm-6">
+            <my-date-picker [options]="myDatePickerOptions"
+                            #qcSampleDatePicker
+                            formControlName='qcSampleDate'
+                            [disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled"
+                            [ngClass]="{'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled}"
+                            (dateChanged)="onDateChangedBy($event, 'qcSampleDateOnUtc')"
+                            (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, qcSampleDatePicker)"
+                            (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, qcSampleDatePicker, frm.get('qcSampleDateOnUtc'))"></my-date-picker>
+            <!-- <label class="error"
+                    *ngIf="frm.get('qcSampleDateOnUtc').hasError('required') && !frm.get('qcSampleDateOnUtc').pristine">
+              {{validationMessages['qcSampleDateOnUtc'].required}}</label> -->
+          </div>
+        </div>
+        <div class="row flex py-1">
+          <div class="col-sm-4 control-label text-right">
+            <label class="nowrap">Final Approval Date</label>
+          </div>
+          <div class="col-sm-6"
+               [ngClass]="{'has-error':!frm.get('finalApprovalTopDateApprovedOnUtc').valid}">
+            <my-date-picker class="flex" [options]="myTodayPickerOptions"
+                            #finalApprovalTopDateApprovedPicker
+                            formControlName='finalApprovalTopDateApproved'
+                            [ngClass]="{'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled}"
+                            [disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled"
+                            (dateChanged)="onDateChangedBy($event, 'finalApprovalTopDateApprovedOnUtc')"
+                            (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, finalApprovalTopDateApprovedPicker)"
+                            (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, finalApprovalTopDateApprovedPicker, frm.get('finalApprovalTopDateApprovedOnUtc'))"></my-date-picker>
+            <!--<label class="error"-->
+                   <!--*ngIf="frm.get('finalApprovalTopDateApprovedOnUtc').hasError('required') && !frm.get('finalApprovalTopDateApprovedOnUtc').pristine">-->
+              <!--{{validationMessages['default'].required}}</label>-->
+            <!--<label class="error"-->
+                   <!--*ngIf="frm.get('finalApprovalTopDateApprovedOnUtc').hasError('maxDate') && !frm.get('finalApprovalTopDateApprovedOnUtc').pristine">-->
+              <!--{{validationMessages['default'].maxLength}}-->
+            <!--</label>-->
+          </div>
+        </div>
+        </ng-template>
+
+        <div class="row flex py-1 m-t-15">
+          <div class="col-sm-4 control-label text-right">
+            <label>{{isSMPLOrder ? 'PP PO #' : 'TOP PO #'}}</label>
+          </div>
+          <div class="col-sm-6">
+            <input formControlName='topPpPoId'
+                    type="text"
+                    [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled ? 'TOP/PP PO #' : ''"
+                    [attr.disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled ? true : null"
+                    class="form-control">
+          </div>
+        </div>
+        <div class="row flex py-1">
+          <div class="col-sm-4 control-label text-right">
+            <label class="label-no-wrap">{{isSMPLOrder ? 'PP Cancel Date' : 'TOP Cancel Date'}}</label>
+          </div>
+          <div class="col-sm-6">
+            <my-date-picker [options]="myDatePickerOptions"
+                            #topPpCancelDatePicker
+                            formControlName='topPpCancelDate'
+                            [disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled"
+                            [ngClass]="{'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled}"
+                            (dateChanged)="onDateChangedBy($event, 'topPpCancelDateOnUtc')"
+                            (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, topPpCancelDatePicker)"
+                            (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, topPpCancelDatePicker, frm.get('topPpCancelDateOnUtc'))"></my-date-picker>
+            <!-- <label class="error"
+                    *ngIf="frm.get('topPpCancelDateOnUtc').hasError('required') && !frm.get('topPpCancelDateOnUtc').pristine">
+              {{validationMessages['topPpCancelDateOnUtc'].required}}</label> -->
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+    <div class="row"
+         *ngIf="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled">
+      <div class="col-lg-6 col-sm-12 py-2">
+        <div class="row flex py-1">
+          <div class="col-sm-4"></div>
+          <div class="col-sm-6">
+            <button class="btn btn-complete btn-cons"
+                    (click)="onSaved(frm)">Save
+            </button>
+            <!--<button class="btn btn-default btn-cons"-->
+            <!--(click)="onCancel()">Cancel-->
+            <!--</button>-->
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="sticky-btn"
+         *ngIf="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled && isShowStickyBtn">
+      <button class="btn btn-complete btn-cons"
+              (click)="onSaved(frm)">Save
+      </button>
+    </div>
+  </form>
+</div>

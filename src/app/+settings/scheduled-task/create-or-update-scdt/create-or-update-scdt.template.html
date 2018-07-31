@@ -1,0 +1,99 @@
+﻿<div class="modal-header m-b-10">
+  <h4 class="modal-title">Edit {{lookupTableInfo ? lookupTableInfo.name : 'Scheduled Task'}}</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.close(false)">
+    <span aria-hidden="true">×</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form id="form-new-user"
+        [formGroup]="frm"
+        name="newUser" role="form"
+        novalidate="">
+    <div class="row">
+      <div class="col-lg-12 form-container">
+        <div class="row">
+          <div class="col-sm-3"></div>
+          <div class="col-sm-6">
+            <div class="checkbox">
+              <input type="checkbox" id="isEnabled"
+                     formControlName="isEnabled">
+              <label for="isEnabled">Enabled</label>
+            </div>
+          </div>
+        </div>
+        <div class="row flex py-1"
+             [ngClass]="{'required': true}">
+          <div class="col-sm-3 control-label text-right">
+            <label class="nowrap">Interval (sec)</label>
+          </div>
+          <div class="col-sm-6"
+               [ngClass]="{'has-error':!frm.get('seconds').valid}">
+            <input formControlName='seconds' [focusOnInit]="!isEdit"
+                   type="text" IntegerNumber
+                   [placeholder]="!isPageReadOnly ? 'Interval (sec)' : ''"
+                   class="form-control">
+            <label class="error"
+                   *ngIf="frm.get('seconds').hasError('required') && !frm.get('seconds').pristine">
+              {{validationMessages['seconds'].required}}</label>
+          </div>
+        </div>
+        <div class="row flex py-1"
+             [ngClass]="{'required': false}">
+          <div class="col-sm-3 control-label text-right">
+            <label class="nowrap">Hour Start (EST)</label>
+          </div>
+          <div class="col-sm-6">
+            <input formControlName='hourStartOnEst'
+                   type="text" IntegerNumber
+                   [placeholder]="!isPageReadOnly ? 'Hour Start (EST)' : ''"
+                   class="form-control">
+            <!-- <label class="error"
+                   *ngIf="frm.get('hourStartOnEst').hasError('required') && !frm.get('hourStartOnEst').pristine">
+              {{validationMessages['hourStartOnEst'].required}}</label> -->
+            <label class="error"
+                   *ngIf="validateHour(0, frm.get('hourStartOnEst').value) && !frm.get('hourStartOnEst').pristine">
+              {{validationMessages['hourStartOnEst'].invalidValue}}</label>
+          </div>
+        </div>
+        <div class="row flex py-1"
+             [ngClass]="{'required': false}">
+          <div class="col-sm-3 control-label text-right">
+            <label class="nowrap">Hour End (EST)</label>
+          </div>
+          <div class="col-sm-6">
+            <input formControlName='hourEndOnEst'
+                   type="text" IntegerNumber
+                   [placeholder]="!isPageReadOnly ? 'Hour End (EST)' : ''"
+                   class="form-control">
+            <!-- <label class="error"
+                   *ngIf="frm.get('hourEndOnEst').hasError('required') && !frm.get('hourEndOnEst').pristine">
+              {{validationMessages['hourEndOnEst'].required}}</label> -->
+            <label class="error"
+                  *ngIf="validateHour(1, frm.get('hourEndOnEst').value) === 1 && !frm.get('hourEndOnEst').pristine">
+              {{validationMessages['hourStartOnEst'].invalidValue}}</label>
+            <label class="error"
+                  *ngIf="validateHour(1, frm.get('hourEndOnEst').value) === 2">
+              {{validationMessages['hourEndOnEst'].endHourLessStart}}</label>
+          </div>
+        </div>
+
+        <div class="row mt-3 button-group-large">
+          <div class="col-sm-2 col-xl-3"></div>
+          <div class="col-sm-9">
+            <ng-content></ng-content>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+<div class="modal-footer" *ngIf="!isPageReadOnly">
+  <button class="btn btn-complete"
+          (click)="onSubmit()">
+    Save
+  </button>
+  <button class="btn btn-default m-r-30"
+          (click)="activeModal.close(false)">
+    Cancel
+  </button>
+</div>

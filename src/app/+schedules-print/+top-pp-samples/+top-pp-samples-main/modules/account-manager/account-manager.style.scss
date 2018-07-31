@@ -1,0 +1,108 @@
+account-manager {
+  .m-l--10 {
+    margin-left: -10px;
+  }
+  .hr-space {
+    position: absolute;
+    margin: 0 0 0 -10px;
+  }
+
+  .p-l-f-0 {
+    padding-right: 25px !important;
+
+    div.row > div {
+      padding-right: 0 !important;
+    }
+  }
+
+  .input-group .form-control:not(:last-child), .input-group-addon:not(:last-child), .input-group-btn:not(:last-child) > .btn, .input-group-btn:not(:last-child) > .btn-group > .btn, .input-group-btn:not(:last-child) > .dropdown-toggle, .input-group-btn:not(:first-child) > .btn:not(:last-child):not(.dropdown-toggle), .input-group-btn:not(:first-child) > .btn-group:not(:last-child) > .btn {
+    border-right: 0 !important;
+  }
+
+  .error {
+    position: absolute;
+    z-index: 9;
+  }
+
+  .border-right {
+    border-right: 1px solid #ddd;
+  }
+  .border-top {
+    border-top: 1px solid #ddd;
+  }
+  .full-height {
+    height: 100%;
+    perfect-scrollbar {
+      height: 100%;
+      .ps-content {
+        height: 100%;
+        & > div:nth-of-type(2) {
+          height: 93%;
+        }
+      }
+    }
+  }
+
+  .checkbox label:after {
+    left: .2px;
+  }
+
+  label.error {
+    height: 10px !important;
+    line-height: 8.5px !important;
+    font-size: 10px !important;
+  }
+
+  .style-name {
+    width: 175px;
+    word-wrap: break-word;
+    text-align: left;
+    line-height: 15px;
+  }
+
+  .size-table {
+    margin-top: 0;
+    input {
+      height: 18px !important;
+      border: none !important;
+      width: 30px !important;
+      font-size: 12px;
+      &:focus{
+        border-bottom: 1px solid #80bdff !important;
+      }
+      &:disabled {
+        background-color: inherit;
+        color: #000;
+        &:hover {
+          text-decoration: none;
+          cursor: text;
+        }
+      }
+    }
+    td, th {
+      background: #fff!important;
+      padding: .5em 0.4em !important;
+      color: #2c2c2c !important;
+      text-align: center !important;
+      font-size: 12px !important;
+      border: 1px solid hsla(0,0%,90%,.8);
+      white-space: nowrap !important;
+      min-width: 40px;
+    }
+    th {
+      font-weight: 300 !important;
+      background-color: #f1f1f1 !important;
+    }
+    tr:last-child {
+      td {
+        // border-bottom: 0;
+      }
+    }
+    tr th {
+      white-space: nowrap;
+      &:last-child {
+        min-width: 60px !important;
+      }
+    }
+  }
+}

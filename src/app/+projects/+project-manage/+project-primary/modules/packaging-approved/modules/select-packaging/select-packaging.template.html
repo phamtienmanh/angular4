@@ -1,0 +1,27 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0">Select Packaging(s)</h4>
+  <button type="button" class="close" aria-label="Close" (click)="onClose()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <div class="row">
+    <div class="col-sm-6 pl-5" *ngFor="let packaging of packagingsListData; let i = index">
+      <div class="row">
+        <div class="checkbox" [ngStyle]="{'margin-top': '-2px', 'margin-bottom': '0'}">
+          <input type="checkbox" [id]="packaging.name"
+                 [checked]="isActive(packaging.id)"
+                 (change)="onChange($event, packaging)">
+          <label [for]="packaging.name"></label>
+        </div>
+        <div class="control-label">
+          <label>{{packaging.name}}</label>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-danger btn-cons" (click)="onSubmit()">OK</button>
+  <button type="button" class="btn btn-default btn-cons" (click)="onClose()">Cancel</button>
+</div>

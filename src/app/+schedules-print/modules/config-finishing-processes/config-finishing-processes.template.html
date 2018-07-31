@@ -1,0 +1,149 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0">
+    Configure Staff Resources - 
+    {{defaultData.isCustom ? ('Custom Process ' + '"' + processNumber + '"') : ('Process # ' + processNumber + ' ' + processName)}}
+  </h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()">
+    <div class="row flex pb-2" *ngIf="defaultData.isCustom">
+      <div class="col-sm-3 control-label text-right">
+        <label>Description</label>
+      </div>
+      <div class="col-sm-9">
+        <input formControlName='description' type="text" [placeholder]="'Description'" class="form-control">
+      </div>
+    </div>
+    <table class="table style-table">
+      <thead>
+      <tr>
+        <th></th>
+        <th *ngIf="!defaultData.isCustom">&nbsp;Defaults&nbsp;</th>
+        <th>Actual&nbsp;</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td>
+          Units Scheduled
+        </td>
+        <td colspan="2" *ngIf="!defaultData.isCustom; else customProcessUnit">{{processDetail?.scheduledQty}}</td>
+        <ng-template #customProcessUnit>
+          <!-- <td>
+            <input IntegerNumber
+                    formControlName="units"
+                    class="runTimeInput"/>
+            <label class="error"
+                    *ngIf="(frm.get('units').hasError('min') || frm.get('units').hasError('max'))
+                    && !frm.get('units').pristine">
+              Value must be 1 to 50.</label>
+          </td> -->
+          <td>{{processDetail?.scheduledQty}}</td>
+        </ng-template>
+        
+      </tr>
+      <tr>
+        <td>
+          # People
+        </td>
+        <td *ngIf="!defaultData.isCustom">{{defaultData?.defaultPeopleRequired}}</td>
+        <td>
+          <input IntegerNumber
+                 formControlName="peopleRequiredActual"
+                 class="runTimeInput"/>
+          <label class="error"
+                 *ngIf="(frm.get('peopleRequiredActual').hasError('min') || frm.get('peopleRequiredActual').hasError('max'))
+                 && !frm.get('peopleRequiredActual').pristine">
+            Value must be 1 to 50.</label>
+        </td>
+      </tr>
+      <tr *ngIf="!defaultData.isCustom; else customProcessAvgPcs">
+        <td>
+          Process Avg Pcs / Hr
+        </td>
+        <td>
+          {{defaultData?.defaultProcessAvgPcsPerHr}}
+        </td>
+        <td>
+          {{frm.get('peopleRequiredActual')?.value * frm.get('staffAvgPcsPerHrActual')?.value}}
+        </td>
+      </tr>
+      <ng-template #customProcessAvgPcs>
+        <tr>
+          <td>
+            Process Avg Pcs / Hr
+          </td>
+          <td>
+            {{frm.get('units').value / frm.get('hrsNeeded').value | number:'1.0-2'}}
+          </td>
+        </tr>
+      </ng-template>
+      <tr *ngIf="!defaultData.isCustom; else customStaffAvgPcs">
+        <td>
+          Staff Avg Pcs / Hr
+        </td>
+        <td>
+          {{defaultData?.defaultStaffAvgPcsPerHr}}
+        </td>
+        <td *ngIf="!defaultData.isCustom">
+          <input IntegerNumber
+                 formControlName="staffAvgPcsPerHrActual"
+                 class="runTimeInput"/>
+          <label class="error"
+                 *ngIf="(frm.get('staffAvgPcsPerHrActual').hasError('min') || frm.get('staffAvgPcsPerHrActual').hasError('max'))
+                 && !frm.get('staffAvgPcsPerHrActual').pristine">
+            Value must be 1 to 2000.</label>
+        </td>
+      </tr>
+      <ng-template #customStaffAvgPcs>
+        <tr>
+          <td>
+            Staff Avg Pcs / Hr
+          </td>
+          <td>
+            {{(frm.get('units').value / frm.get('hrsNeeded').value / frm.get('peopleRequiredActual').value) | number:'1.0-2'}}
+          </td>
+        </tr>
+      </ng-template>
+      <tr *ngIf="!defaultData.isCustom; else customProcessHrs">
+        <td>
+          Hrs Needed
+        </td>
+        <td *ngIf="defaultData && defaultData.defaultHrsNeeded">{{defaultData.defaultHrsNeeded | number:'1.1-2'}}</td>
+        <td *ngIf="frm.get('peopleRequiredActual') && frm.get('staffAvgPcsPerHrActual')">
+          {{processDetail?.scheduledQty / (frm.get('peopleRequiredActual').value * frm.get('staffAvgPcsPerHrActual').value) | number:'1.1-2'}}
+        </td>
+      </tr>
+      <ng-template #customProcessHrs>
+        <tr>
+          <td>
+            Hrs Needed
+          </td>
+          <td>
+            <input formControlName="hrsNeeded"
+                  class="runTimeInput"/>
+            <label class="error"
+                  *ngIf="(frm.get('hrsNeeded').hasError('min') || frm.get('hrsNeeded').hasError('max'))
+                  && !frm.get('hrsNeeded').pristine">
+              Value must be 0.01 to 100.</label>
+          </td>
+        </tr>
+      </ng-template>
+      </tbody>
+    </table>
+  </form>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-complete"
+          (click)="onSubmitForm()">
+    Save
+  </button>
+  <button class="btn btn-default"
+          (click)="activeModal.dismiss()">
+    Cancel
+  </button>
+</div>
+

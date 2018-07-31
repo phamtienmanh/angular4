@@ -1,0 +1,36 @@
+vendors-edit {
+  .general {
+    .general-title {
+      border-bottom: 1px solid #626262;
+      span {
+        font-size: 14px;
+      }
+    }
+    .general-body {
+      .line-break-form{
+        border-top: 1px solid #626262;
+      }
+      .line-break-form:first-child{
+        border-top: none;
+      }
+      .general-info {
+        padding: 5px;
+        &.name-info {
+          .delete-contact {
+            justify-content: flex-end;
+            display: flex;
+            align-items: center;
+            .btn-xs {
+              height: 60%;
+            }
+          }
+        }
+        .control-label {
+          > label {
+            margin: 0;
+          }
+        }
+      }
+    }
+  }
+}

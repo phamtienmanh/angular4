@@ -1,0 +1,126 @@
+<form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()" (click)="formClick($event)">
+  <div class="row">
+    <div class="pt-2 col-lg-12 col-xl-6">
+      <div class="row flex py-1"
+           [ngClass]="{'required': frm.get('formRequires').value['name'].required}">
+        <div class="col-4 col-sm-3 col-lg-3 col-xl-4 control-label text-right">
+          <label>Project Name</label>
+        </div>
+        <div class="col-6 col-sm-3 col-lg-3 col-xl-4"
+             [ngClass]="{'has-error':!frm.get('name').valid}">
+          <input formControlName='name' [attr.disabled]="isPageReadOnly ? true : null"
+                 type="text"
+                 [placeholder]="!isPageReadOnly ? 'Project Name' : ''"
+                 class="form-control">
+          <label class="error"
+                 *ngIf="frm.get('name').hasError('required') && !frm.get('name').pristine">
+            {{validationMessages['name'].required}}</label>
+        </div>
+      </div>
+      <div class="row flex py-1"
+           [ngClass]="{'required': frm.get('formRequires').value['retailerId'].required}">
+        <div class="col-4 col-sm-3 col-lg-3 col-xl-4 control-label text-right">
+          <label>Retailer Name</label>
+        </div>
+        <div class="col-6 col-sm-3 col-lg-3 col-xl-4"
+             [ngClass]="{'has-error':!frm.get('retailerId').valid, 'disabled': isPageReadOnly}">
+          <ng-select [items]="retailersData" #retailerSelect
+                     [virtualScroll]="true"
+                     (focus)="onSelectFocused(retailerSelect)"
+                     (open)="onSelectOpen(retailerSelect)"
+                     [placeholder]="!isPageReadOnly ? 'Retailer Name' : ''"
+                     bindLabel="name"
+                     bindValue="id"
+                     formControlName="retailerId"></ng-select>
+          <label class="error"
+                 *ngIf="frm.get('retailerId').hasError('required') && !frm.get('retailerId').pristine">
+            {{validationMessages['retailerId'].required}}</label>
+        </div>
+      </div>
+      <div class="row flex py-1"
+           [ngClass]="{'required': frm.get('formRequires').value['dateMethod'].required}">
+        <div class="col-4 col-sm-3 col-lg-3 col-xl-4 control-label text-right">
+          <label>T&A Date Method</label>
+        </div>
+        <div class="col-6 col-sm-3 col-lg-3 col-xl-4"
+             [ngClass]="{'has-error':!frm.get('dateMethod').valid, 'disabled': isPageReadOnly}">
+          <ng-select [items]="dateMethodData" #dateMethodSelect
+                     [searchable]="false"
+                     (focus)="onSelectFocused(dateMethodSelect)"
+                     [placeholder]="!isPageReadOnly ? 'T&A Date Method' : ''"
+                     bindLabel="name"
+                     bindValue="id"
+                     formControlName="dateMethod"></ng-select>
+          <label class="error"
+                 *ngIf="frm.get('dateMethod').hasError('required') && !frm.get('dateMethod').pristine">
+            {{validationMessages['dateMethod'].required}}</label>
+        </div>
+      </div>
+      <div class="row flex py-1" *ngIf="frm.get('dateMethod').value === 1"
+           [ngClass]="{'required': frm.get('formRequires').value['startDateOnUtc'].required}">
+        <div class="col-4 col-sm-3 col-lg-3 col-xl-4 control-label text-right">
+          <label>Start Date</label>
+        </div>
+        <div class="col-6 col-sm-3 col-lg-3 col-xl-4"
+             [ngClass]="{'has-error':!frm.get('startDateOnUtc').valid}">
+          <my-date-picker class="flex" [options]="myDatePickerOptions"
+                          #startDatePicker
+                          formControlName='startDate'
+                          [ngClass]="{'disabled': isPageReadOnly}"
+                          [disabled]="isPageReadOnly"
+                          (dateChanged)="onDateChangedBy($event, 'startDateOnUtc')"
+                          (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, startDatePicker)"
+                          (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, startDatePicker, frm.get('startDateOnUtc'))"></my-date-picker>
+          <label class="error"
+                 *ngIf="frm.get('startDateOnUtc').hasError('required') && !frm.get('startDateOnUtc').pristine">
+            {{validationMessages['startDateOnUtc'].required}}</label>
+        </div>
+      </div>
+      <div class="row flex py-1" *ngIf="frm.get('dateMethod').value === 2"
+           [ngClass]="{'required': frm.get('formRequires').value['inDcStoreDateOnUtc'].required}">
+        <div class="col-4 col-sm-3 col-lg-3 col-xl-4 control-label text-right">
+          <label>In DC/Store Date</label>
+        </div>
+        <div class="col-6 col-sm-3 col-lg-3 col-xl-4"
+             [ngClass]="{'has-error':!frm.get('inDcStoreDateOnUtc').valid}">
+          <my-date-picker class="flex" [options]="myDatePickerOptions"
+                          #inDcStoreDatePicker
+                          formControlName='inDcStoreDate'
+                          [ngClass]="{'disabled': isPageReadOnly}"
+                          [disabled]="isPageReadOnly"
+                          (dateChanged)="onDateChangedBy($event, 'inDcStoreDateOnUtc')"
+                          (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, inDcStoreDatePicker)"
+                          (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, inDcStoreDatePicker, frm.get('inDcStoreDateOnUtc'))"></my-date-picker>
+          <label class="error"
+                 *ngIf="frm.get('inDcStoreDateOnUtc').hasError('required') && !frm.get('inDcStoreDateOnUtc').pristine">
+            {{validationMessages['inDcStoreDateOnUtc'].required}}</label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="pb-2 col-lg-12 col-xl-6">
+      <div class="row flex py-1">
+        <div class="col-4 col-sm-3 col-lg-3 col-xl-4 control-label text-right">
+          <label>Comments</label>
+        </div>
+        <div class="col-6 col-sm-3 col-lg-3 col-xl-4 my-textarea">
+          <textarea formControlName='comments'
+                    type="text"
+                    [placeholder]="!isPageReadOnly ? 'Comments' : ''"
+                    [attr.disabled]="isPageReadOnly ? true : null"
+                    class="form-control"></textarea>
+        </div>
+      </div>
+      <div class="row flex py-1 mb-3" *ngIf="!isPageReadOnly">
+        <div class="col-4 col-sm-3 col-lg-3 col-xl-4"></div>
+        <div class="col-6 col-sm-3 col-lg-3 col-xl-4">
+          <button class="btn btn-complete" type="submit">Save</button>
+          <!--<button class="btn btn-default" (click)="onCancel()">-->
+          <!--Cancel-->
+          <!--</button>-->
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

@@ -1,0 +1,8 @@
+<div class="zoomPhoto" *ngIf="imageUrl" (click)="unZoomPhoto()">
+  <div class="photo-container">
+    <a href="javascript:void(0)" class="zoom-close" (click)="unZoomPhoto()">
+      <img src="../../../../assets/img/close_btn.png" height="36" width="36">
+    </a>
+    <img class="img-thumbnail-none-wh" [src]="imageUrl" [ngStyle]="{'max-height': '90vh'}" height="auto" width="auto"/>
+  </div>
+</div>

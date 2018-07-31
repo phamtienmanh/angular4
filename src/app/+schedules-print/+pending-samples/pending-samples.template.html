@@ -1,0 +1,19 @@
+﻿<ng-template [ngIf]="!isNoData">
+  <div class="py-2">
+    <ul class="nav nav-tabs">
+      <ng-template ngFor [ngForOf]="tabs" let-tab let-i="index">
+        <li class="text-center nav-item" *ngIf="tab.isView"
+            [ngClass]="{'active': tab.isActive}"
+            (click)="switchTab(i)">
+          <a class="justify-center nav-link" href="javascript:void(0)" aria-expanded="true">
+            <span>{{tab.fullName}}</span>
+          </a>
+        </li>
+      </ng-template>
+    </ul>
+  </div>
+  <router-outlet></router-outlet>
+</ng-template>
+<ng-template [ngIf]="isNoData">
+  <p class="p-nodata">The roles you are assigned are not authorized to view content on this page.</p>
+</ng-template>

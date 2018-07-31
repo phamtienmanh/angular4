@@ -1,0 +1,202 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0 nowrap">QC Sample / Ship Date (PP) - Change Status</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()">
+    <lead-eta [rowDetail]="rowDetail" [isPageReadOnly]="isPageReadOnly"></lead-eta>
+    <div class="row flex py-1"
+         [ngClass]="{'required': frm.get('formRequires').value['qcSampleDateStatus'].required}">
+      <div class="col-7">
+        <div class="row">
+          <div class="col-6 control-label text-right">
+            <label>Status</label>
+          </div>
+          <div class="col-6"
+               [ngClass]="{'has-error': !frm.get('qcSampleDateStatus').valid,
+                    'disabled': isPageReadOnly}">
+            <ng-select [items]="statusData"
+                       [placeholder]="!isPageReadOnly ? 'Status' : ''"
+                       [searchable]="false" #statusSelect
+                       (focus)="onSelectFocused(statusSelect)"
+                       bindLabel="name"
+                       bindValue="id"
+                       formControlName="qcSampleDateStatus">
+            </ng-select>
+            <label class="error"
+                   *ngIf="frm.get('qcSampleDateStatus').hasError('required') && !frm.get('qcSampleDateStatus').pristine">
+              {{validationMessages['default'].required}}</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ng-container *ngIf="frm.get('qcSampleDateStatus').value && frm.get('qcSampleDateStatus').value !== taskStatus.BLANK">
+      <div class="row py-1">
+        <div class="col-7">
+          <ng-container *ngIf="frm.get('qcSampleDateStatus').value === taskStatus.REJECTED">
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['qcSampleDateRejectedOnUtc'].required}">
+              <div class="col-6 control-label text-right">
+                <label class="nowrap">Date Rejected</label>
+              </div>
+              <div class="col-6"
+                   [ngClass]="{'has-error':!frm.get('qcSampleDateRejectedOnUtc').valid}">
+                <my-date-picker class="flex" [options]="myTodayPickerOptions"
+                                #qcSampleDateRejectedPicker
+                                formControlName='qcSampleDateRejected'
+                                [ngClass]="{'disabled': isPageReadOnly}"
+                                [disabled]="isPageReadOnly"
+                                (dateChanged)="onDateChangedBy($event, 'qcSampleDateRejectedOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, qcSampleDateRejectedPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, qcSampleDateRejectedPicker, frm.get('qcSampleDateRejectedOnUtc'))"></my-date-picker>
+                <label class="error"
+                       *ngIf="frm.get('qcSampleDateRejectedOnUtc').hasError('required') && !frm.get('qcSampleDateRejectedOnUtc').pristine">
+                  {{validationMessages['default'].required}}</label>
+                <label class="error"
+                       *ngIf="frm.get('qcSampleDateRejectedOnUtc').hasError('maxDate') && !frm.get('qcSampleDateRejectedOnUtc').pristine">
+                  {{validationMessages['default'].maxLength}}
+                </label>
+              </div>
+            </div>
+          </ng-container>
+          <ng-container *ngIf="frm.get('qcSampleDateStatus').value === taskStatus.APPROVED">
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['qcSampleQty'].required}">
+              <div class="col-6 control-label text-right">
+                <label class="nowrap">QC Sample Qty</label>
+              </div>
+              <div class="col-6"
+                   [ngClass]="{'has-error':!frm.get('qcSampleQty').valid}">
+                <input formControlName='qcSampleQty'
+                       type="text"
+                       [attr.disabled]="isPageReadOnly ? true : null"
+                       [placeholder]="!isPageReadOnly ? 'QC Sample Qty' : ''"
+                       class="form-control">
+                <label class="error"
+                       *ngIf="frm.get('qcSampleQty').hasError('required') && !frm.get('qcSampleQty').pristine">
+                  {{validationMessages['default'].required}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['qcSampleDateOnUtc'].required}">
+              <div class="col-6 control-label text-right">
+                <label class="nowrap">QC Sample Date</label>
+              </div>
+              <div class="col-6"
+                   [ngClass]="{'has-error':!frm.get('qcSampleDateOnUtc').valid}">
+                <my-date-picker class="flex" [options]="myTodayPickerOptions"
+                                #qcSampleDatePicker
+                                formControlName='qcSampleDate'
+                                [ngClass]="{'disabled': isPageReadOnly}"
+                                [disabled]="isPageReadOnly"
+                                (dateChanged)="onDateChangedBy($event, 'qcSampleDateOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, qcSampleDatePicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, qcSampleDatePicker, frm.get('qcSampleDateOnUtc'))"></my-date-picker>
+                <label class="error"
+                       *ngIf="frm.get('qcSampleDateOnUtc').hasError('required') && !frm.get('qcSampleDateOnUtc').pristine">
+                  {{validationMessages['default'].required}}</label>
+                <label class="error"
+                       *ngIf="frm.get('qcSampleDateOnUtc').hasError('maxDate') && !frm.get('qcSampleDateOnUtc').pristine">
+                  {{validationMessages['default'].maxLength}}
+                </label>
+              </div>
+            </div>
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['qcSampleDateCarrierId'].required}">
+              <div class="col-6 control-label text-right">
+                <label class="nowrap">Carrier</label>
+              </div>
+              <div class="col-6"
+                   [ngClass]="{'has-error':!frm.get('qcSampleDateCarrierId').valid,
+                    'disabled': isPageReadOnly}">
+                <ng-select [items]="shippingCarrier"
+                           [placeholder]="!isPageReadOnly ? 'Carrier' : ''"
+                           [searchable]="false" #carrierSelect
+                           (focus)="onSelectFocused(carrierSelect)"
+                           bindLabel="name"
+                           bindValue="id"
+                           formControlName="qcSampleDateCarrierId"></ng-select>
+                <label class="error"
+                       *ngIf="frm.get('qcSampleDateCarrierId').hasError('required') && !frm.get('qcSampleDateCarrierId').pristine">
+                  {{validationMessages['default'].required}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['trackingNumber'].required}">
+              <div class="col-6 control-label text-right">
+                <label class="nowrap">Tracking #</label>
+              </div>
+              <div class="col-6"
+                   [ngClass]="{'has-error':!frm.get('trackingNumber').valid}">
+                <input formControlName='trackingNumber'
+                       type="text"
+                       [attr.disabled]="isPageReadOnly ? true : null"
+                       [placeholder]="!isPageReadOnly ? 'Tracking #' : ''"
+                       class="form-control">
+                <label class="error"
+                       *ngIf="frm.get('trackingNumber').hasError('required') && !frm.get('trackingNumber').pristine">
+                  {{validationMessages['default'].required}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['dateSentToCustomerOnUtc'].required}">
+              <div class="col-6 control-label text-right">
+                <label class="nowrap">Date Shipped</label>
+              </div>
+              <div class="col-6"
+                   [ngClass]="{'has-error':!frm.get('dateSentToCustomerOnUtc').valid}">
+                <my-date-picker class="flex" [options]="myTodayPickerOptions"
+                                #dateSentToCustomerPicker
+                                formControlName='dateSentToCustomer'
+                                [ngClass]="{'disabled': isPageReadOnly}"
+                                [disabled]="isPageReadOnly"
+                                (dateChanged)="onDateChangedBy($event, 'dateSentToCustomerOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, dateSentToCustomerPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, dateSentToCustomerPicker, frm.get('dateSentToCustomerOnUtc'))"></my-date-picker>
+                <label class="error"
+                       *ngIf="frm.get('dateSentToCustomerOnUtc').hasError('required') && !frm.get('dateSentToCustomerOnUtc').pristine">
+                  {{validationMessages['default'].required}}</label>
+                <label class="error"
+                       *ngIf="frm.get('dateSentToCustomerOnUtc').hasError('maxDate') && !frm.get('dateSentToCustomerOnUtc').pristine">
+                  {{validationMessages['default'].maxLength}}
+                </label>
+              </div>
+            </div>
+          </ng-container>
+          <div class="row flex py-1"
+               [ngClass]="{'required': frm.get('formRequires').value['qcSampleDateComment'].required}">
+            <div class="col-6 control-label text-right">
+              <label class="nowrap">Comments</label>
+            </div>
+            <div class="col-6 my-textarea"
+                 [ngClass]="{'has-error':!frm.get('qcSampleDateComment').valid}">
+                  <textarea formControlName='qcSampleDateComment'
+                            type="text"
+                            [attr.disabled]="isPageReadOnly ? true : null"
+                            [placeholder]="!isPageReadOnly ? 'Comments' : ''"
+                            class="form-control"></textarea>
+              <label class="error"
+                     *ngIf="frm.get('qcSampleDateComment').hasError('required') && !frm.get('qcSampleDateComment').pristine">
+                {{validationMessages['default'].required}}</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </form>
+</div>
+<div class="modal-footer">
+  <ng-container *ngIf="!isPageReadOnly">
+    <button class="btn btn-complete"
+            (click)="onSubmitForm()">
+      Save
+    </button>
+  </ng-container>
+  <button class="btn btn-default"
+          (click)="activeModal.dismiss()">
+    Cancel
+  </button>
+</div>
+

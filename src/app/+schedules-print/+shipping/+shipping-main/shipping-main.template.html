@@ -1,0 +1,318 @@
+﻿<div class="panel panel-transparent py-2">
+  <shipping-filter (onFilter)="onFilter($event)"></shipping-filter>
+  <div class="row">
+    <div class="col-lg-12 col-xl-12">
+      <div class="row">
+        <div class="col-lg-12 m-t-10 min-h-25">
+          <p class="total-sched">{{tableData ? tableData.totalRecord : 0}} scheduled items</p>
+          <ng-template [ngIf]="tableData && tableData.totalRecord">
+            <a class="pull-left m-l-200" href="javascript:void(0)" (click)="exportShipping('pdf')">
+              <i class="fa fa-file-pdf-o fa-2x text-danger" aria-hidden="true"></i>
+            </a>
+            <div class="mx-1 pull-left">
+              <div ngbDropdown class="d-inline-block" #myFontDrop="ngbDropdown"
+                   class="select-size-dropdown"
+                   placement="bottom-left"
+                   (clickOutside)="myFontDrop.close();"
+                   [attachOutsideOnClick]="true">
+                <i class="fa fa-font fa-2x cursor" id="dropdown5" ngbDropdownToggle></i>
+                <div ngbDropdownMenu aria-labelledby="dropdown5">
+                  <button class="dropdown-item" *ngFor="let item of fontSizeData"
+                          [ngClass]="{'active': item === myConfigStyle['font-size']}"
+                          (click)="changeFontSize(item);myFontDrop.close();" type="button">{{item}}
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="!isShowAllColumns" ngbDropdown
+                 class="select-column-dropdown select-columns pull-left m-l-40 m-r-10" #myDrop="ngbDropdown"
+                 placement="bottom-left"
+                 (openChange)="onChangeShowHideColumn($event)"
+                 (clickOutside)="myDrop.close()"
+                 [attachOutsideOnClick]="true">
+              <i class="fa fa-sliders fa-2x cursor" id="dropdown4" ngbDropdownToggle></i>
+              <div ngbDropdownMenu aria-labelledby="dropdown4">
+                <div class="col-12 px-1">
+                  <div class="checkbox">
+                    <input type="checkbox" id="all-options4" [checked]="isCheckedAll"
+                           (change)="onCheckedColsAll($event)">
+                    <label [style.margin-bottom]="'.2rem'" for="all-options4">All</label>
+                  </div>
+                </div>
+                <div class="divider"></div>
+                <div class="">
+                  <div class="col-12 px-1" *ngFor="let col of showHideColumns; let i = index">
+                    <div class="checkbox">
+                      <input type="checkbox"
+                             [id]="'col-' + i"
+                             [name]="'col-' + i"
+                             [(ngModel)]="col.isView"
+                             (change)="changeCheckedCol($event)">
+                      <label [for]="'col-' + i">{{col.description}}</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="pull-left m-t-5">
+              <a href="javascript:void(0)" *ngIf="!isShowAllColumns"
+                 (click)="showAllColumns(true)">Show All Columns</a>
+              <a href="javascript:void(0)" *ngIf="isShowAllColumns"
+                 (click)="showAllColumns(false)">Show My Columns</a>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="py-2" *ngIf="isFilter && !tableData.totalRecord">
+    <span class="font-size-16">No styles are scheduled that match your search criteria.</span>
+  </div>
+  <div class="py-2" *ngIf="tableData && !isFilter && !tableData.totalRecord">
+    <span class="font-size-16">No styles are scheduled that match your search criteria.</span>
+  </div>
+  <!--Days tab-->
+  <div id="shippingTable" class="py-2" *ngIf="tableData && tableData.totalRecord" [ngClass]="fontSizeClass">
+    <perfect-scrollbar [config]="{suppressScrollX: false}" (psScrollX)="onScrollX($event)">
+      <div id="header" [ngStyle]="myConfigStyleHeader"></div>
+      <div id="table">
+        <table name="shipping-table" class="table shipping-table" border="1px"
+               *ngFor="let shippingData of tableData.data; let i = index">
+          <thead>
+          <tr class="header-daytime">
+            <th class="day" [attr.colspan]="totalColspan.first + totalColspan.second + 1">
+              {{shippingData.date | amDateFormat: 'dddd' | uppercase}}, {{shippingData.date | amDateFormat:
+              'MM/DD/YYYY'}}
+            </th>
+          </tr>
+          <tr *ngIf="shippingData.orders && shippingData.orders.length">
+            <th *ngIf="getIsViewColumn(colProp[0])"
+                [ngStyle]="{'max-width': getMinWidthDependFontSize(60), 'min-width': getMinWidthDependFontSize(60)}">
+              Retailer PO
+            </th>
+            <th *ngIf="getIsViewColumn(colProp[1])"
+                [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}">
+              Customer PO
+            </th>
+            <th *ngIf="getIsViewColumn(colProp[2])"
+                [ngStyle]="{'max-width': getMinWidthDependFontSize(80), 'min-width': getMinWidthDependFontSize(80)}">
+              Customer
+            </th>
+            <th *ngIf="getIsViewColumn(colProp[3])"
+                [ngStyle]="{'max-width': getMinWidthDependFontSize(300), 'min-width': getMinWidthDependFontSize(300)}">
+              Style
+            </th>
+            <th *ngIf="getIsViewColumn(colProp[4])"
+                [ngStyle]="{'max-width': getMinWidthDependFontSize(60), 'min-width': getMinWidthDependFontSize(60)}">
+              # Units<br>(Styles)
+            </th>
+            <th *ngIf="getIsViewColumn(colProp[5])"
+                [ngStyle]="{'max-width': getMinWidthDependFontSize(60), 'min-width': getMinWidthDependFontSize(60)}">
+              # Units<br>(PO)
+            </th>
+            <th *ngIf="getIsViewColumn(colProp[6])"
+                [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(0)}">
+              Start Date
+            </th>
+            <th *ngIf="getIsViewColumn(colProp[7])"
+                [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}">
+              Cancel Date
+            </th>
+            <th *ngIf="getIsViewColumn(colProp[8])"
+                [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}">
+              Last Date to Ship Non-Expedited
+            </th>
+            <th *ngIf="getIsViewColumn(colProp[9])"
+                [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}">
+              Ready to Ship
+            </th>
+            <th *ngIf="getIsViewColumn(colProp[10])"
+                [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}">
+              Actual Ship Date
+            </th>
+            <th *ngIf="getIsViewColumn(colProp[11])"
+                [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}">
+              Shipment Type
+            </th>
+          </tr>
+          </thead>
+          <tbody >
+          <ng-container *ngIf="shippingData.orders && shippingData.orders.length; else nothingBlock">
+            <ng-container *ngFor="let row of shippingData.orders; trackBy: trackByFn; let rowIndex = index">
+              <tr [ngClass]="{'archived-cell': row && row.isArchived}"
+                  *ngFor="let style of row.styles; trackBy: trackByFn; let firstStyle = first">
+                <ng-container *ngIf="firstStyle">
+                  <td *ngIf="getIsViewColumn(colProp[0])"
+                      [attr.rowspan]="row.styles.length"
+                      [ngStyle]="{'max-width': getMinWidthDependFontSize(60), 'min-width': getMinWidthDependFontSize(60)}">
+                    <div class="flex-box">
+                      <p class="my-0">{{row.retailerPoId}}</p>
+                    </div>
+                  </td>
+                  <td *ngIf="getIsViewColumn(colProp[1])"
+                      [attr.rowspan]="row.styles.length"
+                      [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}">
+                    <div class="flex-box" (click)="goToOrderInfo(row.orderId)">
+                      <p class="p-link my-0">{{row.customerPoId}}</p>
+                    </div>
+                  </td>
+                  <td *ngIf="getIsViewColumn(colProp[2])"
+                      [attr.rowspan]="row.styles.length"
+                      [ngStyle]="{'max-width': getMinWidthDependFontSize(80), 'min-width': getMinWidthDependFontSize(80)}">
+                    <div class="flex-box">
+                      <p class="my-0">
+                        {{row.customerName}}
+                        {{row.customerName && row.retailerName ? ' / ' : ''}}
+                        {{row.retailerName}}
+                      </p>
+                    </div>
+                  </td>
+                </ng-container>
+                <td *ngIf="getIsViewColumn(colProp[3])"
+                    class="cursor"
+                    [attr.rowspan]="1"
+                    [ngStyle]="{'max-width': getMinWidthDependFontSize(300), 'min-width': getMinWidthDependFontSize(300)}"
+                    (click)="goToStyle(row.orderId, style.orderDetailId)">
+                  <div class="flex-box">
+                    <p class="my-0 p-link">
+                      {{style.partnerStyleName}}
+                      {{style.partnerStyleName && style.styleName ? ' - ' : ''}}
+                      {{style.styleName}}
+                    </p>
+                  </div>
+                </td>
+                <td *ngIf="getIsViewColumn(colProp[4])"
+                    [attr.rowspan]="1"
+                    [ngClass]="{'type-domestic': style.itemType === itemTypes.DOMESTIC,
+                                'type-outsource': style.itemType === itemTypes.OUTSOURCE,
+                                'type-cutandsew': style.itemType === itemTypes.IMPORTS}"
+                    [ngStyle]="{'max-width': getMinWidthDependFontSize(60), 'min-width': getMinWidthDependFontSize(60)}">
+                  <div class="flex-box">
+                    <p class="my-0">{{style.totalProductionQty}}</p>
+                  </div>
+                </td>
+                <ng-container *ngIf="firstStyle">
+                  <td *ngIf="getIsViewColumn(colProp[5])"
+                      [attr.rowspan]="row.styles.length"
+                      [ngStyle]="{'max-width': getMinWidthDependFontSize(60), 'min-width': getMinWidthDependFontSize(60)}">
+                    <div class="flex-box">
+                      <p class="my-0">{{row.unitsPo}}</p>
+                    </div>
+                  </td>
+                  <td *ngIf="getIsViewColumn(colProp[6])"
+                      [attr.rowspan]="row.styles.length"
+                      [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}">
+                    <div class="flex-box">
+                      <p class="my-0">{{row.startDateOnUtc ?
+                        (row.startDateOnUtc | amFromUtc | amLocal | amDateFormat:'MM/DD/YY') : 'N/A'}}</p>
+                    </div>
+                  </td>
+                  <td *ngIf="getIsViewColumn(colProp[7])"
+                      [attr.rowspan]="row.styles.length"
+                      [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}">
+                    <div class="flex-box">
+                      <p class="my-0">{{row.cancelDateOnUtc ?
+                        (row.cancelDateOnUtc | amFromUtc | amLocal | amDateFormat:'MM/DD/YY') : 'N/A'}}</p>
+                    </div>
+                  </td>
+                  <td *ngIf="getIsViewColumn(colProp[8])"
+                      [attr.rowspan]="row.styles.length"
+                      [ngClass]="{'red-bg': isLargeTodayDate(row.lastDateToShipNonExpedited)}"
+                      [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}">
+                    <div class="flex-box">
+                      <p class="my-0">{{row.lastDateToShipNonExpedited ?
+                        (row.lastDateToShipNonExpedited | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY') : 'N/A'}}</p>
+                    </div>
+                  </td>
+                </ng-container>
+                <td *ngIf="getIsViewColumn(colProp[9])"
+                    [attr.rowspan]="1"
+                    [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}">
+                  <div class="flex-box">
+                    <p class="my-0">{{style.readyToShipVendor ? style.readyToShipVendor.join(', ') : ''}}</p>
+                  </div>
+                </td>
+                <td *ngIf="getIsViewColumn(colProp[10])"
+                    class="seperate-child"
+                    [attr.rowspan]="1"
+                    style="padding: 0 !important;"
+                    [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}"
+                    [ngClass]="{'col-readonly': !canModifyCols('Actual Ship Date') || row.isCancelled || style.isCancelled}"
+                    (click)="onChangeActualToShipDate(shippingData, row, style, style.actualToShipDate, rowIndex)">
+                  <label-status [columnStatus]="style.actualToShipDate.status"></label-status>
+
+                  <ng-container
+                    *ngIf="style.actualToShipDate.status && style.actualToShipDate.status !== taskStatus.BLANK">
+                    <p>{{combineInfoString(style.actualToShipDate.actualToShipVendors, 'vendorName', true)}}</p>
+                  </ng-container>
+
+                  <p class="m-b-10" *ngIf="style.actualToShipDate.isUploaded">
+                    <i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"
+                       (click)="openShipmentUploader(row.orderId, style.orderDetailId)"></i>
+                  </p>
+
+                  <ng-container
+                    *ngIf="style.actualToShipDate.status && style.actualToShipDate.status !== taskStatus.BLANK">
+                    <p class="mbe-1">Sched:</p>
+                    <p>{{combineDateString(style.actualToShipDate.actualToShipVendors, 'schedShipDateOnUtc', '')}}</p>
+
+                    <ng-container *ngIf="style.actualToShipDate.status !== taskStatus.SCHEDULED">
+                      <ng-container *ngIf="style.actualToShipDate.status === taskStatus.PARTIAL">
+                        <p class="mbe-1">Partial:</p>
+                        <p>{{combineDateString(style.actualToShipDate.actualToShipVendors, 'shipDateOnUtc', '')}}</p>
+                      </ng-container>
+
+                      <ng-container *ngIf="style.actualToShipDate.status === taskStatus.DONE">
+                        <p class="mbe-1">Done:</p>
+                        <p>{{combineDateString(style.actualToShipDate.actualToShipVendors, 'shipDateOnUtc', '')}}</p>
+                      </ng-container>
+                    </ng-container>
+                  </ng-container>
+
+                  <p *ngIf="style.actualToShipDate.status && style.actualToShipDate.fullName"
+                     class="m-t-5">
+                    {{style.actualToShipDate.fullName}}</p>
+                </td>
+                <ng-container *ngIf="firstStyle">
+                  <td *ngIf="getIsViewColumn(colProp[11])"
+                      [attr.rowspan]="row.styles.length"
+                      [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}">
+                    <div class="flex-box">
+                      <ng-container *ngIf="row.fulfillmentType">
+                        <p class="my-0" [ngPlural]="row.fulfillmentType">
+                          <ng-template ngPluralCase="0">?</ng-template>
+                          <ng-template ngPluralCase="1">In Fulfillment</ng-template>
+                          <ng-template ngPluralCase="2">In DC</ng-template>
+                          <ng-template ngPluralCase="3">Drop Ship</ng-template>
+                          <ng-template ngPluralCase="4">In Store</ng-template>
+                          <ng-template ngPluralCase="other"></ng-template>
+                        </p>
+                      </ng-container>
+                    </div>
+                  </td>
+                </ng-container>
+              </tr>
+            </ng-container>
+          </ng-container>
+          <tr class="total-piece">
+            <td *ngIf="totalColspan.first > 0"
+                [attr.colspan]="totalColspan.first" class="text-right">
+              DAILY TOTAL
+            </td>
+            <td *ngIf="getIsViewColumn(colProp[4])">
+              {{getDailyTotal(shippingData)}}
+            </td>
+            <td *ngIf="totalColspan.second > 0"
+                [attr.colspan]="totalColspan.second"></td>
+          </tr>
+          <ng-template #nothingBlock>
+            <tr>
+              <p class="noschedule">Nothing is scheduled for this date.</p>
+            </tr>
+          </ng-template>
+          </tbody>
+        </table>
+      </div>
+    </perfect-scrollbar>
+  </div>
+</div>

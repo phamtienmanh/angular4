@@ -1,0 +1,15 @@
+<ng-select #ngSelect
+           [allowClear]="allowClear"
+           [ngClass]="{'select-align-top': alignTop, 'limit-item': isLimitItems, 'none': (!data || !data.length) && (!asyncData || !asyncData.length) && !allowNewValue || disabled}"
+           [items]="data"
+           [multiple]="multiple"
+           [active]="activeItem"
+           [placeholder]="placeholder"
+           [disabled]="disabled"
+           (selected)="onSelected($event)"
+           (removed)="onRemoved($event)"></ng-select>
+
+<input type="text" *ngIf="(!data || !data.length) && (!asyncData || !asyncData.length) && !disabled && !allowNewValue"
+       class="form-control" value="No selections." disabled>
+
+<p class="p-readonly" *ngIf="disabled">{{getActiveString()}}</p>

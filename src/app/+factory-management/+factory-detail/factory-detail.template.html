@@ -1,0 +1,746 @@
+<form [formGroup]="frm" role="form" novalidate="">
+  <div class="p-b-35">
+    <div class="row m-t-15">
+      <div class="col-12 col-xl-6">
+        <div class="row flex py-1">
+          <div class="col-4 control-label text-right">
+            <label>&nbsp;</label>
+          </div>
+          <div class="col-fixed-180">
+            <div class="checkbox">
+              <input type="checkbox" id="isActive"
+                     [attr.disabled]="isPageReadOnly ? true : null"
+                     formControlName="isActive">
+              <label for="isActive">Active</label>
+            </div>
+          </div>
+        </div>
+        <div class="row flex py-1"
+             [ngClass]="{'required': frm.get('formRequires').value['name'].required}">
+          <div class="col-4 control-label text-right">
+            <label>Name</label>
+          </div>
+          <div class="col-fixed-180"
+               [ngClass]="{'has-error':!frm.get('name').valid}">
+            <input formControlName='name' [attr.disabled]="isPageReadOnly ? true : null"
+                   type="text"
+                   [placeholder]="!isPageReadOnly ? 'Factory Name' : ''"
+                   class="form-control">
+            <label class="error"
+                   *ngIf="frm.get('name').hasError('required') && !frm.get('name').pristine">
+              {{validationMessages['name'].required}}</label>
+          </div>
+        </div>
+        <div class="row flex py-1"
+             [ngClass]="{'required': frm.get('formRequires').value['countryId'].required}">
+          <div class="col-4 control-label text-right">
+            <label>Country</label>
+          </div>
+          <div class="col-fixed-180"
+               [ngClass]="{'has-error':!frm.get('countryId').valid, 'disabled': isPageReadOnly}">
+            <ng-select [items]="countryList" #countrySelect
+                       [virtualScroll]="true"
+                       (focus)="onSelectFocused(countrySelect)"
+                       (open)="countrySelect.filterValue = !!frm.get('countryName').value ? frm.get('countryName').value : ''"
+                       (add)="onSelectItem($event, 'name', 'countryName')"
+                       (clear)="frm.get('countryName').patchValue('')"
+                       [placeholder]="!isPageReadOnly ? 'Country' : ''"
+                       bindLabel="name"
+                       bindValue="id"
+                       formControlName="countryId"></ng-select>
+            <label class="error"
+                   *ngIf="frm.get('countryId').hasError('required') && !frm.get('countryId').pristine">
+              {{validationMessages['countryId'].required}}</label>
+          </div>
+        </div>
+        <div class="row flex py-1"
+             [ngClass]="{'required': frm.get('formRequires').value['embellishmentTypes'].required}">
+          <div class="col-4 control-label text-right">
+            <label>Embellishment Types</label>
+          </div>
+          <div class="col-fixed-180"
+               [ngClass]="{'has-error':!frm.get('embellishmentTypes').valid}">
+            <ng-select *ngIf="!isPageReadOnly"
+                       [items]="listFactoryType" #typesSelect
+                       (focus)="onSelectFocused(typesSelect)"
+                       [multiple]="true"
+                       [closeOnSelect]="false"
+                       [hideSelected]="true"
+                       [placeholder]="!isPageReadOnly ? 'Types' : ''"
+                       bindLabel="name"
+                       bindValue="id"
+                       formControlName="embellishmentTypes"></ng-select>
+            <p *ngIf="isPageReadOnly"
+               class="p-readonly">{{typesString}}</p>
+            <label class="error"
+                   *ngIf="frm.get('embellishmentTypes').hasError('required') && !frm.get('embellishmentTypes').pristine">
+              {{validationMessages['embellishmentTypes'].required}}</label>
+          </div>
+        </div>
+        <div class="row flex py-1"
+             [ngClass]="{'required': frm.get('formRequires').value['type'].required, 'disabled': isPageReadOnly}">
+          <div class="col-4 control-label text-right">
+            <label>Mode</label>
+          </div>
+          <div class="col-fixed-180"
+               [ngClass]="{'has-error':!frm.get('type').valid}">
+            <ng-select [items]="itemTypeList" #modeSelect
+                       (focus)="onSelectFocused(modeSelect)"
+                       [placeholder]="!isPageReadOnly ? 'Mode' : ''"
+                       [searchable]="false"
+                       bindLabel="name"
+                       bindValue="id"
+                       formControlName="type"></ng-select>
+            <label class="error"
+                   *ngIf="frm.get('type').hasError('required') && !frm.get('type').pristine">
+              {{validationMessages['type'].required}}</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <ng-container *ngIf="frm.get('type').value === itemTypes.IMPORTS">
+      <div class="row m-t-15">
+        <button class="btn btn-complete" (click)="selectCategories()">Select Product Categories</button>
+      </div>
+      <ul class="row nav nav-tabs m-t-15" *ngIf="categories.length > 1">
+        <ng-container *ngFor="let category of categories.value; trackBy: trackByFn; let i=index; let first = first">
+          <li class="text-center nav-item" *ngIf="!first"
+              [ngClass]="{'active': category.isActive}"
+              (click)="switchTab($event, i)">
+            <a class="justify-center nav-link"
+               href="javascript:void(0)" aria-expanded="true">
+              <span>{{category.categoryName}}</span>
+            </a>
+          </li>
+        </ng-container>
+      </ul>
+    </ng-container>
+
+    <div class="row p-t-15" *ngIf="frm.get('type').value !== itemTypes.IMPORTS
+         || (frm.get('type').value === itemTypes.IMPORTS && categories.length > 1)"
+         [ngClass]="{'px-3 order-general': frm.get('type').value === itemTypes.IMPORTS && categories.length > 1}">
+      <div class="col-12" formArrayName="categories" *ngIf="categories && categories.length">
+        <div class="row" [formGroupName]="currentActivatedCategoryIndex" *ngIf="!isChangeCategory">
+          <strong class="col-12 m-b-15 border-bottom-ccc">Lead Times(days)</strong>
+          <ng-container *ngIf="frm.get('type').value !== itemTypes.IMPORTS; else importTmpl">
+            <ng-container *ngTemplateOutlet="outsourceTmpl"></ng-container>
+          </ng-container>
+
+          <ng-template #outsourceTmpl>
+            <div class="col-xl-3 col-lg-3">
+              <ng-container *ngTemplateOutlet="projectLeadTime"></ng-container>
+            </div>
+            <div class="col-xl-3 col-lg-3">
+              <ng-container *ngTemplateOutlet="head"></ng-container>
+              <ng-container *ngTemplateOutlet="sampleLeadTime"></ng-container>
+            </div>
+            <div class="col-xl-3 col-lg-3">
+              <ng-container *ngTemplateOutlet="trimSubmitLeadTime"></ng-container>
+              <ng-container *ngTemplateOutlet="physSampleLeadTime"></ng-container>
+              <ng-container *ngTemplateOutlet="qcSampleLeadTime"></ng-container>
+              <ng-container *ngTemplateOutlet="physSampleFinalApproval"></ng-container>
+            </div>
+            <div class="col-xl-3 col-lg-3">
+              <ng-container *ngTemplateOutlet="productionLeadTime"></ng-container>
+              <ng-container *ngTemplateOutlet="factoryLeadTime"></ng-container>
+              <ng-container *ngTemplateOutlet="readyToShipLeadTime"></ng-container>
+            </div>
+          </ng-template>
+
+          <ng-template #importTmpl>
+            <div class="col-xl-3 col-lg-3">
+              <ng-container *ngTemplateOutlet="projectLeadTime"></ng-container>
+            </div>
+            <div class="col-xl-3 col-lg-3">
+              <ng-container *ngTemplateOutlet="head"></ng-container>
+              <ng-container *ngTemplateOutlet="fabricLabFitDueLeadTime"></ng-container>
+              <ng-container *ngTemplateOutlet="trimSubmitLeadTime"></ng-container>
+              <ng-container *ngTemplateOutlet="bulkStrikePpDueLeadTime"></ng-container>
+            </div>
+            <div class="col-xl-3 col-lg-3">
+              <ng-container *ngTemplateOutlet="physSampleLeadTime"></ng-container>
+              <ng-container *ngTemplateOutlet="techDesignLeadTime"></ng-container>
+              <ng-container *ngTemplateOutlet="qcSampleLeadTime"></ng-container>
+              <ng-container *ngTemplateOutlet="physSampleFinalApproval"></ng-container>
+            </div>
+            <div class="col-xl-3 col-lg-3">
+              <ng-container *ngTemplateOutlet="productionLeadTime"></ng-container>
+              <ng-container *ngTemplateOutlet="factoryLeadTime"></ng-container>
+              <ng-container *ngTemplateOutlet="readyToShipLeadTime"></ng-container>
+              <ng-container *ngTemplateOutlet="etaTscLeadTime"></ng-container>
+            </div>
+          </ng-template>
+
+          <ng-template #head>
+            <div class="row flex py-1">
+              <div class="col-8 control-label text-right">
+                <label>PO Issue Due,<br>OWS / Tech Pack Ready</label>
+              </div>
+              <div class="col-fixed-90"
+                   [ngClass]="{'has-error':!categories.controls[currentActivatedCategoryIndex].get('poIssueDueOwsTechPackReady').valid}">
+                <input IntegerNumber
+                       formControlName='poIssueDueOwsTechPackReady' [attr.disabled]="isPageReadOnly ? true : null"
+                       type="text"
+                       class="form-control center">
+                <label class="error"
+                       *ngIf="categories.controls[currentActivatedCategoryIndex].get('poIssueDueOwsTechPackReady').hasError('minTime') && !categories.controls[currentActivatedCategoryIndex].get('poIssueDueOwsTechPackReady').pristine">
+                  {{validationMessages['minTime'].required}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1">
+              <div class="col-8 control-label text-right">
+                <label>Art Requested</label>
+              </div>
+              <div class="col-fixed-90"
+                   [ngClass]="{'has-error':!categories.controls[currentActivatedCategoryIndex].get('artRequested').valid}">
+                <input IntegerNumber
+                       formControlName='artRequested' [attr.disabled]="isPageReadOnly ? true : null"
+                       type="text"
+                       class="form-control center">
+                <label class="error"
+                       *ngIf="categories.controls[currentActivatedCategoryIndex].get('artRequested').hasError('minTime') && !categories.controls[currentActivatedCategoryIndex].get('artRequested').pristine">
+                  {{validationMessages['minTime'].required}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1">
+              <div class="col-8 control-label text-right">
+                <label>Art Received</label>
+              </div>
+              <div class="col-fixed-90"
+                   [ngClass]="{'has-error':!categories.controls[currentActivatedCategoryIndex].get('artReceived').valid}">
+                <input IntegerNumber
+                       formControlName='artReceived' [attr.disabled]="isPageReadOnly ? true : null"
+                       type="text"
+                       class="form-control center">
+                <label class="error"
+                       *ngIf="categories.controls[currentActivatedCategoryIndex].get('artReceived').hasError('minTime') && !categories.controls[currentActivatedCategoryIndex].get('artReceived').pristine">
+                  {{validationMessages['minTime'].required}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1">
+              <div class="col-8 control-label text-right">
+                <label>Art Released</label>
+              </div>
+              <div class="col-fixed-90"
+                   [ngClass]="{'has-error':!categories.controls[currentActivatedCategoryIndex].get('artReleased').valid}">
+                <input IntegerNumber
+                       formControlName='artReleased' [attr.disabled]="isPageReadOnly ? true : null"
+                       type="text"
+                       class="form-control center">
+                <label class="error"
+                       *ngIf="categories.controls[currentActivatedCategoryIndex].get('artReleased').hasError('minTime') && !categories.controls[currentActivatedCategoryIndex].get('artReleased').pristine">
+                  {{validationMessages['minTime'].required}}</label>
+              </div>
+            </div>
+          </ng-template>
+
+          <ng-template #fabricLabFitDueLeadTime>
+            <div class="row flex py-1">
+              <div class="col-8 control-label text-right">
+                <label>Fabric Quality Due</label>
+              </div>
+              <div class="col-fixed-90"
+                   [ngClass]="{'has-error':!categories.controls[currentActivatedCategoryIndex].get('fabricQualityDue').valid}">
+                <input IntegerNumber
+                       formControlName='fabricQualityDue' [attr.disabled]="isPageReadOnly ? true : null"
+                       type="text"
+                       class="form-control center">
+                <label class="error"
+                       *ngIf="categories.controls[currentActivatedCategoryIndex].get('fabricQualityDue').hasError('minTime') && !categories.controls[currentActivatedCategoryIndex].get('fabricQualityDue').pristine">
+                  {{validationMessages['minTime'].required}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1">
+              <div class="col-8 control-label text-right">
+                <label>Lab Dips Due</label>
+              </div>
+              <div class="col-fixed-90"
+                   [ngClass]="{'has-error':!categories.controls[currentActivatedCategoryIndex].get('labDipDue').valid}">
+                <input IntegerNumber
+                       formControlName='labDipDue' [attr.disabled]="isPageReadOnly ? true : null"
+                       type="text"
+                       class="form-control center">
+                <label class="error"
+                       *ngIf="categories.controls[currentActivatedCategoryIndex].get('labDipDue').hasError('minTime') && !categories.controls[currentActivatedCategoryIndex].get('labDipDue').pristine">
+                  {{validationMessages['minTime'].required}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1">
+              <div class="col-8 control-label text-right">
+                <label>Fit Sample Due</label>
+              </div>
+              <div class="col-fixed-90"
+                   [ngClass]="{'has-error':!categories.controls[currentActivatedCategoryIndex].get('fitSampleDue').valid}">
+                <input IntegerNumber
+                       formControlName='fitSampleDue' [attr.disabled]="isPageReadOnly ? true : null"
+                       type="text"
+                       class="form-control center">
+                <label class="error"
+                       *ngIf="categories.controls[currentActivatedCategoryIndex].get('fitSampleDue').hasError('minTime') && !categories.controls[currentActivatedCategoryIndex].get('fitSampleDue').pristine">
+                  {{validationMessages['minTime'].required}}</label>
+              </div>
+            </div>
+          </ng-template>
+
+          <ng-template #bulkStrikePpDueLeadTime>
+            <div class="row flex py-1">
+              <div class="col-8 control-label text-right">
+                <label>Bulk Fabric</label>
+              </div>
+              <div class="col-fixed-90"
+                   [ngClass]="{'has-error':!categories.controls[currentActivatedCategoryIndex].get('bulkFabric').valid}">
+                <input IntegerNumber
+                       formControlName='bulkFabric' [attr.disabled]="isPageReadOnly ? true : null"
+                       type="text"
+                       class="form-control center">
+                <label class="error"
+                       *ngIf="categories.controls[currentActivatedCategoryIndex].get('bulkFabric').hasError('minTime') && !categories.controls[currentActivatedCategoryIndex].get('bulkFabric').pristine">
+                  {{validationMessages['minTime'].required}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1">
+              <div class="col-8 control-label text-right">
+                <label>Strike Off / Knit Down Due</label>
+              </div>
+              <div class="col-fixed-90"
+                   [ngClass]="{'has-error':!categories.controls[currentActivatedCategoryIndex].get('strikeOffKnitDownDue').valid}">
+                <input IntegerNumber
+                       formControlName='strikeOffKnitDownDue' [attr.disabled]="isPageReadOnly ? true : null"
+                       type="text"
+                       class="form-control center">
+                <label class="error"
+                       *ngIf="categories.controls[currentActivatedCategoryIndex].get('strikeOffKnitDownDue').hasError('minTime') && !categories.controls[currentActivatedCategoryIndex].get('strikeOffKnitDownDue').pristine">
+                  {{validationMessages['minTime'].required}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1">
+              <div class="col-8 control-label text-right">
+                <label>PP Sample Due</label>
+              </div>
+              <div class="col-fixed-90"
+                   [ngClass]="{'has-error':!categories.controls[currentActivatedCategoryIndex].get('ppSampleDue').valid}">
+                <input IntegerNumber
+                       formControlName='ppSampleDue' [attr.disabled]="isPageReadOnly ? true : null"
+                       type="text"
+                       class="form-control center">
+                <label class="error"
+                       *ngIf="categories.controls[currentActivatedCategoryIndex].get('ppSampleDue').hasError('minTime') && !categories.controls[currentActivatedCategoryIndex].get('ppSampleDue').pristine">
+                  {{validationMessages['minTime'].required}}</label>
+              </div>
+            </div>
+          </ng-template>
+
+          <ng-template #etaTscLeadTime>
+            <div class="row flex py-1">
+              <div class="col-8 control-label text-right">
+                <label>ETA @ TSC</label>
+              </div>
+              <div class="col-fixed-90"
+                   [ngClass]="{'has-error':!categories.controls[currentActivatedCategoryIndex].get('etaTsc').valid}">
+                <input IntegerNumber
+                       formControlName='etaTsc' [attr.disabled]="isPageReadOnly ? true : null"
+                       type="text"
+                       class="form-control center">
+                <label class="error"
+                       *ngIf="categories.controls[currentActivatedCategoryIndex].get('etaTsc').hasError('minTime') && !categories.controls[currentActivatedCategoryIndex].get('etaTsc').pristine">
+                  {{validationMessages['minTime'].required}}</label>
+              </div>
+            </div>
+          </ng-template>
+
+          <ng-template #sampleLeadTime>
+            <div class="row flex py-1">
+              <div class="col-8 control-label text-right">
+                <label class="bold mb-0">Sample Lead Times</label>
+              </div>
+            </div>
+            <div class="row flex py-1">
+              <div class="col-8 control-label text-right">
+                <label><i>Print only</i></label>
+              </div>
+              <div class="col-fixed-90"
+                   [ngClass]="{'has-error':!categories.controls[currentActivatedCategoryIndex].get('sampleLeadTimePrintOnly').valid}">
+                <input IntegerNumber
+                       formControlName='sampleLeadTimePrintOnly' [attr.disabled]="isPageReadOnly ? true : null"
+                       type="text"
+                       class="form-control center">
+                <label class="error"
+                       *ngIf="categories.controls[currentActivatedCategoryIndex].get('sampleLeadTimePrintOnly').hasError('minTime') && !categories.controls[currentActivatedCategoryIndex].get('sampleLeadTimePrintOnly').pristine">
+                  {{validationMessages['minTime'].required}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1">
+              <div class="col-8 control-label text-right">
+                <label><i>Wash Treatment</i></label>
+              </div>
+              <div class="col-fixed-90"
+                   [ngClass]="{'has-error':!categories.controls[currentActivatedCategoryIndex].get('sampleLeadTimeWashTreatment').valid}">
+                <input IntegerNumber
+                       formControlName='sampleLeadTimeWashTreatment' [attr.disabled]="isPageReadOnly ? true : null"
+                       type="text"
+                       class="form-control center">
+                <label class="error"
+                       *ngIf="categories.controls[currentActivatedCategoryIndex].get('sampleLeadTimeWashTreatment').hasError('minTime') && !categories.controls[currentActivatedCategoryIndex].get('sampleLeadTimeWashTreatment').pristine">
+                  {{validationMessages['minTime'].required}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1">
+              <div class="col-8 control-label text-right">
+                <label><i>Wash Treatment & Print</i></label>
+              </div>
+              <div class="col-fixed-90"
+                   [ngClass]="{'has-error':!categories.controls[currentActivatedCategoryIndex].get('sampleLeadTimeWashTreatmentPrint').valid}">
+                <input IntegerNumber
+                       formControlName='sampleLeadTimeWashTreatmentPrint' [attr.disabled]="isPageReadOnly ? true : null"
+                       type="text"
+                       class="form-control center">
+                <label class="error"
+                       *ngIf="categories.controls[currentActivatedCategoryIndex].get('sampleLeadTimeWashTreatmentPrint').hasError('minTime') && !categories.controls[currentActivatedCategoryIndex].get('sampleLeadTimeWashTreatmentPrint').pristine">
+                  {{validationMessages['minTime'].required}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1">
+              <div class="col-8 control-label text-right">
+                <label><i>Embroidery</i></label>
+              </div>
+              <div class="col-fixed-90"
+                   [ngClass]="{'has-error':!categories.controls[currentActivatedCategoryIndex].get('sampleLeadTimeEmbroidery').valid}">
+                <input IntegerNumber
+                       formControlName='sampleLeadTimeEmbroidery' [attr.disabled]="isPageReadOnly ? true : null"
+                       type="text"
+                       class="form-control center">
+                <label class="error"
+                       *ngIf="categories.controls[currentActivatedCategoryIndex].get('sampleLeadTimeEmbroidery').hasError('minTime') && !categories.controls[currentActivatedCategoryIndex].get('sampleLeadTimeEmbroidery').pristine">
+                  {{validationMessages['minTime'].required}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1">
+              <div class="col-8 control-label text-right">
+                <label><i>Patches</i></label>
+              </div>
+              <div class="col-fixed-90"
+                   [ngClass]="{'has-error':!categories.controls[currentActivatedCategoryIndex].get('sampleLeadTimePatches').valid}">
+                <input IntegerNumber
+                       formControlName='sampleLeadTimePatches' [attr.disabled]="isPageReadOnly ? true : null"
+                       type="text"
+                       class="form-control center">
+                <label class="error"
+                       *ngIf="categories.controls[currentActivatedCategoryIndex].get('sampleLeadTimePatches').hasError('minTime') && !categories.controls[currentActivatedCategoryIndex].get('sampleLeadTimePatches').pristine">
+                  {{validationMessages['minTime'].required}}</label>
+              </div>
+            </div>
+          </ng-template>
+
+          <ng-template #productionLeadTime>
+            <div class="row flex py-1">
+              <div class="col-8 control-label text-right">
+                <label class="bold mb-0">Production Lead Times</label>
+              </div>
+            </div>
+            <div class="row flex py-1">
+              <div class="col-8 control-label text-right">
+                <label><i>Print only</i></label>
+              </div>
+              <div class="col-fixed-90"
+                   [ngClass]="{'has-error':!categories.controls[currentActivatedCategoryIndex].get('productionLeadTimePrintOnly').valid}">
+                <input IntegerNumber
+                       formControlName='productionLeadTimePrintOnly' [attr.disabled]="isPageReadOnly ? true : null"
+                       type="text"
+                       class="form-control center">
+                <label class="error"
+                       *ngIf="categories.controls[currentActivatedCategoryIndex].get('productionLeadTimePrintOnly').hasError('minTime') && !categories.controls[currentActivatedCategoryIndex].get('productionLeadTimePrintOnly').pristine">
+                  {{validationMessages['minTime'].required}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1">
+              <div class="col-8 control-label text-right">
+                <label><i>Wash Treatment</i></label>
+              </div>
+              <div class="col-fixed-90"
+                   [ngClass]="{'has-error':!categories.controls[currentActivatedCategoryIndex].get('productionLeadTimeWashTreatment').valid}">
+                <input IntegerNumber
+                       formControlName='productionLeadTimeWashTreatment' [attr.disabled]="isPageReadOnly ? true : null"
+                       type="text"
+                       class="form-control center">
+                <label class="error"
+                       *ngIf="categories.controls[currentActivatedCategoryIndex].get('productionLeadTimeWashTreatment').hasError('minTime') && !categories.controls[currentActivatedCategoryIndex].get('productionLeadTimeWashTreatment').pristine">
+                  {{validationMessages['minTime'].required}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1">
+              <div class="col-8 control-label text-right">
+                <label><i>Wash Treatment & Print</i></label>
+              </div>
+              <div class="col-fixed-90"
+                   [ngClass]="{'has-error':!categories.controls[currentActivatedCategoryIndex].get('productionLeadTimeWashTreatmentPrint').valid}">
+                <input IntegerNumber
+                       formControlName='productionLeadTimeWashTreatmentPrint'
+                       [attr.disabled]="isPageReadOnly ? true : null"
+                       type="text"
+                       class="form-control center">
+                <label class="error"
+                       *ngIf="categories.controls[currentActivatedCategoryIndex].get('productionLeadTimeWashTreatmentPrint').hasError('minTime') && !categories.controls[currentActivatedCategoryIndex].get('productionLeadTimeWashTreatmentPrint').pristine">
+                  {{validationMessages['minTime'].required}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1">
+              <div class="col-8 control-label text-right">
+                <label><i>Embroidery</i></label>
+              </div>
+              <div class="col-fixed-90"
+                   [ngClass]="{'has-error':!categories.controls[currentActivatedCategoryIndex].get('productionLeadTimeEmbroidery').valid}">
+                <input IntegerNumber
+                       formControlName='productionLeadTimeEmbroidery' [attr.disabled]="isPageReadOnly ? true : null"
+                       type="text"
+                       class="form-control center">
+                <label class="error"
+                       *ngIf="categories.controls[currentActivatedCategoryIndex].get('productionLeadTimeEmbroidery').hasError('minTime') && !categories.controls[currentActivatedCategoryIndex].get('productionLeadTimeEmbroidery').pristine">
+                  {{validationMessages['minTime'].required}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1">
+              <div class="col-8 control-label text-right">
+                <label><i>Patches</i></label>
+              </div>
+              <div class="col-fixed-90"
+                   [ngClass]="{'has-error':!categories.controls[currentActivatedCategoryIndex].get('productionLeadTimePatches').valid}">
+                <input IntegerNumber
+                       formControlName='productionLeadTimePatches' [attr.disabled]="isPageReadOnly ? true : null"
+                       type="text"
+                       class="form-control center">
+                <label class="error"
+                       *ngIf="categories.controls[currentActivatedCategoryIndex].get('productionLeadTimePatches').hasError('minTime') && !categories.controls[currentActivatedCategoryIndex].get('productionLeadTimePatches').pristine">
+                  {{validationMessages['minTime'].required}}</label>
+              </div>
+            </div>
+          </ng-template>
+
+          <ng-template #projectLeadTime>
+            <div class="row flex py-1">
+              <div class="col-8 control-label text-right">
+                <label>TSC Presentation Date</label>
+              </div>
+              <div class="col-fixed-90"
+                   [ngClass]="{'has-error':!categories.controls[currentActivatedCategoryIndex].get('tscPresentationDate').valid}">
+                <input IntegerNumber
+                       formControlName='tscPresentationDate' [attr.disabled]="isPageReadOnly ? true : null"
+                       type="text"
+                       class="form-control center">
+                <label class="error"
+                       *ngIf="categories.controls[currentActivatedCategoryIndex].get('tscPresentationDate').hasError('minTime') && !categories.controls[currentActivatedCategoryIndex].get('tscPresentationDate').pristine">
+                  {{validationMessages['minTime'].required}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1">
+              <div class="col-8 control-label text-right">
+                <label>TSC Concept Boards for selection</label>
+              </div>
+              <div class="col-fixed-90"
+                   [ngClass]="{'has-error':!categories.controls[currentActivatedCategoryIndex].get('tscConceptBoardsForSelection').valid}">
+                <input IntegerNumber
+                       formControlName='tscConceptBoardsForSelection' [attr.disabled]="isPageReadOnly ? true : null"
+                       type="text"
+                       class="form-control center">
+                <label class="error"
+                       *ngIf="categories.controls[currentActivatedCategoryIndex].get('tscConceptBoardsForSelection').hasError('minTime') && !categories.controls[currentActivatedCategoryIndex].get('tscConceptBoardsForSelection').pristine">
+                  {{validationMessages['minTime'].required}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1">
+              <div class="col-8 control-label text-right">
+                <label>Retailer Selection w/o concept approval</label>
+              </div>
+              <div class="col-fixed-90"
+                   [ngClass]="{'has-error':!categories.controls[currentActivatedCategoryIndex].get('licensorSelectionWoConceptApproval').valid}">
+                <input IntegerNumber
+                       formControlName='licensorSelectionWoConceptApproval'
+                       [attr.disabled]="isPageReadOnly ? true : null"
+                       type="text"
+                       class="form-control center">
+                <label class="error"
+                       *ngIf="categories.controls[currentActivatedCategoryIndex].get('licensorSelectionWoConceptApproval').hasError('minTime') && !categories.controls[currentActivatedCategoryIndex].get('licensorSelectionWoConceptApproval').pristine">
+                  {{validationMessages['minTime'].required}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1">
+              <div class="col-8 control-label text-right">
+                <label>Concept Approved by Licensor,<br> Packaging approved by Licensor</label>
+              </div>
+              <div class="col-fixed-90"
+                   [ngClass]="{'has-error':!categories.controls[currentActivatedCategoryIndex].get('licensingApproval').valid}">
+                <input IntegerNumber
+                       formControlName='licensingApproval' [attr.disabled]="isPageReadOnly ? true : null"
+                       type="text"
+                       class="form-control center">
+                <label class="error"
+                       *ngIf="categories.controls[currentActivatedCategoryIndex].get('licensingApproval').hasError('minTime') && !categories.controls[currentActivatedCategoryIndex].get('licensingApproval').pristine">
+                  {{validationMessages['minTime'].required}}</label>
+              </div>
+            </div>
+          </ng-template>
+
+          <ng-template #trimSubmitLeadTime>
+            <div class="row flex py-1">
+              <div class="col-8 control-label text-right">
+                <label>Trim Submits Due</label>
+              </div>
+              <div class="col-fixed-90"
+                   [ngClass]="{'has-error':!categories.controls[currentActivatedCategoryIndex].get('trimSubmitsDue').valid}">
+                <input IntegerNumber
+                       formControlName='trimSubmitsDue' [attr.disabled]="isPageReadOnly ? true : null"
+                       type="text"
+                       class="form-control center">
+                <label class="error"
+                       *ngIf="categories.controls[currentActivatedCategoryIndex].get('trimSubmitsDue').hasError('minTime') && !categories.controls[currentActivatedCategoryIndex].get('trimSubmitsDue').pristine">
+                  {{validationMessages['minTime'].required}}</label>
+              </div>
+            </div>
+          </ng-template>
+
+          <ng-template #physSampleLeadTime>
+            <div class="row flex py-1">
+              <div class="col-8 control-label text-right">
+                <label>Phys. Sample Ex-Factory Date (PP),<br>Phys. Sample Ex-Factory Date (PP To Testing
+                  Facility)</label>
+              </div>
+              <div class="col-fixed-90"
+                   [ngClass]="{'has-error':!categories.controls[currentActivatedCategoryIndex].get('physSampleExFactoryDatePp').valid}">
+                <input IntegerNumber
+                       formControlName='physSampleExFactoryDatePp' [attr.disabled]="isPageReadOnly ? true : null"
+                       type="text"
+                       class="form-control center">
+                <label class="error"
+                       *ngIf="categories.controls[currentActivatedCategoryIndex].get('physSampleExFactoryDatePp').hasError('minTime') && !categories.controls[currentActivatedCategoryIndex].get('physSampleExFactoryDatePp').pristine">
+                  {{validationMessages['minTime'].required}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1">
+              <div class="col-8 control-label text-right">
+                <label>Phys. Sample Delivered to Testing Facility (PP),<br>Phys. Sample Actual Date Delivered
+                  (PP)</label>
+              </div>
+              <div class="col-fixed-90"
+                   [ngClass]="{'has-error':!categories.controls[currentActivatedCategoryIndex].get('physSampleDeliveredPp').valid}">
+                <input IntegerNumber
+                       formControlName='physSampleDeliveredPp' [attr.disabled]="isPageReadOnly ? true : null"
+                       type="text"
+                       class="form-control center">
+                <label class="error"
+                       *ngIf="categories.controls[currentActivatedCategoryIndex].get('physSampleDeliveredPp').hasError('minTime') && !categories.controls[currentActivatedCategoryIndex].get('physSampleDeliveredPp').pristine">
+                  {{validationMessages['minTime'].required}}</label>
+              </div>
+            </div>
+          </ng-template>
+
+          <ng-template #techDesignLeadTime>
+            <div class="row flex py-1">
+              <div class="col-8 control-label text-right">
+                <label>Tech Design Review Date (PP)</label>
+              </div>
+              <div class="col-fixed-90"
+                   [ngClass]="{'has-error':!categories.controls[currentActivatedCategoryIndex].get('techDesignReviewDatePp').valid}">
+                <input IntegerNumber
+                       formControlName='techDesignReviewDatePp' [attr.disabled]="isPageReadOnly ? true : null"
+                       type="text"
+                       class="form-control center">
+                <label class="error"
+                       *ngIf="categories.controls[currentActivatedCategoryIndex].get('techDesignReviewDatePp').hasError('minTime') && !categories.controls[currentActivatedCategoryIndex].get('techDesignReviewDatePp').pristine">
+                  {{validationMessages['minTime'].required}}</label>
+              </div>
+            </div>
+          </ng-template>
+
+          <ng-template #qcSampleLeadTime>
+            <div class="row flex py-1">
+              <div class="col-8 control-label text-right">
+                <label>QC Sample / Ship Date (PP)</label>
+              </div>
+              <div class="col-fixed-90"
+                   [ngClass]="{'has-error':!categories.controls[currentActivatedCategoryIndex].get('qcSampleShipDatePp').valid}">
+                <input IntegerNumber
+                       formControlName='qcSampleShipDatePp' [attr.disabled]="isPageReadOnly ? true : null"
+                       type="text"
+                       class="form-control center">
+                <label class="error"
+                       *ngIf="categories.controls[currentActivatedCategoryIndex].get('qcSampleShipDatePp').hasError('minTime') && !categories.controls[currentActivatedCategoryIndex].get('qcSampleShipDatePp').pristine">
+                  {{validationMessages['minTime'].required}}</label>
+              </div>
+            </div>
+          </ng-template>
+
+          <ng-template #physSampleFinalApproval>
+            <div class="row flex py-1">
+              <div class="col-8 control-label text-right">
+                <label>Phys. Sample Approved By Testing Facility (PP),<br>Final Approval (PP)</label>
+              </div>
+              <div class="col-fixed-90"
+                   [ngClass]="{'has-error':!categories.controls[currentActivatedCategoryIndex].get('physSampleApprovedPp').valid}">
+                <input IntegerNumber
+                       formControlName='physSampleApprovedPp' [attr.disabled]="isPageReadOnly ? true : null"
+                       type="text"
+                       class="form-control center">
+                <label class="error"
+                       *ngIf="categories.controls[currentActivatedCategoryIndex].get('physSampleApprovedPp').hasError('minTime') && !categories.controls[currentActivatedCategoryIndex].get('physSampleApprovedPp').pristine">
+                  {{validationMessages['minTime'].required}}</label>
+              </div>
+            </div>
+          </ng-template>
+
+          <ng-template #factoryLeadTime>
+            <div class="row flex py-1">
+              <div class="col-8 control-label text-right">
+                <label>Factory Packing List / CI,<br>x-Factory Date</label>
+              </div>
+              <div class="col-fixed-90"
+                   [ngClass]="{'has-error':!categories.controls[currentActivatedCategoryIndex].get('factoryPackingListCiXFactoryDate').valid}">
+                <input IntegerNumber
+                       formControlName='factoryPackingListCiXFactoryDate' [attr.disabled]="isPageReadOnly ? true : null"
+                       type="text"
+                       class="form-control center">
+                <label class="error"
+                       *ngIf="categories.controls[currentActivatedCategoryIndex].get('factoryPackingListCiXFactoryDate').hasError('minTime') && !categories.controls[currentActivatedCategoryIndex].get('factoryPackingListCiXFactoryDate').pristine">
+                  {{validationMessages['minTime'].required}}</label>
+              </div>
+            </div>
+          </ng-template>
+
+          <ng-template #readyToShipLeadTime>
+            <div class="row flex py-1">
+              <div class="col-8 control-label text-right">
+                <label>Ready To Ship @ 3PL</label>
+              </div>
+              <div class="col-fixed-90"
+                   [ngClass]="{'has-error':!categories.controls[currentActivatedCategoryIndex].get('readyToShip3Pl').valid}">
+                <input IntegerNumber
+                       formControlName='readyToShip3Pl' [attr.disabled]="isPageReadOnly ? true : null"
+                       type="text"
+                       class="form-control center">
+                <label class="error"
+                       *ngIf="categories.controls[currentActivatedCategoryIndex].get('readyToShip3Pl').hasError('minTime') && !categories.controls[currentActivatedCategoryIndex].get('readyToShip3Pl').pristine">
+                  {{validationMessages['minTime'].required}}</label>
+              </div>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+    <div class="row py-2" *ngIf="!isPageReadOnly">
+      <div class="col-xl-6 col-8">
+        <div class="row flex py-1">
+          <div class="col-4"></div>
+          <div class="col-4">
+            <button class="btn btn-complete btn-cons"
+                    (click)="onSaved(frm)">Save
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="sticky-btn" *ngIf="!isPageReadOnly && isShowStickyBtn">
+      <button class="btn btn-complete btn-cons"
+              (click)="onSaved(frm)">Save
+      </button>
+    </div>
+  </div>
+</form>

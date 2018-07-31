@@ -1,0 +1,71 @@
+label-detail {
+  .form-detail {
+    label {
+      border-bottom: none;
+    }
+  }
+
+  .remove-image {
+    top: 0.2em !important;
+    right: 0 !important;
+    @media (max-width: 992px) {
+      right: 15% !important;
+    }
+  }
+
+  .custom-label {
+    position: absolute !important;
+    left: -2em !important;
+    top: -0.9em !important;
+  }
+  .col-xl-0 {
+    @media (min-width: 1200px) {
+      flex: 0 0 0%;
+      max-width: 0%;
+      padding-left: 0px !important;
+      padding-right: 0px !important;
+    }
+  }
+  .width-responsive {
+    @media (max-width: 992px) {
+      width: 70% !important;
+    }
+  }
+  .select-location {
+    color: #0066c0;
+    cursor: pointer;
+    &:hover {
+      color: #48b0f7;
+      text-decoration: underline;
+    }
+  }
+  .nav-tabs {
+    border-left: none;
+    border-right: none;
+    li.active > a {
+      background-color: #f3f3f3 !important;
+    }
+  }
+  .my-textarea {
+    textarea {
+      min-height: 80px !important;
+    }
+  }
+  .align-checkbox {
+    margin-left: 0px;
+    padding-left: 8px !important;
+  }
+  .input-group-addon {
+    background: white !important;
+    border-color: #fff;
+    color: #626262 !important;
+    margin-left: -5px;
+  }
+}
+@-moz-document url-prefix() {
+  label-detail {
+    .align-checkbox {
+      margin-left: -15px;
+    }
+  }
+}

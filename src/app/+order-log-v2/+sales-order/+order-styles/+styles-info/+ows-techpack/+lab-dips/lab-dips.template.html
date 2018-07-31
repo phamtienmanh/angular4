@@ -1,0 +1,18 @@
+<div class="panel panel-transparent py-2 px-2" *ngIf="canModifyOws">
+  <button class="btn btn-complete btn-cons" (click)="addLab()">+ Add Lab Dip</button>
+</div>
+<div class="panel panel-transparent py-2 px-2" *ngIf="tabs && tabs.length">
+  <ul class="nav nav-tabs full-width">
+    <li class="text-center nav-item" *ngFor="let tab of tabs; let i=index"
+        [ngClass]="{'active': tab.isActive, 'disappear': tab.isDisable}"
+        (click)="switchTab($event, i)">
+      <a class="justify-center nav-link"
+         href="javascript:void(0)" aria-expanded="true">
+        <span>{{tab.name}}</span>
+      </a>
+    </li>
+  </ul>
+  <div class="order-general">
+    <router-outlet></router-outlet>
+  </div>
+</div>

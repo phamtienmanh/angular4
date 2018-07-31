@@ -1,0 +1,154 @@
+﻿<div class="modal-header m-b-10">
+  <h4 class="modal-title">{{title}}</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.close(false)">
+    <span aria-hidden="true">×</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="frm"
+        role="form"
+        novalidate="">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="row flex py-1">
+          <div class="col-sm-4 control-label text-right"></div>
+          <div class="col-sm-6">
+            <div class="checkbox m-0">
+              <input type="checkbox" id="active"
+                     formControlName="active">
+              <label for="active">Active</label>
+            </div>
+          </div>
+        </div>
+        <div class="row flex py-1"
+             [ngClass]="{'required': frm.get('formRequires').value['name'].required}">
+          <div class="col-sm-4 control-label text-right">
+            <label class="nowrap">Name</label>
+          </div>
+          <div class="col-sm-6"
+               [ngClass]="{'has-error':!frm.get('name').valid}">
+            <input formControlName='name' disabled
+                   type="text"
+                   [placeholder]="'Name'"
+                   class="form-control">
+            <label class="error"
+                   *ngIf="frm.get('name').hasError('required') && !frm.get('name').pristine">
+              {{validationMessages['name'].required}}</label>
+          </div>
+        </div>
+        <div class="row flex py-1"
+             [ngClass]="{'required': frm.get('formRequires').value['title'].required}">
+          <div class="col-sm-4 control-label text-right">
+            <label class="nowrap">Title</label>
+          </div>
+          <div class="col-sm-6"
+               [ngClass]="{'has-error':!frm.get('title').valid}">
+            <input formControlName='title'
+                   type="text"
+                   [placeholder]="'Title'"
+                   class="form-control">
+            <label class="error"
+                   *ngIf="frm.get('title').hasError('required') && !frm.get('title').pristine">
+              {{validationMessages['title'].required}}</label>
+          </div>
+        </div>
+        <div class="row flex py-1"
+             [ngClass]="{'required': frm.get('formRequires').value['emails'].required}">
+          <div class="col-sm-4 control-label text-right">
+            <label>Email(s)</label>
+          </div>
+          <div class="col-sm-6"
+               [ngClass]="{'has-error':!frm.get('emails').valid}">
+            <tag-input class="form-control"
+                       formControlName="emails"
+                       placeholder="Email(s)"
+                       [secondaryPlaceholder]="'Email(s)'"
+                       [separatorKeyCodes]="[32, 188]"
+                       [validators]="checkRegExpEmail"
+                       [addOnBlur]="true"
+                       [addOnPaste]="true"
+                       [modelAsStrings]="true"
+                       (onValidationError)="onValidationError($event)">
+            </tag-input>
+            <label class="error"
+                   *ngIf="frm.get('emails').hasError('required') && !frm.get('emails').pristine">
+              {{validationMessages['emails'].required}}</label>
+            <label class="error"
+                   *ngIf="frm.get('emails').hasError('pattern') && !frm.get('emails').pristine">
+              {{validationMessages['emails'].pattern}}</label>
+          </div>
+        </div>
+        <div class="row flex py-1"
+             [ngClass]="{'required': frm.get('formRequires').value['emailSubject'].required}">
+          <div class="col-sm-4 control-label text-right">
+            <label class="nowrap">Email Subject</label>
+          </div>
+          <div class="col-sm-6"
+               [ngClass]="{'has-error':!frm.get('emailSubject').valid}">
+            <input formControlName='emailSubject'
+                   type="text"
+                   [placeholder]="'Email Subject'"
+                   class="form-control">
+            <label class="error"
+                   *ngIf="frm.get('emailSubject').hasError('required') && !frm.get('emailSubject').pristine">
+              {{validationMessages['emailSubject'].required}}</label>
+          </div>
+        </div>
+        <div class="row flex py-1"
+             [ngClass]="{'required': frm.get('formRequires').value['userIds'].required}">
+          <div class="col-sm-4 control-label text-right">
+            <label>User(s)</label>
+          </div>
+          <div class="col-sm-6"
+               [ngClass]="{'has-error':!frm.get('userIds').valid}">
+            <ng-select [items]="listUser" #usersSelect
+                       [virtualScroll]="true"
+                       (focus)="onSelectFocused(usersSelect)"
+                       [multiple]="true"
+                       [closeOnSelect]="false"
+                       [hideSelected]="true"
+                       [placeholder]="!isPageReadOnly ? 'User(s)' : ''"
+                       bindLabel="fullName"
+                       bindValue="id"
+                       formControlName="userIds"></ng-select>
+            <label class="error"
+                   *ngIf="frm.get('userIds').hasError('required') && !frm.get('userIds').pristine">
+              {{validationMessages['userIds'].required}}</label>
+          </div>
+        </div>
+        <div class="row flex py-1"
+             [ngClass]="{'required': frm.get('formRequires').value['roleIds'].required}">
+          <div class="col-sm-4 control-label text-right">
+            <label>Role(s)</label>
+          </div>
+          <div class="col-sm-6"
+               [ngClass]="{'has-error':!frm.get('roleIds').valid}">
+            <ng-select [items]="listRole" #rolesSelect
+                       [virtualScroll]="true"
+                       (focus)="onSelectFocused(rolesSelect)"
+                       [multiple]="true"
+                       [closeOnSelect]="false"
+                       [hideSelected]="true"
+                       [placeholder]="!isPageReadOnly ? 'Role(s)' : ''"
+                       bindLabel="name"
+                       bindValue="id"
+                       formControlName="roleIds"></ng-select>
+            <label class="error"
+                   *ngIf="frm.get('roleIds').hasError('required') && !frm.get('roleIds').pristine">
+              {{validationMessages['roleIds'].required}}</label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+<div class="modal-footer" *ngIf="!isPageReadOnly">
+  <button class="btn btn-complete"
+          (click)="onSubmit()">
+    Save
+  </button>
+  <button class="btn btn-default m-r-30"
+          (click)="activeModal.close(false)">
+    Cancel
+  </button>
+</div>

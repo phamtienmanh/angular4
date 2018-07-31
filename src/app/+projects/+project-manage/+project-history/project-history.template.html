@@ -1,0 +1,73 @@
+<div class="px-3 py-2" [hidden]="historyInfoData.data && historyInfoData.data.length">
+  <span class="font-size-16">This Project does not have any histories.</span>
+</div>
+<div class="px-3 py-2" [hidden]="!historyInfoData.data || !historyInfoData.data.length">
+  <ng-container *ngTemplateOutlet="pagination"></ng-container>
+  <perfect-scrollbar [config]="{suppressScrollX: false}">
+    <div class="table-wrapper" #tableWrapper>
+      <ngx-datatable #table
+                     class="material ngx-table-hover"
+                     [rows]="historyInfoData.data"
+                     [columnMode]="'force'"
+                     [footerHeight]="0"
+                     [headerHeight]="'auto'"
+                     [rowHeight]="'auto'"
+                     [externalSorting]="true"
+                     [loadingIndicator]="tableConfig.loading"
+                     [sorts]="[{prop: 'createdOnUtc', dir: 'asc'}]">
+        <ngx-datatable-column [name]="'Date'"
+                              [prop]="'createdOnUtc'"
+                              [minWidth]="140"
+                              [maxWidth]="140"
+                              [sortable]="false"
+                              [resizeable]="false"
+                              [draggable]="false">
+          <ng-template let-value="value" ngx-datatable-cell-template>
+            <span>{{value | amFromUtc | amLocal | amDateFormat: 'MM/DD/YYYY h:mm:ss A'}}</span>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'User'"
+          [prop]="'fullName'"
+          [minWidth]="140"
+          [maxWidth]="200"
+          [sortable]="false"
+          [draggable]="false"
+          [resizeable]="false">
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'Activity Description'"
+          [prop]="'activityDescription'"
+          [minWidth]="140"
+          [maxWidth]="200"
+          [sortable]="false"
+          [draggable]="false"
+          [resizeable]="false">
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'Additional Detail'"
+          [prop]="'additionalDetail'"
+          [sortable]="false"
+          [draggable]="false"
+          [resizeable]="false">
+        </ngx-datatable-column>
+      </ngx-datatable>
+    </div>
+  </perfect-scrollbar>
+  <ng-container *ngTemplateOutlet="paginationTop"></ng-container>
+</div>
+<ng-template #pagination>
+  <pagination-control [totalRecord]="historyInfoData.totalRecord" *ngIf="historyInfoData.data && historyInfoData.data.length"
+                      [pageSize]="tableConfig.pageSize"
+                      [currentPage]="tableConfig.currentPage"
+                      (onSelectedPageSize)="onSelectedPageSize($event)"
+                      (onPageChange)="onPageChange($event)"></pagination-control>
+</ng-template>
+<ng-template #paginationTop>
+  <pagination-control [totalRecord]="historyInfoData.totalRecord" *ngIf="historyInfoData.data && historyInfoData.data.length"
+                      [pageSize]="tableConfig.pageSize"
+                      [currentPage]="tableConfig.currentPage"
+                      [dropdownPosition]="'top-left'"
+                      (onSelectedPageSize)="onSelectedPageSize($event)"
+                      (onPageChange)="onPageChange($event)"></pagination-control>
+</ng-template>

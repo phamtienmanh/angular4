@@ -1,0 +1,28 @@
+actual-to-ship {
+  .btn-upload {
+    position: relative;
+    top: 5px;
+    padding-left: 0 !important;
+  }
+
+  .checkbox {
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
+    label {
+      margin-right: 0 !important;
+      margin-bottom: 0 !important;
+      white-space: normal;
+    }
+  }
+
+  .my-textarea {
+    textarea {
+      min-height: 60px !important;
+    }
+  }
+
+  .general-title {
+    border-bottom: 1px solid #626262;
+    font-size: 14px;
+  }
+}

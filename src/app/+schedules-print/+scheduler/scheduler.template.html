@@ -1,0 +1,1302 @@
+﻿<div class="panel panel-transparent py-2" [ngClass]="fontSizeClass">
+  <div class="row pb-2 separate-border">
+    <!-- <div class="col-lg-12 col-xl-6 m-b-10 searchForm">
+      <div class="input-icon">
+        <input-debounce placeholder="Search by cust po #, retail po#, customer, design #, design"
+                        data-toggle="tooltip" data-placement="top"
+                        title="Search by cust po #, retail po#, customer, design #, design"
+                        (value)="onSearchChanged($event)"></input-debounce>
+                        (value)="onSearchChanged($event)"></input-debounce>
+      </div>
+    </div> -->
+    <div class="col-lg-12 col-xl-12">
+      <collapse-panel [formValue]="searchedObj" (onCollapse)="onCollapse()">
+        <div class="row">
+        <form role="form" [formGroup]="frm" novalidate="" (ngSubmit)="onFilter()" (click)="formClick($event)">
+          <div class="col-lg-6 col-xl-6 left px-1">
+            <div class="row">
+              <div class="col-sm-6 col-lg-6 col-xl-6 m-b-5">
+                <div class="row align-items-center">
+                  <div class="col-4 col-sm-4 col-lg-5">
+                    <span class="right">Customer:</span>
+                  </div>
+                  <div class="col-8 col-sm-8 col-lg-7">
+                    <input type="text"
+                           name="customer"
+                           placeholder="Customer Name"
+                           formControlName='customer'
+                           class="form-control">
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-lg-6 col-xl-6 m-b-5">
+                <div class="row align-items-center">
+                  <div class="col-4 col-sm-4 col-lg-5">
+                    <span class="right">Style Name:</span>
+                  </div>
+                  <div class="col-8 col-sm-8 col-lg-7">
+                    <input type="text"
+                           name="styleName"
+                           placeholder="Style Name"
+                           formControlName='styleName'
+                           class="form-control">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6 col-lg-6 col-xl-6 m-b-5">
+                <div class="row align-items-center">
+                  <div class="col-4 col-sm-4 col-lg-5">
+                    <span class="right nowrap">Customer PO #:</span>
+                  </div>
+                  <div class="col-8 col-sm-8 col-lg-7">
+                    <input type="text"
+                           name="customerPo"
+                           placeholder="Customer PO #"
+                           formControlName='customerPoId'
+                           class="form-control">
+                  </div>
+                </div>
+              </div>
+              <!-- <div class="col-sm-6 col-lg-6 col-xl-6 m-b-5">
+                <div class="row align-items-center">
+                  <div class="col-4 col-sm-4 col-lg-5">
+                    <span class="right">Partner Style:</span>
+                  </div>
+                  <div class="col-8 col-sm-8 col-lg-7">
+                    <input type="text"
+                           name="partnerStyle"
+                           placeholder="Partner Style"
+                           formControlName='partnerStyle'
+                           class="form-control">
+                  </div>
+                </div>
+              </div> -->
+            </div>
+            <div class="row">
+              <div class="col-sm-6 col-lg-6 col-xl-6 m-b-5">
+                <div class="row align-items-center">
+                  <div class="col-4 col-sm-4 col-lg-5">
+                    <span class="right nowrap">Retailer PO #:</span>
+                  </div>
+                  <div class="col-8 col-sm-8 col-lg-7">
+                    <input type="text"
+                           name="retailerPo"
+                           placeholder="Retailer PO #"
+                           formControlName='retailerPoId'
+                           class="form-control">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6 col-xl-6 right px-1">
+            <div class="row m-l-15">
+              <div class="col-sm-6 col-lg-6 col-xl-6 m-b-5">
+                <div class="row align-items-center">
+                  <div class="col-4 col-sm-4">
+                    <span class="right nowrap">Schedule:</span>
+                  </div>
+                  <div class="col-8 col-sm-8">
+                    <ng-select [items]="printDateSelect" #printSelect
+                               [clearable]="false"
+                               [placeholder]="'Print Date'"
+                               [searchable]="false"
+                               (focus)="onSelectFocused(printSelect)"
+                               (change)="onSelectSchedule($event)"
+                               bindLabel="text"
+                               bindValue="text"
+                               formControlName="printDate"></ng-select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row m-l-15 m-b-5" *ngIf="frm.get('printDate').value === 'Custom'">
+              <div class="col-2 col-sm-2">
+                <span class="right nowrap">Schedule Date:</span>
+              </div>
+              <div class="p-l-5"
+                   [ngClass]="{'has-error':!frm.get('schedDateFromOnUtc').valid}">
+                <my-date-picker [options]="dateBeginOptions"
+                                (dateChanged)="onDateChanged($event, 'schedDateFromOnUtc')"
+                                formControlName='schedDateFrom'
+                                #dateBeginPicker
+                                [defaultMonth]="myDatePickerService.configDefaultMonth(frm.get('schedDateTo').value, true)"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, dateBeginPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, dateBeginPicker, frm.get('schedDateFromOnUtc'))"></my-date-picker>
+                <label class="error nowrap"
+                       *ngIf="frm.get('schedDateFromOnUtc').hasError('required') && !frm.get('schedDateFromOnUtc').pristine">
+                  {{validationMessages['default'].required}}</label>
+                <label class="error nowrap"
+                       *ngIf="frm.get('schedDateFromOnUtc').hasError('maxDate') && !frm.get('schedDateFromOnUtc').pristine">
+                  {{validationMessages['schedDateFromOnUtc'].maxLength}}</label>
+              </div>
+              <div class="flex center">
+                <span class="px-2 m-t-4">to</span>
+              </div>
+              <div class="end-date"
+                   [ngClass]="{'has-error':!frm.get('schedDateToOnUtc').valid}">
+                <my-date-picker [options]="dateEndOptions"
+                                (dateChanged)="onDateChanged($event, 'schedDateToOnUtc')"
+                                formControlName='schedDateTo'
+                                #dateEndPicker
+                                [defaultMonth]="myDatePickerService.configDefaultMonth(frm.get('schedDateFrom').value)"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, dateEndPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, dateEndPicker, frm.get('schedDateToOnUtc'))"></my-date-picker>
+                <label class="error nowrap"
+                       *ngIf="frm.get('schedDateToOnUtc').hasError('required') && !frm.get('schedDateToOnUtc').pristine">
+                  {{validationMessages['default'].required}}</label>
+                <label class="error nowrap"
+                       *ngIf="frm.get('schedDateToOnUtc').hasError('minDate') && !frm.get('schedDateToOnUtc').pristine">
+                  {{validationMessages['schedDateToOnUtc'].maxLength}}</label>
+              </div>
+            </div>
+            <div class="row m-l-15">
+              <div class="col-sm-6 col-lg-6 col-xl-6 m-b-5">
+                <div class="row align-items-center">
+                  <div class="col-4 col-sm-4">
+                    <span class="right nowrap">Mach # / Vendor:</span>
+                  </div>
+                  <div class="col-8 col-sm-8">
+                    <ng-select [items]="machineList" #multimachine
+                               [multiple]="true"
+                               [closeOnSelect]="false"
+                               [hideSelected]="true"
+                               [placeholder]="'Mach # / Vendor'"
+                               (focus)="onSelectFocused(multimachine)"
+                               bindLabel="name"
+                               bindValue="name"
+                               [(ngModel)]="searchObj.machine"
+                               (change)="onSelectSchedule($event)"
+                               [ngModelOptions]="{standalone: true}"></ng-select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row m-b-5">
+              <div class="col-2 col-sm-2">
+                <span class="right nowrap">Cancel Date:</span>
+              </div>
+              <div class="p-l-5"
+                   [ngClass]="{'has-error':!frm.get('cancelDateFromOnUtc').valid}">
+                <my-date-picker class="flex" [options]="cancelDateBegin" name="cancelDateBegin"
+                                (dateChanged)="onDateChanged($event, 'cancelDateFromOnUtc')"
+                                formControlName='cancelDateFrom'
+                                #cancelDateBeginPicker
+                                [defaultMonth]="myDatePickerService.configDefaultMonth(frm.get('cancelDateTo').value, true)"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, cancelDateBeginPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, cancelDateBeginPicker, frm.get('cancelDateFromOnUtc'))"></my-date-picker>
+                <label class="error nowrap"
+                       *ngIf="frm.get('cancelDateFromOnUtc').hasError('maxDate') && !frm.get('cancelDateFromOnUtc').pristine">
+                  {{validationMessages['cancelDateFromOnUtc'].maxLength}}</label>
+              </div>
+              <div class="flex center">
+                <span class="px-2 m-t-4">to</span>
+              </div>
+              <div class="end-date"
+                   [ngClass]="{'has-error':!frm.get('cancelDateToOnUtc').valid}">
+                <my-date-picker class="flex" [options]="cancelDateEnd" name="cancelDateEnd"
+                                (dateChanged)="onDateChanged($event, 'cancelDateToOnUtc')"
+                                formControlName='cancelDateTo'
+                                #cancelDateEndPicker
+                                [defaultMonth]="myDatePickerService.configDefaultMonth(frm.get('cancelDateTo').value)"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, cancelDateEndPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, cancelDateEndPicker, frm.get('cancelDateToOnUtc'))"></my-date-picker>
+                <label class="error nowrap"
+                       *ngIf="frm.get('cancelDateToOnUtc').hasError('minDate') && !frm.get('cancelDateToOnUtc').pristine">
+                  {{validationMessages['cancelDateToOnUtc'].maxLength}}</label>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-12 col-xl-12 left px-1">
+            <div class="row">
+              <div class="col-lg-12 center m-t-10">
+                <button class="btn btn-primary center" type="submit">Search</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      </collapse-panel>
+      <div class="row">
+        <div class="col-lg-12 center m-t-10">
+          <div class="mx-1 pull-right">
+            <div ngbDropdown class="d-inline-block" #myFontDrop="ngbDropdown"
+                 class="select-size-dropdown"
+                 placement="bottom-right"
+                 (clickOutside)="myFontDrop.close();"
+                 [attachOutsideOnClick]="true">
+              <i class="fa fa-font fa-2x cursor" id="dropdown5" ngbDropdownToggle></i>
+              <div ngbDropdownMenu aria-labelledby="dropdown5">
+                <button class="dropdown-item" *ngFor="let item of fontSizeData"
+                        [ngClass]="{'active': item === myConfigStyle['font-size']}"
+                        (click)="changeFontSize(item);myFontDrop.close();" type="button">{{item}}
+                </button>
+              </div>
+            </div>
+          </div>
+          <a class="pull-right" href="javascript:void(0)" (click)="exportOrder('pdf')">
+            <i class="fa fa-file-pdf-o fa-2x text-danger" aria-hidden="true"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- TOBE SCHEDULED PANEL -->
+  <perfect-scrollbar [config]="{suppressScrollY: false}" class="first-scroll" (psScrollY)="onTobeScroll($event)">
+    <div class="to-be-schedule-panel">
+      <p class="p-large">TO BE SCHEDULED</p>
+      <p class="p-large" *ngIf="!tableTobeScheduleData.data.length">No styles are queued for scheduling.</p>
+      <div class="btn-top-right" [dragula]='"bag-one"' *ngIf="tableTobeScheduleData.data.length && !isPageReadOnly">
+        <button id="maintenanceBtn" class="btn btn-complete pull-right ">
+          <!-- <i class="fa fa-lg fa-arrows" aria-hidden="true" id="print-handle"></i> -->
+          + Special Task
+        </button>
+      </div>
+      <ng-container *ngTemplateOutlet="pagination"></ng-container>
+      <table class="table" border="1px" *ngIf="tableTobeScheduleData.data.length">
+        <thead>
+        <tr>
+          <th>Cust / PO #</th>
+          <th>Rerun New</th>
+          <th style="min-width: 115px">Design # Description</th>
+          <th>Blank Goods ETA</th>
+          <th>Order Staged</th>
+          <th>Trim ETA</th>
+          <th style="min-width: 80px">Start / Cancel Ship Date</th>
+          <th>Qty (Pcs)</th>
+          <th>Print</th>
+          <th>Neck Label</th>
+          <th>Finishing</th>
+        </tr>
+        <tr class="fixedHeader" *ngIf="fixedHeader">
+          <th>Cust / PO #</th>
+          <th>Rerun New</th>
+          <th>Design # Description</th>
+          <th>Blank Goods ETA</th>
+          <th>Order Staged</th>
+          <th>Trim ETA</th>
+          <th>Start / Cancel Ship Date</th>
+          <th>Qty (Pcs)</th>
+          <th>Print</th>
+          <th>Neck Label</th>
+          <th>Finishing</th>
+        </tr>
+        </thead>
+        <tbody [dragula]='"bag-one"'>
+        <tr *ngFor="let scheduleData of tableTobeScheduleData.data; let i=index" [id]="i">
+          <td class="wrap-row">
+            <p class="p-link" (click)="goToOrderInfo(scheduleData.orderId)">{{scheduleData.customerName}}<span
+              *ngIf="scheduleData.customerName && scheduleData.customerPoId"><br/>#</span>
+              {{scheduleData.customerPoId}}</p>
+            <button type="button" *ngIf="canDequeue(scheduleData)"
+                    class="btn btn-success btn-small"
+                    (click)="markedForScheduling(scheduleData)">Queued
+            </button>
+          </td>
+          <td>
+            <p>{{scheduleData.isRerun ? 'RERUN' : 'NEW'}}</p>
+            <p *ngIf="scheduleData.machines" class="m-t-10">{{scheduleData.machines.join(', ')}}</p>
+          </td>
+          <td>
+            <p (click)="goToStyle(scheduleData.orderId, scheduleData.orderDetailId)" class="p-link">
+              {{scheduleData.partnerStyle}}
+              <span class="m-t-5" style="display: block"></span>
+              {{scheduleData.styleName}}
+            </p>
+            <img [src]="scheduleData.imageUrl" height="50" width="50" imgZoomClick class="img-thumbnail-none-wh cursor"
+                 *ngIf="scheduleData.imageUrl"/>
+            <img [src]="scheduleData.neckLabelImageUrl" height="50" width="50" imgZoomClick
+                 class="img-thumbnail-none-wh cursor"
+                 *ngIf="scheduleData.neckLabelImageUrl"/>
+          </td>
+          <td>
+            <p>Eta:
+              <span class="m-l-1" *ngIf="scheduleData.blankEstDeliveryDateFromOnUtc">{{scheduleData.blankEstDeliveryDateFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+              <span class="m-l-1" *ngIf="!scheduleData.blankEstDeliveryDateFromOnUtc">N/A</span>
+            </p>
+            <p class="m-0">
+              <span *ngIf="scheduleData.blankEstDeliveryDateToOnUtc">- {{scheduleData.blankEstDeliveryDateToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+            </p>
+            <p *ngIf="scheduleData.blankHasTscVendor">
+              , Warehouse
+            </p>
+            <p class="m-t-10 m-b-0">Rcvd:
+              <span class="m-l-1" *ngIf="scheduleData.blankReceivedDateFromOnUtc">{{scheduleData.blankReceivedDateFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+              <span class="m-l-1" *ngIf="!scheduleData.blankReceivedDateFromOnUtc">N/A</span>
+            </p>
+            <p class="m-b-0">
+              <span *ngIf="scheduleData.blankReceivedDateToOnUtc">- {{scheduleData.blankReceivedDateToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+            </p>
+          </td>
+          <!-- Order Staged -->
+          <td>
+            <p *ngIf="scheduleData.orderStagedStatus === taskStatus.DONE">Done:
+              <span class="m-l-1">{{scheduleData.orderStagedDoneFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+            </p>
+            <p class="m-0" *ngIf="scheduleData.orderStagedStatus === taskStatus.DONE && scheduleData.orderStagedDoneToOnUtc">
+              <span *ngIf="scheduleData.orderStagedDoneToOnUtc">- {{scheduleData.orderStagedDoneToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+            </p>
+            <p class="m-t-10 m-b-0" *ngIf="scheduleData.orderStagedStatus === taskStatus.PARTIAL">Partial:
+              <span class="m-l-1">{{scheduleData.orderStagedPartialFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+            </p>
+            <p class="m-b-0" *ngIf="scheduleData.orderStagedStatus === taskStatus.PARTIAL && scheduleData.orderStagedPartialToOnUtc">
+              <span>- {{scheduleData.orderStagedPartialToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+            </p>
+            <p *ngIf="!scheduleData.orderStagedStatus">Pending</p>
+          </td>
+          <td>
+            <p>Eta:
+              <span class="m-l-1" *ngIf="scheduleData.trimEstDeliveryDateFromOnUtc">{{scheduleData.trimEstDeliveryDateFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+              <span class="m-l-1" *ngIf="!scheduleData.trimEstDeliveryDateFromOnUtc">N/A</span>
+            </p>
+            <p class="m-0">
+              <span *ngIf="scheduleData.trimEstDeliveryDateToOnUtc">- {{scheduleData.trimEstDeliveryDateToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+            </p>
+            <p *ngIf="scheduleData.trimHasTscVendor">
+              , Warehouse
+            </p>
+            <p class="m-t-10 m-b-0">Rcvd:
+              <span class="m-l-1" *ngIf="scheduleData.trimReceivedDateFromOnUtc">{{scheduleData.trimReceivedDateFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+              <span class="m-l-1" *ngIf="!scheduleData.trimReceivedDateFromOnUtc">N/A</span>
+            </p>
+            <p class="m-b-0">
+              <span *ngIf="scheduleData.trimReceivedDateToOnUtc">- {{scheduleData.trimReceivedDateToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+            </p>
+          </td>
+          <td>
+            <p>STRT:
+              <span class="m-l-1" *ngIf="scheduleData.startShipDateOnUtc">{{scheduleData.startShipDateOnUtc | amDateFormat: 'MM/DD/YY'}}</span>
+              <span class="m-l-1" *ngIf="!scheduleData.startShipDateOnUtc">N/A</span>
+            </p>
+            <p>CNCL:
+              <span class="m-l-1" *ngIf="scheduleData.cancelDateOnUtc">{{scheduleData.cancelDateOnUtc | amDateFormat: 'MM/DD/YY'}}</span>
+              <span class="m-l-1" *ngIf="!scheduleData.cancelDateOnUtc">N/A</span>
+            </p>
+            <p *ngIf="scheduleData.isInDcOrder">LDSNE:
+              <span class="m-l-1" *ngIf="scheduleData.lastDateToShipOnUtc">{{scheduleData.lastDateToShipOnUtc | amDateFormat: 'MM/DD/YY'}}</span>
+              <span class="m-l-1" *ngIf="!scheduleData.lastDateToShipOnUtc">N/A</span>
+            </p>
+          </td>
+          <td>
+            <p class="p-link"
+               (click)="goToPrintLocation(scheduleData.orderId, scheduleData.orderDetailId, scheduleData.printLocationId, null)">
+              {{scheduleData.locationName}}</p>
+            <p class="m-t-10">Prd: {{scheduleData.productionQty}}</p>
+            <p class="m-t-10">Fin: {{scheduleData.finishedQty}}</p>
+          </td>
+          <td [ngClass]="{
+              'full-scheduled': scheduleData.printSchedule.units === scheduleData.productionQty && !scheduleData.printSchedule.shortageQty,
+              'part-scheduled': (scheduleData.printSchedule.units < scheduleData.productionQty || scheduleData.printSchedule.shortageQty) && scheduleData.printSchedule.units !== 0,
+              'none-scheduled': scheduleData.printSchedule.units === 0,
+              'null-scheduled': scheduleData.printSchedule.status === taskStatus.BLANK,
+              'red-cell': scheduleData.printSchedule.isLateTbs
+          }" class="print-cell" (click)="selectCellDragMulti($event, printCell, 'print')" #printCell>
+            <p *ngIf="scheduleData.printSchedule.status">Sched:
+              <span class="m-l-1" *ngIf="scheduleData.printSchedule.printDateScheduledFromOnUtc">
+                  {{scheduleData.printSchedule.printDateScheduledFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                </span>
+              <span class="m-l-1" *ngIf="!scheduleData.printSchedule.printDateScheduledFromOnUtc">N/A</span>
+            </p>
+            <p *ngIf="scheduleData.printSchedule.status" class="m-0">
+                <span *ngIf="scheduleData.printSchedule.printDateScheduledToOnUtc">
+                  - {{scheduleData.printSchedule.printDateScheduledToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                </span>
+            </p>
+            <p class="m-b-0" *ngIf="scheduleData.printSchedule.status === taskStatus.PARTIAL">Part:
+              <span class="m-l-1" *ngIf="scheduleData.printSchedule.printDatePartialFromOnUtc">{{scheduleData.printSchedule.printDatePartialFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+              <span class="m-l-1" *ngIf="!scheduleData.printSchedule.printDatePartialFromOnUtc">N/A</span>
+            </p>
+            <p class="m-b-0"
+               *ngIf="scheduleData.printSchedule.status === taskStatus.PARTIAL">
+              <span *ngIf="scheduleData.printSchedule.printDatePartialToOnUtc">- {{scheduleData.printSchedule.printDatePartialToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+            </p>
+            <p class="m-b-0" *ngIf="scheduleData.printSchedule.status === taskStatus.DONE">Done:
+              <span class="m-l-1" *ngIf="scheduleData.printSchedule.printDateDoneFromOnUtc">{{scheduleData.printSchedule.printDateDoneFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+              <span class="m-l-1" *ngIf="!scheduleData.printSchedule.printDateDoneFromOnUtc">N/A</span>
+            </p>
+            <p class="m-b-0"
+               *ngIf="scheduleData.printSchedule.status === taskStatus.DONE">
+              <span *ngIf="scheduleData.printSchedule.printDateDoneToOnUtc">- {{scheduleData.printSchedule.printDateDoneToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+            </p>
+            <p class="m-t-10" *ngIf="!scheduleData.printSchedule.shortageQty">{{scheduleData.printSchedule.units}} units</p>
+            <p class="m-t-10" *ngIf="scheduleData.printSchedule.shortageQty">
+              {{scheduleData.printSchedule.units - scheduleData.printSchedule.shortageQty}} units
+            </p>
+            <p style="height: 20px" *ngIf="(scheduleData.printSchedule.units < scheduleData.productionQty || scheduleData.printSchedule.shortageQty) && !isPageReadOnly"></p>
+            <p class="move-icon" *ngIf="(scheduleData.printSchedule.units < scheduleData.productionQty || scheduleData.printSchedule.shortageQty) && !isPageReadOnly">
+              <i class="fa fa-lg fa-arrows" aria-hidden="true" id="print-handle"></i>
+            </p>
+          </td>
+          <td [ngClass]="{
+              'full-scheduled': scheduleData.neckLabelSchedule && scheduleData.neckLabelSchedule.units === scheduleData.productionQty && !scheduleData.neckLabelSchedule.shortageQty,
+              'part-scheduled': scheduleData.neckLabelSchedule && (scheduleData.neckLabelSchedule.units < scheduleData.productionQty || scheduleData.neckLabelSchedule.shortageQty) && scheduleData.neckLabelSchedule.units !== 0,
+              'none-scheduled': scheduleData.neckLabelSchedule && scheduleData.neckLabelSchedule.units === 0,
+              'null-scheduled': !scheduleData.neckLabelSchedule || scheduleData.neckLabelSchedule.status === taskStatus.BLANK,
+              'red-cell': scheduleData.neckLabelSchedule && scheduleData.neckLabelSchedule.isLateTbs
+          }" class="neckLB-cell" (click)="selectCellDragMulti($event, neckLabelCell, 'neckLB')" #neckLabelCell>
+            <ng-template [ngIf]="scheduleData.neckLabelSchedule">
+              <p *ngIf="scheduleData.neckLabelSchedule.status">Sched:
+                <span class="m-l-1" *ngIf="scheduleData.neckLabelSchedule.neckLabelDateScheduledFromOnUtc">
+                    {{scheduleData.neckLabelSchedule.neckLabelDateScheduledFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                  </span>
+                <span class="m-l-1" *ngIf="!scheduleData.neckLabelSchedule.neckLabelDateScheduledFromOnUtc">N/A</span>
+              </p>
+              <p *ngIf="scheduleData.neckLabelSchedule.status" class="m-0">
+                  <span *ngIf="scheduleData.neckLabelSchedule.neckLabelDateScheduledToOnUtc">
+                    - {{scheduleData.neckLabelSchedule.neckLabelDateScheduledToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                  </span>
+              </p>
+              <p class="m-b-0" *ngIf="scheduleData.neckLabelSchedule.status === taskStatus.PARTIAL">Part:
+                <span class="m-l-1" *ngIf="scheduleData.neckLabelSchedule.neckLabelDatePartialFromOnUtc">{{scheduleData.neckLabelSchedule.neckLabelDatePartialFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+                <span class="m-l-1" *ngIf="!scheduleData.neckLabelSchedule.neckLabelDatePartialFromOnUtc">N/A</span>
+              </p>
+              <p class="m-b-0"
+                 *ngIf="scheduleData.neckLabelSchedule.status === taskStatus.PARTIAL">
+                <span *ngIf="scheduleData.neckLabelSchedule.neckLabelDatePartialToOnUtc">- {{scheduleData.neckLabelSchedule.neckLabelDatePartialToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+              </p>
+              <p class="m-b-0" *ngIf="scheduleData.neckLabelSchedule.status === taskStatus.DONE">Done:
+                <span class="m-l-1" *ngIf="scheduleData.neckLabelSchedule.neckLabelDateDoneFromOnUtc">{{scheduleData.neckLabelSchedule.neckLabelDateDoneFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+                <span class="m-l-1" *ngIf="!scheduleData.neckLabelSchedule.neckLabelDateDoneFromOnUtc">N/A</span>
+              </p>
+              <p class="m-b-0"
+                 *ngIf="scheduleData.neckLabelSchedule.status === taskStatus.DONE">
+                <span *ngIf="scheduleData.neckLabelSchedule.neckLabelDateDoneToOnUtc">- {{scheduleData.neckLabelSchedule.neckLabelDateDoneToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+              </p>
+              <p class="m-t-10" *ngIf="!scheduleData.neckLabelSchedule.shortageQty">{{scheduleData.neckLabelSchedule.units}} units</p>
+              <p class="m-t-10" *ngIf="scheduleData.neckLabelSchedule.shortageQty">
+                {{scheduleData.neckLabelSchedule.units - scheduleData.neckLabelSchedule.shortageQty}} units
+              </p>
+              <p style="height: 20px"
+                 *ngIf="(scheduleData.neckLabelSchedule && (scheduleData.neckLabelSchedule.units < scheduleData.productionQty || scheduleData.neckLabelSchedule.shortageQty)) && !isPageReadOnly"></p>
+              <p class="move-icon"
+                 *ngIf="(scheduleData.neckLabelSchedule && (scheduleData.neckLabelSchedule.units < scheduleData.productionQty || scheduleData.neckLabelSchedule.shortageQty)) && !isPageReadOnly">
+                <i class="fa fa-lg fa-arrows" aria-hidden="true" id="neck-handle"></i>
+              </p>
+            </ng-template>
+          </td>
+          <td [ngClass]="{
+              'full-scheduled': scheduleData.finishingSchedule && scheduleData.finishingSchedule.units === scheduleData.finishedQty && !scheduleData.finishingSchedule.shortageQty,
+              'part-scheduled': scheduleData.finishingSchedule && (scheduleData.finishingSchedule.units < scheduleData.finishedQty || scheduleData.finishingSchedule.shortageQty) && scheduleData.finishingSchedule.units !== 0,
+              'none-scheduled': scheduleData.finishingSchedule && scheduleData.finishingSchedule.units === 0,
+              'null-scheduled': !scheduleData.finishingSchedule || scheduleData.finishingSchedule.status === taskStatus.BLANK,
+              'red-cell': scheduleData.finishingSchedule && scheduleData.finishingSchedule.isLateTbs && scheduleData.finishingSchedule.processes === null
+          }" class="p-0 finishing-cell" (click)="selectCellDragMulti($event, finishingCell, 'finishing')" #finishingCell>
+            <ng-template [ngIf]="scheduleData.finishingSchedule && !scheduleData.finishingSchedule.processes">
+              <i *ngIf="scheduleData.finishingSchedule.units === 0 && !isPageReadOnly"
+                class="fa fa-sm fa-pencil cursor edit-processes"
+                aria-hidden="true"
+                (click)="configureProcesses($event, scheduleData.orderDetailId)"></i>
+              <p *ngIf="scheduleData.finishingSchedule.status">Sched:
+                <span class="m-l-1" *ngIf="scheduleData.finishingSchedule.finishingDateScheduledFromOnUtc">
+                    {{scheduleData.finishingSchedule.finishingDateScheduledFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                  </span>
+                <span class="m-l-1" *ngIf="!scheduleData.finishingSchedule.finishingDateScheduledFromOnUtc">N/A</span>
+              </p>
+              <p *ngIf="scheduleData.finishingSchedule.status" class="m-0">
+                  <span *ngIf="scheduleData.finishingSchedule.finishingDateScheduledToOnUtc">
+                    - {{scheduleData.finishingSchedule.finishingDateScheduledToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                  </span>
+              </p>
+              <p *ngIf="scheduleData.finishingSchedule.status" class="m-t-10 m-b-0">Done:
+                <span class="m-l-1" *ngIf="scheduleData.finishingSchedule.finishingDateDoneFromOnUtc">{{scheduleData.finishingSchedule.finishingDateDoneFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+                <span class="m-l-1" *ngIf="!scheduleData.finishingSchedule.finishingDateDoneFromOnUtc">N/A</span>
+              </p>
+              <p *ngIf="scheduleData.finishingSchedule.status" class="m-0">
+                  <span *ngIf="scheduleData.finishingSchedule.finishingDateDoneToOnUtc">
+                    - {{scheduleData.finishingSchedule.finishingDateDoneToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                  </span>
+              </p>
+              <p class="m-t-10" *ngIf="!scheduleData.finishingSchedule.shortageQty">{{scheduleData.finishingSchedule.units}} units</p>
+              <p class="m-t-10" *ngIf="scheduleData.finishingSchedule.shortageQty">
+                {{scheduleData.finishingSchedule.units - scheduleData.finishingSchedule.shortageQty}} units
+              </p>
+              <p style="height: 20px"
+                 *ngIf="(scheduleData.finishingSchedule && (scheduleData.finishingSchedule.units < scheduleData.finishedQty || scheduleData.finishingSchedule.shortageQty)) && !isPageReadOnly"></p>
+              <p class="move-icon"
+                 *ngIf="(scheduleData.finishingSchedule && (scheduleData.finishingSchedule.units < scheduleData.finishedQty || scheduleData.finishingSchedule.shortageQty)) && !isPageReadOnly">
+                <i class="fa fa-lg fa-arrows" aria-hidden="true" id="finish-handle"></i>
+              </p>
+            </ng-template>
+            <ng-template [ngIf]="scheduleData.finishingSchedule && scheduleData.finishingSchedule.processes">
+              <table class="sub-table-finishing">
+                <tbody #processTable>
+                  <tr style="height: 14%">
+                    <td colspan="4">
+                      <i *ngIf="!isPageReadOnly"
+                        class="fa fa-sm fa-pencil pull-right cursor"
+                        aria-hidden="true"
+                        (click)="configureProcesses($event, scheduleData.orderDetailId)"></i>
+                    </td>
+                  </tr>
+                  <tr style="height: 43%">
+                    <td *ngFor="let prs of scheduleData.finishingSchedule.processes; let i = index"
+                        [attr.data-index]="i"
+                        [ngClass]="{
+                          'full-scheduled': prs.scheduledQty === scheduleData.finishedQty,
+                          'part-scheduled': prs.scheduledQty < scheduleData.finishedQty && prs.scheduledQty !== 0,
+                          'none-scheduled': prs.scheduledQty === 0,
+                          'red-cell': prs.isLateTbs
+                        }" class="finishing-cell" (click)="selectCellDragMulti($event, finishingCell, 'finishingProcess', processTable, i)">
+                      <p *ngIf="prs.scheduledDateFromOnUtc">{{prs.scheduledDateFromOnUtc | amFromUtc | amLocal | amDateFormat: 'M/D'}}</p>
+                      <p *ngIf="prs.scheduledDateToOnUtc"> - {{prs.scheduledDateToOnUtc | amFromUtc | amLocal | amDateFormat: 'M/D'}}</p>
+                      <p>{{prs.scheduledQty}}</p>
+                    </td>
+                  </tr>
+                  <tr style="height: 43%">
+                    <td *ngFor="let prs of scheduleData.finishingSchedule.processes; let fIndex = index"
+                        [attr.data-index]="fIndex"
+                        [ngClass]="{
+                          'full-scheduled': prs.scheduledQty === scheduleData.finishedQty,
+                          'part-scheduled': prs.scheduledQty < scheduleData.finishedQty && prs.scheduledQty !== 0,
+                          'none-scheduled': prs.scheduledQty === 0,
+                          'red-cell': prs.isLateTbs
+                        }" class="finishing-cell" (click)="selectCellDragMulti($event, finishingCell, 'finishingProcess', processTable, fIndex)">
+                      <p [title]="prs.processNumber === 0 ? prs.description : ''">{{prs.processNumber === 0 ? 'C' : prs.processNumber}}</p>
+                      <p *ngIf="prs.scheduledQty < scheduleData.finishedQty && !isPageReadOnly" style="height: 20px"></p>
+                      <p *ngIf="prs.scheduledQty < scheduleData.finishedQty && !isPageReadOnly"
+                        class="move-icon sub-move" [id]="fIndex">
+                       <i class="fa fa-sm fa-arrows" aria-hidden="true" id="finish-handle"></i>
+                     </p>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </ng-template>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+      <ng-container *ngTemplateOutlet="paginationTop"></ng-container>
+    </div>
+  </perfect-scrollbar>
+  <!-- SCHEDULE PANEL -->
+  <perfect-scrollbar class="scroll-sm" [config]="{suppressScrollX: false}">
+  <ul class="nav nav-tabs m-t-20 m-b-10 days-tab" *ngIf="daysTab.length">
+    <li class="text-center nav-item" *ngFor="let tab of daysTab; let i=index" [dragula]='"bag-one"'
+        [ngClass]="{'active': tab.isActive}"
+        (click)="setDaysTab(i, true)"
+        [id]="'days-tab-' + i">
+      <a class="justify-center nav-link" href="javascript:void(0)" aria-expanded="true">
+        <span>{{tab.date ? (tab.date | amDateFormat: 'ddd M/D') : 'Late'}}</span>
+      </a>
+    </li>
+  </ul>
+  </perfect-scrollbar>
+  <perfect-scrollbar [config]="{suppressScrollY: false, suppressScrollX: false}" class="over-fixed">
+    <div class="schedule-panel">
+      <p class="p-large" *ngIf="isFilter && isNoData">No scheduled items match the current selections.</p>
+      <ng-template ngFor let-dayData [ngForOf]="tableData" let-i="index">
+        <p [ngClass]="{'red-cell': isOnLateTab}" class="p-large date-color">{{dayData.date | amDateFormat: 'dddd'}}, {{dayData.date | amDateFormat:
+          'MM/DD/YYYY'}}</p>
+        <!-- PRINT SCHEDULE TABLE -->
+        <p [ngClass]="{'red-cell': isOnLateTab}" class="p-large date-color" [hidden]="!dayData.data.length">PRINT SCHEDULE - {{dayData.totalsPrint}} pcs</p>
+        <table class="table" border="1px" *ngIf="!isFilter || !isNoData" [hidden]="!dayData.data.length">
+          <thead>
+          <tr>
+            <th style="width: 115px">Mach # /<br/>Vendor</th>
+            <th>Cust /<br/>PO #</th>
+            <th>Rerun /<br/>New</th>
+            <th>Design #<br/>Description</th>
+            <th>Blank Goods<br/>ETA</th>
+            <th>Start / Cancel <br/> Ship Date</th>
+            <th>Qty (Pcs)</th>
+            <th style="width: 80px">Setup / <br/> Run Time</th>
+            <th>Machine<br/>Totals</th>
+          </tr>
+          </thead>
+          <tbody [dragula]='"bag-one"' id="print-schedule" [attr.data-date]="dayData.date">
+          <ng-template ngFor let-rowData [ngForOf]="dayData.data" let-ii="index">
+            <ng-template ngFor let-machineData [ngForOf]="rowData.machineData" let-iii="index">
+              <tr [id]="i + '-' + ii + '-' + iii + '-' + rowData.machineId" [ngClass]="{'even-row': ii%2 !== 0}"
+                  *ngIf="!machineData || (machineData && !machineData.isMaintenanceJob)">
+                <!-- <td [rowSpan]="dayData.totalRecord" *ngIf="!ii && !iii" class="print-date-style">
+                  {{dayData.date | amDateFormat: 'dddd' | uppercase}} <br/><br/>
+                  {{dayData.date | amDateFormat: 'MM/DD/YYYY'}} <br/><br/>
+                  <button class="btn btn-complete btn-xs" (click)="openModal(dayData.date)">+ Add Style</button>
+                </td> -->
+                <td [rowSpan]="rowData.machineData.length" *ngIf="!iii" class="first-td">{{rowData.machineName}}</td>
+
+                <td *ngIf="machineData">
+                  <p class="p-link" (click)="goToOrderInfo(machineData.orderId)">{{machineData.customerName}}<span
+                    *ngIf="machineData.customerName && machineData.customerPoId"><br/>#</span>
+                    {{machineData.customerPoId}}</p>
+                </td>
+                <td *ngIf="!machineData"></td>
+
+                <td *ngIf="machineData">
+                  <p>{{machineData.isRerun ? 'RERUN' : 'NEW'}}</p>
+                  <p *ngIf="machineData.machines" class="m-t-10">{{machineData.machines.join(', ')}}</p>
+                </td>
+                <td *ngIf="!machineData"></td>
+
+                <td *ngIf="machineData">
+                  <p (click)="goToStyle(machineData.orderId, machineData.orderDetailId)" class="p-link">
+                    {{machineData.partnerStyle}}
+                    <span class="m-t-5" style="display: block"></span>
+                    {{machineData.styleName}}
+                  </p>
+                  <img [src]="machineData.printImageUrl" height="50" width="50" imgZoomClick
+                      class="img-thumbnail-none-wh cursor"
+                      *ngIf="machineData.printImageUrl"/>
+                  <img [src]="machineData.neckLabelImageUrl" height="50" width="50" imgZoomClick
+                      class="img-thumbnail-none-wh cursor"
+                      *ngIf="machineData.neckLabelImageUrl"/>
+                </td>
+                <td *ngIf="!machineData"></td>
+
+                <td *ngIf="machineData">
+                  <p>Eta:
+                    <span class="m-l-1" *ngIf="machineData.blankEstDeliveryDateFromOnUtc">{{machineData.blankEstDeliveryDateFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+                    <span class="m-l-1" *ngIf="!machineData.blankEstDeliveryDateFromOnUtc">N/A</span>
+                  </p>
+                  <p class="m-0">
+                    <span *ngIf="machineData.blankEstDeliveryDateToOnUtc">- {{machineData.blankEstDeliveryDateToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+                  </p>
+                  <p *ngIf="machineData.hasTscVendor">
+                    , Warehouse
+                  </p>
+                  <p class="m-t-10 m-b-0">Rcvd:
+                    <span class="m-l-1" *ngIf="machineData.blankReceivedDateFromOnUtc">{{machineData.blankReceivedDateFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+                    <span class="m-l-1" *ngIf="!machineData.blankReceivedDateFromOnUtc">N/A</span>
+                  </p>
+                  <p class="m-b-0">
+                    <span *ngIf="machineData.blankReceivedDateToOnUtc">- {{machineData.blankReceivedDateToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+                  </p>
+                </td>
+                <td *ngIf="!machineData"></td>
+
+                <td *ngIf="machineData">
+                  <p>STRT:
+                    <span class="m-l-1" *ngIf="machineData.startShipDateOnUtc">{{machineData.startShipDateOnUtc | amDateFormat: 'MM/DD/YY'}}</span>
+                    <span class="m-l-1" *ngIf="!machineData.startShipDateOnUtc">N/A</span>
+                  </p>
+                  <p>CNCL:
+                    <span class="m-l-1" *ngIf="machineData.cancelDateOnUtc">{{machineData.cancelDateOnUtc | amDateFormat: 'MM/DD/YY'}}</span>
+                    <span class="m-l-1" *ngIf="!machineData.cancelDateOnUtc">N/A</span>
+                  </p>
+                  <p *ngIf="machineData.isInDcOrder">LDSNE:
+                    <span class="m-l-1" *ngIf="machineData.lastDateToShipOnUtc">{{machineData.lastDateToShipOnUtc | amDateFormat: 'MM/DD/YY'}}</span>
+                    <span class="m-l-1" *ngIf="!machineData.lastDateToShipOnUtc">N/A</span>
+                  </p>
+                </td>
+                <td *ngIf="!machineData"></td>
+
+                <td *ngIf="machineData"
+                    [ngClass]="{'red-cell': machineData.isLateOriginal && !machineData.isArchived, 'resched-cell': machineData.isLateRescheduled && !machineData.isArchived, 'archived-cell': machineData.isArchived}"
+                    (click)="selectCellDragMultiRightPanel($event, qtyCell, 'print', machineData)" #qtyCell>
+                  <p class="p-link"
+                    (click)="goToPrintLocation(machineData.orderId, machineData.orderDetailId, machineData.printLocationId, null); $event.stopPropagation();">
+                    {{machineData.locationName}}</p>
+                  <p class="m-t-10">{{machineData.productionQty}} units</p>
+                  <!-- <p class="m-t-10" #scheduled *ngIf="!isMachineOrTsc(rowData.machineName)">
+                    <span class="p-link" (click)="showInput(scheduled)">{{machineData.scheduledQty}} scheduled</span>
+                    <input class="runTimeInput" #scheduledInput
+                            [hidden]="true"
+                            IntegerNumber
+                            [value]="machineData.scheduledQty"
+                            (keyup)="invalidQty(scheduledInput, machineData)"
+                            (keyup.enter)="scheduledInput.blur()"
+                            (blur)="updateScheduled(scheduledInput, scheduled, machineData)"/>
+                    <i class="fa fa-times cursor un-p-link py-1" aria-hidden="true" (click)="removeStyle(machineData)"
+                    title="Click to Remove"></i>
+                    <span class="text-danger" style="display: block" *ngIf="invalidQty(scheduledInput?.value, machineData)">
+                      Qty must be {{invalidQty(scheduledInput?.value, machineData)}} or less
+                    </span>
+                  </p> -->
+                  <p class="m-t-10">
+                    <span [ngClass]="{'p-link': !isPageReadOnly && !machineData.processStatus && !machineData.isArchived}" (click)="openModal(machineData); $event.stopPropagation();">{{machineData.scheduledQty}} scheduled </span>
+                    <i class="fa fa-times cursor un-p-link py-1" aria-hidden="true" (click)="removeStyle(machineData); $event.stopPropagation();"
+                      *ngIf="!isPageReadOnly && ((!machineData.processStatus && !machineData.isArchived) || isOnLateTab)"
+                      title="Click to Remove"></i>
+                  </p>
+                  <p class="m-t-10">
+                    <button class="btn btn-yellow btn-small" [ngClass]="{'m-b-10': isOnLateTab}"
+                            *ngIf="machineData.processStatus === 1"
+                            >Job Started
+                    </button>
+                    <button class="btn btn-orange btn-small" [ngClass]="{'m-b-10': isOnLateTab}"
+                            *ngIf="machineData.processStatus === 2"
+                            >Job Pending
+                    </button>
+                    <button class="btn btn-green btn-small" [ngClass]="{'m-b-10': isOnLateTab}"
+                            *ngIf="machineData.processStatus >= 3 && machineData.processStatus < 7"
+                            >Job Completed
+                    </button>
+                    <button class="btn btn-yellow btn-small" [ngClass]="{'m-b-10': isOnLateTab}"
+                            *ngIf="machineData.processStatus === 7"
+                            >Job Paused
+                    </button>
+                  </p>
+                  <p style="height: 20px"></p>
+                  <p class="move-icon" *ngIf="!isPageReadOnly && ((!machineData.processStatus && !machineData.isArchived) || isOnLateTab)">
+                    <i class="fa fa-lg fa-arrows" aria-hidden="true"></i>
+                  </p>
+                </td>
+                <td *ngIf="!machineData"></td>
+
+                <ng-template [ngIf]="machineData" [ngIfElse]="noMachineData">
+                  <td *ngIf="machineData.machineId; else elseMachineId" [title]="machineData && !isPageReadOnly ? 'Click to Edit' : ''" #runTime>
+                    <p *ngIf="machineData">ST: {{(machineData.setuptime / 60) | hrsToHrsMin}}</p>
+                    <span *ngIf="machineData"
+                          [ngClass]="{'p-link': !isPageReadOnly && !machineData.isArchived}"
+                          (click)="configRuntime(machineData)">
+                      RT: {{machineData.runtime | hrsToHrsMin}}
+                    </span>
+                  </td>
+                  <ng-template #elseMachineId><td class="null-scheduled"></td></ng-template>
+                </ng-template>
+
+                <td [rowSpan]="rowData.machineData.length"
+                    *ngIf="!iii" class="last-td"
+                    [ngClass]="{'red-cell': rowData.sumRunTime > 10.75}">
+                  <p>{{rowData.sumQty || 0}} units</p>
+                  <p *ngIf="rowData.isTscMachine">{{rowData.sumRunTime | hrsToHrsMin}}</p>
+                </td>
+                <!-- <td>
+                  <button class="btn btn-danger btn-xs" (click)="removeStyle(machineData)" *ngIf="machineData"
+                          style="width: 65px">Remove
+                  </button>
+                </td> -->
+              </tr>
+              <tr [id]="i + '-' + ii + '-' + iii + '-' + rowData.machineId" [ngClass]="{'even-row': ii%2 !== 0}"
+                  *ngIf="machineData && machineData.isMaintenanceJob">
+
+                <td [rowSpan]="rowData.machineData.length" *ngIf="!iii" class="first-td">{{rowData.machineName}}</td>
+
+                <td colspan="5" class="maintenance-job" #maintenance (click)="showInput(maintenance)">
+                  <span [ngClass]="{'p-link': !isPageReadOnly}">{{machineData.specialTask ? machineData.specialTask : 'Special Task'}}</span>
+                  <input class="maintenance-input" #maintenanceInput
+                        [hidden]="true"
+                        [value]="machineData.specialTask ? machineData.specialTask : 'Special Task'"
+                        (keyup.enter)="maintenanceInput.blur()"
+                        (blur)="updateMaintenance(maintenanceInput, maintenance, machineData)"/>
+                </td>
+
+                <td>
+                  <p #maintenanceUnit>
+                    <span (click)="showInput(maintenanceUnit, machineData)" [ngClass]="{'p-link': !isPageReadOnly}">
+                      {{machineData.scheduledQty}} units
+                    </span>
+                    <input #qtyInput
+                          class="runTimeInput"
+                          [hidden]="true"
+                          [value]="machineData.scheduledQty"
+                          (keyup.enter)="qtyInput.blur()"
+                          (blur)="updateMaintenance(qtyInput, maintenanceUnit, machineData, true)"/>
+                    <i class="fa fa-times cursor un-p-link py-1" aria-hidden="true" (click)="removeStyle(machineData)"
+                      *ngIf="!isPageReadOnly"
+                      title="Click to Remove"></i>
+                  </p>
+                </td>
+
+                <td [title]="machineData && !isPageReadOnly ? 'Click to Edit' : ''" #runTime>
+                  <span (click)="showInput(runTime, machineData, 0)" *ngIf="machineData.setuptime !== null" [ngClass]="{'p-link': !isPageReadOnly}">
+                    ST: {{(machineData.setuptime / 60) | hrsToHrsMin}}
+                  </span>
+                  <input #setupTimeInput
+                        class="runTimeInput"
+                        [hidden]="true"
+                        [value]="machineData.setuptime"
+                        (keyup.enter)="setupTimeInput.blur()"
+                        (blur)="updateRunTime(setupTimeInput, runTime, i, ii, iii, 0)"/>
+                  <span *ngIf="machineData.setuptime === null">0</span>
+                  <br/>
+                  <span (click)="showInput(runTime, machineData, 1)" *ngIf="machineData.runtime !== null" [ngClass]="{'p-link': !isPageReadOnly}">
+                    RT: {{machineData.runtime | hrsToHrsMin}}
+                  </span>
+                  <input #runTimeInput
+                        class="runTimeInput"
+                        [hidden]="true"
+                        [value]="machineData.runtime | number:'1.2-2'"
+                        (keyup.enter)="runTimeInput.blur()"
+                        (blur)="updateRunTime(runTimeInput, runTime, i, ii, iii, 1)"/>
+                  <span *ngIf="machineData.runtime === null">0.00</span>
+                </td>
+                <td [rowSpan]="rowData.machineData.length" *ngIf="!iii" class="last-td">
+                  <p>{{rowData.sumQty || 0}} units</p>
+                  <p>{{rowData.sumRunTime | hrsToHrsMin}}</p>
+                </td>
+              </tr>
+            </ng-template>
+          </ng-template>
+          <!-- <tr class="total-pieces" [id]="i + '-n-n'">
+            <td colspan="11" class="align-right">TOTAL PIECES</td>
+            <td colspan="6">{{dayData.totals}}</td>
+          </tr> -->
+
+          </tbody>
+        </table>
+        <!-- NECK LABEL SCHEDULE TABLE -->
+        <p [ngClass]="{'red-cell': isOnLateTab}" class="p-large date-color" [hidden]="!dayData.neckData || !dayData.neckData.length">NECK LABEL SCHEDULE -
+          {{dayData.totalsNeck}} pcs</p>
+        <table class="table" border="1px" *ngIf="!isFilter || !isNoData"
+               [hidden]="!dayData.neckData || !dayData.neckData.length">
+          <thead>
+          <tr>
+            <th style="width: 115px">Vendor</th>
+            <th>Pad Print,<br/> Screen Print<br/> Or Transfer</th>
+            <th>Cust /<br/> PO #</th>
+            <th>Rerun /<br/> New</th>
+            <th>Design #<br/> Description</th>
+            <th>Blank Goods<br/> ETA</th>
+            <th>Start / Cancel <br/> Ship Date</th>
+            <th>Qty (Pcs)</th>
+            <th>Vendor<br/> Totals</th>
+          </tr>
+          </thead>
+          <tbody [dragula]='"bag-one"' id="neck-label-schedule" [attr.data-date]="dayData.date">
+          <ng-template ngFor let-rowData [ngForOf]="dayData.neckData" let-ii="index">
+            <ng-template ngFor let-machineData [ngForOf]="rowData.machineData" let-iii="index">
+              <tr [id]="i + '-' + ii + '-' + iii + '-' + rowData.machineId" [ngClass]="{'even-row': ii%2 !== 0}"
+                  *ngIf="!machineData || (machineData && !machineData.isMaintenanceJob)">
+                <!-- <td [rowSpan]="dayData.totalRecord" *ngIf="!ii && !iii" class="print-date-style">
+                  {{dayData.date | amDateFormat: 'dddd' | uppercase}} <br/><br/>
+                  {{dayData.date | amDateFormat: 'MM/DD/YYYY'}} <br/><br/>
+                  <button class="btn btn-complete btn-xs" (click)="openModal(dayData.date)">+ Add Style</button>
+                </td> -->
+                <td [rowSpan]="rowData.machineData.length" *ngIf="!iii" class="first-td">{{rowData.machineName}}</td>
+                <td>{{machineData?.printMethod}}</td>
+
+                <td *ngIf="machineData">
+                  <p class="p-link" (click)="goToOrderInfo(machineData.orderId)">{{machineData.customerName}}<span
+                    *ngIf="machineData.customerName && machineData.customerPoId"><br/>#</span>
+                    {{machineData.customerPoId}}</p>
+                </td>
+                <td *ngIf="!machineData"></td>
+
+                <td *ngIf="machineData">
+                  <p>{{machineData.isRerun ? 'RERUN' : 'NEW'}}</p>
+                </td>
+                <td *ngIf="!machineData"></td>
+
+                <td *ngIf="machineData">
+                  <p (click)="goToStyle(machineData.orderId, machineData.orderDetailId)" class="p-link">
+                    {{machineData.partnerStyle}}
+                    <span class="m-t-5" style="display: block"></span>
+                    {{machineData.styleName}}
+                  </p>
+                  <img [src]="machineData.printImageUrl" height="50" width="50" imgZoomClick
+                      class="img-thumbnail-none-wh cursor"
+                      *ngIf="machineData.printImageUrl"/>
+                  <img [src]="machineData.neckLabelImageUrl" height="50" width="50" imgZoomClick
+                      class="img-thumbnail-none-wh cursor"
+                      *ngIf="machineData.neckLabelImageUrl"/>
+                </td>
+                <td *ngIf="!machineData"></td>
+
+                <td *ngIf="machineData">
+                  <p>Eta:
+                    <span class="m-l-1" *ngIf="machineData.blankEstDeliveryDateFromOnUtc">{{machineData.blankEstDeliveryDateFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+                    <span class="m-l-1" *ngIf="!machineData.blankEstDeliveryDateFromOnUtc">N/A</span>
+                  </p>
+                  <p class="m-0">
+                    <span *ngIf="machineData.blankEstDeliveryDateToOnUtc">- {{machineData.blankEstDeliveryDateToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+                  </p>
+                  <p *ngIf="machineData.hasTscVendor">
+                    , Warehouse
+                  </p>
+                  <p class="m-t-10 m-b-0">Rcvd:
+                    <span class="m-l-1" *ngIf="machineData.blankReceivedDateFromOnUtc">{{machineData.blankReceivedDateFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+                    <span class="m-l-1" *ngIf="!machineData.blankReceivedDateFromOnUtc">N/A</span>
+                  </p>
+                  <p class="m-b-0">
+                    <span *ngIf="machineData.blankReceivedDateToOnUtc">- {{machineData.blankReceivedDateToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+                  </p>
+                </td>
+                <td *ngIf="!machineData"></td>
+
+                <td *ngIf="machineData">
+                  <p>STRT:
+                    <span class="m-l-1" *ngIf="machineData.startShipDateOnUtc">{{machineData.startShipDateOnUtc | amDateFormat: 'MM/DD/YY'}}</span>
+                    <span class="m-l-1" *ngIf="!machineData.startShipDateOnUtc">N/A</span>
+                  </p>
+                  <p>CNCL:
+                    <span class="m-l-1" *ngIf="machineData.cancelDateOnUtc">{{machineData.cancelDateOnUtc | amDateFormat: 'MM/DD/YY'}}</span>
+                    <span class="m-l-1" *ngIf="!machineData.cancelDateOnUtc">N/A</span>
+                  </p>
+                  <p *ngIf="machineData.isInDcOrder">LDSNE:
+                    <span class="m-l-1" *ngIf="machineData.lastDateToShipOnUtc">{{machineData.lastDateToShipOnUtc | amDateFormat: 'MM/DD/YY'}}</span>
+                    <span class="m-l-1" *ngIf="!machineData.lastDateToShipOnUtc">N/A</span>
+                  </p>
+                </td>
+                <td *ngIf="!machineData"></td>
+
+                <td *ngIf="machineData"
+                    [ngClass]="{'red-cell': machineData.isLateOriginal, 'resched-cell': machineData.isLateRescheduled}"
+                    (click)="selectCellDragMultiRightPanel($event, qtyCell, 'neckLB', machineData)" #qtyCell>
+                  <p class="">{{machineData.productionQty}} units</p>
+                  <!-- <p class="m-t-10" #scheduled *ngIf="!isMachineOrTsc(rowData.machineName)">
+                    <span class="p-link" (click)="showInput(scheduled)">{{machineData.scheduledQty}} scheduled</span>
+                    <input class="runTimeInput" #scheduledInput
+                            [hidden]="true"
+                            IntegerNumber
+                            [value]="machineData.scheduledQty"
+                            (keyup)="invalidQty(scheduledInput, machineData)"
+                            (keyup.enter)="scheduledInput.blur()"
+                            (blur)="updateScheduled(scheduledInput, scheduled, machineData)"/>
+                    <i class="fa fa-times cursor un-p-link py-1" aria-hidden="true" (click)="removeStyle(machineData)"
+                    title="Click to Remove"></i>
+                    <span class="text-danger" style="display: block" *ngIf="invalidQty(scheduledInput?.value, machineData)">
+                      Qty must be {{invalidQty(scheduledInput?.value, machineData)}} or less
+                    </span>
+                  </p> -->
+                  <p class="m-t-10">
+                    <span [ngClass]="{'p-link': !isPageReadOnly && !machineData.processStatus && !machineData.isArchived}" (click)="openModal(machineData); $event.stopPropagation();">{{machineData.scheduledQty}} scheduled </span>
+                    <i class="fa fa-times cursor un-p-link py-1" aria-hidden="true" (click)="removeStyle(machineData); $event.stopPropagation();"
+                      *ngIf="!isPageReadOnly && ((!machineData.processStatus && !machineData.isArchived) || isOnLateTab)"
+                      title="Click to Remove"></i>
+                  </p>
+                  <p class="m-t-10">
+                    <button class="btn btn-yellow btn-small" [ngClass]="{'m-b-10': isOnLateTab}"
+                            *ngIf="machineData.processStatus === 1"
+                            >Job Started
+                    </button>
+                    <button class="btn btn-orange btn-small" [ngClass]="{'m-b-10': isOnLateTab}"
+                            *ngIf="machineData.processStatus === 2"
+                            >Job Pending
+                    </button>
+                    <button class="btn btn-green btn-small" [ngClass]="{'m-b-10': isOnLateTab}"
+                            *ngIf="machineData.processStatus >= 3 && machineData.processStatus < 7"
+                            >Job Completed
+                    </button>
+                    <button class="btn btn-yellow btn-small" [ngClass]="{'m-b-10': isOnLateTab}"
+                            *ngIf="machineData.processStatus === 7"
+                            >Job Paused
+                    </button>
+                  </p>
+                  <p style="height: 20px"></p>
+                  <p class="move-icon" *ngIf="!isPageReadOnly && ((!machineData.processStatus && !machineData.isArchived) || isOnLateTab)">
+                    <i class="fa fa-lg fa-arrows" aria-hidden="true"></i>
+                  </p>
+                </td>
+                <td *ngIf="!machineData"></td>
+                <td [rowSpan]="rowData.machineData.length" *ngIf="!iii" class="last-td">
+                  <p>{{rowData.sumQty || 0}} units</p>
+                </td>
+                <!-- <td>
+
+                  <button class="btn btn-danger btn-xs" (click)="removeStyle(machineData)" *ngIf="machineData"
+                          style="width: 65px">Remove
+                  </button>
+                </td> -->
+              </tr>
+              <tr [id]="i + '-' + ii + '-' + iii + '-' + rowData.machineId" [ngClass]="{'even-row': ii%2 !== 0}"
+                  *ngIf="machineData && machineData.isMaintenanceJob">
+
+                <td [rowSpan]="rowData.machineData.length" *ngIf="!iii" class="first-td">{{rowData.machineName}}</td>
+
+                <td colspan="6" class="maintenance-job" #maintenance (click)="showInput(maintenance)">
+                  <span [ngClass]="{'p-link': !isPageReadOnly}">{{machineData.specialTask ? machineData.specialTask : 'Special Task'}}</span>
+                  <input class="maintenance-input" #maintenanceInput
+                        [hidden]="true"
+                        [value]="machineData.specialTask ? machineData.specialTask : 'Special Task'"
+                        (keyup.enter)="maintenanceInput.blur()"
+                        (blur)="updateMaintenance(maintenanceInput, maintenance, machineData)"/>
+                </td>
+
+                <td>
+                  <p #maintenanceUnit>
+                    <span (click)="showInput(maintenanceUnit, machineData)" [ngClass]="{'p-link': !isPageReadOnly}">
+                      {{machineData.scheduledQty}} units
+                    </span>
+                    <input #qtyInput
+                          class="runTimeInput"
+                          [hidden]="true"
+                          [value]="machineData.scheduledQty"
+                          (keyup.enter)="qtyInput.blur()"
+                          (blur)="updateMaintenance(qtyInput, maintenanceUnit, machineData, true)"/>
+                    <i class="fa fa-times cursor un-p-link py-1" aria-hidden="true" (click)="removeStyle(machineData)"
+                      *ngIf="!isPageReadOnly"
+                      title="Click to Remove"></i>
+                  </p>
+                </td>
+
+                <!-- <td (click)="showInput(runTime, machineData)" [title]="machineData && !isPageReadOnly ? 'Click to Edit' : ''" #runTime>
+                  <span *ngIf="machineData.runtime !== null" [ngClass]="{'p-link': !isPageReadOnly}">{{machineData.runtime | number:'1.2-2'}}</span>
+                  <input #runTimeInput
+                        class="runTimeInput"
+                        [hidden]="true"
+                        [value]="machineData.runtime | number:'1.2-2'"
+                        (keyup.enter)="runTimeInput.blur()"
+                        (blur)="updateRunTime(runTimeInput, runTime, i, ii, iii)"/>
+                  <span *ngIf="machineData.runtime === null">0.00</span>
+                </td> -->
+                <td [rowSpan]="rowData.machineData.length" *ngIf="!iii" class="last-td">
+                  <p>{{rowData.sumQty || 0}} units</p>
+                </td>
+              </tr>
+            </ng-template>
+          </ng-template>
+          <!-- <tr class="total-pieces" [id]="i + '-n-n'">
+            <td colspan="11" class="align-right">TOTAL PIECES</td>
+            <td colspan="6">{{dayData.totals}}</td>
+          </tr> -->
+
+          </tbody>
+        </table>
+        <!-- FINISHING SCHEDULE TABLE -->
+        <p [ngClass]="{'red-cell': isOnLateTab}" class="p-large date-color" [hidden]="!dayData.finishData || !dayData.finishData.length">FINISHING SCHEDULE -
+          {{dayData.totalsFinish}} pcs</p>
+        <table class="table" border="1px" *ngIf="!isFilter || !isNoData"
+               [hidden]="!dayData.finishData || !dayData.finishData.length">
+          <thead>
+          <tr>
+            <th style="width: 115px">Vendor</th>
+            <th>Cust /<br/> PO #</th>
+            <th>Design #<br/> Description</th>
+            <th>Print<br/> Date</th>
+            <th>Neck Label<br/> Date</th>
+            <th>Trim<br/> ETA</th>
+            <th>Start / Cancel <br/> Ship Date</th>
+            <th>Qty (Pcs)</th>
+            <th># People<br/> # Hrs</th>
+            <th>Vendor<br/> Totals</th>
+          </tr>
+          </thead>
+          <tbody [dragula]='"bag-one"' id="finishing-schedule" [attr.data-date]="dayData.date">
+          <ng-template ngFor let-rowData [ngForOf]="dayData.finishData" let-ii="index">
+            <ng-template ngFor let-machineData [ngForOf]="rowData.machineData" let-iii="index">
+              <tr [id]="i + '-' + ii + '-' + iii + '-' + rowData.machineId" [ngClass]="{'even-row': ii%2 !== 0}"
+                  *ngIf="!machineData || (machineData && !machineData.isMaintenanceJob)">
+                <!-- <td [rowSpan]="dayData.totalRecord" *ngIf="!ii && !iii" class="print-date-style">
+                  {{dayData.date | amDateFormat: 'dddd' | uppercase}} <br/><br/>
+                  {{dayData.date | amDateFormat: 'MM/DD/YYYY'}} <br/><br/>
+                  <button class="btn btn-complete btn-xs" (click)="openModal(dayData.date)">+ Add Style</button>
+                </td> -->
+                <td [rowSpan]="rowData.machineData.length" *ngIf="!iii" class="first-td">{{rowData.machineName}}</td>
+                <ng-template [ngIf]="!machineData || !machineData.isGroupRow">
+                <td *ngIf="machineData">
+                  <p class="p-link" (click)="goToOrderInfo(machineData.orderId)">{{machineData.customerName}}<span
+                    *ngIf="machineData.customerName && machineData.customerPoId"><br/>#</span>
+                    {{machineData.customerPoId}}</p>
+                </td>
+                <td *ngIf="!machineData"></td>
+
+                <td *ngIf="machineData">
+                  <p (click)="goToStyle(machineData.orderId, machineData.orderDetailId)" class="p-link">
+                    {{machineData.partnerStyle}}
+                    <span class="m-t-5" style="display: block"></span>
+                    {{machineData.styleName}}
+                  </p>
+                  <img [src]="machineData.printImageUrl" height="50" width="50" imgZoomClick
+                      class="img-thumbnail-none-wh cursor"
+                      *ngIf="machineData.printImageUrl"/>
+                  <img [src]="machineData.neckLabelImageUrl" height="50" width="50" imgZoomClick
+                      class="img-thumbnail-none-wh cursor"
+                      *ngIf="machineData.neckLabelImageUrl"/>
+                </td>
+                <td *ngIf="!machineData"></td>
+
+                <td *ngIf="machineData">
+                  <p *ngFor="let printDate of machineData.printDates">{{printDate.printDate | amDateFormat: 'M/D'}}:
+                    {{printDate.units}} units</p>
+                </td>
+                <td *ngIf="!machineData"></td>
+
+                <td *ngIf="machineData">
+                  <p *ngFor="let neckLabelDate of machineData.neckLabelDates">{{neckLabelDate.printDate | amDateFormat:
+                    'M/D'}}: {{neckLabelDate.units}} units</p>
+                </td>
+                <td *ngIf="!machineData"></td>
+
+                <td *ngIf="machineData">
+                  <p>Eta:
+                    <span class="m-l-1" *ngIf="machineData.trimEstDeliveryDateFromOnUtc">{{machineData.trimEstDeliveryDateFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+                    <span class="m-l-1" *ngIf="!machineData.trimEstDeliveryDateFromOnUtc">N/A</span>
+                  </p>
+                  <p class="m-0">
+                    <span *ngIf="machineData.trimEstDeliveryDateToOnUtc">- {{machineData.trimEstDeliveryDateToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+                  </p>
+                  <p *ngIf="machineData.hasTscVendor">
+                    , Warehouse
+                  </p>
+                  <p class="m-t-10 m-b-0">Rcvd:
+                    <span class="m-l-1" *ngIf="machineData.trimReceivedDateFromOnUtc">{{machineData.trimReceivedDateFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+                    <span class="m-l-1" *ngIf="!machineData.trimReceivedDateFromOnUtc">N/A</span>
+                  </p>
+                  <p class="m-b-0">
+                    <span *ngIf="machineData.trimReceivedDateToOnUtc">- {{machineData.trimReceivedDateToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+                  </p>
+                </td>
+                <td *ngIf="!machineData"></td>
+
+                <td *ngIf="machineData">
+                  <p>STRT:
+                    <span class="m-l-1" *ngIf="machineData.startShipDateOnUtc">{{machineData.startShipDateOnUtc | amDateFormat: 'MM/DD/YY'}}</span>
+                    <span class="m-l-1" *ngIf="!machineData.startShipDateOnUtc">N/A</span>
+                  </p>
+                  <p>CNCL:
+                    <span class="m-l-1" *ngIf="machineData.cancelDateOnUtc">{{machineData.cancelDateOnUtc | amDateFormat: 'MM/DD/YY'}}</span>
+                    <span class="m-l-1" *ngIf="!machineData.cancelDateOnUtc">N/A</span>
+                  </p>
+                  <p *ngIf="machineData.isInDcOrder">LDSNE:
+                    <span class="m-l-1" *ngIf="machineData.lastDateToShipOnUtc">{{machineData.lastDateToShipOnUtc | amDateFormat: 'MM/DD/YY'}}</span>
+                    <span class="m-l-1" *ngIf="!machineData.lastDateToShipOnUtc">N/A</span>
+                  </p>
+                </td>
+                <td *ngIf="!machineData"></td>
+
+                <td *ngIf="machineData"
+                    [ngClass]="{'red-cell': machineData.isLateOriginal, 'resched-cell': machineData.isLateRescheduled}"
+                    (click)="selectCellDragMultiRightPanel($event, qtyCell, 'finish', machineData)" #qtyCell>
+                  <p class="">{{machineData.finishedQty}} units</p>
+                  <!-- <p class="m-t-10" #scheduled *ngIf="!isMachineOrTsc(rowData.machineName)">
+                    <span class="p-link" (click)="showInput(scheduled)">{{machineData.scheduledQty}} scheduled</span>
+                    <input class="runTimeInput" #scheduledInput
+                            [hidden]="true"
+                            IntegerNumber
+                            [value]="machineData.scheduledQty"
+                            (keyup)="invalidQty(scheduledInput, machineData)"
+                            (keyup.enter)="scheduledInput.blur()"
+                            (blur)="updateScheduled(scheduledInput, scheduled, machineData)"/>
+                    <i class="fa fa-times cursor un-p-link py-1" aria-hidden="true" (click)="removeStyle(machineData)"
+                    title="Click to Remove"></i>
+                    <span class="text-danger" style="display: block" *ngIf="invalidQty(scheduledInput?.value, machineData)">
+                      Qty must be {{invalidQty(scheduledInput?.value, machineData)}} or less
+                    </span>
+                  </p> -->
+                  <p class="m-t-10">
+                    <span [ngClass]="{'p-link': !isPageReadOnly && !machineData.processStatus && !machineData.isArchived}" (click)="openModal(machineData, true); $event.stopPropagation();">{{machineData.scheduledQty}} scheduled </span>
+                    <i class="fa fa-times cursor un-p-link py-1" aria-hidden="true" (click)="removeStyle(machineData); $event.stopPropagation();"
+                      *ngIf="!isPageReadOnly && ((!machineData.processStatus && !machineData.isArchived) || isOnLateTab)"
+                      title="Click to Remove"></i>
+                  </p>
+                  <p class="m-t-10">
+                    <button class="btn btn-yellow btn-small" [ngClass]="{'m-b-10': isOnLateTab}"
+                            *ngIf="machineData.processStatus === 1"
+                            >Job Started
+                    </button>
+                    <button class="btn btn-orange btn-small" [ngClass]="{'m-b-10': isOnLateTab}"
+                            *ngIf="machineData.processStatus === 2"
+                            >Job Pending
+                    </button>
+                    <button class="btn btn-green btn-small" [ngClass]="{'m-b-10': isOnLateTab}"
+                            *ngIf="machineData.processStatus >= 3 && machineData.processStatus < 7"
+                            >Job Completed
+                    </button>
+                    <button class="btn btn-yellow btn-small" [ngClass]="{'m-b-10': isOnLateTab}"
+                            *ngIf="machineData.processStatus === 7"
+                            >Job Paused
+                    </button>
+                  </p>
+                  <p style="height: 20px"></p>
+                  <p class="move-icon" *ngIf="!isPageReadOnly && ((!machineData.processStatus && !machineData.isArchived) || isOnLateTab)">
+                    <i class="fa fa-lg fa-arrows" aria-hidden="true"></i>
+                  </p>
+                </td>
+                <td *ngIf="!machineData"></td>
+                <td *ngIf="machineData; else noMachineData">
+                  <p [ngClass]="{'p-link': !isPageReadOnly && (machineData.processStatus < 3 || machineData.processStatus >= 7) && !machineData.isArchived}"
+                     (click)="configFinishingProcess(machineData)"
+                     *ngIf="machineData.vendorName === 'TSC'">
+                    {{machineData.peopleRequired}}
+                    <span class="m-t-5" style="display: block"></span>
+                    {{machineData.hrsNeeded ? (machineData.hrsNeeded | hrsToHrsMin) : (0 | hrsToHrsMin)}}
+                  </p>
+                </td>
+                </ng-template>
+                <ng-template [ngIf]="machineData && machineData.isGroupRow && rowData.machineName === 'TSC'">
+                  <td *ngIf="!machineData.isCustomProcess; else customPrsHeader" class="process-row" colspan="8" style="text-align: left">
+                    Process # {{machineData.finishingProcess !== null ? (machineData.finishingProcess + ' - ' + machineData.processName) : '-'}}
+                  </td>
+                  <ng-template #customPrsHeader>
+                    <td class="process-row" colspan="8" style="text-align: left">
+                      Custom Process "{{machineData.finishingProcess}}"
+                    </td>
+                  </ng-template>
+                  <td [rowSpan]="calculateByFinishProcess(rowData.machineData, machineData.finishingProcess).length" class="last-td">
+                    <p>{{calculateByFinishProcess(rowData.machineData, machineData.finishingProcess).sum}} units</p>
+                    <p>{{calculateByFinishProcess(rowData.machineData, machineData.finishingProcess).hrsTotals | hrsToHrsMin}}</p>
+                  </td>
+                </ng-template>
+                <td [rowSpan]="rowData.machineData.length" *ngIf="!iii && (rowData.machineName !== 'TSC' || machineData === null)" class="last-td">
+                  <p>{{rowData.sumQty || 0}} units</p>
+                </td>
+                <!-- <td>
+                  <button class="btn btn-danger btn-xs" (click)="removeStyle(machineData)" *ngIf="machineData"
+                          style="width: 65px">Remove
+                  </button>
+                </td> -->
+              </tr>
+              <tr [id]="i + '-' + ii + '-' + iii + '-' + rowData.machineId" [ngClass]="{'even-row': ii%2 !== 0}"
+                  *ngIf="machineData && machineData.isMaintenanceJob">
+
+                <td [rowSpan]="rowData.machineData.length" *ngIf="!iii" class="first-td">{{rowData.machineName}}</td>
+
+                <td colspan="7" class="maintenance-job" #maintenance (click)="showInput(maintenance)">
+                  <span [ngClass]="{'p-link': !isPageReadOnly}">{{machineData.specialTask ? machineData.specialTask : 'Special Task'}}</span>
+                  <input class="maintenance-input" #maintenanceInput
+                        [hidden]="true"
+                        [value]="machineData.specialTask ? machineData.specialTask : 'Special Task'"
+                        (keyup.enter)="maintenanceInput.blur()"
+                        (blur)="updateMaintenance(maintenanceInput, maintenance, machineData)"/>
+                </td>
+
+                <td>
+                  <p #maintenanceUnit>
+                    <span (click)="showInput(maintenanceUnit, machineData)" [ngClass]="{'p-link': !isPageReadOnly}">
+                      {{machineData.scheduledQty}} units
+                    </span>
+                    <input #qtyInput
+                          class="runTimeInput"
+                          [hidden]="true"
+                          [value]="machineData.scheduledQty"
+                          (keyup.enter)="qtyInput.blur()"
+                          (blur)="updateMaintenance(qtyInput, maintenanceUnit, machineData, true)"/>
+                    <i class="fa fa-times cursor un-p-link py-1" aria-hidden="true" (click)="removeStyle(machineData)"
+                      *ngIf="!isPageReadOnly"
+                      title="Click to Remove"></i>
+                  </p>
+                </td>
+
+                <!-- <td (click)="showInput(runTime, machineData)" [title]="machineData && !isPageReadOnly ? 'Click to Edit' : ''" #runTime>
+                  <span *ngIf="machineData.runtime !== null" [ngClass]="{'p-link': !isPageReadOnly}">{{machineData.runtime | number:'1.2-2'}}</span>
+                  <input #runTimeInput
+                        class="runTimeInput"
+                        [hidden]="true"
+                        [value]="machineData.runtime | number:'1.2-2'"
+                        (keyup.enter)="runTimeInput.blur()"
+                        (blur)="updateRunTime(runTimeInput, runTime, i, ii, iii)"/>
+                  <span *ngIf="machineData.runtime === null">0.00</span>
+                </td> -->
+                <td [rowSpan]="rowData.machineData.length" *ngIf="!iii" class="last-td">
+                  <p>{{rowData.sumQty || 0}} units</p>
+                </td>
+              </tr>
+            </ng-template>
+          </ng-template>
+          <!-- <tr class="total-pieces" [id]="i + '-n-n'">
+            <td colspan="11" class="align-right">TOTAL PIECES</td>
+            <td colspan="6">{{dayData.totals}}</td>
+          </tr> -->
+
+          </tbody>
+        </table>
+      </ng-template>
+    </div>
+  </perfect-scrollbar>
+</div>
+
+<ng-template #noMachineData><td></td></ng-template>
+
+<ng-template #pagination>
+  <pagination-control [totalRecord]="tableTobeScheduleData.totalRecord"
+                      *ngIf="tableTobeScheduleData.data && tableTobeScheduleData.data.length"
+                      [pageSize]="tableConfig.pageSize"
+                      [currentPage]="tableConfig.currentPage"
+                      [smallRow]="true"
+                      (onSelectedPageSize)="onSelectedPageSize($event)"
+                      (onPageChange)="onPageChange($event)"></pagination-control>
+</ng-template>
+<ng-template #paginationTop>
+  <pagination-control [totalRecord]="tableTobeScheduleData.totalRecord"
+                      *ngIf="tableTobeScheduleData.data && tableTobeScheduleData.data.length"
+                      [pageSize]="tableConfig.pageSize"
+                      [currentPage]="tableConfig.currentPage"
+                      [dropdownPosition]="'top-left'"
+                      [smallRow]="true"
+                      (onSelectedPageSize)="onSelectedPageSize($event)"
+                      (onPageChange)="onPageChange($event)"></pagination-control>
+</ng-template>

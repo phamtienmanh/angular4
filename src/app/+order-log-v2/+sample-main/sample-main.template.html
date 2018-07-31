@@ -1,0 +1,510 @@
+<div class="row mt-2" #orderLogHeader>
+  <div class="panel panel-transparent" id="orderLogHeader">
+    <perfect-scrollbar class="scroll-sm" [config]="{suppressScrollX: false}" (psScrollX)="onScrollTabX($event)"
+                       #dashboardScroll>
+      <ul class="nav nav-tabs m-b-10" fitcontent>
+        <ng-template ngFor [ngForOf]="tabs" let-tab let-i="index">
+          <li class="text-center nav-item" *ngIf="tab.isView"
+              [ngClass]="{'active': tab.isActive, 'disabled': tab.isDisabled}"
+              (click)="switchTab($event, i)">
+            <a class="justify-center nav-link"
+               href="javascript:void(0)" aria-expanded="true">
+              <span>{{tab.name}}</span>
+            </a>
+          </li>
+        </ng-template>
+      </ul>
+    </perfect-scrollbar>
+  </div>
+</div>
+<div class="panel panel-transparent py-3">
+  <sample-main-filter [fontSize]="myConfigStyle['font-size']"
+                     [isHaveData]="sampleData.data && !!sampleData.data.length"
+                     (onExportOrder)="onExportOrder($event)"
+                     (onExportBulkPo)="onExportBulkPo($event)"
+                     (onChangeFontSize)="onChangeFontSize($event)"
+                     (onUpdateFilter)="onUpdateFilter($event)"
+                     (onFilter)="onFilter($event)"></sample-main-filter>
+  <div class="py-2" *ngIf="sampleData.data === null">
+    <span class="font-size-16">No orders match the current selections.</span>
+  </div>
+  <div class="py-2" *ngIf="sampleData.data && !sampleData.data.length">
+    <span class="font-size-16">
+      'No sample match the current selections.'
+    </span>
+  </div>
+  <div class="py-2" [hidden]="!sampleData.data || !sampleData.data.length">
+    <div class="ngx-datatable material custom-ngx-dtb" id="header"
+         [ngStyle]="myConfigStyleHeader"></div>
+    <ng-container *ngTemplateOutlet="pagination"></ng-container>
+    <div class="relative" id="sampleDevTable">
+      <perfect-scrollbar [config]="{suppressScrollX: false}" (psScrollX)="onScrollX($event)">
+        <table class="table order-table" border="1px"
+               [ngStyle]="myConfigStyle"
+               *ngIf="!isNoColumnChecked()">
+          <thead>
+          <tr class="table-header">
+            <!--<th class="center cursor" (click)="collapseAll()">-->
+              <!--<i class="collapse-toggle cursor fa fa-caret-down fa-2x"-->
+                 <!--[ngClass]="{'collapsed': isAllCollapse}"></i>-->
+            <!--</th>-->
+            <th *ngIf="isShowAllColumns || columns.SampleDevelopmentCustomer"
+                [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].customer.width"
+                [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].customer.width">
+              Customer
+            </th>
+            <th *ngIf="isShowAllColumns || columns.SampleDevelopmentCsrPoOrderDates"
+                [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].csr.width"
+                [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].csr.width">
+              CSR<br>PO #<br>Order Date
+            </th>
+            <th *ngIf="isShowAllColumns || columns.SampleDevelopmentVendor"
+                [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].vendor.width"
+                [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].vendor.width">
+              Vendor
+            </th>
+            <th *ngIf="isShowAllColumns || columns.SampleDevelopmentPartnerStyle"
+                [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].partnerStyleName.width"
+                [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].partnerStyleName.width">
+              Partner Style # /<br>Name
+            </th>
+            <th *ngIf="isShowAllColumns || columns.SampleDevelopmentArt"
+                [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].art.width"
+                [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].art.width">
+              Art
+            </th>
+            <th *ngIf="isShowAllColumns || columns.SampleDevelopmentA2000Color"
+                [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].a2000Color.width"
+                [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].a2000Color.width">
+              A2000 Color
+            </th>
+            <th *ngIf="isShowAllColumns || columns.SampleDevelopmentBlankColor"
+                [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].blankColor.width"
+                [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].blankColor.width">
+              Blank Color
+            </th>
+            <th *ngIf="isShowAllColumns || columns.SampleDevelopmentTreatmentType"
+                [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].treatmentType.width"
+                [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].treatmentType.width">
+              Treatment<br>Type
+            </th>
+            <th *ngIf="isShowAllColumns || columns.SampleDevelopmentEmbellishmentType"
+                [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].embellishmentType.width"
+                [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].embellishmentType.width">
+              Embellishment<br>Type
+            </th>
+            <th *ngIf="isShowAllColumns || columns.SampleDevelopmentConceptApporved "
+                [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].conceptApporved .width"
+                [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].conceptApporved .width">
+              Concept<br>Approved
+            </th>
+            <th *ngIf="isShowAllColumns || columns.SampleDevelopmentArtRequested"
+                [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].artRequested.width"
+                [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].artRequested.width">
+              Art<br>Requested
+            </th>
+            <th *ngIf="isShowAllColumns || columns.SampleDevelopmentArtReceived"
+                [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].artReceived.width"
+                [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].artReceived.width">
+              Art<br>Received
+            </th>
+            <th *ngIf="isShowAllColumns || columns.SampleDevelopmentArtReleased"
+                [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].artReleased.width"
+                [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].artReleased.width">
+              Art<br>Released
+            </th>
+            <th *ngIf="isShowAllColumns || columns.SampleDevelopmentBlanksReceived"
+                [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].blanksReceived.width"
+                [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].blanksReceived.width">
+              Blanks<br>Received
+            </th>
+            <th *ngIf="isShowAllColumns || columns.SampleDevelopmentApprovalProcess"
+                [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].approvalProcess.width"
+                [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].approvalProcess.width">
+              Approval<br>Process
+            </th>
+            <th *ngIf="isShowAllColumns || columns.SampleDevelopmentPpCustomerQty"
+                [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].ppCustomerQty.width"
+                [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].ppCustomerQty.width">
+              PP Customer<br>Qty
+            </th>
+            <th *ngIf="isShowAllColumns || columns.SampleDevelopmentFactory"
+                [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].factory.width"
+                [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].factory.width">
+              Factory
+            </th>
+            <th *ngIf="isShowAllColumns || columns.SampleDevelopmentTreatmentSampleDate"
+                [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].treatmentSampleDate.width"
+                [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].treatmentSampleDate.width">
+              Treatment<br>Sample<br>Date
+            </th>
+            <th *ngIf="isShowAllColumns || columns.SampleDevelopmentTreatmentPhotoApprovalTsc"
+                [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].treatmentPhotoApprovalTsc.width"
+                [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].treatmentPhotoApprovalTsc.width">
+              Treatment<br>Photo Approval<br>@ TSC
+            </th>
+            <th *ngIf="isShowAllColumns || columns.SampleDevelopmentEmbellishmentSampleDate"
+                [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].embellishmentSampleDate.width"
+                [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].embellishmentSampleDate.width">
+              Embellishment<br>Sample Date
+            </th>
+            <th *ngIf="isShowAllColumns || columns.SampleDevelopmentPhotoApprovalTsc"
+                [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].photoApprovalTsc.width"
+                [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].photoApprovalTsc.width">
+              Photo Approval<br>@ TSC
+            </th>
+            <th *ngIf="isShowAllColumns || columns.SampleDevelopmentNeckPrintSampleDate"
+                [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].neckPrintSampleDate.width"
+                [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].neckPrintSampleDate.width">
+              Neck Print<br>Sample Date
+            </th>
+            <th *ngIf="isShowAllColumns || columns.SampleDevelopmentNeckPrintPhotoApprovalTsc"
+                [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].neckPrintPhotoApprovalTsc.width"
+                [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].neckPrintPhotoApprovalTsc.width">
+              Neck Print<br>Photo Approval<br>@ TSC
+            </th>
+            <th *ngIf="isShowAllColumns || columns.SampleDevelopmentPhysSampleExFactoryDatePp"
+                [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDate.width"
+                [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDate.width">
+              Phys. Sample<br>Ex-Factory<br>Date (PP)
+            </th>
+            <th *ngIf="isShowAllColumns || columns.SampleDevelopmentPhysSampleActualDateDeliveredPp"
+                [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleActualDateDelivered.width"
+                [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleActualDateDelivered.width">
+              Phys. Sample<br>Actual Date<br>Delivered (PP)
+            </th>
+            <th *ngIf="isShowAllColumns || columns.SampleDevelopmentQcSampleShipDatePp"
+                [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].qcSampleShipDate.width"
+                [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].qcSampleShipDate.width">
+              QC Sample /<br>Ship Date<br>(PP)
+            </th>
+            <th *ngIf="isShowAllColumns || columns.SampleDevelopmentTrackingNumber"
+                [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].trackingNumber.width"
+                [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].trackingNumber.width">
+              Tracking<br>Number
+            </th>
+            <th *ngIf="isShowAllColumns || columns.SampleDevelopmentFinalApprovalPp"
+                [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].finalApproval.width"
+                [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].finalApproval.width">
+              Final<br>Approval<br>(PP)
+            </th>
+            <th *ngIf="isShowAllColumns || columns.SampleDevelopmentComments"
+                [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].comments.width"
+                [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].comments.width">Comments
+            </th>
+          </tr>
+          </thead>
+          <tbody>
+          <ng-template ngFor let-row [ngForOf]="sampleData.data" let-i="index"
+                       let-first="first">
+            <ng-template ngFor let-detail [ngForOf]="row.styles" let-ii="index"
+                         let-firstStyle="first" let-lastStyle="last">
+              <ng-template ngFor let-item [ngForOf]="detail.printLocations" let-iii="index"
+                           let-firstPrint="first" let-lastPrint="last">
+                <tr *ngIf="!row.isCollapse || (firstStyle && firstPrint)"
+                    [ngClass]="{'start-order': !first && firstStyle && firstPrint}">
+                  <!--<td *ngIf="firstStyle && firstPrint"-->
+                      <!--(click)="collapseRow(row)"-->
+                      <!--[attr.rowSpan]="orderColSpan(row)"-->
+                      <!--class="center cursor">-->
+                    <!--<div class="seperate-child">-->
+                      <!--<i class="collapse-toggle cursor fa fa-caret-down fa-2x"-->
+                         <!--[ngClass]="{'collapsed': row.isCollapse}"></i>-->
+                      <!--<b class="m-t-5">{{(tableConfig.currentPage - 1) * tableConfig.pageSize + i + 1}}</b>-->
+                    <!--</div>-->
+                  <!--</td>-->
+                  <td *ngIf="firstStyle && firstPrint && (isShowAllColumns || columns.SampleDevelopmentCustomer)"
+                      class="v-align-top"
+                      [attr.rowSpan]="orderColSpan(row)"
+                      [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].customer.width"
+                      [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].customer.width">
+                    <p class="center m-t-5">{{row.customerName}}</p>
+                  </td>
+                  <td *ngIf="firstStyle && firstPrint && (isShowAllColumns || columns.SampleDevelopmentCsrPoOrderDates)"
+                      class="v-align-top"
+                      (click)="goToOrderInfo($event, row.orderId)"
+                      [attr.rowSpan]="orderColSpan(row)"
+                      [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].csr.width"
+                      [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].csr.width">
+                    <p class="center p-link m-t-5">{{row.csr}}</p>
+                    <p class="center p-link">{{row.customerPoId}}</p>
+                    <p class="center p-link mbe-1">
+                      <span class="inline">{{row.orderDateOnUtc ? (row.orderDateOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'): ''}}</span>
+                    </p>
+                  </td>
+                  <td *ngIf="firstPrint && (isShowAllColumns || columns.SampleDevelopmentVendor)"
+                      [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                      [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].vendor.width"
+                      [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].vendor.width">
+                    <p class="center p-link">{{detail.vendor}}</p>
+                  </td>
+                  <td *ngIf="firstPrint && (isShowAllColumns || columns.SampleDevelopmentPartnerStyle)"
+                      (click)="goToStyle(row.orderId, detail.orderDetailId)"
+                      [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                      [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].partnerStyleName.width"
+                      [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].partnerStyleName.width">
+                    <p class="center p-link">{{detail.partnerStyleId}}</p>
+                    <p class="center p-link">{{detail.partnerStyleName}}</p>
+                  </td>
+                  <td *ngIf="isShowAllColumns || columns.SampleDevelopmentArt"
+                      [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].art.width"
+                      [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].art.width">
+                    <div *ngIf="item" class="center">
+                      <p class="p-link"
+                         (click)="goToPrintLocation(row.orderId, detail.orderDetailId, item.printLocationId)">
+                        {{item.locationName}}</p>
+                      <img *ngIf="item.printLocationImageUrl"
+                           class="cursor img-thumbnail-none-wh"
+                           [src]="item.printLocationImageUrl"
+                           width="50" height="50" imgZoomClick>
+                    </div>
+                  </td>
+                  <td *ngIf="firstPrint && (isShowAllColumns || columns.SampleDevelopmentA2000Color)"
+                      [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                      [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].a2000Color.width"
+                      [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].a2000Color.width">
+                    <p class="center">{{detail.colorName}}</p>
+                  </td>
+                  <td *ngIf="firstPrint && (isShowAllColumns || columns.SampleDevelopmentBlankColor)"
+                      [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                      [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].blankColor.width"
+                      [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].blankColor.width">
+                    <p class="center">{{detail.blankColorName}}</p>
+                  </td>
+                  <td *ngIf="firstPrint && (isShowAllColumns || columns.SampleDevelopmentTreatmentType)"
+                      [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                      [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].treatmentType.width"
+                      [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].treatmentType.width">
+                    <p class="center">{{detail.treatmentName}}</p>
+                  </td>
+                  <td *ngIf="isShowAllColumns || columns.SampleDevelopmentEmbellishmentType"
+                      [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].embellishmentType.width"
+                      [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].embellishmentType.width">
+                    <p class="center">{{item?.embellishmentTypeName}}</p>
+                  </td>
+                  <td *ngIf="firstPrint && (isShowAllColumns || columns.SampleDevelopmentConceptApporved )"
+                      [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                      [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].conceptApporved .width"
+                      [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].conceptApporved .width">
+                    <div class="center">
+                      <p class="center">{{item?.conceptApproved ? 'Yes' : 'No'}}</p>
+                    </div>
+                  </td>
+                  <td *ngIf="firstPrint && (isShowAllColumns || columns.SampleDevelopmentArtRequested )"
+                      [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                      [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].artRequested.width"
+                      [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].artRequested.width">
+                    <p class="center">
+                      <span class="inline">{{detail.artRequestedOnUtc ? (detail.artRequestedOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY') : ''}}</span>
+                    </p>
+                  </td>
+                  <td *ngIf="isShowAllColumns || columns.SampleDevelopmentArtReceived"
+                      [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].artReceived.width"
+                      [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].artReceived.width">
+                    <p class="center">
+                      <span class="inline">{{item?.artReceivedDateOnUtc ? (item.artReceivedDateOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY') : ''}}</span>
+                    </p>
+                  </td>
+                  <td *ngIf="isShowAllColumns || columns.SampleDevelopmentArtReleased"
+                      [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].artReleased.width"
+                      [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].artReleased.width">
+                    <p class="center">
+                      <span class="inline">{{item?.artReleasedDateOnUtc ? (item.artReleasedDateOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY') : ''}}</span>
+                    </p>
+                  </td>
+                  <td *ngIf="firstPrint && (isShowAllColumns || columns.SampleDevelopmentBlanksReceived )"
+                      [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                      [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].blanksReceived.width"
+                      [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].blanksReceived.width">
+                    <p class="center">
+                      {{detail.blankReceived}}
+                    </p>
+                  </td>
+                  <td *ngIf="firstPrint && (isShowAllColumns || columns.SampleDevelopmentApprovalProcess)"
+                      [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                      [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].approvalProcess.width"
+                      [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].approvalProcess.width">
+                    <p class="center">
+                      {{detail.approvalProcess ? 'Yes' : detail.approvalProcess === null ? 'N/A' : 'No'}}
+                    </p>
+                  </td>
+                  <td *ngIf="firstPrint && (isShowAllColumns || columns.SampleDevelopmentPpCustomerQty)"
+                      [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                      [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].ppCustomerQty.width"
+                      [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].ppCustomerQty.width">
+                    <p class="center">
+                      {{detail.ppCustomerQty}}
+                    </p>
+                  </td>
+                  <td *ngIf="firstPrint && (isShowAllColumns || columns.SampleDevelopmentFactory)"
+                      [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                      [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].factory.width"
+                      [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].factory.width">
+                    <p class="center">
+                      {{detail.factoryName}}
+                    </p>
+                  </td>
+                  <td *ngIf="firstPrint && (isShowAllColumns || columns.SampleDevelopmentTreatmentSampleDate)"
+                      [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                      [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].treatmentSampleDate.width"
+                      [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].treatmentSampleDate.width">
+                    <p class="center">
+                      <span class="inline">{{detail.treatmentSampleDateOnUtc ? (detail.treatmentSampleDateOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY') : ''}}</span>
+                    </p>
+                  </td>
+                  <td *ngIf="firstPrint && (isShowAllColumns || columns.SampleDevelopmentTreatmentPhotoApprovalTsc)"
+                      [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                      [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].treatmentPhotoApprovalTsc.width"
+                      [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].treatmentPhotoApprovalTsc.width">
+                    <p class="center">
+                      <span class="inline">{{detail.treatmentApprovalOnUtc ? (detail.treatmentApprovalOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY') : ''}}</span>
+                    </p>
+                  </td>
+                  <td *ngIf="isShowAllColumns || columns.SampleDevelopmentEmbellishmentSampleDate"
+                      [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].embellishmentSampleDate.width"
+                      [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].embellishmentSampleDate.width">
+                    <p class="center">
+                      <span class="inline">{{item?.sampleDateOnUtc ? (item.sampleDateOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY') : ''}}</span>
+                    </p>
+                  </td>
+                  <td *ngIf="isShowAllColumns || columns.SampleDevelopmentPhotoApprovalTsc"
+                      [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].photoApprovalTsc.width"
+                      [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].photoApprovalTsc.width">
+                    <p class="center">
+                      <span class="inline">{{item?.approvedToSampleDateOnUtc ? (item.approvedToSampleDateOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY') : ''}}</span>
+                    </p>
+                  </td>
+                  <td *ngIf="firstPrint && (isShowAllColumns || columns.SampleDevelopmentNeckPrintSampleDate)"
+                      [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                      [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].neckPrintPhotoApprovalTsc.width"
+                      [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].neckPrintPhotoApprovalTsc.width">
+                    <p class="center">
+                      <span class="inline">{{detail.sampleDateOnUtc ? (detail.sampleDateOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY') : ''}}</span>
+                    </p>
+                  </td>
+                  <td *ngIf="firstPrint && (isShowAllColumns || columns.SampleDevelopmentNeckPrintPhotoApprovalTsc)"
+                      [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                      [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].neckPrintPhotoApprovalTsc.width"
+                      [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].neckPrintPhotoApprovalTsc.width">
+                    <p class="center">
+                      <span class="inline">{{detail.artApprovedDateOnUtc ? (detail.artApprovedDateOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY') : ''}}</span>
+                    </p>
+                  </td>
+                  <td *ngIf="firstPrint && (isShowAllColumns || columns.SampleDevelopmentPhysSampleExFactoryDatePp)"
+                      [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                      [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDate.width"
+                      [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDate.width">
+                    <p class="center">
+                      <span class="inline">{{detail.physSampleExFactoryDatePpOnUtc ? (detail.physSampleExFactoryDatePpOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY') : ''}}</span>
+                    </p>
+                  </td>
+                  <td *ngIf="firstPrint && (isShowAllColumns || columns.SampleDevelopmentPhysSampleActualDateDeliveredPp)"
+                      [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                      [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleActualDateDelivered.width"
+                      [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleActualDateDelivered.width">
+                    <p class="center">
+                      <span class="inline">{{detail.physSampleActualDateDeliveredPpOnUtc ? (detail.physSampleActualDateDeliveredPpOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY') : ''}}</span>
+                    </p>
+                  </td>
+                  <td *ngIf="firstPrint && (isShowAllColumns || columns.SampleDevelopmentQcSampleShipDatePp)"
+                      [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                      [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].qcSampleShipDate.width"
+                      [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].qcSampleShipDate.width">
+                    <p class="center">
+                      <span class="inline">{{detail.qcSampleDateOnUtc ? (detail.qcSampleDateOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY') : ''}}</span>
+                    </p>
+                  </td>
+                  <td *ngIf="firstPrint && (isShowAllColumns || columns.SampleDevelopmentTrackingNumber)"
+                      [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                      [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].trackingNumber.width"
+                      [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].trackingNumber.width">
+                    <p class="center">
+                      {{detail.trackingNumber}}
+                    </p>
+                  </td>
+                  <td *ngIf="firstPrint && (isShowAllColumns || columns.SampleDevelopmentFinalApprovalPp)"
+                      [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                      [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].finalApproval.width"
+                      [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].finalApproval.width">
+                    <p class="center">
+                      <span class="inline">{{detail.qcSampleDateOnUtc ? (detail.qcSampleDateOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY') : ''}}</span>
+                    </p>
+                  </td>
+                  <td *ngIf="firstPrint && (isShowAllColumns || columns.SampleDevelopmentComments)"
+                      [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                      [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].comments.width"
+                      [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].comments.width">
+                    <p class="center">
+                      {{detail.comments}}
+                    </p>
+                  </td>
+                </tr>
+              </ng-template>
+            </ng-template>
+          </ng-template>
+          </tbody>
+        </table>
+      </perfect-scrollbar>
+    </div>
+    <ng-container *ngTemplateOutlet="paginationTop"></ng-container>
+  </div>
+  <ng-template #pagination>
+    <pagination-control [totalRecord]="sampleData.totalRecord" *ngIf="sampleData.data && sampleData.data.length"
+                        [pageName]="'orderMain'"
+                        [pageSize]="tableConfig.pageSize"
+                        [pageSizeList]="[10, 25, 50]"
+                        [currentPage]="tableConfig.currentPage"
+                        (onSelectedPageSize)="onSelectedPageSize($event)"
+                        (onPageChange)="onPageChange($event)">
+      <ng-container center>
+        <div ngbDropdown class="select-column-dropdown m-l-35" #myDrop="ngbDropdown"
+             placement="bottom-right"
+             (openChange)="onChangeShowHideColumn($event)"
+             (clickOutside)="myDrop.close()"
+             [attachOutsideOnClick]="true">
+          <i class="fa fa-sliders fa-2x cursor" id="dropdown4" ngbDropdownToggle></i>
+          <div ngbDropdownMenu aria-labelledby="dropdown4">
+            <div class="col-12 px-1">
+              <div class="checkbox">
+                <input type="checkbox" id="all-options4" [checked]="isCheckedAll"
+                       (change)="onCheckedColsAll($event)">
+                <label [style.margin-bottom]="'.2rem'" for="all-options4">All</label>
+              </div>
+            </div>
+            <div class="divider"></div>
+            <div class="">
+              <div class="col-12 px-1" *ngFor="let col of showHideColumns; let i = index">
+                <div class="checkbox">
+                  <input type="checkbox"
+                         [id]="'col-' + i"
+                         [name]="'col-' + i"
+                         [(ngModel)]="col.isView"
+                         (change)="changeCheckedCol($event)">
+                  <label [for]="'col-' + i">{{col.description}}</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <ng-container *ngIf="!isShowAllColumns; else showMyCols">
+          <a href="javascript:void(0)" class="show-cols"
+             (click)="showAllColumns(true)">Show All Columns</a>
+        </ng-container>
+        <ng-template #showMyCols>
+          <a href="javascript:void(0)" class="show-cols"
+             (click)="showAllColumns(false)">Show My Columns</a>
+        </ng-template>
+      </ng-container>
+    </pagination-control>
+  </ng-template>
+  <ng-template #paginationTop>
+    <pagination-control [totalRecord]="sampleData.totalRecord" *ngIf="sampleData.data && sampleData.data.length"
+                        [pageName]="'orderMain'"
+                        [pageSize]="tableConfig.pageSize"
+                        [currentPage]="tableConfig.currentPage"
+                        [pageSizeList]="[10, 25, 50]"
+                        [dropdownPosition]="'top-left'"
+                        (onSelectedPageSize)="onSelectedPageSize($event)"
+                        (onPageChange)="onPageChange($event)"></pagination-control>
+  </ng-template>
+</div>

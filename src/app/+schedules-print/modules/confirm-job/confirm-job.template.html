@@ -1,0 +1,286 @@
+<div class="modal-header m-b-10">
+  <h4 class="modal-title">
+    Confirm Quantities
+    <ng-template [ngIf]="confirmTypeName"> - {{confirmTypeName}}</ng-template>
+  </h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.close({status: false})">
+    <span aria-hidden="true">×</span>
+  </button>
+</div>
+<div class="modal-body">
+  <perfect-scrollbar [config]="{suppressScrollX: false}" id="perfect-scrollbar">
+    <div class="table-wrapper">
+      <table class="table table-sm style-table">
+        <thead>
+        <tr>
+          <th>Sales Order Detail</th>
+          <th *ngFor="let sizeName of salesOrderTable.sizesNameCell">
+            {{sizeName | uppercase}}
+          </th>
+          <th>Total</th>
+        </tr>
+        </thead>
+        <tbody>
+        <ng-container *ngIf="saleOrderSizes && saleOrderSizes.length">
+          <div *ngIf="confirmTypeName === 'Finishing Job'; then finishingRow else productionRow"></div>
+          <ng-template #productionRow>
+            <tr>
+              <td class="full-width text-right">{{saleOrderSizes[0].name}}
+              </td>
+              <td *ngFor="let sizeName of salesOrderTable.sizesNameCell; let cellIndex = index"
+                  class="full-width text-center">
+                {{salesOrderTable.sizesDataRow[saleOrderSizes[0].prop][sizeName]}}
+              </td>
+              <td class="full-width text-center">{{getTotalSizeRow(salesOrderTable, saleOrderSizes[0].prop)}}</td>
+            </tr>
+          </ng-template>
+          <ng-template #finishingRow>
+            <tr>
+              <td class="full-width text-right">{{saleOrderSizes[1].name}}
+              </td>
+              <td *ngFor="let sizeName of salesOrderTable.sizesNameCell; let cellIndex = index"
+                  class="full-width text-center">
+                {{salesOrderTable.sizesDataRow[saleOrderSizes[1].prop][sizeName]}}
+              </td>
+              <td class="full-width text-center">{{getTotalSizeRow(salesOrderTable, saleOrderSizes[1].prop)}}</td>
+            </tr>
+          </ng-template>
+          <tr>
+            <td class="full-width text-right">{{saleOrderSizes[2].name}}
+            </td>
+            <td *ngFor="let sizeName of salesOrderTable.sizesNameCell; let cellIndex = index"
+                class="full-width text-center">
+              {{salesOrderTable.sizesDataRow[saleOrderSizes[2].prop][sizeName]}}
+            </td>
+            <td class="full-width text-center">{{getTotalSizeRow(salesOrderTable, saleOrderSizes[2].prop)}}</td>
+          </tr>
+        </ng-container>
+        </tbody>
+      </table>
+    </div>
+  </perfect-scrollbar>
+
+  <ng-template ngFor [ngForOf]="jobTable" let-job let-jobIndex="index">
+    <perfect-scrollbar [config]="{suppressScrollX: false}" id="perfect-scrollbar">
+      <div class="table-wrapper">
+        <table class="table table-sm style-table">
+          <thead>
+          <tr>
+            <th colspan="2">Job {{jobIndex + 1}} <span *ngIf="jobDetailData[jobIndex].isThisJob">(This Job)</span></th>
+            <ng-template ngFor [ngForOf]="job.sizesNameCell" let-sizeName>
+              <th
+                [ngClass]="{'incompleted': job.sizesDataRow['incompleted'][sizeName], 'cursor': jobDetailData[jobIndex].isThisJob}"
+                (click)="onChangeIncompleted(job, jobIndex, sizeName)">
+                {{sizeName | uppercase}}
+                <!--<span class="text-lowercase" *ngIf="job.sizesDataRow['incompleted'][sizeName]">inc</span>-->
+              </th>
+            </ng-template>
+            <th>Total</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let sizeRow of jobSizes; let rowIndex = index; let first = first">
+            <div *ngIf="job.isNotScheduled; then notScheduledBlock else scheduledBlock"></div>
+            <ng-template #scheduledBlock>
+              <td class="full-width center" rowspan="4" *ngIf="first">
+                <p class="mbe-1" *ngIf="jobDetailData[jobIndex].scheduledDateOnUtc">
+                  <span class="bold">Sched Date:</span>
+                  {{jobDetailData[jobIndex].scheduledDateOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                </p>
+                <p class="mbe-1" *ngIf="jobDetailData[jobIndex].machineName">
+                  <span class="bold">Machine:</span>
+                  <br/>
+                  {{jobDetailData[jobIndex].machineName}}
+                </p>
+                <p class="mbe-1" *ngIf="jobDetailData[jobIndex].runTime">
+                  <span class="bold">Run Time:</span>
+                  {{jobDetailData[jobIndex].runTime}}
+                </p>
+                <p class="mbe-1" *ngIf="jobDetailData[jobIndex].confirmedBy">
+                  <span class="bold">Confirmed By:</span>
+                  {{jobDetailData[jobIndex].confirmedBy}}
+                </p>
+              </td>
+              <td *ngIf="!checkNaN(getTotalSizeRow(job, sizeRow.prop))"
+                  class="full-width text-right">
+                {{sizeRow.name}}
+              </td>
+              <ng-template ngFor [ngForOf]="job.sizesNameCell" let-sizeName let-cellIndex="index" let-firstCell="first">
+                <div *ngIf="!checkNullObject(job.sizesDataRow[sizeRow.prop]); then thenBlock else elseBlock"></div>
+                <ng-template #thenBlock>
+                  <td class="full-width text-center" *ngIf="jobDetailData[jobIndex].isThisJob; else otherJob"
+                      [ngClass]="{'grey-bg': +job.sizesDataRow['scheduledQtys'][sizeName] === 0}"
+                      (mousedown)="onDoubleClicked($event, job, jobIndex, sizeRow, sizeName, rowIndex, cellIndex)"
+                      [title]="rowIndex > 1 && rowIndex < 3 ? 'Click to edit' : ''">
+                    <span [ngClass]="{'p-link bold': rowIndex > 0 && rowIndex < 3}"
+                          *ngIf="!editing[jobIndex + '-' + rowIndex + '-' + cellIndex] && job.sizesDataRow['scheduledQtys'][sizeName] > 0">
+                      {{job.sizesDataRow[sizeRow.prop][sizeName]}}
+                    </span>
+                    <input [id]="rowIndex + '-' + cellIndex" [focusOnInit]="true"
+                           IntegerNumber
+                           (blur)="onUpdateValue($event, jobIndex, job, sizeRow, sizeName, rowIndex, cellIndex)"
+                           (keydown)="onKeydown($event, jobIndex, job, sizeRow, sizeName, rowIndex, cellIndex)"
+                           *ngIf="editing[jobIndex + '-' + rowIndex + '-' + cellIndex]"
+                           type="text"
+                           [value]="job.sizesDataRow[sizeRow.prop][sizeName]"
+                           class="text-center"/>
+                  </td>
+                  <ng-template #otherJob>
+                    <td class="full-width text-center" [ngClass]="{'bold': rowIndex > 0 && rowIndex < 3,
+                     'grey-bg': +job.sizesDataRow['scheduledQtys'][sizeName] === 0}">
+                      <ng-template [ngIf]="job.sizesDataRow['scheduledQtys'][sizeName] > 0">
+                        {{job.sizesDataRow[sizeRow.prop][sizeName]}}
+                      </ng-template>
+                    </td>
+                  </ng-template>
+                </ng-template>
+                <ng-template #elseBlock>
+                  <td *ngIf="rowIndex === getNullRowIndex(jobSizes, job.sizesDataRow) && firstCell"
+                      class="center job-pending"
+                      [attr.colspan]="job.sizesNameCell.length + 2">
+                    Job is Pending
+                  </td>
+                </ng-template>
+              </ng-template>
+              <ng-template [ngIf]="!checkNaN(getTotalSizeRow(job, sizeRow.prop))">
+                <td class="full-width text-center">{{getTotalSizeRow(job, sizeRow.prop)}}</td>
+              </ng-template>
+            </ng-template>
+            <ng-template #notScheduledBlock>
+              <td class="full-width center" rowspan="4" *ngIf="first">
+                <p class="mbe-1 bold">To Be Scheduled</p>
+              </td>
+              <td class="full-width text-right" *ngIf="first">Uncheduled Qtys</td>
+              <ng-template ngFor [ngForOf]="job.sizesNameCell" let-sizeName let-cellIndex="index" let-firstCell="first">
+                <td class="full-width text-center" *ngIf="first">
+                  <ng-template [ngIf]="job.sizesDataRow['unScheduledQtys'][sizeName] > 0">
+                    {{job.sizesDataRow['unScheduledQtys'][sizeName]}}
+                  </ng-template>
+                </td>
+                <td *ngIf="rowIndex === 1 && firstCell"
+                    class="center job-pending"
+                    [attr.colspan]="job.sizesNameCell.length + 2">
+                  Job is not scheduled
+                </td>
+              </ng-template>
+              <td class="full-width text-center" *ngIf="first">{{getTotalSizeRow(job, 'unScheduledQtys')}}</td>
+            </ng-template>
+          </tr>
+          <tr *ngIf="!job.isNotScheduled">
+            <ng-template [ngIf]="!checkNaN(getTotalSizeRow(job, 'totalPrintQtys'))">
+              <td class="full-width text-right">Total Print Qtys</td>
+            </ng-template>
+            <ng-template ngFor [ngForOf]="job.sizesNameCell" let-sizeName let-cellIndex="index" let-last="last">
+              <ng-template [ngIf]="!checkPendingJobBy(jobIndex)">
+                <td class="full-width text-center"
+                    [ngClass]="{'grey-bg': +job.sizesDataRow['scheduledQtys'][sizeName] === 0}">
+                  <ng-template [ngIf]="job.sizesDataRow['scheduledQtys'][sizeName] > 0">
+                    {{job.sizesDataRow['totalPrintQtys'][sizeName]}}
+                  </ng-template>
+                </td>
+              </ng-template>
+            </ng-template>
+            <ng-template [ngIf]="!checkNaN(getTotalSizeRow(job, 'totalPrintQtys'))">
+              <td class="full-width text-center">{{getTotalSizeRow(job, 'totalPrintQtys')}}</td>
+            </ng-template>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </perfect-scrollbar>
+  </ng-template>
+
+  <perfect-scrollbar [config]="{suppressScrollX: false}" id="perfect-scrollbar">
+    <div class="table-wrapper">
+      <table class="table table-sm style-table">
+        <thead>
+        <tr>
+          <th colspan="2">All Jobs - Totals</th>
+          <th *ngFor="let sizeName of totalJobTable.sizesNameCell">
+            {{sizeName | uppercase}}
+          </th>
+          <th>Total</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let sizeRow of jobTotal; let rowIndex = index; let first = first">
+          <ng-template [ngIf]="checkPendingJob() && first">
+            <td class="full-width center total-job" rowspan="6">
+              Totals
+            </td>
+            <td class="center all-job-pending" [attr.colspan]="totalJobTable.sizesNameCell.length + 2">
+              Job(s) are Pending
+            </td>
+          </ng-template>
+          <ng-template [ngIf]="!checkPendingJob()">
+            <td class="full-width center" rowspan="6" *ngIf="first">
+              Totals
+            </td>
+            <td class="full-width text-right">{{sizeRow.name}}</td>
+            <td *ngFor="let sizeName of totalJobTable.sizesNameCell; let cellIndex = index"
+                class="full-width text-center"
+                [ngClass]="{
+                  'bold': sizeRow.prop === 'overUnderQty' || rowIndex > 0 && rowIndex < 3,
+                  'overShrinkage': sizeRow.prop === 'shrinkageQty' && totalJobTable.sizesDataRow['shrinkageQty'][sizeName] > 0 && !isIncompletedCellBy(sizeName),
+                  'overQty': sizeRow.prop === 'overUnderQty' && totalJobTable.sizesDataRow['overUnderQty'][sizeName] >= 0,
+                  'underQty': sizeRow.prop === 'overUnderQty' && totalJobTable.sizesDataRow['overUnderQty'][sizeName] < 0
+                }">
+              <ng-template
+                [ngIf]="sizeRow.prop === 'overUnderQty' && totalJobTable.sizesDataRow['overUnderQty'][sizeName] > 0">
+                +
+              </ng-template>
+              <div *ngIf="sizeRow.prop === 'shrinkageQty'; then shrinkQtyBlock else otherQtyBlock"></div>
+              <ng-template #shrinkQtyBlock>
+                <div *ngIf="isIncompletedCellBy(sizeName); then incompleteBlock else completeBlock"></div>
+                <ng-template #completeBlock>{{totalJobTable.sizesDataRow[sizeRow.prop][sizeName]}}</ng-template>
+                <ng-template #incompleteBlock>0</ng-template>
+              </ng-template>
+              <ng-template #otherQtyBlock>{{totalJobTable.sizesDataRow[sizeRow.prop][sizeName]}}</ng-template>
+            </td>
+            <td class="full-width text-center"
+                [ngClass]="{
+                  'overShrinkage': sizeRow.prop === 'shrinkageQty' && getTotalSizeRow(totalJobTable, 'shrinkageQty') > 0
+                }">
+              <ng-template [ngIf]="sizeRow.prop !== 'overUnderQty'">
+                {{getTotalSizeRow(totalJobTable, sizeRow.prop)}}
+              </ng-template>
+            </td>
+          </ng-template>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </perfect-scrollbar>
+</div>
+<div class="modal-footer"
+     [ngClass]="{'flex-space-between': !checkCompleteJob() && !isIncompletedCell(), 'flex-space-center': checkCompleteJob() || isIncompletedCell()}">
+  <div *ngIf="checkCompleteJob() || checkPendingJob(); then completedJob else incompletedJob"></div>
+  <ng-template #completedJob>
+    <button class="btn btn-complete"
+            (click)="acceptJob()">
+      Accept
+    </button>
+    <button class="btn btn-default"
+            (click)="activeModal.close({status: false})">
+      Cancel
+    </button>
+  </ng-template>
+  <ng-template #incompletedJob>
+    <button class="btn btn-complete" *ngIf="!isIncompletedCell()"
+            (click)="manuallyReschedule()">
+      Manually Reschedule
+    </button>
+    <button class="btn btn-complete"
+            (click)="moveToTomorrow()">
+      Move to Tomorrow
+    </button>
+    <button class="btn btn-complete" *ngIf="!isIncompletedCell()"
+            (click)="acceptJob(true)">
+      Accept Shortages
+    </button>
+    <button class="btn btn-default"
+            (click)="activeModal.close({status: false})">
+      Cancel
+    </button>
+  </ng-template>
+</div>

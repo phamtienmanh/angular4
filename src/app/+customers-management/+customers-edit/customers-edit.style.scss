@@ -1,0 +1,97 @@
+customers-edit {
+  .general {
+    .general-title {
+      span {
+        font-size: 14px;
+      }
+    }
+    .general-body {
+      .line-break-form{
+        border-top: 1px solid #626262;
+      }
+      .line-break-form:first-child{
+        border-top: none;
+      }
+
+      .general-info {
+        padding: 2px 5px;
+        min-height: 18px;
+        &.name-info {
+          .delete-contact {
+            justify-content: flex-end;
+            display: flex;
+            align-items: center;
+            .btn-xs {
+              height: 60%;
+            }
+          }
+        }
+        .control-label {
+          > label {
+            margin: 0;
+          }
+        }
+      }
+    }
+  }
+
+  .my-avatar {
+    position: relative;
+    width: min-content;
+    .show-avatar {
+      width: 300px;
+      height: auto;
+    }
+    .remove-avatar {
+      display: none;
+      position: absolute;
+      cursor: pointer;
+      z-index: 2;
+      font-size: 20px;
+      line-height: 20px;
+      background-color: red;
+      color: #fff;
+      padding: 0 2px;
+      top: 0;
+      right: 0;
+    }
+    .pick-avatar {
+      display: none;
+      z-index: 1;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+      margin: auto !important;
+      > div {
+        display: table-cell;
+        text-align: center;
+        vertical-align: middle;
+        > i {
+
+        }
+      }
+    }
+    #avatarPicker {
+      display: none;
+    }
+  }
+
+  .show-upload {
+    &:hover {
+      .remove-avatar {
+        display: block;
+      }
+      .pick-avatar {
+        display: table;
+      }
+      .show-avatar {
+        opacity: 0.2;
+      }
+    }
+  }
+}

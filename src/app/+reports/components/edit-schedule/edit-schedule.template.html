@@ -1,0 +1,153 @@
+﻿<div class="modal-header m-b-10">
+  <h4 class="modal-title">{{title}}</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.close(false)">
+    <span aria-hidden="true">×</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="frm"
+        role="form"
+        novalidate="">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="row flex py-1"
+             [ngClass]="{'required': frm.get('formRequires').value['recurValue'].required}">
+          <div class="col-sm-4 control-label text-right">
+            <label class="nowrap">Recur</label>
+          </div>
+          <div class="col-sm-6">
+            <div class="row">
+              <div class="col-sm-6"
+                   [ngClass]="{'has-error':!frm.get('recurValue').valid}">
+                <input IntegerNumber
+                       formControlName='recurValue'
+                       type="text"
+                       [placeholder]="'Recur'"
+                       class="form-control">
+                <label class="error"
+                       *ngIf="frm.get('recurValue').hasError('required') && !frm.get('recurValue').pristine">
+                  {{validationMessages['recurValue'].required}}</label>
+              </div>
+              <div class="col-sm-6"
+                   [ngClass]="{'has-error':!frm.get('recurType').valid}">
+                <ng-select [items]="recurTypes" #recurTypeSelect
+                           (focus)="onSelectFocused(recurTypeSelect)"
+                           (change)="onSelectChanged($event, 'recurType')"
+                           [placeholder]="'Recur Type'"
+                           [searchable]="false"
+                           bindLabel="name"
+                           bindValue="id"
+                           formControlName="recurType"></ng-select>
+                <label class="error"
+                       *ngIf="frm.get('recurType').hasError('required') && !frm.get('recurType').pristine">
+                  {{validationMessages['recurType'].required}}</label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <ng-container *ngIf="frm.get('recurType').value >= 4">
+          <!--<div class="row flex py-1">-->
+            <!--<div class="col-sm-4 control-label text-right"></div>-->
+            <!--<div class="col-sm-6">-->
+              <!--<div class="checkbox m-0">-->
+                <!--<input type="checkbox" id="isActivedSendTypeValue"-->
+                       <!--formControlName="isActivedSendTypeValue">-->
+                <!--<label for="isActivedSendTypeValue">ON A PARTICULAR SCHEDULE</label>-->
+              <!--</div>-->
+            <!--</div>-->
+          <!--</div>-->
+          <!--<div class="row flex py-1"-->
+               <!--[ngClass]="{'required': frm.get('formRequires').value['sendType'].required,-->
+                           <!--'disabled': frm.get('recurType').value === 4}">-->
+            <!--<div class="col-sm-4 control-label text-right">-->
+              <!--<label class="nowrap">Send Type</label>-->
+            <!--</div>-->
+            <!--<div class="col-sm-6">-->
+              <!--<ng-select [items]="sendTypes" #sendTypeSelect-->
+                         <!--(focus)="onSelectFocused(sendTypeSelect)"-->
+                         <!--(change)="onSelectChanged($event, 'sendType')"-->
+                         <!--[placeholder]="'Send Type'"-->
+                         <!--[searchable]="false"-->
+                         <!--bindLabel="name"-->
+                         <!--bindValue="id"-->
+                         <!--formControlName="sendType"></ng-select>-->
+              <!--<label class="error"-->
+                     <!--*ngIf="frm.get('sendType').hasError('required') && !frm.get('sendType').pristine">-->
+                <!--{{validationMessages['sendType'].required}}</label>-->
+            <!--</div>-->
+          <!--</div>-->
+          <div class="row flex py-1" *ngIf="frm.get('sendType').value"
+               [ngClass]="{'required': frm.get('formRequires').value['sendTypeValue'].required}">
+            <div class="col-sm-4 control-label text-right">
+              <label>{{frm.get('sendType').value === 2 ? 'Week ' : ''}}Day(s)</label>
+            </div>
+            <div class="col-sm-6"
+                 [ngClass]="{'has-error':!frm.get('sendTypeValue').valid}">
+              <ng-select *ngIf="frm.get('sendType').value === 2"
+                         [items]="weekDays" #weekDaysSelect
+                         [virtualScroll]="true"
+                         (focus)="onSelectFocused(weekDaysSelect)"
+                         [multiple]="true"
+                         [closeOnSelect]="false"
+                         [hideSelected]="true"
+                         [placeholder]="'Week Day(s)'"
+                         formControlName="sendTypeValue"></ng-select>
+              <ng-select *ngIf="frm.get('sendType').value === 1"
+                         [items]="days" #daysSelect
+                         [virtualScroll]="true"
+                         (focus)="onSelectFocused(daysSelect)"
+                         [multiple]="true"
+                         [closeOnSelect]="false"
+                         [hideSelected]="true"
+                         [placeholder]="'Day(s)'"
+                         formControlName="sendTypeValue"></ng-select>
+              <label class="error"
+                     *ngIf="frm.get('sendTypeValue').hasError('required') && !frm.get('sendTypeValue').pristine">
+                {{validationMessages['sendTypeValue'].required}}</label>
+            </div>
+          </div>
+        </ng-container>
+        <div class="row flex py-1"
+             [ngClass]="{'required': frm.get('formRequires').value['startedTime'].required}">
+          <div class="col-sm-4 control-label text-right">
+            <label class="nowrap">Start Date/Time</label>
+          </div>
+          <div class="col-sm-6">
+            <div class="row">
+              <div class="col-sm-6">
+                <my-date-picker class="flex" [options]="myDatePickerOptions"
+                                #artReceivedDatePicker
+                                formControlName='startedDate'
+                                [ngClass]="{'disabled': true}"
+                                [disabled]="true"></my-date-picker>
+              </div>
+              <div class="col-sm-6" *ngIf="frm.get('recurType').value >= 3"
+                   [ngClass]="{'has-error':!frm.get('startedTime').valid}">
+                <ng-select [items]="times" #startedTimeSelect
+                           (focus)="onSelectFocused(startedTimeSelect)"
+                           [placeholder]="'Started Time'"
+                           [searchable]="false"
+                           bindLabel="label"
+                           bindValue="value"
+                           formControlName="startedTime"></ng-select>
+                <label class="error"
+                       *ngIf="frm.get('startedTime').hasError('required') && !frm.get('startedTime').pristine">
+                  {{validationMessages['startedTime'].required}}</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+<div class="modal-footer" *ngIf="!isPageReadOnly">
+  <button class="btn btn-complete"
+          (click)="onSubmit()">
+    Save
+  </button>
+  <button class="btn btn-default m-r-30"
+          (click)="activeModal.close(false)">
+    Cancel
+  </button>
+</div>

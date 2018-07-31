@@ -1,0 +1,139 @@
+<div class="row pb-2 separate-border">
+  <div class="col-sm-12">
+    <collapse-panel [formValue]="searchedObj">
+      <div class="row">
+        <form role="form" novalidate="" [formGroup]="frm" (ngSubmit)="filter()" class="filterForm full-width">
+          <div class="col-lg-6 col-xl-6 left px-1">
+            <!--<div class="row m-b-5">-->
+              <!--<div class="col-xs-4 col-sm-4 col-lg-5 p-title">-->
+                <!--<span class="nowrap">Customer PO #:</span>-->
+              <!--</div>-->
+              <!--<div class="col-xs-6 col-sm-6 col-lg-7">-->
+                <!--<input type="text"-->
+                       <!--name="customerPo"-->
+                       <!--placeholder="Customer PO #"-->
+                       <!--formControlName="customerPo"-->
+                       <!--class="form-control">-->
+              <!--</div>-->
+            <!--</div>-->
+            <!--<div class="row m-b-5">-->
+              <!--<div class="col-xs-4 col-sm-4 col-lg-5 p-title">-->
+                <!--<span class="nowrap">Retailer PO #:</span>-->
+              <!--</div>-->
+              <!--<div class="col-xs-6 col-sm-6 col-lg-7">-->
+                <!--<input type="text"-->
+                       <!--name="retailerPo"-->
+                       <!--placeholder="Retailer PO #"-->
+                       <!--formControlName="retailerPO"-->
+                       <!--class="form-control">-->
+              <!--</div>-->
+            <!--</div>-->
+            <div class="row">
+              <div class="col-sm-6 col-lg-6 col-xl-6 m-b-5">
+                <div class="row m-b-5">
+                  <div class="col-xs-4 col-sm-4 col-lg-5 p-title">
+                    <span class="nowrap">Design ID:</span>
+                  </div>
+                  <div class="col-xs-6 col-sm-6 col-lg-7">
+                    <input type="text"
+                           name="designId"
+                           placeholder="Design ID"
+                           formControlName="designId"
+                           class="form-control">
+                  </div>
+                </div>
+                <div class="row m-b-5">
+                  <div class="col-xs-4 col-sm-4 col-lg-5 p-title">
+                    <span class="nowrap">Emb. Type:</span>
+                  </div>
+                  <div class="col-xs-6 col-sm-6 col-lg-7">
+                    <input type="text"
+                           name="printMethod"
+                           placeholder="Print Method"
+                           formControlName="printMethod"
+                           class="form-control">
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-lg-6 col-xl-6 m-b-5">
+                <div class="row m-b-5">
+                  <div class="col-xs-4 col-sm-4 col-lg-5 p-title">
+                    <span class="nowrap">Customer:</span>
+                  </div>
+                  <div class="col-xs-6 col-sm-6 col-lg-7">
+                    <input type="text"
+                           name="customerName"
+                           placeholder="Customer Name"
+                           formControlName="customer"
+                           class="form-control">
+                  </div>
+                </div>
+                <div class="row m-b-5">
+                  <div class="col-xs-4 col-sm-4 col-lg-5 p-title">
+                    <span class="nowrap">Style Name:</span>
+                  </div>
+                  <div class="col-xs-6 col-sm-6 col-lg-7">
+                    <input type="text"
+                           name="styleName"
+                           placeholder="Style Name"
+                           formControlName="styleName"
+                           class="form-control">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6 col-xl-6 left px-1">
+            <div class="row m-b-5">
+              <div class="col-2 col-sm-2 m-t-5">
+                <span class="right nowrap">Approved Date:</span>
+              </div>
+              <div class="p-l-5"
+                   [ngClass]="{'has-error':!frm.get('approvedDateFromOnUtc').valid}">
+                <my-date-picker [options]="approvedDateFromOptions"
+                                #approvedDateFromPicker
+                                formControlName='approvedDateFrom'
+                                [defaultMonth]="myDatePickerService.configDefaultMonth(frm.get('approvedDateTo').value, true)"
+                                (dateChanged)="onDateChanged($event, 'approvedDateFromOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, approvedDateFromPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, approvedDateFromPicker, frm.get('approvedDateFromOnUtc'))"></my-date-picker>
+                <!--<label class="error nowrap"-->
+                <!--*ngIf="frm.get('neckLabelDateFromOnUtc').hasError('pattern') && !frm.get('neckLabelDateFromOnUtc').pristine">-->
+                <!--{{validationMessages['default'].pattern}}</label>-->
+                <label class="error nowrap"
+                       *ngIf="frm.get('approvedDateFromOnUtc').hasError('maxDate') && !frm.get('approvedDateFromOnUtc').pristine">
+                  {{validationMessages['approvedDateFromOnUtc'].maxLength}}</label>
+              </div>
+              <div class="px-2 flex center">
+                <span class="m-t-4">to</span>
+              </div>
+              <div class=""
+                   [ngClass]="{'has-error':!frm.get('approvedDateToOnUtc').valid}">
+                <my-date-picker [options]="approvedDateToOptions"
+                                #approvedDateToPicker
+                                formControlName='approvedDateTo'
+                                [defaultMonth]="myDatePickerService.configDefaultMonth(frm.get('approvedDateFrom').value, true)"
+                                (dateChanged)="onDateChanged($event, 'approvedDateToOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, approvedDateToPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, approvedDateToPicker, frm.get('approvedDateToOnUtc'))"></my-date-picker>
+                <!--<label class="error nowrap"-->
+                <!--*ngIf="frm.get('neckLabelDateFromOnUtc').hasError('pattern') && !frm.get('neckLabelDateFromOnUtc').pristine">-->
+                <!--{{validationMessages['default'].pattern}}</label>-->
+                <label class="error nowrap"
+                       *ngIf="frm.get('approvedDateToOnUtc').hasError('minDate') && !frm.get('approvedDateToOnUtc').pristine">
+                  {{validationMessages['approvedDateToOnUtc'].maxLength}}</label>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-12 col-xl-12 left px-1">
+            <div class="row">
+              <div class="col-lg-12 center m-t-10">
+                <button class="btn btn-primary center" type="submit">Search</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </collapse-panel>
+  </div>
+</div>

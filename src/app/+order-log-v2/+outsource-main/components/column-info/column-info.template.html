@@ -1,0 +1,46 @@
+<ng-container *ngIf="columnInfoObj">
+  <ng-container *ngIf="isShowStatus">
+    <label-status [columnStatus]="columnInfoObj.status"></label-status>
+  </ng-container>
+
+  <ng-container *ngIf="isShowLeadTime">
+    <p *ngIf="!!columnInfoObj.etaDateReviseOnUtc" class="mb-0 min-height-content py-1 eta-date"
+       [ngClass]="{'stt-yellow': etaDateEqualTodayDate
+                                 && !columnInfoObj.status,
+                   'stt-red': etaDateLessTodayDate
+                                 && !columnInfoObj.status,
+                   'flex': !isShowStatus && !isShowStatusDate}">
+      {{columnInfoObj.etaDateReviseOnUtc | amDateFormat: 'MM/DD/YY'}} (Rev)
+    </p>
+
+    <p *ngIf="!!columnInfoObj.etaDateOnUtc" class="eta-date"
+       [ngClass]="{'line-through m-b-5': !!columnInfoObj.etaDateReviseOnUtc,
+                   'py-1': !columnInfoObj.etaDateReviseOnUtc,
+                   'stt-yellow': !columnInfoObj.etaDateReviseOnUtc
+                                 && etaDateEqualTodayDate
+                                 && !columnInfoObj.status,
+                   'stt-red': !columnInfoObj.etaDateReviseOnUtc
+                              && etaDateLessTodayDate
+                              && !columnInfoObj.status,
+                   'flex': !isShowStatus && !isShowStatusDate}">
+      {{columnInfoObj.etaDateOnUtc | amDateFormat: 'MM/DD/YY'}}</p>
+  </ng-container>
+
+  <ng-container *ngIf="isShowStatusDate">
+    <ng-content></ng-content>
+
+    <p *ngIf="!!columnInfoObj.statusDateOnUtc" class="completed-date px-1"
+       [ngClass]="{'stt-red': columnInfoObj.status > 1 && completedDateLargeEtaDate,
+                   'm-t-10': isShowStatus && !isShowLeadTime,
+                   'p-t-1-4': isShowStatus && isShowLeadTime && isShowStatusDate}">
+      <ng-container *ngIf="columnInfoObj.status === taskStatus.SCHEDULED; else notSchedBlock">
+        {{dateStr + (columnInfoObj.statusDateOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY')}}
+      </ng-container>
+      <ng-template #notSchedBlock>
+        {{dateStr + (columnInfoObj.statusDateOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY hh:mm A')}}
+      </ng-template>
+    </p>
+
+    <p *ngIf="!!columnInfoObj.updatedUserName">{{columnInfoObj.updatedUserName}}</p>
+  </ng-container>
+</ng-container>

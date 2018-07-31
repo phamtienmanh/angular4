@@ -1,0 +1,108 @@
+﻿<div class="row" *ngIf="!isPageReadOnly">
+  <div class="col-sm-12 col-md-7 col-lg-6 m-b-10">
+    <button class="btn btn-complete btn-cons" (click)="addProcess()">New Process</button>
+  </div>
+  <div class="col-sm-12 col-md-5 col-lg-6 m-b-10">
+  </div>
+</div>
+
+<ng-container *ngTemplateOutlet="pagination"></ng-container>
+<perfect-scrollbar [config]="{suppressScrollX: false}">
+  <div class="table-wrapper" #tableWrapper>
+    <ngx-datatable #table
+                   class="material ngx-table-hover"
+                   [rows]="listProcessData.data"
+                   [columnMode]="'flex'"
+                   [footerHeight]="0"
+                   [headerHeight]="'auto'"
+                   [rowHeight]="'auto'"
+                   [externalSorting]="true"
+                   [loadingIndicator]="tableConfig.loading"
+                   (activate)="onActivate($event)"
+                   [sorts]="[{prop: 'name', dir: 'asc'}]"
+                   (sort)="onSort($event)">
+      <ngx-datatable-column
+        [name]="'Process #'"
+        [prop]="'processNumber'"
+        [minWidth]="120"
+        [draggable]="false"
+        [flexGrow]="2"
+        [resizeable]="false">
+      </ngx-datatable-column>
+      <ngx-datatable-column
+        [name]="'Name'"
+        [prop]="'name'"
+        [resizeable]="false"
+        [minWidth]="120"
+        [flexGrow]="2"
+        [draggable]="false">
+      </ngx-datatable-column>
+      <ngx-datatable-column
+        [name]="'# People Required'"
+        [prop]="'peopleRequired'"
+        [minWidth]="120"
+        [resizeable]="false"
+        [flexGrow]="3"
+        [draggable]="false">
+      </ngx-datatable-column>
+      <ngx-datatable-column
+        [name]="'Staff Avg Pcs/Hr'"
+        [prop]="'staffAvgPcsPerHr'"
+        [minWidth]="120"
+        [resizeable]="false"
+        [flexGrow]="3"
+        [draggable]="false">
+      </ngx-datatable-column>
+      <ngx-datatable-column
+        [name]="'Enabled'"
+        [prop]="'isDisabled'"
+        [minWidth]="80"
+        [sortable]="false"
+        [resizeable]="false"
+        [flexGrow]="1"
+        [draggable]="false">
+        <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+          <div class="checkbox">
+            <input type="checkbox" [checked]="!value" disabled>
+            <label></label>
+          </div>
+        </ng-template>
+      </ngx-datatable-column>
+      <ngx-datatable-column *ngIf="!isPageReadOnly"
+                            [name]="''"
+                            [minWidth]="120"
+                            [sortable]="false"
+                            [resizeable]="false"
+                            [flexGrow]="1"
+                            [cellClass]="'centerBtn'"
+                            [draggable]="false">
+        <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+          <button
+            class="btn btn-complete btn-small"
+            (click)="editProcess(row)"><i class="fa fa-pencil"></i></button>
+          <button class="btn btn-danger btn-small"
+                  (click)="deleteSelectedRow(row)"><i class="fa fa-trash"></i></button>
+        </ng-template>
+      </ngx-datatable-column>
+    </ngx-datatable>
+  </div>
+</perfect-scrollbar>
+<ng-container *ngTemplateOutlet="paginationTop"></ng-container>
+
+<ng-template #pagination>
+  <pagination-control [totalRecord]="listProcessData.totalRecord"
+                      *ngIf="listProcessData.data && listProcessData.data.length"
+                      [pageSize]="tableConfig.pageSize"
+                      [currentPage]="tableConfig.currentPage"
+                      (onSelectedPageSize)="onSelectedPageSize($event)"
+                      (onPageChange)="onPageChange($event)"></pagination-control>
+</ng-template>
+<ng-template #paginationTop>
+  <pagination-control [totalRecord]="listProcessData.totalRecord"
+                      *ngIf="listProcessData.data && listProcessData.data.length"
+                      [pageSize]="tableConfig.pageSize"
+                      [currentPage]="tableConfig.currentPage"
+                      [dropdownPosition]="'top-left'"
+                      (onSelectedPageSize)="onSelectedPageSize($event)"
+                      (onPageChange)="onPageChange($event)"></pagination-control>
+</ng-template>

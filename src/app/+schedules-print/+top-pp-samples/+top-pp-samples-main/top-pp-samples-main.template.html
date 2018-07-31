@@ -1,0 +1,733 @@
+﻿<div class="panel panel-transparent py-2">
+  <top-pp-samples-filter [fontSize]="myConfigStyle['font-size']"
+                          [showHideColumns]="showHideColumns"
+                          [columns]="columns"
+                          [topPpSamplesData]="topPpSamplesData"
+                          (onExportOrder)="onExportOrder($event)"
+                          (onChangeFontSize)="onChangeFontSize($event)"
+                          (onUpdateFilter)="onUpdateFilter($event)"
+                          (onFilter)="onFilter($event)"
+                          (onColumnChange)="onChangeShowHideColumn($event)"></top-pp-samples-filter>
+  <div class="relative">
+    <div class="btn-top-right" *ngIf="filterType === tabTypes.ApprovedAndDone && !isPageReadOnly">
+      <button class="btn btn-complete pull-right"
+              (click)="createConsolidatedShipment()">
+        Create Consolidated Shipment
+      </button>
+    </div>
+    <div class="py-2 m-t-30" *ngIf="!tableAllDaysData || !tableAllDaysData.length">
+      <span class="font-size-16">No TOPs/PPs that match your search criteria.</span>
+    </div>
+    <!--Days tab-->
+    <ul class="nav nav-tabs m-t-20 m-b-10 days-tab" *ngIf="tableAllDaysData && tableAllDaysData.length">
+      <li class="text-center nav-item" *ngFor="let tab of daysTab; let i=index"
+          [ngClass]="{'active': tab.isActive}"
+          (click)="switchTab(i)"
+          [id]="'days-tab-' + i">
+        <a class="justify-center nav-link" href="javascript:void(0)" aria-expanded="true">
+          <span>{{tab.date ? (tab.date | amDateFormat: 'ddd M/D') : 'Late'}}</span>
+        </a>
+      </li>
+    </ul>
+    <div class="py-2" *ngIf="tableAllDaysData && tableAllDaysData.length &&
+                             (!topPpSamplesData.data || !topPpSamplesData.data.length)">
+      <p class="no-top-pp">No Top/Pp Samples in this date.</p></div>
+    <div class="py-2" *ngIf="tableAllDaysData && tableAllDaysData.length &&
+                             topPpSamplesData.data && topPpSamplesData.data.length">
+      <div class="ngx-datatable material" id="header"
+           [ngStyle]="myConfigStyleHeader"></div>
+      <!--<ng-container *ngTemplateOutlet="pagination"></ng-container>-->
+      <perfect-scrollbar [config]="{suppressScrollX: false}" (psScrollX)="onScrollX($event)">
+        <div class="table-wrapper" #tableWrapper id="tableWrapper">
+          <ng-template ngFor let-dayData [ngForOf]="topPpSamplesData.data" let-i="index">
+            <table class="table top-pp-table" border="1px"
+                   [ngStyle]="myConfigStyle"
+                   *ngIf="!isNoColumnChecked()">
+              <caption>
+                {{dayData.topPpCancelDate | amDateFormat: 'dddd' | uppercase}},
+                {{ dayData.topPpCancelDate | amDateFormat: 'MM/DD/YYYY'}}
+              </caption>
+              <thead>
+              <tr class="table-header">
+                <th *ngIf="isShowAllColumns || columns['Schedules.TopPpSamples.CsrCustPoRetailerPoOrderDates']"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].csr.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].csr.width">
+                  CSR<br>Cust / PO #<br>Retailer / PO #<br>Order Dates
+                </th>
+                <th *ngIf="isShowAllColumns || columns['Schedules.TopPpSamples.OwsTechPackReady']"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].owsTechPackReady.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].owsTechPackReady.width">
+                  OWS /<br>Tech<br>Pack<br>Ready
+                </th>
+                <th *ngIf="isShowAllColumns || columns['Schedules.TopPpSamples.CutTicketProductionPoCreated']"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].cutTicketCreated.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].cutTicketCreated.width">
+                  Cut Ticket /<br>Production PO<br>Created
+                </th>
+                <th *ngIf="isShowAllColumns || columns['Schedules.TopPpSamples.DesignDescriptionTotal']"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].designDescriptionTotal.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].designDescriptionTotal.width">
+                  Design #<br>Description<br>Total
+                </th>
+                <th *ngIf="isShowAllColumns || columns['Schedules.TopPpSamples.PrintLocation']"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].printLocation.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].printLocation.width">
+                  Print<br>Location
+                </th>
+                <th *ngIf="isShowAllColumns || columns['Schedules.TopPpSamples.PrintDate']"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].printDate.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].printDate.width">
+                  Print<br>Date
+                </th>
+                <th *ngIf="isShowAllColumns || columns['Schedules.TopPpSamples.NeckLabel']"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].neckLabel.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].neckLabel.width">
+                  Neck<br>Label
+                </th>
+                <th *ngIf="isShowAllColumns || columns['Schedules.TopPpSamples.NeckLabelDate']"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].neckLabelDate.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].neckLabelDate.width">
+                  Neck<br>Label<br>Date
+                </th>
+                <th *ngIf="isShowAllColumns || columns['Schedules.TopPpSamples.FinishingDate']"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].finishingDate.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].finishingDate.width">
+                  Finishing<br>Date
+                </th>
+                <th *ngIf="isShowAllColumns || columns['Schedules.TopPpSamples.EtaTsc']"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].etaTsc.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].etaTsc.width">
+                  ETA @<br>TSC<br>
+                </th>
+                <th *ngIf="isShowAllColumns || columns['Schedules.TopPpSamples.PpTopCancelDate']"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].ppTopCancelDate.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].ppTopCancelDate.width">
+                  PP/TOP Cancel<br>Date
+                </th>
+                <th *ngIf="isShowAllColumns || columns['Schedules.TopPpSamples.Factory']"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].factory.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].factory.width">
+                  Factory
+                </th>
+                <th *ngIf="isShowAllColumns || columns['Schedules.TopPpSamples.Content']"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].content.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].content.width">
+                  Content
+                </th>
+                <th *ngIf="isShowAllColumns || columns['Schedules.TopPpSamples.BlankStyleColor']"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].blankStyleColor.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].blankStyleColor.width">
+                  Blank Style /<br>Color
+                </th>
+                <th *ngIf="isShowAllColumns || columns['Schedules.TopPpSamples.PpTopQty']"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].ppTopQty.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].ppTopQty.width">
+                  PP/TOP<br>Qty
+                </th>
+                <th *ngIf="isShowAllColumns || columns['Schedules.TopPpSamples.QcReceivedDate']"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].qcReceivedDate.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].qcReceivedDate.width">
+                  QC Received<br>Date
+                </th>
+                <th *ngIf="isShowAllColumns || columns['Schedules.TopPpSamples.Qa']"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].qa.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].qa.width">QA
+                </th>
+                <th *ngIf="isShowAllColumns || columns['Schedules.TopPpSamples.AccountManagerApproval']"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].accountManagerApproval.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].accountManagerApproval.width">
+                  Account<br>Manager<br>Approval
+                </th>
+                <th *ngIf="isShowAllColumns || columns['Schedules.TopPpSamples.ShipDate']"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].shipDate.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].shipDate.width">
+                  Ship<br>Date
+                </th>
+              </tr>
+              </thead>
+              <tbody>
+                <ng-template ngFor let-style [ngForOf]="dayData.styles" let-ii="index">
+                  <ng-template ngFor let-topPp [ngForOf]="style.topPpQtys" let-iii="index">
+                  <tr>
+                    <td *ngIf="!iii && (isShowAllColumns || columns['Schedules.TopPpSamples.CsrCustPoRetailerPoOrderDates'])"
+                        [attr.rowspan]="style.topPpQtys.length"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].csr.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].csr.width">
+                      <div class="p-1"
+                           (click)="goToOrderInfo(style.csr.orderId)"
+                           [ngClass]="{'col-readonly': !canModifyCols('Schedules.TopPpSamples.CsrCustPoRetailerPoOrderDates') || style.styleInfo.isCancelled}">
+                        <p class="center p-link">{{style.csr.csr}}</p>
+                        <p class="center p-link">{{style.csr.customerName}} <span
+                          *ngIf="style.csr.customerName && style.csr.customerPoId">#</span>
+                          {{style.csr.customerPoId}}</p>
+                        <p class="center p-link">{{style.csr.retailerName}} <span
+                          *ngIf="style.csr.retailerName && style.csr.retailerPoId">#</span>
+                          {{style.csr.retailerPoId}}</p>
+                        <p class="center p-link" [ngPlural]="style.csr.fulfillmentType">
+                          <ng-template ngPluralCase="0">?</ng-template>
+                          <ng-template ngPluralCase="1">In Fulfillment</ng-template>
+                          <ng-template ngPluralCase="2">In DC</ng-template>
+                          <ng-template ngPluralCase="3">Drop Ship</ng-template>
+                          <ng-template ngPluralCase="4">In Store</ng-template>
+                          <ng-template ngPluralCase="other"></ng-template>
+                        </p>
+                        <p class="center p-link mbe-1" *ngIf="style.csr.orderDateOnUtc">
+                          <span class="inline">ORD: {{style.csr.orderDateOnUtc | amDateFormat: 'MM/DD/YY'}}</span>
+                        </p>
+                        <p class="center p-link mbe-1" *ngIf="style.csr.startShipDateOnUtc">
+                              <span
+                                class="inline">START: {{style.csr.startShipDateOnUtc | amDateFormat: 'MM/DD/YY'}}</span>
+                        </p>
+                        <p class="center p-link mbe-1" *ngIf="style.csr.cancelDateOnUtc">
+                              <span
+                                class="inline">CNCL: {{style.csr.cancelDateOnUtc | amDateFormat: 'MM/DD/YY'}}</span>
+                        </p>
+                        <p class="center p-link mbe-1" *ngIf="style.csr.isInDcOrder">
+                          <span class="inline">LDSNE: {{style.csr.lastDateToShipNonExpedited | amDateFormat: 'MM/DD/YY'}}</span>
+                        </p>
+                      </div>
+                    </td>
+                    <td *ngIf="!iii && (isShowAllColumns || columns['Schedules.TopPpSamples.OwsTechPackReady'])"
+                        [attr.rowspan]="style.topPpQtys.length"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].owsTechPackReady.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].owsTechPackReady.width">
+                      <div class="seperate-child"
+                             [ngClass]="{'col-readonly': !canModifyCols('Schedules.TopPpSamples.OwsTechPackReady') || style.styleInfo.isCancelled}">
+                          <label-status [columnStatus]="style.owsTechPackReady.status"></label-status>
+
+                          <p *ngIf="style.owsTechPackReady.isUploadedTechPackReady">
+                            <i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"
+                               (click)="openOWSTeckPackUploader(style.id, 'Tech Pack(s)')"></i>
+                          </p>
+
+                          <p
+                            *ngIf="style.owsTechPackReady.status
+                            && style.owsTechPackReady.status === taskStatus.DONE
+                            && style.owsTechPackReady.techPackReadyDateOnUtc">
+                            {{style.owsTechPackReady.techPackReadyDateOnUtc | amFromUtc | amLocal | amDateFormat:
+                            'MM/DD/YY h:mm A'}}
+                          </p>
+
+                          <p *ngIf="style.owsTechPackReady.status
+                            && style.owsTechPackReady.techPackReadyByUser" class="m-t-5">
+                            {{style.owsTechPackReady.techPackReadyByUser}}</p>
+                        </div>
+                    </td>
+                    <td *ngIf="!iii && (isShowAllColumns || columns['Schedules.TopPpSamples.CutTicketProductionPoCreated'])"
+                        [attr.rowspan]="style.topPpQtys.length"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].cutTicketCreated.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].cutTicketCreated.width">
+                      <div class="seperate-child"
+                           [ngClass]="{'col-readonly': !canModifyCols('Schedules.TopPpSamples.CutTicketProductionPoCreated') || style.styleInfo.isCancelled}">
+                        <label-status [columnStatus]="style.cutTicketProductionPoCreated.status"></label-status>
+
+                        <p *ngIf="style.cutTicketProductionPoCreated.status
+                        && style.cutTicketProductionPoCreated.status !== taskStatus.BLANK">
+                          {{style.cutTicketProductionPoCreated.cutTicketNumber}}</p>
+                        <p *ngIf="style.cutTicketProductionPoCreated.isUploadedCutTicket">
+                          <i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"
+                             (click)="openStyleUploader(style.id, styleUploadedType.ProductionPO, 'Production PO - Cut Ticket')"></i></p>
+                        <p *ngIf="style.cutTicketProductionPoCreated.status
+                        && style.cutTicketProductionPoCreated.status !== taskStatus.BLANK
+                        && style.cutTicketProductionPoCreated.cutTicketCreatedOnUtc">
+                          Pend:
+                          <span class="m-l-1">
+                            {{style.cutTicketProductionPoCreated.cutTicketCreatedOnUtc | amDateFormat: 'MM/DD/YY'}}
+                          </span>
+                        </p>
+
+                        <p *ngIf="style.cutTicketProductionPoCreated.status === taskStatus.REJECTED
+                        && style.cutTicketProductionPoCreated.cutTicketRejectedOnUtc">
+                          Rejc:
+                          <span class="m-l-1">
+                            {{style.cutTicketProductionPoCreated.cutTicketRejectedOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                          </span>
+                        </p>
+
+                        <p *ngIf="style.cutTicketProductionPoCreated.status === taskStatus.APPROVED
+                        && style.cutTicketProductionPoCreated.cutTicketApprovedOnUtc">
+                          Appr:
+                          <span class="m-l-1">
+                            {{style.cutTicketProductionPoCreated.cutTicketApprovedOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                          </span>
+                        </p>
+
+                        <p *ngIf="style.cutTicketProductionPoCreated.status === taskStatus.PENDINGAPPROVAL
+                        && style.cutTicketProductionPoCreated.cutTicketCreatedByUser">
+                          {{style.cutTicketProductionPoCreated.cutTicketCreatedByUser}}</p>
+                        <p *ngIf="style.cutTicketProductionPoCreated.status === taskStatus.REJECTED
+                          && style.cutTicketProductionPoCreated.cutTicketApprovedByUser">
+                          {{style.cutTicketProductionPoCreated.cutTicketApprovedByUser}}</p>
+                        <p *ngIf="style.cutTicketProductionPoCreated.status === taskStatus.APPROVED
+                          && style.cutTicketProductionPoCreated.cutTicketApprovedByUser">
+                          {{style.cutTicketProductionPoCreated.cutTicketApprovedByUser}}</p>
+                      </div>
+                    </td>
+                    <td *ngIf="!iii && (isShowAllColumns || columns['Schedules.TopPpSamples.DesignDescriptionTotal'])"
+                        [attr.rowspan]="style.topPpQtys.length"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].designDescriptionTotal.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].designDescriptionTotal.width">
+                      <div (click)="goToStyle(style.csr.orderId, style.id)"
+                           class="seperate-child"
+                           *ngIf="style.designDescriptionTotal"
+                           [ngClass]="{'col-readonly': !canModifyCols('Schedules.TopPpSamples.DesignDescriptionTotal') || style.styleInfo.isCancelled}">
+                        <p class="stt-p type-domestic"
+                           *ngIf="style.designDescriptionTotal.itemType === itemTypes.DOMESTIC">Domestic</p>
+                        <p class="stt-p type-outsource"
+                           *ngIf="style.designDescriptionTotal.itemType === itemTypes.OUTSOURCE">Outsource</p>
+                        <p class="stt-p type-cutandsew"
+                           *ngIf="style.designDescriptionTotal.itemType === itemTypes.IMPORTS">Imports</p>
+
+                        <p class="p-link min-height-content mt-3">{{style.designDescriptionTotal.brand}}</p>
+
+                        <p class="p-link">{{style.designDescriptionTotal.partnerStyle}}</p>
+
+                        <p class="p-link min-height-content mt-0">{{style.designDescriptionTotal.styleName}}</p>
+
+                        <p class="p-link mt-0">{{style.designDescriptionTotal.units >= 0 ? (style.designDescriptionTotal.units + ' units') : ''}}</p>
+
+                        <p class="p-link" *ngIf="style.designDescriptionTotal.licensorName">({{style.designDescriptionTotal.licensorName}})</p>
+                      </div>
+                    </td>
+                    <td *ngIf="!iii && (isShowAllColumns || columns['Schedules.TopPpSamples.PrintLocation'])"
+                        [attr.rowspan]="style.topPpQtys.length"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].printLocation.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].printLocation.width">
+                      <div class="seperate-child"
+                           [ngClass]="{'col-readonly': !canModifyCols('Schedules.TopPpSamples.PrintLocation') || style.styleInfo.isCancelled}">
+                        <ng-container *ngIf="!style.printLocations.length">
+                          <div class="row center p-link">
+                            <p class="col-sm-12" (click)="goToPrintLocation($event, style.csr.orderId, style.id)">No Print Locations
+                              Setup</p>
+                          </div>
+                          <img *ngIf="style.styleInfo.imageUrl" class="img-thumbnail-none-wh"
+                               [src]="style.styleInfo.imageUrl" width="50"
+                               height="50"
+                               imgZoomClick>
+                        </ng-container>
+                        <ng-container *ngIf="style.printLocations.length">
+                          <ng-template ngFor let-item [ngForOf]="style.printLocations" let-last="last">
+                            <div class="img-child"
+                                 [ngClass]="{'border-bottom-ccc': !last, 'full-height': last}">
+                              <p class="p-link"
+                                              (click)="goToPrintLocation($event, style.csr.orderId, style.id, item.id)">
+                              {{item.printLocationName}}</p>
+                              <img *ngIf="item.imageUrl" class="img-thumbnail-none-wh" [src]="item.imageUrl" width="50"
+                                   height="50"
+                                   imgZoomClick>
+                              <!--<div class="m-t-5 m-b-5" *ngIf="isAdminAndSchedule() && !style.styleInfo?.isCancelled-->
+                              <!--&& !style.styleInfo.isCancelled && getCurrentTab().name !== 'Archived'">-->
+                              <!--<button type="button" *ngIf="!item.isMarkedForScheduling"-->
+                              <!--class="btn btn-complete btn-small"-->
+                              <!--(click)="markedForScheduling(style.id, style.orderDetailId, item, true)">+ Queue-->
+                              <!--</button>-->
+                              <!--<button type="button" *ngIf="item.isMarkedForScheduling"-->
+                              <!--class="btn btn-success btn-small"-->
+                              <!--(click)="markedForScheduling(style.id, style.orderDetailId, item, false)">Queued-->
+                              <!--</button>-->
+                              <!--</div>-->
+                            </div>
+                          </ng-template>
+                        </ng-container>
+                      </div>
+                    </td>
+                    <td *ngIf="!iii && (isShowAllColumns || columns['Schedules.TopPpSamples.PrintDate'])"
+                        [attr.rowspan]="style.topPpQtys.length"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].printDate.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].printDate.width">
+                      <div *ngIf="style.printLocations.length"
+                           class="seperate-child"
+                           [ngClass]="{'col-readonly': !canModifyCols('Schedules.TopPpSamples.PrintDate') || style.styleInfo.isCancelled}">
+                        <ng-template ngFor let-item [ngForOf]="style.printLocations" let-last="last">
+                          <ng-container *ngIf="!style.isSMPL">
+                            <div class="img-child"
+                                 [ngClass]="{'border-bottom-ccc': !last, 'full-height': last}">
+                                <label-status [columnStatus]="item.printDate.status"></label-status>
+                              <p *ngIf="item.printDate.status && item.printDate.status !== taskStatus.BLANK">
+                                {{item.printDate.vendors}}</p>
+
+                              <p class="mbe-1"
+                                 *ngIf="item.printDate.status && item.printDate.status !== taskStatus.BLANK">
+                                Sched:
+                                <span class="m-l-1"
+                                      *ngIf="item.printDate.scheduledDateFromOnUtc">
+                                  {{item.printDate.scheduledDateFromOnUtc | amDateFormat: 'MM/DD/YY'}}
+                                </span>
+                                <span class="m-l-1" *ngIf="!item.printDate.scheduledDateFromOnUtc">N/A</span>
+                                <span *ngIf="item.printDate.scheduledDateToOnUtc">
+                                  <br>
+                                  - {{item.printDate.scheduledDateToOnUtc | amDateFormat: 'MM/DD/YY'}}
+                                </span>
+                              </p>
+
+                              <p class="m-t-5"
+                                 *ngIf="item.printDate.status && item.printDate.status === taskStatus.DONE">Done:
+                                <span class="m-l-1"
+                                      *ngIf="item.printDate.scheduledDoneDateFromOnUtc">
+                                  {{item.printDate.scheduledDoneDateFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                                </span>
+                                <span class="m-l-1" *ngIf="!item.printDate.scheduledDoneDateFromOnUtc">N/A</span>
+                                <span *ngIf="item.printDate.scheduledDoneDateToOnUtc && !item.printDate.isShowTbd">
+                                  <br>
+                                  - {{item.printDate.scheduledDoneDateToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                                </span>
+                                <span *ngIf="item.printDate.isShowTbd">
+                                  <br>
+                                   - TBD
+                                </span>
+                              </p>
+
+                              <p *ngIf="item.printDate.status && item.printDate.updatedByUser" class="m-t-5">
+                                {{item.printDate.updatedByUser}}</p>
+                            </div>
+                          </ng-container>
+                          <ng-container *ngIf="style.isSMPL">
+                            <p *ngIf="item.printDate.sampleDate">
+                              Sched:
+                              <span class="m-l-1">
+                                {{item.printDate.sampleDate | amDateFormat: 'MM/DD/YY'}}
+                              </span>
+                            </p>
+                            <p class="m-t-5" *ngIf="item.printDate.samplePrinter">
+                              ({{item.printDate.samplePrinter}})
+                            </p>
+                          </ng-container>
+                        </ng-template>
+                      </div>
+                    </td>
+                    <td *ngIf="!iii && (isShowAllColumns || columns['Schedules.TopPpSamples.NeckLabel'])"
+                        [attr.rowspan]="style.topPpQtys.length"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].neckLabel.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].neckLabel.width">
+                      <div class="img-child"
+                           [ngClass]="{'col-readonly': !canModifyCols('Schedules.TopPpSamples.NeckLabel') || style.styleInfo.isCancelled}">
+                        <img *ngIf="style.neckLabel.imageUrl" class="img-thumbnail-none-wh"
+                             [src]="style.neckLabel.imageUrl" width="50"
+                             height="50"
+                             imgZoomClick>
+                      </div>
+                    </td>
+                    <td *ngIf="!iii && (isShowAllColumns || columns['Schedules.TopPpSamples.NeckLabelDate'])"
+                        [attr.rowspan]="style.topPpQtys.length"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].neckLabelDate.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].neckLabelDate.width">
+                      <div class="seperate-child"
+                           [ngClass]="{'col-readonly': !canModifyCols('Schedules.TopPpSamples.NeckLabelDate') || style.styleInfo.isCancelled}">
+                        <ng-container *ngIf="!style.isSMPL && style.neckLabelDate.hasNeckLabel">
+                          <label-status [columnStatus]="style.neckLabelDate.status"></label-status>
+
+                          <p *ngIf="style.neckLabelDate.status && style.neckLabelDate.status !== taskStatus.BLANK">
+                            {{style.neckLabelDate.vendors}}</p>
+
+                          <p class="mbe-1"
+                             *ngIf="style.neckLabelDate.status && style.neckLabelDate.status !== taskStatus.BLANK">
+                            Sched:
+                            <span class="m-l-1"
+                                  *ngIf="style.neckLabelDate.scheduledDateFromOnUtc">
+                              {{style.neckLabelDate.scheduledDateFromOnUtc | amDateFormat: 'MM/DD/YY'}}
+                            </span>
+                            <span class="m-l-1"
+                                  *ngIf="!style.neckLabelDate.scheduledDateFromOnUtc">N/A</span>
+                            <span *ngIf="style.neckLabelDate.scheduledDateToOnUtc">
+                              <br>
+                              - {{style.neckLabelDate.scheduledDateToOnUtc | amDateFormat: 'MM/DD/YY'}}
+                            </span>
+                          </p>
+                          <p class="m-t-5 mbe-1"
+                             *ngIf="style.neckLabelDate.status && style.neckLabelDate.status === taskStatus.DONE">
+                            Done:
+                            <span class="m-l-1"
+                                  *ngIf="style.neckLabelDate.scheduledDoneDateFromOnUtc">
+                              {{style.neckLabelDate.scheduledDoneDateFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                            </span>
+                            <span class="m-l-1" *ngIf="!style.neckLabelDate.scheduledDoneDateFromOnUtc">N/A</span>
+                            <span *ngIf="style.neckLabelDate.scheduledDoneDateFromOnUtc && !style.neckLabelDate.isShowTbd">
+                              <br>
+                              - {{style.neckLabelDate.neckLabelDateDoneToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                            </span>
+                            <span *ngIf="style.neckLabelDate.isShowTbd">
+                              <br>
+                              - TBD
+                            </span>
+                          </p>
+
+                          <p *ngIf="style.neckLabelDate.status && style.neckLabelDate.updatedByUser" class="m-t-5">
+                            {{style.neckLabelDate.updatedByUser}}</p>
+
+                        </ng-container>
+                        <ng-container *ngIf="!style.isSMPL && !style.neckLabelDate.hasNeckLabel">
+                          <div class="row center p-link">
+                            <p class="col-sm-12" (click)="goToNeckLabelSetup(style.csr.orderId, style.id)">
+                              <span *ngIf="style.neckLabelDate.hasNeckLabel === null">No Neck Label Setup</span>
+                              <span *ngIf="style.neckLabelDate.hasNeckLabel === false">Neck Label Not Required</span>
+                            </p>
+                          </div>
+                        </ng-container>
+                        <ng-container *ngIf="style.isSMPL">
+                          <p *ngIf="style.neckLabelDate.sampleDate">
+                            Sched:
+                            <span class="m-l-1">
+                              {{style.neckLabelDate.sampleDate | amDateFormat: 'MM/DD/YY'}}
+                            </span>
+                          </p>
+                          <p class="m-t-5" *ngIf="style.neckLabelDate.samplePrinter">
+                            ({{style.neckLabelDate.samplePrinter}})
+                          </p>
+                        </ng-container>
+                      </div>
+                    </td>
+                    <td *ngIf="!iii && (isShowAllColumns || columns['Schedules.TopPpSamples.FinishingDate'])"
+                        [attr.rowspan]="style.topPpQtys.length"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].finishingDate.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].finishingDate.width">
+                      <div class="seperate-child"
+                           [ngClass]="{'full-black-bg': style.isSMPL,
+                                       'col-readonly': !canModifyCols('Schedules.TopPpSamples.FinishingDate') || style.styleInfo.isCancelled}">
+                        <label-status [columnStatus]="style.finishingDate.status"></label-status>
+
+                        <p *ngIf="style.finishingDate.status && style.finishingDate.status !== taskStatus.BLANK">
+                          {{style.finishingDate.vendors}}</p>
+
+                        <p class="mbe-1"
+                           *ngIf="style.finishingDate.status && style.finishingDate.status !== taskStatus.BLANK">
+                          Sched:
+                          <span class="m-l-1"
+                                *ngIf="style.finishingDate.scheduledDateFromOnUtc">
+                            {{style.finishingDate.scheduledDateFromOnUtc | amDateFormat: 'MM/DD/YY'}}
+                          </span>
+                          <span class="m-l-1"
+                                *ngIf="!style.finishingDate.scheduledDateFromOnUtc">N/A</span>
+                          <span *ngIf="style.finishingDate.scheduledDateToOnUtc">
+                            <br>
+                            - {{style.finishingDate.scheduledDateToOnUtc | amDateFormat: 'MM/DD/YY'}}
+                          </span>
+                        </p>
+
+                        <p class="m-t-5 mbe-1"
+                           *ngIf="style.finishingDate.status && style.finishingDate.status === taskStatus.DONE">
+                          Done:
+                          <span class="m-l-1"
+                                *ngIf="style.finishingDate.scheduledDoneDateFromOnUtc">
+                            {{style.finishingDate.scheduledDoneDateFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                          </span>
+                          <span class="m-l-1" *ngIf="!style.finishingDate.scheduledDoneDateFromOnUtc">N/A</span>
+                          <span *ngIf="style.finishingDate.scheduledDoneDateToOnUtc && !style.finishingDate.isShowTbd">
+                            <br>
+                            - {{style.finishingDate.scheduledDoneDateToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                          </span>
+                          <span *ngIf="style.finishingDate.isShowTbd">
+                            <br>
+                            - TBD
+                          </span>
+                        </p>
+
+                        <p *ngIf="style.finishingDate.status && style.finishingDate.updatedByUser" class="m-t-5">
+                          {{style.finishingDate.updatedByUser}}</p>
+                      </div>
+                    </td>
+                    <td *ngIf="!iii && (isShowAllColumns || columns['Schedules.TopPpSamples.EtaTsc'])"
+                        [attr.rowspan]="style.topPpQtys.length"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].etaTsc.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].etaTsc.width">
+                      <div class="seperate-child"
+                           [ngClass]="{'col-readonly': !canModifyCols('Schedules.TopPpSamples.EtaTsc') || style.styleInfo.isCancelled}">
+                        <label-status [columnStatus]="style.etaTsc.status"></label-status>
+
+                        <p *ngIf="style.etaTsc.etaTscDateOnUtc">
+                          {{style.etaTsc.etaTscDateOnUtc | amDateFormat: 'MM/DD/YY'}}
+                        </p>
+
+                        <p *ngIf="style.etaTsc.status && style.etaTsc.etaTscDateByUser" class="m-t-5">
+                          {{style.etaTsc.etaTscDateByUser}}</p>
+                      </div>
+                    </td>
+                    <td *ngIf="!iii && (isShowAllColumns || columns['Schedules.TopPpSamples.PpTopCancelDate'])"
+                        [attr.rowspan]="style.topPpQtys.length"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].ppTopCancelDate.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].ppTopCancelDate.width">
+                      <div class="seperate-child"
+                           [ngClass]="{'col-readonly': !canModifyCols('Schedules.TopPpSamples.PpTopCancelDate') || style.styleInfo.isCancelled}">
+                        <p *ngIf="style.topPpCancelDate.topPpCancelDateOnUtc">
+                          {{style.topPpCancelDate.topPpCancelDateOnUtc | amDateFormat: 'MM/DD/YY'}}
+                        </p>
+                      </div>
+                    </td>
+                    <td *ngIf="!iii && (isShowAllColumns || columns['Schedules.TopPpSamples.Factory'])"
+                        [attr.rowspan]="style.topPpQtys.length"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].factory.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].factory.width">
+                      <div class="seperate-child"
+                           [ngClass]="{'col-readonly': !canModifyCols('Schedules.TopPpSamples.Factory') || style.styleInfo.isCancelled}">
+                        <p *ngIf="style.factory.factory">
+                          {{style.factory.factory}}
+                        </p>
+                      </div>
+                    </td>
+                    <td *ngIf="!iii && (isShowAllColumns || columns['Schedules.TopPpSamples.Content'])"
+                        [attr.rowspan]="style.topPpQtys.length"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].content.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].content.width">
+                      <div class="seperate-child"
+                           [ngClass]="{'col-readonly': !canModifyCols('Schedules.TopPpSamples.Content') || style.styleInfo.isCancelled}">
+                        <p *ngIf="style.content.content">
+                          {{style.content.content}}
+                        </p>
+                      </div>
+                    </td>
+                    <td *ngIf="!iii && (isShowAllColumns || columns['Schedules.TopPpSamples.BlankStyleColor'])"
+                        [attr.rowspan]="style.topPpQtys.length"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].blankStyleColor.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].blankStyleColor.width">
+                      <div class="seperate-child"
+                           [ngClass]="{'col-readonly': !canModifyCols('Schedules.TopPpSamples.BlankStyleColor') || style.styleInfo.isCancelled}">
+                        <p *ngIf="style.blankStyleColor.blankStyle">
+                          {{style.blankStyleColor.blankStyle}}
+                        </p>
+                        <p *ngIf="style.blankStyleColor.blankColor">
+                          {{style.blankStyleColor.blankColor}}
+                        </p>
+                      </div>
+                    </td>
+                    <td *ngIf="(isShowAllColumns || columns['Schedules.TopPpSamples.PpTopQty'])"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].ppTopQty.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].ppTopQty.width">
+                      <div class="seperate-child"
+                           [ngClass]="{'col-readonly': !canModifyCols('Schedules.TopPpSamples.PpTopQty') || style.styleInfo.isCancelled}">
+                        <p *ngIf="topPp?.type">
+                          <b>{{topPps[topPp.type]}}</b>
+                        </p>
+                        <p *ngIf="topPp?.qty">
+                          Qty: {{topPp.qty}}
+                        </p>
+                        <p *ngIf="!topPp">
+                          Undefined
+                        </p>
+                      </div>
+                    </td>
+                    <td *ngIf="!iii && (isShowAllColumns || columns['Schedules.TopPpSamples.QcReceivedDate'])"
+                        [attr.rowspan]="style.topPpQtys.length"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].qcReceivedDate.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].qcReceivedDate.width">
+                      <div class="seperate-child"
+                           [ngClass]="{'full-black-bg': !style.isSMPL,
+                           'col-readonly': !canModifyCols('Schedules.TopPpSamples.QcReceivedDate') || style.styleInfo.isCancelled}">
+                        <label-status [columnStatus]="style.qcReceivedDate.status"></label-status>
+
+                        <p *ngIf="style.qcReceivedDate.qcReceivedDate">
+                          Received Date:
+                          <br>
+                          {{style.qcReceivedDate.qcReceivedDate | amDateFormat: 'MM/DD/YY'}}
+                        </p>
+                      </div>
+                    </td>
+                    <td *ngIf="!iii && (isShowAllColumns || columns['Schedules.TopPpSamples.Qa'])"
+                        [attr.rowspan]="style.topPpQtys.length"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].qa.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].qa.width">
+                      <div class="seperate-child"
+                           [ngClass]="{'col-readonly': !canModifyCols('Schedules.TopPpSamples.Qa') || style.styleInfo.isCancelled}">
+                        <div class="full-height" *ngIf="topPp" (click)="openQaChangeStatus(style)">
+                          <label-status [columnStatus]="style.qa.status"></label-status>
+
+                          <ng-container [ngPlural]="style.qa.status">
+                            <ng-template ngPluralCase="=null">
+                              <p class="p-link" (click)="exportPickTicket($event, style.id)">Print Ticket</p>
+                            </ng-template>
+                            <!--passed-->
+                            <ng-template ngPluralCase="=13">
+                              <p *ngIf="style.qa.requestedQty">
+                                Req: {{style.qa.requestedQty}}</p>
+                              <p *ngIf="style.qa.pulledQty">
+                                Pulled: {{style.qa.pulledQty}}</p>
+                            </ng-template>
+                            <!--in picking, faild-->
+                            <ng-template ngPluralCase="other">
+                              <p *ngIf="style.qa.qaUpdatedOnUtc" class="m-b-0">
+                                {{style.qa.qaUpdatedOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                              </p>
+                              <p *ngIf="style.qa.qaUpdatedByUser">
+                                {{style.qa.qaUpdatedByUser}}</p>
+                              <p class="p-link" (click)="exportPickTicket($event, style.id)">Re-Print Ticket</p>
+                            </ng-template>
+                          </ng-container>
+                        </div>
+                        <p *ngIf="!topPp">Undefined</p>
+                      </div>
+                    </td>
+                    <td *ngIf="(isShowAllColumns || columns['Schedules.TopPpSamples.AccountManagerApproval'])"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].accountManagerApproval.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].accountManagerApproval.width">
+                      <div class="seperate-child"
+                           (click)="openAccountManager(style)"
+                           [ngClass]="{'col-readonly': !canModifyCols('Schedules.TopPpSamples.AccountManagerApproval') || style.styleInfo.isCancelled}">
+                        <ng-container *ngIf="style.accountManagerApprovals[iii]">
+                          <label-status [columnStatus]="style.accountManagerApprovals[iii].status"></label-status>
+                          <p *ngIf="style.accountManagerApprovals[iii].type">
+                            <b>{{topPps[style.accountManagerApprovals[iii].type]}}</b>
+                          </p>
+                          <p *ngIf="style.accountManagerApprovals[iii].approvedOnUtc">
+                            Appr:
+                            {{style.accountManagerApprovals[iii].approvedOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}</p>
+                          <p *ngIf="style.accountManagerApprovals[iii].approvedByUser">
+                            {{style.accountManagerApprovals[iii].approvedByUser}}
+                          </p>
+                        </ng-container>
+                        <p *ngIf="!style.accountManagerApprovals[iii]">
+                          Undefined
+                        </p>
+                      </div>
+                    </td>
+                    <td *ngIf="(isShowAllColumns || columns['Schedules.TopPpSamples.ShipDate'])"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].shipDate.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].shipDate.width">
+                      <div class="seperate-child"
+                           (click)="onChangeShipDates(style, style.shipDates[iii])"
+                           [ngClass]="{'col-readonly': !canModifyCols('Schedules.TopPpSamples.ShipDate') || style.styleInfo.isCancelled}">
+                        <ng-container *ngIf="style.shipDates[iii]">
+                          <label-status [columnStatus]="style.shipDates[iii].status"></label-status>
+                          <p *ngIf="style.shipDates[iii].type">
+                            <b>{{topPps[style.shipDates[iii].type]}}</b>
+                          </p>
+                          <p *ngIf="style.shipDates[iii].qty">
+                            Qty:
+                            {{style.shipDates[iii].qty}}</p>
+                          <p *ngIf="style.shipDates[iii].shipFromDateShippedOnUtc">
+                            Ship: {{style.shipDates[iii].shipFromDateShippedOnUtc | amDateFormat: 'MM/DD/YY'}}
+                          </p>
+                        </ng-container>
+                        <p *ngIf="!style.shipDates[iii]">
+                          Undefined
+                        </p>
+                      </div>
+                    </td>
+                  </tr>
+                </ng-template>
+                </ng-template>
+              </tbody>
+            </table>
+          </ng-template>
+        </div>
+      </perfect-scrollbar>
+      <!--<ng-container *ngTemplateOutlet="paginationTop"></ng-container>-->
+    </div>
+  </div>
+  <ng-template #pagination>
+    <pagination-control [totalRecord]="topPpSamplesData.totalRecord"
+                        *ngIf="topPpSamplesData.data && topPpSamplesData.data.length"
+                        [pageName]="'topPpSamples'"
+                        [pageSize]="tableConfig.pageSize"
+                        [currentPage]="tableConfig.currentPage"
+                        (onSelectedPageSize)="onSelectedPageSize($event)"
+                        (onPageChange)="onPageChange($event)"></pagination-control>
+  </ng-template>
+  <ng-template #paginationTop>
+    <pagination-control [totalRecord]="topPpSamplesData.totalRecord"
+                        *ngIf="topPpSamplesData.data && topPpSamplesData.data.length"
+                        [pageName]="'topPpSamples'"
+                        [pageSize]="tableConfig.pageSize"
+                        [currentPage]="tableConfig.currentPage"
+                        [dropdownPosition]="'top-left'"
+                        (onSelectedPageSize)="onSelectedPageSize($event)"
+                        (onPageChange)="onPageChange($event)"></pagination-control>
+  </ng-template>
+</div>

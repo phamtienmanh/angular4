@@ -1,0 +1,109 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0">Order Documentation - Change Status</h4>
+  <button type="button" class="close" aria-label="Close" (click)="onClosePopup()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()">
+    <div class="row flex py-1"
+         [ngClass]="{'required': true}">
+      <div class="col-sm-4 control-label text-right">
+        <label>Status</label>
+      </div>
+      <div class="col-sm-6"
+           [ngClass]="{'has-error':!frm.get('status').valid, 'disabled': isPageReadOnly}">
+        <ng-select [items]="statusData"
+                   [placeholder]="!isPageReadOnly ? 'Status' : ''"
+                   [searchable]="false" #statusSelect
+                   (focus)="onSelectFocused(statusSelect)"
+                   bindLabel="name"
+                   bindValue="id"
+                   formControlName="status"></ng-select>
+        <label class="error"
+               *ngIf="frm.get('status').hasError('required') && !frm.get('status').pristine">
+          {{validationMessages['default'].required}}</label>
+      </div>
+    </div>
+    <div *ngIf="+frm.get('status').value === taskStatus.CREATED || +frm.get('status').value === taskStatus.RECEIVED">
+      <div class="row flex py-1"
+           [ngClass]="{'required': frm.get('formRequires').value['folderReadyForLogisticsCreatedDateOnUtc'].required}">
+        <div class="col-sm-4 control-label text-right">
+          <label>Created Date</label>
+        </div>
+        <div class="col-sm-6"
+             [ngClass]="{'has-error':!frm.get('folderReadyForLogisticsCreatedDateOnUtc').valid}">
+          <my-date-picker [options]="folderReadyForLogisticsCreatedDateOptions"
+                          #folderReadyForLogisticsCreatedDatePicker
+                          formControlName="folderReadyForLogisticsCreatedDate"
+                          (dateChanged)="onDateChangedBy($event, 'folderReadyForLogisticsCreatedDateOnUtc')"
+                          (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, folderReadyForLogisticsCreatedDatePicker, frm.get('folderReadyForLogisticsCreatedDateOnUtc'))"></my-date-picker>
+          <label class="error"
+                 *ngIf="frm.get('folderReadyForLogisticsCreatedDateOnUtc').hasError('required') && !frm.get('folderReadyForLogisticsCreatedDateOnUtc').pristine">
+            {{validationMessages['default'].required}}</label>
+          <label class="error"
+                 *ngIf="frm.get('folderReadyForLogisticsCreatedDateOnUtc').hasError('maxDate') && !frm.get('folderReadyForLogisticsCreatedDateOnUtc').pristine">
+            {{validationMessages['folderReadyForLogisticsCreatedDateOnUtc'].maxLength}}</label>
+          <label class="error"
+                 *ngIf="frm.get('folderReadyForLogisticsCreatedDateOnUtc').hasError('maxToday') && !frm.get('folderReadyForLogisticsCreatedDateOnUtc').pristine">
+            {{validationMessages['default'].maxLength}}</label>
+        </div>
+      </div>
+      <ng-container *ngIf="+frm.get('status').value === taskStatus.RECEIVED">
+        <div class="row flex py-1"
+             [ngClass]="{'required': frm.get('formRequires').value['folderReadyForLogisticsReceivedDateOnUtc'].required}">
+          <div class="col-sm-4 control-label text-right">
+            <label>Received Date</label>
+          </div>
+          <div class="col-sm-6"
+               [ngClass]="{'has-error':!frm.get('folderReadyForLogisticsReceivedDateOnUtc').valid}">
+            <my-date-picker [options]="folderReadyForLogisticsReceivedDateOptions"
+                            #folderReadyForLogisticsReceivedDatePicker
+                            formControlName="folderReadyForLogisticsReceivedDate"
+                            (dateChanged)="onDateChangedBy($event, 'folderReadyForLogisticsReceivedDateOnUtc')"
+                            (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, folderReadyForLogisticsReceivedDatePicker, frm.get('folderReadyForLogisticsReceivedDateOnUtc'))"></my-date-picker>
+            <label class="error"
+                   *ngIf="frm.get('folderReadyForLogisticsReceivedDateOnUtc').hasError('required') && !frm.get('folderReadyForLogisticsReceivedDateOnUtc').pristine">
+              {{validationMessages['default'].required}}</label>
+            <label class="error"
+                   *ngIf="frm.get('folderReadyForLogisticsReceivedDateOnUtc').hasError('minDate') && !frm.get('folderReadyForLogisticsReceivedDateOnUtc').pristine">
+              {{validationMessages['folderReadyForLogisticsReceivedDateOnUtc'].maxLength}}</label>
+            <label class="error"
+                   *ngIf="frm.get('folderReadyForLogisticsReceivedDateOnUtc').hasError('maxToday') && !frm.get('folderReadyForLogisticsReceivedDateOnUtc').pristine">
+              {{validationMessages['default'].maxLength}}</label>
+          </div>
+        </div>
+      </ng-container>
+      <div class="row flex py-1"
+           [ngClass]="{'required': false}">
+        <div class="col-sm-4 control-label text-right">
+          <label>PO Documents</label>
+        </div>
+        <div class="col-sm-6">
+          <div class="input-group">
+            <span class="input-group-addon cursor" (click)="openUploader()"
+                  *ngIf="!checkLengthUploaderByType()">
+              <i class="fa fa-upload" aria-hidden="true"></i>
+            </span>
+            <span class="input-group-addon cursor"
+                  (click)="openUploader()"
+                  *ngIf="checkLengthUploaderByType()">
+              <i class="fa fa-eye" [ngStyle]="{'top': '-1px'}" aria-hidden="true"></i>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-complete"
+          (click)="onSubmitForm()">
+    Save
+  </button>
+  <button class="btn btn-default"
+          (click)="onClosePopup()">
+    Cancel
+  </button>
+</div>
+

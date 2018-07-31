@@ -1,0 +1,114 @@
+﻿<div class="relative">
+  <div class="job-btn">
+    <button class="btn btn-success" type="button" (click)="startJob()">Start</button>
+    <button class="btn btn-danger" type="button" (click)="stopJob()">Stop</button>
+  </div>
+  <perfect-scrollbar [config]="{suppressScrollX: false}">
+    <div class="table-wrapper" #tableWrapper>
+      <ngx-datatable #table
+                     class="material ngx-table-hover"
+                     [rows]="listScdtData.data"
+                     [columnMode]="'force'"
+                     [footerHeight]="0"
+                     [headerHeight]="'auto'"
+                     [rowHeight]="'auto'"
+                     [externalSorting]="true"
+                     [loadingIndicator]="tableConfig.loading"
+                     [sorts]="[{prop: 'name', dir: 'asc'}]"
+                     (sort)="onSort($event)">
+        <ngx-datatable-column
+          [name]="'Task Name'"
+          [prop]="'name'"
+          [resizeable]="false"
+          [width]="300"
+          [minWidth]="300"
+          [maxWidth]="300"
+          [draggable]="false">
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'Interval (sec)'"
+          [prop]="'seconds'"
+          [width]="100"
+          [minWidth]="100"
+          [maxWidth]="100"
+          [cellClass]="'centerBtn'"
+          [draggable]="false"
+          [resizeable]="false">
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'Enabled'"
+          [prop]="'isEnabled'"
+          [width]="80"
+          [minWidth]="80"
+          [maxWidth]="80"
+          [cellClass]="'centerBtn'"
+          [sortable]="false"
+          [resizeable]="false"
+          [draggable]="false">
+          <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+            <div class="checkbox">
+              <input type="checkbox" [checked]="value" disabled>
+              <label></label>
+            </div>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'Running'"
+          [prop]="'isRunning'"
+          [width]="80"
+          [minWidth]="80"
+          [maxWidth]="80"
+          [cellClass]="'centerBtn'"
+          [draggable]="false"
+          [resizeable]="false">
+          <ng-template let-value="value" ngx-datatable-cell-template>
+            <span>{{!!value ? 'Yes' : 'No'}}</span>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'Last Started'"
+          [prop]="'lastStartedOnUtc'"
+          [width]="130"
+          [minWidth]="130"
+          [draggable]="false"
+          [resizeable]="false">
+          <ng-template let-value="value" ngx-datatable-cell-template>
+            <span class="inline"
+                  *ngIf="value">{{value | amFromUtc | amLocal | amDateFormat: 'MM/DD/YYYY h:mm A'}}</span>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'Last Success'"
+          [prop]="'lastSuccessOnUtc'"
+          [width]="130"
+          [minWidth]="130"
+          [draggable]="false"
+          [resizeable]="false">
+          <ng-template let-value="value" ngx-datatable-cell-template>
+            <span class="inline"
+                  *ngIf="value">{{value | amFromUtc | amLocal | amDateFormat: 'MM/DD/YYYY h:mm A'}}</span>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column *ngIf="!isPageReadOnly"
+                              [name]="''"
+                              [width]="120"
+                              [minWidth]="120"
+                              [maxWidth]="120"
+                              [sortable]="false"
+                              [resizeable]="false"
+                              [cellClass]="'centerBtn'"
+                              [draggable]="false">
+          <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+            <button class="btn btn-success btn-small px-1"
+                    *ngIf="row.isEnabled"
+                    (click)="runNow(row)">Run now
+            </button>
+            <button
+              class="btn btn-complete btn-small px-2"
+              (click)="editScdTask(row)"><i class="fa fa-pencil"></i></button>
+          </ng-template>
+        </ngx-datatable-column>
+      </ngx-datatable>
+    </div>
+  </perfect-scrollbar>
+</div>

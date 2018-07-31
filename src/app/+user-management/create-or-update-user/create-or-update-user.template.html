@@ -1,0 +1,279 @@
+<form id="form-new-user" *ngIf="isView"
+      [formGroup]="frm"
+      name="newUser" role="form"
+      novalidate="">
+  <div class="row">
+    <div class="col-lg-8 form-container">
+      <div class="row">
+        <div class="col-sm-2 col-xl-3">
+
+        </div>
+        <div class="col-sm-9 flex">
+          <div class="checkbox">
+            <input type="checkbox" id="isActive"
+                   formControlName='isActive'>
+            <label for="isActive">Active</label>
+          </div>
+          <div class="m-l-20"
+               *ngIf="!isCurrentUser && frm.get('isActive').value && currentUserInfo && currentUserInfo.id && !currentUserInfo.isChangedDefaultPassword">
+            <button class="btn btn-complete btn-cons"
+                    *ngIf="!currentUserInfo.isSentInvitation"
+                    (click)="sendInvitation()">
+              Send Invitation
+            </button>
+            <button class="btn btn-warning btn-cons"
+                    *ngIf="currentUserInfo.isSentInvitation"
+                    (click)="sendInvitation()">
+              Resend Invitation
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="row flex py-1"
+           [ngClass]="{'required': true}">
+        <div class="col-sm-2 col-xl-3 control-label text-right">
+          <label>Username</label>
+        </div>
+        <div class="col-sm-9"
+             [ngClass]="{'has-error':!frm.get('username').valid}">
+          <input formControlName='username'
+                 type="text"
+                 [placeholder]="!isPageReadOnly || isCurrentUser ? 'Username' : ''"
+                 class="form-control">
+          <label class="error"
+                 *ngIf="frm.get('username').hasError('required') && !frm.get('username').pristine">
+            {{validationMessages['username'].required}}</label>
+        </div>
+      </div>
+      <div *ngIf="changePasswordStatus && passwordRequired()">
+        <div class="row flex py-1"
+             [ngClass]="{'required': true}">
+          <div class="col-sm-2 col-xl-3 control-label text-right">
+            <label>Password</label>
+          </div>
+          <div class="col-sm-9"
+               [ngClass]="{'has-error':!frm.get('password').valid}">
+            <input formControlName='password'
+                   type="password"
+                   [placeholder]="!isPageReadOnly || isCurrentUser ? 'Password' : ''"
+                   class="form-control">
+            <label class="error"
+                   *ngIf="frm.get('password').hasError('required') && !frm.get('password').pristine">
+              {{validationMessages['password'].required}}</label>
+            <label class="error"
+                   *ngIf="frm.get('password').hasError('pattern') || frm.get('password').hasError('minlength') && !frm.get('password').pristine">
+              {{validationMessages['password'].pattern}}</label>
+          </div>
+        </div>
+        <div class="row flex py-1"
+             [ngClass]="{'required': true}">
+          <div class="col-sm-2 col-xl-3 control-label text-right">
+            <label>Confirm Password</label>
+          </div>
+          <div class="col-sm-9"
+               [ngClass]="{'has-error':!frm.get('confirmPassword').valid}">
+            <input formControlName='confirmPassword'
+                   type="password"
+                   [placeholder]="!isPageReadOnly || isCurrentUser ? 'Confirm Password' : ''"
+                   class="form-control">
+            <label class="error"
+                   *ngIf="frm.get('confirmPassword').hasError('required') && !frm.get('confirmPassword').pristine">
+              {{validationMessages['confirmPassword'].required}}</label>
+            <label class="error"
+                   *ngIf="!frm.get('confirmPassword').hasError('required') && frm.get('confirmPassword').hasError('nomatch') && !frm.get('confirmPassword').pristine">
+              {{validationMessages['confirmPassword'].nomatch}}</label>
+          </div>
+        </div>
+      </div>
+      <div class="row flex py-1"
+           [ngClass]="{'required': false}">
+        <div class="col-sm-2 col-xl-3 control-label text-right">
+          <label>Email</label>
+        </div>
+        <div class="col-sm-9"
+             [ngClass]="{'has-error':!frm.get('email').valid}">
+          <input formControlName='email'
+                 type="text"
+                 [placeholder]="!isPageReadOnly || isCurrentUser ? 'Email' : ''"
+                 class="form-control">
+          <label class="error"
+                 *ngIf="frm.get('email').hasError('required') && !frm.get('email').pristine">
+            {{validationMessages['email'].required}}</label>
+          <label class="error"
+                 *ngIf="frm.get('email').hasError('pattern') && !frm.get('email').pristine">
+            {{validationMessages['email'].pattern}}</label>
+        </div>
+      </div>
+      <div class="row flex py-1"
+           [ngClass]="{'required': true}">
+        <div class="col-sm-2 col-xl-3 control-label text-right">
+          <label>First Name</label>
+        </div>
+        <div class="col-sm-9"
+             [ngClass]="{'has-error':!frm.get('firstName').valid}">
+          <input formControlName='firstName'
+                 type="text"
+                 [placeholder]="!isPageReadOnly || isCurrentUser ? 'First Name' : ''"
+                 class="form-control">
+          <label class="error"
+                 *ngIf="frm.get('firstName').hasError('required') && !frm.get('firstName').pristine">
+            {{validationMessages['firstName'].required}}</label>
+        </div>
+      </div>
+      <div class="row flex py-1"
+           [ngClass]="{'required': true}">
+        <div class="col-sm-2 col-xl-3 control-label text-right">
+          <label>Last Name</label>
+        </div>
+        <div class="col-sm-9"
+             [ngClass]="{'has-error':!frm.get('lastName').valid}">
+          <input formControlName='lastName'
+                 type="text"
+                 [placeholder]="!isPageReadOnly || isCurrentUser ? 'Last Name' : ''"
+                 class="form-control">
+          <label class="error"
+                 *ngIf="frm.get('lastName').hasError('required') && !frm.get('lastName').pristine">
+            {{validationMessages['lastName'].required}}</label>
+        </div>
+      </div>
+      <div class="row flex py-1"
+           [ngClass]="{'required': false}">
+        <div class="col-sm-2 col-xl-3 control-label text-right">
+          <label>Phone</label>
+        </div>
+        <div class="col-sm-9"
+             [ngClass]="{'has-error':!frm.get('phoneNumber').valid}">
+          <input formControlName='phoneNumber'
+                 type="text"
+                 [placeholder]="!isPageReadOnly || isCurrentUser ? 'Phone' : ''"
+                 class="form-control">
+          <label class="error"
+                 *ngIf="frm.get('phoneNumber').hasError('required') && !frm.get('phoneNumber').pristine">
+            {{validationMessages['phoneNumber'].required}}</label>
+        </div>
+      </div>
+      <div class="row flex py-1"
+           [ngClass]="{'required': false}">
+        <div class="col-sm-2 col-xl-3 control-label text-right">
+          <label>Department</label>
+        </div>
+        <div class="col-sm-9"
+             [ngClass]="{'has-error':!frm.get('department').valid}">
+          <input formControlName='department'
+                 type="text"
+                 [placeholder]="!isPageReadOnly || isCurrentUser ? 'Department' : ''"
+                 class="form-control">
+          <label class="error"
+                 *ngIf="frm.get('department').hasError('required') && !frm.get('department').pristine">
+            {{validationMessages['department'].required}}</label>
+        </div>
+      </div>
+      <div class="row flex py-1"
+           [ngClass]="{'required': false}">
+        <div class="col-sm-2 col-xl-3 control-label text-right">
+          <label>Badge Id</label>
+        </div>
+        <div class="col-sm-9"
+             [ngClass]="{'has-error':!frm.get('badgeId').valid}">
+          <input formControlName='badgeId'
+                 type="text"
+                 [placeholder]="!isPageReadOnly || isCurrentUser ? 'Badge Id' : ''"
+                 class="form-control">
+        </div>
+      </div>
+      <div class="row flex py-1"
+           [ngClass]="{'required': false}">
+        <div class="col-sm-2 col-xl-3 control-label text-right">
+          <label>Allowed Customers</label>
+        </div>
+        <div class="col-sm-9"
+             [ngClass]="{'has-error': !frm.get('allowedCustomerIds').valid}">
+          <ng-container *ngIf="!isPageReadOnly || isCurrentUser; else readOnlyBlock">
+            <ng-select [items]="allowedCustomerData" #customerSelect
+                       [multiple]="true"
+                       [closeOnSelect]="false"
+                       [hideSelected]="true"
+                       [placeholder]="!isPageReadOnly || isCurrentUser ? 'Allowed Customers' : ''"
+                       [virtualScroll]="true"
+                       (focus)="onSelectFocused(customerSelect)"
+                       bindLabel="name"
+                       bindValue="id"
+                       formControlName="allowedCustomerIds"></ng-select>
+          </ng-container>
+          <ng-template #readOnlyBlock>
+            <p class="p-readonly">{{allowedCustomerIdsStr}}</p>
+          </ng-template>
+        </div>
+      </div>
+      <div class="row flex py-1" *ngIf="isAccountManager()"
+           [ngClass]="{'required': false}">
+        <div class="col-sm-2 col-xl-3 control-label text-right">
+          <label class="nowrap">Customer Service Team</label>
+        </div>
+        <div class="col-sm-9">
+          <p class="p-readonly">{{getCstString()}}</p>
+        </div>
+      </div>
+      <div class="row flex py-1"
+           [ngClass]="{'required': true}">
+        <div class="col-sm-2 col-xl-3 control-label text-right">
+          <label>Role(s)</label>
+        </div>
+        <div class="col-sm-9">
+          <div class="row">
+              <span class="inline-block col-sm-6 col-xl-4 mb-1" *ngFor="let role of roleListData">
+                <div class="checkbox role-checkbox" [ngClass]="{'left': isAssignRoleByName('Account Manager')}">
+                  <input type="checkbox" [id]="role.id" #roleListElement
+                         [checked]="role.status"
+                         [disabled]="isPageReadOnly || !isShowRoles"
+                         (change)="changeRoleStatus($event, role)">
+                  <label [for]="role.id">{{role.name}}</label>
+                </div>
+                <div class="checkbox role-checkbox left"
+                     *ngIf="role.name === 'Account Manager' && isAssignRoleByName('Account Manager')">
+                  <input type="checkbox" id="am-primary"
+                         [checked]="frm.get('isPrimaryAccountManager').value"
+                         [disabled]="isPageReadOnly || !isShowRoles"
+                         (change)="changeAmPrimaryStatus($event)">
+                  <label class="primary" for="am-primary">Primary</label>
+                </div>
+              </span>
+          </div>
+          <label class="error"
+                 *ngIf="!listRoleIds.length && (isSubmitted || listRoleChanged)">
+            {{validationMessages['listRole'].required}}</label>
+        </div>
+      </div>
+      <div class="row mt-3 button-group-large">
+        <div class="col-sm-2 col-xl-3"></div>
+        <div class="col-sm-9">
+          <ng-content></ng-content>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4 col-sm-offset-3">
+      <div class="p-t-15">
+        <div class="row justify-center m-t-35">
+          <div class="my-avatar" [ngClass]="{'show-upload': !isPageReadOnly || isCurrentUser}">
+            <img [src]="frm.get('avatarUrl').value || '../../../assets/img/customicon.ico'"
+                 class="show-avatar"/>
+            <span *ngIf="frm.get('avatarUrl').value && (!isPageReadOnly || isCurrentUser)"
+                  class="remove-avatar" (click)="removeAvatar()">
+              <i aria-hidden="true" class="fa fa-times"></i>
+            </span>
+
+            <label class="pick-avatar" for="avatarPicker">
+              <div>
+                <i class="fa fa-camera fa-5x"></i>
+              </div>
+            </label>
+            <input id="avatarPicker"
+                   type="file" ng2FileSelect
+                   [uploader]="uploader"
+                   (change)="uploadAvatar()"/>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

@@ -1,0 +1,522 @@
+﻿<div class="panel panel-transparent py-2">
+  <div class="row pb-2 separate-border">
+    <div class="col-lg-12 col-xl-12">
+      <collapse-panel [formValue]="searchedObj">
+        <div class="row">
+          <form class="full-width" [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onFilter()">
+            <div class="col-lg-3 col-xl-3 left px-1">
+              <div class="row">
+                <div class="col-sm-12 col-lg-12 col-xl-12 m-b-5">
+                  <div class="row align-items-center">
+                    <div class="col-4 col-sm-4 col-lg-5">
+                      <span class="right">Customer:</span>
+                    </div>
+                    <div class="col-8 col-sm-8 col-lg-7">
+                      <input type="text"
+                             name="customer"
+                             placeholder="Customer Name"
+                             formControlName='customer'
+                             class="form-control">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-sm-12 col-lg-12 col-xl-12 m-b-5">
+                  <div class="row align-items-center">
+                    <div class="col-4 col-sm-4 col-lg-5">
+                      <span class="right nowrap">PO #:</span>
+                    </div>
+                    <div class="col-8 col-sm-8 col-lg-7">
+                      <input type="text"
+                             name="poId"
+                             placeholder="PO #"
+                             formControlName='poId'
+                             class="form-control">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-sm-12 col-lg-12 col-xl-12 m-b-5">
+                  <div class="row align-items-center">
+                    <div class="col-4 col-sm-4 col-lg-5">
+                      <span class="right nowrap">Status:</span>
+                    </div>
+                    <div class="col-8 col-sm-8 col-lg-7" >
+                      <ng-select [items]="statusList" #multistatus
+                                 [multiple]="true"
+                                 [closeOnSelect]="false"
+                                 [hideSelected]="true"
+                                 [placeholder]="'Status'"
+                                 (focus)="onSelectFocused(multistatus)"
+                                 bindLabel="name"
+                                 bindValue="id"
+                                 formControlName="status"></ng-select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!--<div class="row">-->
+                <!--<div class="col-sm-12 col-lg-12 col-xl-12 m-b-5">-->
+                  <!--<div class="row align-items-center">-->
+                    <!--<div class="col-4 col-sm-4 col-lg-5">-->
+                      <!--<span class="right nowrap">Retailer PO #:</span>-->
+                    <!--</div>-->
+                    <!--<div class="col-8 col-sm-8 col-lg-7">-->
+                      <!--<input type="text"-->
+                             <!--name="retailerPo"-->
+                             <!--placeholder="Retailer PO #"-->
+                             <!--formControlName='retailerPoId'-->
+                             <!--class="form-control">-->
+                    <!--</div>-->
+                  <!--</div>-->
+                <!--</div>-->
+              <!--</div>-->
+            </div>
+            <div class="col-lg-3 col-xl-3 left px-1">
+              <div class="row">
+                <div class="col-sm-12 col-lg-12 col-xl-12 m-b-5">
+                  <div class="row align-items-center">
+                    <div class="col-4 col-sm-4 col-lg-5">
+                      <span class="right">Style Name:</span>
+                    </div>
+                    <div class="col-8 col-sm-8 col-lg-7">
+                      <input type="text"
+                             name="styleName"
+                             placeholder="Style Name"
+                             formControlName='styleName'
+                             class="form-control">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6 col-xl-6 right px-1">
+              <div class="row m-b-5">
+                <div class="col-sm-6 col-lg-6 col-xl-6">
+                  <div class="row align-items-center">
+                    <div class="col-4 col-sm-4">
+                      <span class="right nowrap">Schedule:</span>
+                    </div>
+                    <div class="col-8 col-sm-8">
+                      <ng-select [items]="printDateSelect" #scheduleSelect
+                                 [clearable]="false"
+                                 [placeholder]="'Sample Date'"
+                                 [searchable]="false"
+                                 (focus)="onSelectFocused(scheduleSelect)"
+                                 bindLabel="text"
+                                 bindValue="text"
+                                 formControlName="sampleDate"></ng-select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row m-b-5" *ngIf="frm.get('sampleDate').value === 'Custom'">
+                <div class="col-2 col-sm-2 m-t-5">
+                  <span class="right nowrap">Schedule Date:</span>
+                </div>
+                <div class="p-l-5"
+                     [ngClass]="{'has-error':!frm.get('sampleDateFromOnUtc').valid}">
+                  <my-date-picker [options]="dateBeginOptions"
+                                  #dateBeginPicker
+                                  formControlName='sampleDateFrom'
+                                  [defaultMonth]="myDatePickerService.configDefaultMonth(frm.get('sampleDateTo').value, true)"
+                                  (dateChanged)="onDateChanged($event, 'sampleDateFromOnUtc')"
+                                  (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, dateBeginPicker)"
+                                  (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, dateBeginPicker, frm.get('sampleDateFromOnUtc'))"></my-date-picker>
+                  <!--<label class="error nowrap"-->
+                  <!--*ngIf="frm.get('sampleDateFromOnUtc').hasError('pattern') && !frm.get('sampleDateFromOnUtc').pristine">-->
+                  <!--{{validationMessages['default'].pattern}}</label>-->
+                  <label class="error nowrap"
+                         *ngIf="frm.get('sampleDateFromOnUtc').hasError('required') && !frm.get('sampleDateFromOnUtc').pristine">
+                    {{validationMessages['default'].required}}</label>
+                  <label class="error nowrap"
+                         *ngIf="frm.get('sampleDateFromOnUtc').hasError('maxDate') && !frm.get('sampleDateFromOnUtc').pristine">
+                    {{validationMessages['sampleDateFromOnUtc'].maxLength}}</label>
+                </div>
+                <div class="px-2 flex center">
+                  <span class="m-t-4">to</span>
+                </div>
+                <div class=""
+                     [ngClass]="{'has-error':!frm.get('sampleDateToOnUtc').valid}">
+                  <my-date-picker [options]="dateEndOptions"
+                                  #dateEndPicker
+                                  formControlName='sampleDateTo'
+                                  [defaultMonth]="myDatePickerService.configDefaultMonth(frm.get('sampleDateFrom').value)"
+                                  (dateChanged)="onDateChanged($event, 'sampleDateToOnUtc')"
+                                  (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, dateEndPicker)"
+                                  (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, dateEndPicker, frm.get('sampleDateToOnUtc'))"></my-date-picker>
+                  <!--<label class="error nowrap"-->
+                  <!--*ngIf="frm.get('sampleDateToOnUtc').hasError('pattern') && !frm.get('sampleDateToOnUtc').pristine">-->
+                  <!--{{validationMessages['default'].pattern}}</label>-->
+                  <label class="error nowrap"
+                         *ngIf="frm.get('sampleDateToOnUtc').hasError('required') && !frm.get('sampleDateToOnUtc').pristine">
+                    {{validationMessages['default'].required}}</label>
+                  <label class="error nowrap"
+                         *ngIf="frm.get('sampleDateToOnUtc').hasError('minDate') && !frm.get('sampleDateToOnUtc').pristine">
+                    {{validationMessages['sampleDateToOnUtc'].maxLength}}</label>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-12 col-xl-12 left px-1">
+              <div class="row">
+                <div class="col-lg-12 center m-t-10">
+                  <button class="btn btn-primary center" type="submit">Search</button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </collapse-panel>
+      <div class="row">
+        <div class="col-lg-12  m-t-10 min-h-25">
+          <p class="total-sched">{{sumSched}} scheduled items</p>
+          <ng-template [ngIf]="tableData && tableData.length">
+            <a class="pull-left m-l-200" href="javascript:void(0)" (click)="exportOrder('pdf')">
+              <i class="fa fa-file-pdf-o fa-2x text-danger" aria-hidden="true"></i>
+            </a>
+            <div class="mx-1 pull-left">
+              <div ngbDropdown class="d-inline-block" #myFontDrop="ngbDropdown"
+                  class="select-size-dropdown"
+                  placement="bottom-right"
+                  (clickOutside)="myFontDrop.close();"
+                  [attachOutsideOnClick]="true">
+                <i class="fa fa-font fa-2x cursor" id="dropdown5" ngbDropdownToggle></i>
+                <div ngbDropdownMenu aria-labelledby="dropdown5">
+                  <button class="dropdown-item" *ngFor="let item of fontSizeData"
+                          [ngClass]="{'active': item === myConfigStyle['font-size']}"
+                          (click)="changeFontSize(item);myFontDrop.close();" type="button">{{item}}
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="!isShowAllColumns" ngbDropdown class="select-column-dropdown select-columns pull-left m-l-40 m-r-10" #myDrop="ngbDropdown"
+                  placement="bottom-right"
+                  (openChange)="onChangeShowHideColumn($event)"
+                  (clickOutside)="myDrop.close()"
+                  [attachOutsideOnClick]="true">
+              <i class="fa fa-sliders fa-2x cursor" id="dropdown4" ngbDropdownToggle></i>
+              <div ngbDropdownMenu aria-labelledby="dropdown4">
+                <div class="col-12 px-1">
+                  <div class="checkbox">
+                    <input type="checkbox" id="all-options4" [checked]="isCheckedAll"
+                            (change)="onCheckedColsAll($event)">
+                    <label [style.margin-bottom]="'.2rem'" for="all-options4">All</label>
+                  </div>
+                </div>
+                <div class="divider"></div>
+                <div class="">
+                  <div class="col-12 px-1" *ngFor="let col of showHideColumns; let i = index">
+                    <div class="checkbox">
+                      <input type="checkbox"
+                              [id]="'col-' + i"
+                              [name]="'col-' + i"
+                              [(ngModel)]="col.isView"
+                              (change)="changeCheckedCol($event)">
+                      <label [for]="'col-' + i">{{col.description}}</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="pull-left m-t-5">
+              <a href="javascript:void(0)" *ngIf="!isShowAllColumns"
+                  (click)="showAllColumns(true)">Show All Columns</a>
+              <a href="javascript:void(0)" *ngIf="isShowAllColumns"
+                  (click)="showAllColumns(false)">Show My Columns</a>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="py-2" *ngIf="isFilter && !tableData.length">
+    <span class="font-size-16">No samples are scheduled that match your search criteria.</span>
+  </div>
+  <div class="py-2" *ngIf="tableData && !isFilter && !tableData.length">
+    <span class="font-size-16">No samples are scheduled that match your search criteria.</span>
+  </div>
+  <div id="necklabelTable" class="py-2" *ngIf="tableData && tableData.length" [ngClass]="fontSizeClass">
+    <perfect-scrollbar [config]="{suppressScrollX: false}" (psScrollX)="onScrollX($event)">
+      <div id="header" [ngStyle]="myConfigStyleHeader"></div>
+      <div id="table">
+        <ng-template ngFor let-sampleData [ngForOf]="tableData" let-i="index">
+          <p class="header-daytime">
+            {{sampleData.sampleDate | amDateFormat: 'dddd' | uppercase}}, {{sampleData.sampleDate | amDateFormat:
+            'MM/DD/YYYY'}}
+          </p>
+          <table name="necklabel-table" class="table necklabel-table" border="1px"
+                *ngFor="let dayData of sampleData.data; let ii = index">
+            <thead>
+            <tr class="header-staff">
+              <th [attr.colspan]="columns.length + 1">
+                {{dayData.samplePrinterName}}
+              </th>
+            </tr>
+            <tr>
+              <th *ngIf="getIsViewColumn(colProp[0])" [ngStyle]="{'max-width': getMinWidthDependFontSize(140), 'min-width': getMinWidthDependFontSize(140)}">
+                CSR<br/>
+                Cust/PO #<br/>
+                Retailer / PO #
+              </th>
+              <th *ngIf="getIsViewColumn(colProp[1])" [ngStyle]="{'max-width': getMinWidthDependFontSize(100), 'min-width': getMinWidthDependFontSize(100)}">
+                Order Dates
+              </th>
+              <th *ngIf="getIsViewColumn(colProp[2])" [ngStyle]="{'max-width': getMinWidthDependFontSize(100), 'min-width': getMinWidthDependFontSize(100)}">
+                Style Name
+              </th>
+              <th *ngIf="getIsViewColumn(colProp[3])" [ngStyle]="{'max-width': getMinWidthDependFontSize(60), 'min-width': getMinWidthDependFontSize(60)}">
+                Art
+              </th>
+              <th *ngIf="getIsViewColumn(colProp[4])" [ngStyle]="{'max-width': getMinWidthDependFontSize(60), 'min-width': getMinWidthDependFontSize(60)}">
+                Neck Label
+              </th>
+              <th *ngIf="getIsViewColumn(colProp[5])" [ngStyle]="{'max-width': getMinWidthDependFontSize(80), 'min-width': getMinWidthDependFontSize(80)}">
+                Blank Color
+              </th>
+              <th *ngIf="getIsViewColumn(colProp[6])" [ngStyle]="{'max-width': getMinWidthDependFontSize(60), 'min-width': getMinWidthDependFontSize(60)}">
+                Bin #
+              </th>
+              <th *ngIf="getIsViewColumn(colProp[7])" [ngStyle]="{'max-width': getMinWidthDependFontSize(80), 'min-width': getMinWidthDependFontSize(80)}">
+                PP Qty
+              </th>
+              <th *ngIf="getIsViewColumn(colProp[8])" [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}">
+                Art Ripped
+              </th>
+              <th *ngIf="getIsViewColumn(colProp[9])" [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}"
+                  >
+                Screen Made
+              </th>
+              <th *ngIf="getIsViewColumn(colProp[10])" [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}"
+              >
+                Ink Ready
+              </th>
+              <th *ngIf="getIsViewColumn(colProp[11])" [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}"
+              >
+                Neck Label Ready
+              </th>
+              <th *ngIf="getIsViewColumn(colProp[12])" [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}">
+                Approved to Sample
+              </th>
+              <th *ngIf="getIsViewColumn(colProp[13])" [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}">
+                Approved
+              </th>
+              <th *ngIf="getIsViewColumn(colProp[14])" [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}"
+                  >
+                Pellon Made
+              </th>
+              <th
+                [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}"></th>
+            </tr>
+            </thead>
+            <tbody [dragula]='"bag-one"'>
+            <tr *ngFor="let row of dayData.data; let iii = index" [id]="i + '-' + ii + '-' + iii">
+              <td *ngIf="getIsViewColumn(colProp[0])" class="cursor"
+                  [ngStyle]="{'max-width': getMinWidthDependFontSize(140), 'min-width': getMinWidthDependFontSize(140)}"
+                  (click)="goToOrderInfo(row.orderId)">
+                <div class="flex-box">
+                  <p class="p-link mb-2">{{row.csr}}</p>
+                  <p class="p-link">{{row.customerName}}</p>
+                  <p class="p-link mb-2">{{row.customerPoId}}</p>
+                  <p class="p-link">{{row.retailerName}}</p>
+                  <p class="p-link">{{row.retailerPoId}}</p>
+                </div>
+              </td>
+              <td *ngIf="getIsViewColumn(colProp[1])" class=""
+                  [ngStyle]="{'max-width': getMinWidthDependFontSize(100), 'min-width': getMinWidthDependFontSize(100)}">
+                <div class="center-box">
+                  <p>{{row.cancelDateOnUtc ? 'CNCL: ' + (row.cancelDateOnUtc | amDateFormat: 'MM/DD/YY') : ''}}
+                  </p>
+                  <p class="mt-1">{{row.lastDateToShipNonExpedited ? 'LDSNE: ' + (row.lastDateToShipNonExpedited | amDateFormat: 'MM/DD/YY') : ''}}
+                  </p>
+                  <p class="mt-1">{{row.sampleDueDateOnUtc ? 'SAMP DUE: ' + (row.sampleDueDateOnUtc | amDateFormat: 'MM/DD/YY') : ''}}
+                  </p>
+                </div>
+              </td>
+              <td *ngIf="getIsViewColumn(colProp[2])" class="cursor"
+                  [ngStyle]="{'max-width': getMinWidthDependFontSize(100), 'min-width': getMinWidthDependFontSize(100)}"
+                  (click)="goToStyle(row.orderId, row.orderDetailId)">
+                <div class="flex-box">
+                  <p class="mb-2 p-link">{{row.partnerStyle}}</p>
+                  <p class="mb-2 p-link">{{row.styleName}}</p>
+                  <p class="mb-2 p-link" *ngIf="row.licensorName">({{row.licensorName}})</p>
+                </div>
+              </td>
+              <td *ngIf="getIsViewColumn(colProp[3])" [ngStyle]="{'max-width': getMinWidthDependFontSize(60), 'min-width': getMinWidthDependFontSize(60)}">
+                <div class="center-box">
+                  <p class="mb-1 p-link" (click)="goToPrintLocation(row.orderId, row.orderDetailId, row.printLocationId, null)">{{row.locationName}}</p>
+                  <p class="mb-1">
+                    {{row.colors !== null ? row.colors + ' colors' : ''}}
+                  </p>
+                  <img *ngIf="row.imageUrl" class="img-thumbnail-none-wh cursor" [src]="row.imageUrl" width="50"
+                      height="50"
+                      imgZoomClick>
+                </div>
+              </td>
+              <td *ngIf="getIsViewColumn(colProp[4])" [ngStyle]="{'max-width': getMinWidthDependFontSize(60), 'min-width': getMinWidthDependFontSize(60)}">
+                <div class="center-box">
+                  <img *ngIf="row.neckLabelImageUrl && row.hasNeckLabel" class="img-thumbnail-none-wh cursor" [src]="row.neckLabelImageUrl" width="50"
+                      height="50"
+                      imgZoomClick>
+                  <span *ngIf="!row.hasNeckLabel">Neck Label Not Required</span>
+                </div>
+              </td>
+              <td *ngIf="getIsViewColumn(colProp[5])" [ngStyle]="{'max-width': getMinWidthDependFontSize(80), 'min-width': getMinWidthDependFontSize(80)}">
+                  <div class="center-box">{{row.color}}</div>
+              </td>
+              <td *ngIf="getIsViewColumn(colProp[6])" [ngStyle]="{'max-width': getMinWidthDependFontSize(60), 'min-width': getMinWidthDependFontSize(60)}">
+                <div class="center-box cursor"
+                     (click)="onChangeBinId(row)">
+                  <p class="center">{{row.sampleBinName}}</p>
+                </div>
+              </td>
+              <td *ngIf="getIsViewColumn(colProp[7])" [ngStyle]="{'max-width': getMinWidthDependFontSize(80), 'min-width': getMinWidthDependFontSize(80)}"
+                  id="sizeTable">
+                <!-- <perfect-scrollbar [config]="{suppressScrollX: false}">
+                  <table class="table table-sm style-table">
+                    <thead>
+                    <tr>
+                      <th *ngFor="let size of row.sizes">
+                        {{size.name}}
+                      </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                      <td *ngFor="let size of row.sizes">
+                        {{size.qty}}
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </perfect-scrollbar> -->
+                <div class="center-box">
+                  <p>
+                    {{isSendToCustomer(row.approvalTypes) && row.customerSampleQty ? row.customerSampleQty : 0}}
+                  </p>
+                  <p class="badge badge-danger m-t-10" *ngIf="row.isRush">RUSH</p>
+                </div>
+              </td>
+              <td *ngIf="getIsViewColumn(colProp[8])" [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}" class="v-center">
+                <div class="circle red"
+                     [ngClass]="{'green': row.isArtRipped}"
+                     (click)="changeStatus(row, statusType.ArtRipped, dayData.samplePrinterName !== excludeStaff)"></div>
+                <p *ngIf="row.artRippedUpdatedOnUtc">
+                  {{row.artRippedUpdatedOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                </p>
+                <p *ngIf="row.artRippedUpdatedByUser" class="m-t-5">
+                  {{row.artRippedUpdatedByUser}}</p>
+              </td>
+              <!--isScreenMade-->
+              <td [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}"
+                  class="v-center" *ngIf="dayData.samplePrinterName !== excludeStaff && getIsViewColumn(colProp[9])">
+                <div class="circle red"
+                     [ngClass]="{'green': row.isScreenMade}"
+                     (click)="changeStatus(row, statusType.ScreenMade, dayData.samplePrinterName !== excludeStaff)"></div>
+                <p *ngIf="row.screenMadeUpdatedOnUtc">
+                  {{row.screenMadeUpdatedOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                </p>
+                <p *ngIf="row.screenMadeUpdatedByUser" class="m-t-5">
+                  {{row.screenMadeUpdatedByUser}}</p>
+              </td>
+              <td class="unused-td" *ngIf="dayData.samplePrinterName === excludeStaff && getIsViewColumn(colProp[9])" [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}"></td>
+              <!--end isScreenMade-->
+              <!--isInkReady-->
+              <td [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}"
+                  class="v-center" *ngIf="dayData.samplePrinterName !== excludeStaff && getIsViewColumn(colProp[10])">
+                <div class="circle red"
+                     [ngClass]="{'green': row.isInkReady}"
+                     (click)="changeStatus(row, statusType.InkReady, dayData.samplePrinterName !== excludeStaff)"></div>
+                <p *ngIf="row.inkReadyUpdatedOnUtc">
+                  {{row.inkReadyUpdatedOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                </p>
+                <p *ngIf="row.inkReadyUpdatedByUser" class="m-t-5">
+                  {{row.inkReadyUpdatedByUser}}</p>
+              </td>
+              <td class="unused-td" *ngIf="dayData.samplePrinterName === excludeStaff && getIsViewColumn(colProp[10])" [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}"></td>
+              <!--end isInkReady-->
+              <!--isNeckLabelReady-->
+              <td *ngIf="row.hasNeckLabel && getIsViewColumn(colProp[11]); else noNLRequired" [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}"
+                  class="v-center">
+                <div class="circle red"
+                     [ngClass]="{'green': row.isNeckLabelReady}"
+                     (click)="changeStatus(row, statusType.NeckLabelReady, dayData.samplePrinterName !== excludeStaff)"></div>
+                <p *ngIf="row.neckLabelReadyUpdatedOnUtc">
+                  {{row.neckLabelReadyUpdatedOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                </p>
+                <p *ngIf="row.neckLabelReadyUpdatedByUser" class="m-t-5">
+                  {{row.neckLabelReadyUpdatedByUser}}</p>
+              </td>
+              <ng-template #noNLRequired>
+                <td class="unused-td" [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}"></td>
+              </ng-template>
+              <!--end isNeckLabelReady-->
+              <td *ngIf="getIsViewColumn(colProp[12])" [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}" class="v-center">
+                <div class="circle red"
+                     [ngClass]="{'green': row.isApprovedToSample}"
+                     (click)="changeStatus(row, statusType.ApprovedToSample, dayData.samplePrinterName !== excludeStaff)"></div>
+                <p *ngIf="row.approvedToSampleUpdatedOnUtc">
+                  {{row.approvedToSampleUpdatedOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                </p>
+                <p *ngIf="row.approvedToSampleUpdatedByUser" class="m-t-5">
+                  {{row.approvedToSampleUpdatedByUser}}</p>
+              </td>
+              <td *ngIf="getIsViewColumn(colProp[13])" [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}" class="v-center">
+                <div class="circle red"
+                     [ngClass]="{'green': row.isApproved}"
+                     (click)="changeStatus(row, statusType.Approved, dayData.samplePrinterName !== excludeStaff)"></div>
+                <p *ngIf="row.approvedUpdatedOnUtc">
+                  {{row.approvedUpdatedOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                </p>
+
+                <p *ngIf="row.approvedUpdatedByUser" class="m-t-5">
+                  {{row.approvedUpdatedByUser}}</p>
+              </td>
+              <!--isPellonMade-->
+              <td [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}"
+                  class="v-center" *ngIf="dayData.samplePrinterName !== excludeStaff && getIsViewColumn(colProp[14])">
+                <div class="circle red"
+                     [ngClass]="{'green': row.isPellonMade}"
+                     (click)="changeStatus(row, statusType.PellonMade, dayData.samplePrinterName !== excludeStaff)"></div>
+                <p *ngIf="row.pellonMadeUpdatedOnUtc">
+                  {{row.pellonMadeUpdatedOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                </p>
+
+                <p *ngIf="row.pellonMadeUpdatedByUser" class="m-t-5">
+                  {{row.pellonMadeUpdatedByUser}}</p>
+              </td>
+              <td class="unused-td" *ngIf="dayData.samplePrinterName === excludeStaff && getIsViewColumn(colProp[14])" [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}"></td>
+              <!--end isPellonMade-->
+              <td [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}">
+                <div class="center-box">
+                  <button *ngIf="(!isRowComplete(row, dayData.samplePrinterName !== excludeStaff) && permissions.update) || isFullPermission" type="button" class="btn btn-success" (click)="openModal(row, dayData.samplePrinterName !== excludeStaff)">
+                      <i class="fa fa-pencil"></i>
+                  </button>
+                  <p class="m-t-10 move-icon" *ngIf="!isRowComplete(row, dayData.samplePrinterName !== excludeStaff) && permissions.prioritize">
+                    <i class="fa fa-lg fa-arrows" aria-hidden="true" id="drag-handle"></i>
+                  </p>
+                  <p *ngIf="(isRowComplete(row, dayData.samplePrinterName !== excludeStaff) && permissions.update) && !isFullPermission"
+                      class="p-eyes"
+                      (click)="openModal(row, dayData.samplePrinterName !== excludeStaff, true)">
+                    <i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"></i>
+                  </p>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+          <table class="table necklabel-table" border="1px" *ngIf="!sampleData.data || !sampleData.data.length">
+            <tbody [dragula]='"bag-one"'>
+              <tr [id]="i + '-n-n'">
+                <td [attr.colspan]="columns.length + 1">
+                  <p class="noschedule">Nothing is scheduled for this date.</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+      </ng-template>
+      </div>
+    </perfect-scrollbar>
+  </div>
+</div>

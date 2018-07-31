@@ -1,0 +1,705 @@
+﻿<div class="panel panel-transparent py-2">
+  <div class="row pb-2 separate-border">
+    <div class="col-lg-12 col-xl-12">
+      <collapse-panel [formValue]="searchedObj">
+        <div class="row">
+          <form class="full-width" [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onFilter()">
+            <div class="col-lg-6 col-xl-6 left px-1">
+              <div class="row">
+                <div class="col-sm-6 col-lg-6 col-xl-6 m-b-5">
+                  <div class="row align-items-center">
+                    <div class="col-4 col-sm-4 col-lg-5">
+                      <span class="right">Customer:</span>
+                    </div>
+                    <div class="col-8 col-sm-8 col-lg-7">
+                      <input type="text"
+                             name="customer"
+                             placeholder="Customer Name"
+                             formControlName='customer'
+                             class="form-control">
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-lg-6 col-xl-6 m-b-5">
+                  <div class="row align-items-center">
+                    <div class="col-4 col-sm-4 col-lg-5">
+                      <span class="right">Style Name:</span>
+                    </div>
+                    <div class="col-8 col-sm-8 col-lg-7">
+                      <input type="text"
+                             name="styleName"
+                             placeholder="Style Name"
+                             formControlName='styleName'
+                             class="form-control">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-sm-6 col-lg-6 col-xl-6 m-b-5">
+                  <div class="row align-items-center">
+                    <div class="col-4 col-sm-4 col-lg-5">
+                      <span class="right nowrap">PO #:</span>
+                    </div>
+                    <div class="col-8 col-sm-8 col-lg-7">
+                      <input type="text"
+                             name="poId"
+                             placeholder="PO #"
+                             formControlName='poId'
+                             class="form-control">
+                    </div>
+                  </div>
+                </div>
+                <!--<div class="col-sm-6 col-lg-6 col-xl-6 m-b-5">-->
+                  <!--<div class="row align-items-center">-->
+                    <!--<div class="col-4 col-sm-4 col-lg-5">-->
+                      <!--<span class="right">Partner Style:</span>-->
+                    <!--</div>-->
+                    <!--<div class="col-8 col-sm-8 col-lg-7">-->
+                      <!--<input type="text"-->
+                             <!--name="partnerStyle"-->
+                             <!--placeholder="Partner Style"-->
+                             <!--formControlName='partnerStyle'-->
+                             <!--class="form-control">-->
+                    <!--</div>-->
+                  <!--</div>-->
+                <!--</div>-->
+              </div>
+              <!--<div class="row">-->
+                <!--<div class="col-sm-6 col-lg-6 col-xl-6 m-b-5">-->
+                  <!--<div class="row align-items-center">-->
+                    <!--<div class="col-4 col-sm-4 col-lg-5">-->
+                      <!--<span class="right nowrap">Retailer PO #:</span>-->
+                    <!--</div>-->
+                    <!--<div class="col-8 col-sm-8 col-lg-7">-->
+                      <!--<input type="text"-->
+                             <!--name="retailerPo"-->
+                             <!--placeholder="Retailer PO #"-->
+                             <!--formControlName='retailerPoId'-->
+                             <!--class="form-control">-->
+                    <!--</div>-->
+                  <!--</div>-->
+                <!--</div>-->
+              <!--</div>-->
+            </div>
+            <div class="col-lg-6 col-xl-6 right px-1">
+              <div class="row m-b-5">
+                <div class="col-sm-6 col-lg-6 col-xl-6">
+                  <div class="row align-items-center">
+                    <div class="col-4 col-sm-4">
+                      <span class="right nowrap">Schedule:</span>
+                    </div>
+                    <div class="col-8 col-sm-8">
+                      <ng-select [items]="printDateSelect" #printSelect
+                                 [clearable]="false"
+                                 [placeholder]="'Print Date'"
+                                 [searchable]="false"
+                                 (focus)="onSelectFocused(printSelect)"
+                                 bindLabel="text"
+                                 bindValue="text"
+                                 formControlName="printDate"></ng-select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row m-b-5" *ngIf="frm.get('printDate').value === 'Custom'">
+                <div class="col-2 col-sm-2 m-t-5">
+                  <span class="right nowrap">Schedule Date:</span>
+                </div>
+                <div class="p-l-5"
+                     [ngClass]="{'has-error':!frm.get('neckLabelDateFromOnUtc').valid}">
+                  <my-date-picker [options]="dateBeginOptions"
+                                  #dateBeginPicker
+                                  formControlName='neckLabelDateFrom'
+                                  [defaultMonth]="myDatePickerService.configDefaultMonth(frm.get('neckLabelDateTo').value, true)"
+                                  (dateChanged)="onDateChanged($event, 'neckLabelDateFromOnUtc')"
+                                  (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, dateBeginPicker)"
+                                  (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, dateBeginPicker, frm.get('neckLabelDateFromOnUtc'))"></my-date-picker>
+                  <!--<label class="error nowrap"-->
+                  <!--*ngIf="frm.get('neckLabelDateFromOnUtc').hasError('pattern') && !frm.get('neckLabelDateFromOnUtc').pristine">-->
+                  <!--{{validationMessages['default'].pattern}}</label>-->
+                  <label class="error nowrap"
+                         *ngIf="frm.get('neckLabelDateFromOnUtc').hasError('required') && !frm.get('neckLabelDateFromOnUtc').pristine">
+                    {{validationMessages['default'].required}}</label>
+                  <label class="error nowrap"
+                         *ngIf="frm.get('neckLabelDateFromOnUtc').hasError('maxDate') && !frm.get('neckLabelDateFromOnUtc').pristine">
+                    {{validationMessages['neckLabelDateFromOnUtc'].maxLength}}</label>
+                </div>
+                <div class="px-2 flex center">
+                  <span class="m-t-4">to</span>
+                </div>
+                <div class=""
+                     [ngClass]="{'has-error':!frm.get('neckLabelDateToOnUtc').valid}">
+                  <my-date-picker [options]="dateEndOptions"
+                                  #dateEndPicker
+                                  formControlName='neckLabelDateTo'
+                                  [defaultMonth]="myDatePickerService.configDefaultMonth(frm.get('neckLabelDateFrom').value)"
+                                  (dateChanged)="onDateChanged($event, 'neckLabelDateToOnUtc')"
+                                  (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, dateEndPicker)"
+                                  (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, dateEndPicker, frm.get('neckLabelDateToOnUtc'))"></my-date-picker>
+                  <!--<label class="error nowrap"-->
+                  <!--*ngIf="frm.get('neckLabelDateToOnUtc').hasError('pattern') && !frm.get('neckLabelDateToOnUtc').pristine">-->
+                  <!--{{validationMessages['default'].pattern}}</label>-->
+                  <label class="error nowrap"
+                         *ngIf="frm.get('neckLabelDateToOnUtc').hasError('required') && !frm.get('neckLabelDateToOnUtc').pristine">
+                    {{validationMessages['default'].required}}</label>
+                  <label class="error nowrap"
+                         *ngIf="frm.get('neckLabelDateToOnUtc').hasError('minDate') && !frm.get('neckLabelDateToOnUtc').pristine">
+                    {{validationMessages['neckLabelDateToOnUtc'].maxLength}}</label>
+                </div>
+              </div>
+              <div class="row m-b-5">
+                <div class="col-2 col-sm-2 m-t-5">
+                  <span class="right nowrap">Cancel Date:</span>
+                </div>
+                <div class="p-l-5"
+                     [ngClass]="{'has-error':!frm.get('cancelDateFromOnUtc').valid}">
+                  <my-date-picker class="flex" [options]="cancelDateBeginOptions"
+                                  #cancelDateBeginPicker
+                                  formControlName='cancelDateFrom'
+                                  [defaultMonth]="myDatePickerService.configDefaultMonth(frm.get('cancelDateTo').value, true)"
+                                  (dateChanged)="onDateChanged($event, 'cancelDateFromOnUtc')"
+                                  (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, cancelDateBeginPicker)"
+                                  (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, cancelDateBeginPicker, frm.get('cancelDateFromOnUtc'))"></my-date-picker>
+                  <!--<label class="error nowrap"-->
+                  <!--*ngIf="frm.get('cancelDateFromOnUtc').hasError('pattern') && !frm.get('cancelDateFromOnUtc').pristine">-->
+                  <!--{{validationMessages['default'].pattern}}</label>-->
+                  <label class="error nowrap"
+                         *ngIf="frm.get('cancelDateFromOnUtc').hasError('maxDate') && !frm.get('cancelDateFromOnUtc').pristine">
+                    {{validationMessages['cancelDateFromOnUtc'].maxLength}}</label>
+                </div>
+                <div class="px-2 flex center">
+                  <span class="m-t-4">to</span>
+                </div>
+                <div class=""
+                     [ngClass]="{'has-error':!frm.get('cancelDateToOnUtc').valid}">
+                  <my-date-picker class="flex" [options]="cancelDateEndOptions"
+                                  #cancelDateEndPicker
+                                  formControlName='cancelDateTo'
+                                  [defaultMonth]="myDatePickerService.configDefaultMonth(frm.get('cancelDateFrom').value)"
+                                  (dateChanged)="onDateChanged($event, 'cancelDateToOnUtc')"
+                                  (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, cancelDateEndPicker)"
+                                  (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, cancelDateEndPicker, frm.get('cancelDateToOnUtc'))"></my-date-picker>
+                  <!--<label class="error nowrap"-->
+                  <!--*ngIf="frm.get('cancelDateToOnUtc').hasError('pattern') && !frm.get('cancelDateToOnUtc').pristine">-->
+                  <!--{{validationMessages['default'].pattern}}</label>-->
+                  <label class="error nowrap"
+                         *ngIf="frm.get('cancelDateToOnUtc').hasError('minDate') && !frm.get('cancelDateToOnUtc').pristine">
+                    {{validationMessages['cancelDateToOnUtc'].maxLength}}</label>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-12 col-xl-12 left px-1">
+              <div class="row">
+                <div class="col-lg-12 center m-t-10">
+                  <button class="btn btn-primary center" type="submit">Search</button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </collapse-panel>
+      <div class="row">
+        <div class="col-lg-12 m-t-10 min-h-25">
+          <p class="total-sched">{{sumSched}} scheduled items</p>
+          <ng-template [ngIf]="tableData && tableData.length">
+            <a class="pull-left m-l-200" href="javascript:void(0)" (click)="exportNeckLabel('pdf')">
+              <i class="fa fa-file-pdf-o fa-2x text-danger" aria-hidden="true"></i>
+            </a>
+            <div class="mx-1 pull-left">
+              <div ngbDropdown class="d-inline-block" #myFontDrop="ngbDropdown"
+                  class="select-size-dropdown"
+                  placement="bottom-right"
+                  (clickOutside)="myFontDrop.close();"
+                  [attachOutsideOnClick]="true">
+                <i class="fa fa-font fa-2x cursor" id="dropdown5" ngbDropdownToggle></i>
+                <div ngbDropdownMenu aria-labelledby="dropdown5">
+                  <button class="dropdown-item" *ngFor="let item of fontSizeData"
+                          [ngClass]="{'active': item === myConfigStyle['font-size']}"
+                          (click)="changeFontSize(item);myFontDrop.close();" type="button">{{item}}
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="!isShowAllColumns" ngbDropdown class="select-column-dropdown select-columns pull-left m-l-40 m-r-10" #myDrop="ngbDropdown"
+                  placement="bottom-right"
+                  (openChange)="onChangeShowHideColumn($event)"
+                  (clickOutside)="myDrop.close()"
+                  [attachOutsideOnClick]="true">
+              <i class="fa fa-sliders fa-2x cursor" id="dropdown4" ngbDropdownToggle></i>
+              <div ngbDropdownMenu aria-labelledby="dropdown4">
+                <div class="col-12 px-1">
+                  <div class="checkbox">
+                    <input type="checkbox" id="all-options4" [checked]="isCheckedAll"
+                            (change)="onCheckedColsAll($event)">
+                    <label [style.margin-bottom]="'.2rem'" for="all-options4">All</label>
+                  </div>
+                </div>
+                <div class="divider"></div>
+                <div class="">
+                  <div class="col-12 px-1" *ngFor="let col of showHideColumns; let i = index">
+                    <div class="checkbox">
+                      <input type="checkbox"
+                              [id]="'col-' + i"
+                              [name]="'col-' + i"
+                              [(ngModel)]="col.isView"
+                              (change)="changeCheckedCol($event)">
+                      <label [for]="'col-' + i">{{col.description}}</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="pull-left m-t-5">
+              <a href="javascript:void(0)" *ngIf="!isShowAllColumns"
+                  (click)="showAllColumns(true)">Show All Columns</a>
+              <a href="javascript:void(0)" *ngIf="isShowAllColumns"
+                  (click)="showAllColumns(false)">Show My Columns</a>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="py-2" *ngIf="isFilter && !tableData.length">
+    <span class="font-size-16">No styles are scheduled that match your search criteria.</span>
+  </div>
+  <div class="py-2" *ngIf="tableData && !isFilter && !tableData.length">
+    <span class="font-size-16">No styles are scheduled that match your search criteria.</span>
+  </div>
+  <!--Days tab-->
+  <ul class="nav nav-tabs m-t-20 m-b-10 days-tab" *ngIf="tableData && tableData.length">
+    <li class="text-center nav-item" *ngFor="let tab of daysTab; let i=index" [dragula]='"bag-one"'
+        [ngClass]="{'active': tab.isActive}"
+        (click)="setDaysTab(i)"
+        [id]="'days-tab-' + i">
+      <a class="justify-center nav-link" href="javascript:void(0)" aria-expanded="true">
+        <span>{{tab.date ? (tab.date | amDateFormat: 'ddd M/D') : 'Late'}}</span>
+      </a>
+    </li>
+  </ul>
+  <div id="necklabelTable" class="py-2" *ngIf="tableData && tableData.length" [ngClass]="fontSizeClass">
+    <perfect-scrollbar [config]="{suppressScrollX: false}" (psScrollX)="onScrollX($event)">
+      <div id="header" [ngStyle]="myConfigStyleHeader"></div>
+      <div id="table">
+        <table name="necklabel-table" class="table necklabel-table" border="1px"
+               *ngFor="let neckLabelData of tableData; let i = index">
+          <thead>
+          <tr class="header-daytime">
+            <th [ngClass]="{'red-cell': isOnLateTab}" class="day" [attr.colspan]="totalColspan.first + 1">
+              {{neckLabelData.printDate | amDateFormat: 'dddd' | uppercase}}, {{neckLabelData.printDate | amDateFormat:
+              'MM/DD/YYYY'}}
+            </th>
+            <th [ngClass]="{'red-cell': isOnLateTab}" class="time" [attr.colspan]="!vendorId ? totalColspan.second + 1 : totalColspan.second">
+            </th>
+          </tr>
+          <tr *ngIf="neckLabelData.data && neckLabelData.data.length">
+            <ng-template [ngIf]="!vendorId">
+              <th [ngStyle]="{'max-width': getMinWidthDependFontSize(60), 'min-width': getMinWidthDependFontSize(60)}">
+                Vendor <br/>
+                Name
+              </th>
+            </ng-template>
+            <th *ngIf="getIsViewColumn(colProp[0])"
+                [ngStyle]="{'max-width': getMinWidthDependFontSize(60), 'min-width': getMinWidthDependFontSize(60)}">Cut
+              Ticket #
+            </th>
+            <th *ngIf="getIsViewColumn(colProp[1])"
+                [ngStyle]="{'max-width': getMinWidthDependFontSize(80), 'min-width': getMinWidthDependFontSize(80)}">
+              Cust /<br> PO #
+            </th>
+            <th *ngIf="getIsViewColumn(colProp[2])"
+                [ngStyle]="{'max-width': getMinWidthDependFontSize(80), 'min-width': getMinWidthDependFontSize(80)}">
+              Design #<br> Description
+            </th>
+            <th *ngIf="getIsViewColumn(colProp[3])"
+                [ngStyle]="{'max-width': getMinWidthDependFontSize(60), 'min-width': getMinWidthDependFontSize(60)}">
+              Image
+            </th>
+            <th *ngIf="getIsViewColumn(colProp[4])"
+                [ngStyle]="{'max-width': getMinWidthDependFontSize(80), 'min-width': getMinWidthDependFontSize(80)}">
+              Blank Style /<br> Description
+            </th>
+            <th *ngIf="getIsViewColumn(colProp[5])"
+                [ngStyle]="{'max-width': getMinWidthDependFontSize(60), 'min-width': getMinWidthDependFontSize(60)}">
+              Garment<br> Color
+            </th>
+            <th *ngIf="getIsViewColumn(colProp[6])"
+                [ngStyle]="{'max-width': getMinWidthDependFontSize(160), 'min-width': getMinWidthDependFontSize(160)}">
+              Size /<br> Qtys
+            </th>
+            <th *ngIf="getIsViewColumn(colProp[7])"
+                [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}">
+              Total<br> Pcs
+            </th>
+            <th *ngIf="getIsViewColumn(colProp[8])"
+                [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}">
+              Actual<br/> Run Time
+            </th>
+            <th *ngIf="getIsViewColumn(colProp[9])"
+                [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}">
+              Plates / Screens
+              <!-- Neck Label ID -->
+            </th>
+            <th *ngIf="getIsViewColumn(colProp[10])"
+                [ngStyle]="{'max-width': getMinWidthDependFontSize(60), 'min-width': getMinWidthDependFontSize(60)}">
+              Neck Label Image
+            </th>
+            <th *ngIf="getIsViewColumn(colProp[11])"
+              [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}">
+              Neck Label ID /<br>Color /<br>COO
+            </th>
+            <th *ngIf="getIsViewColumn(colProp[12])"
+                [ngStyle]="{'max-width': getMinWidthDependFontSize(90), 'min-width': getMinWidthDependFontSize(90)}">
+              Blank Goods<br> Eta
+            </th>
+            <th *ngIf="getIsViewColumn(colProp[13])"
+                [ngStyle]="{'max-width': getMinWidthDependFontSize(90), 'min-width': getMinWidthDependFontSize(90)}">
+              Start / Cancel<br> Ship Date
+            </th>
+            <th *ngIf="getIsViewColumn(colProp[14])"
+                [ngStyle]="{'max-width': getMinWidthDependFontSize(80), 'min-width': getMinWidthDependFontSize(80)}">
+                Screen Print Date
+            </th>
+            <th *ngIf="getIsViewColumn(colProp[15])"
+                [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}">
+                Finishing Date
+            </th>
+            <th *ngIf="getIsViewColumn(colProp[16])"
+                [ngStyle]="{'max-width': getMinWidthDependFontSize(60), 'min-width': getMinWidthDependFontSize(60)}">
+              Comments
+            </th>
+            <th
+              [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}"></th>
+          </tr>
+          </thead>
+          <tbody *ngIf="neckLabelData.data && neckLabelData.data.length" [dragula]='"bag-one"'>
+            <ng-template ngFor let-row [ngForOf]="neckLabelData.data">
+              <tr *ngIf="row && row.isMaintenanceJob">
+                <td [attr.colspan]="totalColspan.first + 1" *ngIf="!vendorId" class="maintenance-job">
+                  {{row.specialTask}}
+                </td>
+                <td *ngIf="vendorId && totalColspan.first > 0" [attr.colspan]="totalColspan.first" class="maintenance-job">
+                  {{row.specialTask}}
+                </td>
+                <td *ngIf="getIsViewColumn(colProp[7])">
+                    <p>{{row.scheduledQty}} units</p>
+                  </td>
+                <td [attr.colspan]="totalColspan.second" class="maintenance-job">
+                  {{row.specialTask}}
+                </td>
+              </tr>
+            </ng-template>
+          <!-- SUB-GROUP PRINT METHOD -->
+          <ng-template ngFor let-pm [ngForOf]="printMethods" let-first="first" let-ii="index">
+            <tr *ngIf="hasPrintMethod(neckLabelData.data, pm.name)">
+              <td [attr.colspan]="totalColspan.first + totalColspan.second" class="print-method-group">{{pm.name ? pm.name : 'Unknown Print Type'}}</td>
+            </tr>
+            <ng-template ngFor let-row [ngForOf]="neckLabelData.data" let-iii="index">
+              <tr *ngIf="row.printMethod === pm.name && !row.isMaintenanceJob"
+                  [id]="i + '-' + ii + '-' + iii" class="dragging-schedules-necklabel"
+                  [ngClass]="{'archived-cell': row && row.isArchived}">
+                <ng-template [ngIf]="!vendorId">
+                  <td [ngStyle]="{'max-width': getMinWidthDependFontSize(60), 'min-width': getMinWidthDependFontSize(60)}">
+                    {{row.vendorName}}
+                  </td>
+                </ng-template>
+                <td *ngIf="getIsViewColumn(colProp[0])"
+                    [ngStyle]="{'max-width': getMinWidthDependFontSize(60), 'min-width': getMinWidthDependFontSize(60)}">
+                  <p class="mb-2">{{row.cutTicketProduction}}</p>
+                  <p *ngIf="row.isUploadedCutTicketProduction" class="p-eyes">
+                    <i class="fa fa-eye" [ngStyle]="{'top': '-1px'}" aria-hidden="true"
+                      (click)="openUploader(row.orderDetailId, styleUploadedType.ProductionPO, 'Production PO - Cut Ticket')"></i>
+                  </p>
+                </td>
+                <td *ngIf="getIsViewColumn(colProp[1])"
+                    [ngStyle]="{'max-width': getMinWidthDependFontSize(80), 'min-width': getMinWidthDependFontSize(80)}">
+                  <div class="flex-box" style="height: auto" (click)="goToOrderInfo(row.orderId)">
+                    <p class="mb-3 p-link">{{row.customerName}}</p>
+                    <p class="p-link mb-3">{{row.customerPoId}}</p>
+                  </div>
+                </td>
+                <td *ngIf="getIsViewColumn(colProp[2])"
+                    class="cursor"
+                    [ngStyle]="{'max-width': getMinWidthDependFontSize(80), 'min-width': getMinWidthDependFontSize(80)}"
+                    (click)="goToStyle(row.orderId, row.orderDetailId)">
+                  <div class="flex-box">
+                    <p class="mb-2 p-link">{{row.partnerStyle}}</p>
+                    <p class="mb-2 p-link">{{row.styleName}}</p>
+                    <p class="mb-2 p-link" *ngIf="row.licensorName">({{row.licensorName}})</p>
+                  </div>
+                </td>
+                <td *ngIf="getIsViewColumn(colProp[3])"
+                    [ngStyle]="{'max-width': getMinWidthDependFontSize(60), 'min-width': getMinWidthDependFontSize(60)}">
+                  <div class="center-box">
+                    <img *ngIf="row.printImageUrl" class="img-thumbnail-none-wh cursor" [src]="row.printImageUrl" width="50"
+                        height="50"
+                        imgZoomClick>
+                  </div>
+                </td>
+                <td *ngIf="getIsViewColumn(colProp[4])"
+                    [ngStyle]="{'max-width': getMinWidthDependFontSize(80), 'min-width': getMinWidthDependFontSize(80)}">
+                  <div class="flex-box">
+                    <p class="mb-3">{{row.blankStyle}}</p>
+                    <p>{{row.blankDescription}}</p>
+                  </div>
+                </td>
+                <td *ngIf="getIsViewColumn(colProp[5])"
+                    [ngStyle]="{'max-width': getMinWidthDependFontSize(60), 'min-width': getMinWidthDependFontSize(60)}">
+                  <div class="center-box">{{row.color}}</div>
+                </td>
+                <td *ngIf="getIsViewColumn(colProp[6])"
+                    [ngStyle]="{'max-width': getMinWidthDependFontSize(160), 'min-width': getMinWidthDependFontSize(160)}"
+                    id="sizeTable">
+                  <perfect-scrollbar [config]="{suppressScrollX: false}">
+                    <table class="table table-sm style-table">
+                      <thead>
+                      <tr>
+                        <th *ngFor="let size of row.sizes">
+                          {{size.name}}
+                        </th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr>
+                        <td *ngFor="let size of row.sizes" class="anti-archived-cell">
+                          {{size.qty}}
+                        </td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </perfect-scrollbar>
+                </td>
+                <td *ngIf="getIsViewColumn(colProp[7])" style="position: relative;"
+                    [ngClass]="{'red-cell': row.isLateOriginal && !row.isArchived, 'resched-cell': row.isLateRescheduled && !row.isArchived, 'archived-cell': row.isArchived}"
+                    [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}">
+                  <div [ngClass]="{'flex-box': row.unit && row.scheduledQty, 'center-box': !row.unit || !row.scheduledQty}">
+                    <p>{{row.unit}}</p>
+                    <p class="nowrap">{{row.scheduledQty || 0}} sched.
+                      <i class="fa fa-times cursor py-1" aria-hidden="true" (click)="removeLateJob(row)"
+                      *ngIf="!isPageReadOnly && isAllowDrag && !row.isArchived && !row.isEnteredQty"
+                      title="Click to Remove"></i>
+                    </p>
+                    <p class="m-t-5">
+                      {{row.completedQty}} {{row.completedTimeOnUtc ? 'conf' : 'complt'}}.
+                    </p>
+                    <button class="btn btn-yellow btn-small m-t-10" [ngClass]="{'m-b-20': !isPageReadOnly && isAllowDrag && !row.isArchived && !row.isEnteredQty}"
+                            *ngIf="row.processStatus === 1"
+                            >Job Started
+                    </button>
+                    <button class="btn btn-orange btn-small m-t-10" [ngClass]="{'m-b-20': !isPageReadOnly && isAllowDrag && !row.isArchived && !row.isEnteredQty}"
+                            *ngIf="row.processStatus === 2"
+                            >Job Pending
+                    </button>
+                    <button class="btn btn-green btn-small m-t-10" [ngClass]="{'m-b-20': !isPageReadOnly && isAllowDrag && !row.isArchived && !row.isEnteredQty}"
+                            *ngIf="row.processStatus >= 3 && row.processStatus < 7"
+                            >Job Completed
+                    </button>
+                    <button class="btn btn-yellow btn-small m-t-10" [ngClass]="{'m-b-20': !isPageReadOnly && isAllowDrag && !row.isArchived && !row.isEnteredQty}"
+                            *ngIf="row.processStatus === 7"
+                            >Job Paused
+                    </button>
+                    <p class="move-icon" *ngIf="!isPageReadOnly && isAllowDrag && !row.isArchived && !row.isEnteredQty">
+                      <i class="fa fa-lg fa-arrows" aria-hidden="true"></i>
+                    </p>
+                  </div>
+                </td>
+                <td *ngIf="getIsViewColumn(colProp[8])"
+                  [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}">
+                  <div class="center-box">
+                    <p class="mb-1" *ngIf="row.startedTimeOnUtc">Start Time: {{row.startedTimeOnUtc | amFromUtc | amLocal | amDateFormat: 'hh:mm A'}}</p>
+                    <p class="mb-1" *ngIf="row.completedTimeOnUtc">End Time: {{row.completedTimeOnUtc | amFromUtc | amLocal | amDateFormat: 'hh:mm A'}}</p>
+                    <p class="mb-1" *ngIf="row.actualRT">Total Time: {{row.actualRT | hrsToHrsMin}}</p>
+                  </div>
+                </td>
+                <td *ngIf="getIsViewColumn(colProp[9])"
+                    [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}"
+                    >
+                    <!-- <div class="center-box" *ngIf="row.plateScreensOnUtc">
+                      {{row.plateScreensOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YYYY'}}
+                    </div> -->
+                    <div class="center-box">
+                      <p class="p-link stt-color" [ngClass]="{'checkmark': row.isDelivered, 'disabled': !getIsModifyStatusBy('DELIVERED') || row.isArchived || isOnLateTab}" (click)="changeStatus(row, 5, 'isDelivered')">
+                        DELIVERED <i class="fa fa-check" aria-hidden="true"></i></p>
+                      <p class="p-link m-t-10 stt-color" [ngClass]="{'checkmark': row.isReceived, 'disabled': !getIsModifyStatusBy('RECEIVED') || row.isArchived || isOnLateTab}" (click)="changeStatus(row, 6, 'isReceived')">
+                        RECEIVED <i class="fa fa-check" aria-hidden="true"></i></p>
+                    </div>
+                </td>
+                <td *ngIf="getIsViewColumn(colProp[10])"
+                    [ngStyle]="{'max-width': getMinWidthDependFontSize(60), 'min-width': getMinWidthDependFontSize(60)}">
+                  <div class="center-box">
+                    <img *ngIf="row.neckLabelImageUrl" class="img-thumbnail-none-wh cursor" [src]="row.neckLabelImageUrl"
+                        width="50"
+                        height="50"
+                        imgZoomClick>
+                  </div>
+                </td>
+                <td *ngIf="getIsViewColumn(colProp[11])"
+                    [ngStyle]="{'max-width': getMinWidthDependFontSize(90), 'min-width': getMinWidthDependFontSize(90)}">
+                  <div class="flex-box">
+                    <p>{{row.designId}}</p> <!-- Neck Label BindId-->
+                    <p>{{row.inkColor}}</p>
+                    <p>{{row.cooName}}</p>
+                  </div>
+                </td>
+                <td *ngIf="getIsViewColumn(colProp[12])"
+                    [ngStyle]="{'max-width': getMinWidthDependFontSize(90), 'min-width': getMinWidthDependFontSize(90)}">
+                  <div class="flex-box">
+                    <div class="mb-2">
+                      <p>Eta:
+                        <span class="m-l-1"
+                              *ngIf="row.blankEstDeliveryDateFromOnUtc">
+                            {{row.blankEstDeliveryDateFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                        </span>
+                        <span class="m-l-1"
+                              *ngIf="!row.blankEstDeliveryDateFromOnUtc">N/A</span>
+                      </p>
+                      <p *ngIf="row.blankEstDeliveryDateToOnUtc" class="m-0">
+                        <span>
+                            - {{row.blankEstDeliveryDateToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                        </span>
+                      </p>
+                      <p *ngIf="row.hasTscVendor">
+                        , Warehouse
+                      </p>
+                    </div>
+                    <p>Rcvd:
+                      <span class="m-l-1"
+                            *ngIf="row.blankReceivedDateFromOnUtc && !row.blankReceivedDateToOnUtc">
+                          {{row.blankReceivedDateFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                        </span>
+                      <span class="m-l-1"
+                            *ngIf="row.blankReceivedDateFromOnUtc && row.blankReceivedDateToOnUtc">
+                          {{row.blankReceivedDateFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                  </span>
+                      <span class="m-l-1" *ngIf="!row.blankReceivedDateFromOnUtc">N/A</span>
+                    </p>
+                    <p *ngIf="row.blankReceivedDateToOnUtc">
+                      - {{row.blankReceivedDateToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                    </p>
+                  </div>
+                </td>
+                <td *ngIf="getIsViewColumn(colProp[13])"
+                    [ngStyle]="{'max-width': getMinWidthDependFontSize(90), 'min-width': getMinWidthDependFontSize(90)}">
+                  <div class="center-box">
+                    <p class="nowrap mb-1" *ngIf="row.startShipDateOnUtc">
+                    STRT: {{row.startShipDateOnUtc | amDateFormat: 'MM/DD/YY'}}
+                    </p>
+                    <p class="nowrap mb-1" *ngIf="row.cancelDateOnUtc">
+                    CNCL: {{row.cancelDateOnUtc | amDateFormat: 'MM/DD/YY'}}
+                    </p>
+                    <p class="nowrap mb-1" *ngIf="row.isInDcOrder">
+                    LDSNE: {{row.lastDateToShipOnUtc | amDateFormat: 'MM/DD/YY'}}
+                    </p>
+                  </div>
+                </td>
+                <td *ngIf="getIsViewColumn(colProp[14])"
+                    [ngStyle]="{'max-width': getMinWidthDependFontSize(80), 'min-width': getMinWidthDependFontSize(80)}">
+                  <div class="flex-box">
+                    <p>{{row.printMachines}}</p>
+                    <p *ngIf="row.printDateStatus" class="m-t-10 m-b-0">Sched:
+                      <span class="m-l-1" *ngIf="row.printDateScheduledFromOnUtc">{{row.printDateScheduledFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+                      <span class="m-l-1" *ngIf="!row.printDateScheduledFromOnUtc">N/A</span>
+                    </p>
+                    <p *ngIf="row.printDateStatus" class="m-0">
+                      <span *ngIf="row.printDateScheduledToOnUtc">- {{row.printDateScheduledToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+                    </p>
+                    <p *ngIf="row.printDateStatus" class="m-t-10 m-b-0">Done:
+                      <span class="m-l-1" *ngIf="row.printDateDoneFromOnUtc">{{row.printDateDoneFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+                      <span class="m-l-1" *ngIf="!row.printDateDoneFromOnUtc">N/A</span>
+                    </p>
+                    <p *ngIf="row.printDateStatus" class="m-0">
+                      <span *ngIf="row.printDateDoneToOnUtc">- {{row.printDateDoneToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+                    </p>
+                  </div>
+                </td>
+                <td *ngIf="getIsViewColumn(colProp[15])"
+                  [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}">
+                  <p *ngIf="row.finishingDateStatus">Sched:
+                    <span class="m-l-1" *ngIf="row.finishingDateScheduledFromOnUtc">{{row.finishingDateScheduledFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+                    <span class="m-l-1" *ngIf="!row.finishingDateScheduledFromOnUtc">N/A</span>
+                  </p>
+                  <p *ngIf="row.finishingDateStatus" class="m-0">
+                    <span *ngIf="row.finishingDateScheduledToOnUtc">- {{row.finishingDateScheduledToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+                  </p>
+                  <p *ngIf="row.finishingDateStatus" class="m-t-10 m-b-0">Done:
+                    <span class="m-l-1" *ngIf="row.finishingDateDoneFromOnUtc">{{row.finishingDateDoneFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+                    <span class="m-l-1" *ngIf="!row.finishingDateDoneFromOnUtc">N/A</span>
+                  </p>
+                  <p *ngIf="row.finishingDateStatus" class="m-0">
+                    <span *ngIf="row.finishingDateDoneToOnUtc">- {{row.finishingDateDoneToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+                  </p>
+                </td>
+                <td *ngIf="getIsViewColumn(colProp[16])"
+                    [ngStyle]="{'max-width': getMinWidthDependFontSize(60), 'min-width': getMinWidthDependFontSize(60)}">
+                  <p *ngIf="row.hasComments">
+                    <i class="fa fa-comments fa-2x cursor" title="See Comments"
+                      (click)="addComment(row, true)">
+                    </i>
+                  </p>
+                <button *ngIf="!isPageReadOnly && !row.isArchived" class="btn btn-small btn-success m-t-15"
+                          (click)="addComment(row)">+ Add
+                  </button>
+                </td>
+                <td [ngStyle]="{'max-width': getMinWidthDependFontSize(70), 'min-width': getMinWidthDependFontSize(70)}">
+                  <div class="center-box">
+                    <!-- <button type="button" class="btn btn-success btn-small" (click)="openModal(row)">Process Job
+                    </button> -->
+                    <button class="btn btn-red btn-small"
+                            *ngIf="!isPageReadOnly && !row.isArchived && !isOnLateTab &&
+                                  getIsModifyFunc('ProcessJob.Update') &&
+                                  row.processStatus >= 0 &&
+                                  (row.processStatus < 3 || row.processStatus === 7)"
+                            (click)="openModal(row)">Process Job
+                    </button>
+                    <p (click)="openHistory(row.id)"
+                      class="m-t-15 p-link">History</p>
+                  </div>
+                </td>
+              </tr>
+              <!-- <tr *ngIf="first && row && row.isMaintenanceJob">
+                <td [attr.colspan]="totalColspan.first + 1" *ngIf="!vendorId" class="maintenance-job">
+                  {{row.specialTask}}
+                </td>
+                <td *ngIf="vendorId && totalColspan.first > 0" [attr.colspan]="totalColspan.first" class="maintenance-job">
+                  {{row.specialTask}}
+                </td>
+                <td *ngIf="getIsViewColumn(colProp[7])">
+                    <p>0 units</p>
+                  </td>
+                <td [attr.colspan]="totalColspan.second" class="maintenance-job">
+                  {{row.specialTask}}
+                </td>
+              </tr> -->
+            </ng-template>
+            <tr class="subtotal" *ngIf="hasPrintMethod(neckLabelData.data, pm.name)">
+              <td [attr.colspan]="totalColspan.first" class="text-right">{{pm.name ? pm.name : 'Unknown Print Type'}} TOTAL</td>
+              <td>
+                {{calculateQtyByProcess(neckLabelData.data, pm.name).sumCompQty + ' / ' + calculateQtyByProcess(neckLabelData.data, pm.name).sumSchedQty}}<br/>
+                ({{(calculateQtyByProcess(neckLabelData.data, pm.name).sumCompQty / calculateQtyByProcess(neckLabelData.data, pm.name).sumSchedQty) * 100 | number:'1.1-1'}}%)
+              </td>
+              <td>{{calculateQtyByProcess(neckLabelData.data, pm.name).sumRuntime | hrsToHrsMin}}</td>
+              <td [attr.colspan]="totalColspan.second - 1"></td>
+            </tr>
+          </ng-template>
+          <tr class="total-piece">
+            <td *ngIf="(vendorId && totalColspan.first > 0) || !vendorId"
+                [attr.colspan]="!vendorId ? totalColspan.first + 1 : totalColspan.first" class="text-right">DAILY TOTAL</td>
+            <td *ngIf="getIsViewColumn(colProp[7])">
+                {{getDailyTotal(neckLabelData.data).totalCompQty + ' / ' + getDailyTotal(neckLabelData.data).totalSchedQty}}<br/>
+                ({{(getDailyTotal(neckLabelData.data).totalCompQty / getDailyTotal(neckLabelData.data).totalSchedQty) * 100 | number:'1.1-1'}}%)
+            </td>
+            <td>{{neckLabelData.sumActualRT | hrsToHrsMin}}</td>
+            <td [attr.colspan]="totalColspan.second - 1"></td>
+          </tr>
+          </tbody>
+          <tbody *ngIf="!neckLabelData.data || !neckLabelData.data.length">
+          <tr>
+            <p class="noschedule">Nothing is scheduled for this date.</p>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </perfect-scrollbar>
+  </div>
+</div>

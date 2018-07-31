@@ -1,0 +1,79 @@
+trims-detail {
+  .min-content {
+    my-date-picker {
+      width: 135px;
+    }
+  }
+
+  .title {
+    border-bottom: 1px solid #ccc;
+    margin: 0;
+  }
+
+  .general-title {
+    border-bottom: 1px solid #626262;
+    span {
+      font-size: 14px;
+    }
+  }
+
+  .radio label {
+    margin-bottom: 0 !important;
+    margin-right: 0 !important;
+
+    &:before {
+      bottom: -1.5px !important;
+    }
+  }
+
+  .checkbox {
+    margin-bottom: 0 !important;
+    margin-top: -3px !important;
+    input[type=checkbox] {
+      display: none;
+    }
+    label {
+      padding-left: 0 !important;
+      margin-right: 0 !important;
+      margin-bottom: 0 !important;
+      top: -8px;
+    }
+  }
+
+  .btn-upload {
+    position: relative;
+  }
+
+  .upload-box {
+    height: 90%;
+  }
+
+  .showImage {
+    .remove-image {
+      top: 4px;
+    }
+  }
+
+  .input-group .form-control:not(:last-child), .input-group-addon:not(:last-child), .input-group-btn:not(:last-child) > .btn, .input-group-btn:not(:last-child) > .btn-group > .btn, .input-group-btn:not(:last-child) > .dropdown-toggle, .input-group-btn:not(:first-child) > .btn:not(:last-child):not(.dropdown-toggle), .input-group-btn:not(:first-child) > .btn-group:not(:last-child) > .btn {
+    border-right: 0 !important;
+  }
+  .input-group .input-group-addon {
+    background: white !important;
+    border-color: #ccc;
+    color: #626262 !important;
+  }
+
+  .checkbox.po-checkbox {
+    label {
+      top: 4px;
+      padding-left: 20px !important;
+      &:before {
+        left: -3px;
+      }
+      &:after {
+        left: 0.2px;
+        top: 1px;
+      }
+    }
+  }
+}

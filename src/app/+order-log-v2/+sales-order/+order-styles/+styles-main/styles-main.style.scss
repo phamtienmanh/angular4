@@ -1,0 +1,198 @@
+styles-main {
+  .nav {
+    li {
+      min-width: 70px;
+    }
+    li, li > a {
+      position: relative;
+      display: flex;
+    }
+    li {
+      &.active {
+        overflow: visible !important;
+      }
+      &.disabled {
+        pointer-events: none;
+      }
+    }
+  }
+  .nav-tabs {
+    li {
+      a {
+        font-size: 12px !important;
+      }
+    }
+    .nav-item {
+
+      &.active {
+        a {
+          padding-top: 5px !important;
+          border-color: #ccc !important;
+          border-top: 3px solid #3c8dbc !important;
+          border-bottom: 1px solid #fff !important;
+        }
+        span {
+          font-weight: bold;
+        }
+      }
+    }
+    .nav-link:hover {
+      border-color: #f3f3f3;
+      border-bottom-color: #ccc;
+      font-weight: bold;
+    }
+  }
+  .nav-tabs > li > a {
+    color: #626262;
+    text-transform: none;
+    font-weight: inherit;
+    font-family: "Segoe UI", Arial, sans-serif;
+    padding: 7px 10px !important;
+    font-size: 14px;
+    span {
+      font-weight: 400;
+    }
+  }
+  .nav-tabs > li > a:hover {
+    span {
+      font-weight: 600;
+    }
+  }
+
+  .ps-content {
+    padding-top: 0;
+  }
+  .datatable-header-cell div {
+    text-align: center;
+  }
+  @media screen and (max-width: 1366px) {
+    .break-header div {
+      position: relative;
+      .datatable-header-cell-wrapper {
+        position: absolute !important;
+        top: -8px;
+        left: 0;
+        width: 100%;
+        white-space: normal;
+        word-break: normal;
+      }
+    }
+  }
+  .datatable-body-cell {
+    padding: 0.4rem 0.6rem !important;
+  }
+  .full-width-style .datatable-body-cell-label {
+    width: 100% !important;
+  }
+  .style-table {
+    width: 100% !important;
+    overflow: visible !important;
+    margin: 0 0 13px;
+    td, th {
+      border-color: hsla(0,0%,90%,.8) !important;
+      background: #fff!important;
+      padding: 0 .5em !important;
+      color: #757575 !important;
+      text-align: center !important;
+      font-size: 12px !important;
+      border: 1px solid hsla(0,0%,90%,.8);
+      white-space: nowrap !important;
+      min-width: 40px;
+    }
+    th {
+      font-weight: 300 !important;
+      background-color: rgba(98, 98, 98, 0.2) !important;
+    }
+    tr td {
+      &:first-child {
+        text-align: left !important;
+      }
+    }
+    tr:last-child {
+      td {
+        // border-bottom: 0;
+      }
+    }
+    tr th {
+      white-space: nowrap;
+      &:first-child {
+        width: 45px !important;
+      }
+      &:last-child {
+        width: 50px !important;
+      }
+    }
+  }
+  .align-left > div {
+    width: 100%;
+    text-align: left;
+  }
+  .align-center > div {
+    width: 100%;
+    text-align: center;
+  }
+  a {
+    &:hover {
+      text-decoration: underline !important;
+      cursor: pointer;
+    }
+  }
+  @media (min-width: 1366px){
+    perfect-scrollbar .ps__rail-x {
+      display: flex !important;
+    }
+  }
+  perfect-scrollbar .ps__rail-x {
+    background-color: transparent !important;
+  }
+  .ps__rail-x {
+    opacity: 0.6 !important;
+    height: 13px !important;
+  }
+  .ps__thumb-x {
+    height: 12px !important;
+  }
+  .table-no-bordered tbody tr td {
+    border: none;
+    background: transparent !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+  }
+  .datatable-row-right {
+    display: none !important;
+  }
+
+  .overlay-cancelled {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background: #bbb !important;
+    z-index: 5;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .ngx-datatable {
+    .datatable-body-cell {
+      padding: 0 !important;
+      &:first-child {
+        padding: 0 !important;
+      }
+      .datatable-body-cell-label {
+        height: 100%;
+        width: 100%;
+        .relative {
+          height: 100%;
+          padding: 0.4rem 0.6rem !important;
+          &.rl-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+        }
+      }
+    }
+  }
+}

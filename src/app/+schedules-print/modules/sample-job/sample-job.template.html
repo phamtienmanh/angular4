@@ -1,0 +1,255 @@
+<div class="modal-header m-b-0">
+  <h4 class="modal-title">Sample Job</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.close(false)">
+    <span aria-hidden="true">×</span>
+  </button>
+</div>
+<div class="modal-body" [ngClass]="{'read-only': isReadOnly}">
+  <!-- NAV TAB -->
+  <ul class="nav nav-tabs" [ngClass]="{'m-b-10': !permissions.rush}">
+    <li class="text-center nav-item" *ngFor="let tab of tabs; let i=index"
+        [ngClass]="{'active': tab.isActive}"
+        (click)="switchTab(i)">
+      <a class="justify-center nav-link" href="javascript:void(0)" aria-expanded="true">
+        <span>{{tab.name}}</span>
+      </a>
+    </li>
+  </ul>
+  <!-- JOB DETAIL -->
+  <div *ngIf="tabs[0].isActive">
+    <div class="row rush-btn" *ngIf="permissions.rush">
+      <button class="btn btn-complete pull-right" *ngIf="!styleData.isRush" (click)="updateRushStatus(true)">Add Rush
+      </button>
+      <button class="btn btn-danger pull-right" *ngIf="styleData.isRush" (click)="updateRushStatus(false)">Remove Rush
+      </button>
+    </div>
+    <p class="rush-header center" *ngIf="styleData.isRush">RUSH ORDER</p>
+    <div class="row m-r--20">
+      <div class="col-sm-6 left-panel">
+        <table class="table style-table">
+          <thead>
+          <tr>
+            <th colspan="2">{{styleData.customerName}}</th>
+          </tr>
+          <tr>
+            <th colspan="2">{{styleData.partnerStyle}} # {{styleData.styleName}}</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td>{{styleData.color}}</td>
+            <td>{{styleData.customerSampleQty}}</td>
+          </tr>
+          </tbody>
+        </table>
+        <!-- <img width="100%" height="auto" class="img-thumbnail" src="https://scheduling-dev.azureedge.net/artpreviews/styles/611402e6-325e-4ae5-805d-4d98aa3b7774.jpg"/> -->
+        <img width="100%" class="img-thumbnail" *ngIf="styleData.imageUrl" [src]="styleData.imageUrl" imgZoomClick/>
+        <p class="center m-t-10">Approval: {{styleData.approvalTypes}}</p>
+        <div class="row">
+          <div class="col-sm-1 cursor" (click)="changeStatus(statusType.ArtRipped)">
+            <div class="circle green" *ngIf="styleData.isArtRipped"></div>
+            <div class="circle red" *ngIf="!styleData.isArtRipped"></div>
+          </div>
+          <div class="col-sm-5">
+            Art Ripped
+          </div>
+          <div class="col-sm-1 cursor" (click)="changeStatus(statusType.ApprovedToSample)">
+            <div class="circle green" *ngIf="styleData.isApprovedToSample"></div>
+            <div class="circle red" *ngIf="!styleData.isApprovedToSample"></div>
+          </div>
+          <div class="col-sm-5">
+            Approved to Sample
+          </div>
+        </div>
+        <div class="row m-t-5">
+          <div class="col-sm-1 cursor" *ngIf="isNotExcludePrint" (click)="changeStatus(statusType.ScreenMade)">
+            <div class="circle green" *ngIf="styleData.isScreenMade"></div>
+            <div class="circle red" *ngIf="!styleData.isScreenMade"></div>
+          </div>
+          <div class="col-sm-5" *ngIf="isNotExcludePrint">
+            Screen Made
+          </div>
+          <div class="col-sm-1 cursor" (click)="changeStatus(statusType.Approved, styleData)">
+            <div class="circle green" *ngIf="styleData.isApproved"></div>
+            <div class="circle red" *ngIf="!styleData.isApproved"></div>
+          </div>
+          <div class="col-sm-5">
+            Approved
+          </div>
+        </div>
+        <div class="row m-t-5" *ngIf="isNotExcludePrint">
+          <div class="col-sm-1 cursor" (click)="changeStatus(statusType.InkReady)">
+            <div class="circle green" *ngIf="styleData.isInkReady"></div>
+            <div class="circle red" *ngIf="!styleData.isInkReady"></div>
+          </div>
+          <div class="col-sm-5">
+            Ink Ready
+          </div>
+          <div class="col-sm-1 cursor" (click)="changeStatus(statusType.PellonMade)">
+            <div class="circle green" *ngIf="styleData.isPellonMade"></div>
+            <div class="circle red" *ngIf="!styleData.isPellonMade"></div>
+          </div>
+          <div class="col-sm-5">
+            Pellon Made
+          </div>
+        </div>
+        <div class="row m-t-5" *ngIf="styleData.hasNeckLabel">
+          <div class="col-sm-1 cursor" (click)="changeStatus(statusType.NeckLabelReady)">
+            <div class="circle green" *ngIf="styleData.isNeckLabelReady"></div>
+            <div class="circle red" *ngIf="!styleData.isNeckLabelReady"></div>
+          </div>
+          <div class="col-sm-5">
+            Neck Label Ready
+          </div>
+          <div class="col-sm-6">
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6 right-panel">
+        <p class="right-panel-header center m-r-20">Job Changes</p>
+        <div class="row m-b-10 p-r-20" *ngIf="permissions.addJobChange">
+          <!-- <input #jobContent /> -->
+          <ng-select [items]="jobChange" #jobContent
+                     [addTag]="true"
+                     [virtualScroll]="true"
+                     [placeholder]="''"
+                     (focus)="onSelectFocused(jobContent)"
+                     (open)="jobContent.filterValue = !!jobTxt ? jobTxt : ''"
+                     bindLabel="name"
+                     bindValue="name"
+                     [(ngModel)]="jobTxt"></ng-select>
+          <button class="btn btn-complete pull-right" (click)="createJob(jobTxt)">Add</button>
+        </div>
+        <perfect-scrollbar [config]="{suppressScrollY: false}">
+          <div class="job-list p-r-20">
+            <div class="m-b-10" *ngFor="let job of jobList">
+              <p class="date-header center">{{job.jobDate | amFromUtc | amLocal | amDateFormat: 'MM/DD/YYYY'}}</p>
+              <div class="row detail border-bottom-ccc" *ngFor="let jobData of job.jobData">
+                <div class="col-sm-3">
+                  <span>{{jobData.jobTime | amFromUtc | amLocal | amDateFormat: 'hh:mm A'}}</span>
+                </div>
+                <div class="col-sm-8">
+                  <span>{{jobData.jobDetail}}</span>
+                </div>
+                <div class="col-sm-1 action-btn" *ngIf="permissions.deleteJobChange">
+                  <button class="btn btn-danger">
+                    <i aria-hidden="true" class="fa fa-times" (click)="deleteJob(jobData.id)"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </perfect-scrollbar>
+      </div>
+    </div>
+  </div>
+  <!-- PMS COLORS -->
+  <table class="table table-sm style-table pms-table" *ngIf="tabs[1].isActive">
+    <thead>
+    <tr>
+      <th [ngStyle]="{'min-width': '50px', 'width': '50px'}">Seq</th>
+      <th [ngStyle]="{'min-width': '100px', 'width': '100px'}">PMS</th>
+      <th [ngStyle]="{'min-width': '100px', 'width': '100px'}">Mesh</th>
+      <th [ngStyle]="{'min-width': '100px', 'width': '100px'}">Type</th>
+      <th [ngStyle]="{'min-width': '30px', 'width': '30px'}"></th>
+    </tr>
+    </thead>
+    <tbody [dragula]='"bag-two"'
+           [dragulaOptions]="dragOptions">
+    <tr class="dragging-table"
+        *ngFor="let color of pmsColors; let i = index; let first = first; let last = last">
+      <td class="seq-handle" title="Drag to reorder">{{i + 1}}</td>
+      <td class="auto-align" [ngClass]="{'disabled': !permissions.pmsColor}">
+        <ng-select [items]="colorsDataOrigin" #pmsColor
+                   [placeholder]="permissions.pmsColor ? 'PMS' : ''"
+                   [addTag]="true"
+                   [virtualScroll]="true"
+                   (focus)="onSelectFocused(pmsColor)"
+                   (open)="pmsColor.filterValue = !!color.pmsName ? color.pmsName : ''"
+                   bindLabel="name"
+                   bindValue="name"
+                   [(ngModel)]="color.pmsName"></ng-select>
+      </td>
+      <!--<td [ngClass]="{'cursor': permissions.pmsColor}"-->
+      <!--(click)="showInput(meshCell)" [title]="permissions.pmsColor ? 'Click to Edit' : ''" #meshCell>-->
+      <!--<span [ngClass]="{'p-link': permissions.pmsColor, 'plateInput': permissions.pmsColor}">{{color.mesh}}</span>-->
+      <!--<input #meshInput-->
+      <!--class="meshInput"-->
+      <!--[hidden]="true"-->
+      <!--[value]="color.mesh"-->
+      <!--(keyup.enter)="meshInput.blur()"-->
+      <!--(keyup.esc)="hiddenInput(meshCell)"-->
+      <!--(blur)="updateMesh($event, meshInput, meshCell, color)"/>-->
+      <!--</td>-->
+      <td>
+        <div class="input-group">
+          <input [(ngModel)]='color.mesh'
+                 [ngModelOptions]="{standalone: true}"
+                 type="text"
+                 IntegerNumber maxlength="4"
+                 [disabled]="!permissions.pmsColor"
+                 [placeholder]="permissions.pmsColor ? 'Mesh' : ''"
+                 class="form-control text-center">
+          <span class="input-group-addon cursor"
+                *ngIf="permissions.pmsColor"
+                (click)="applyAllByProp(color.mesh, 'mesh')"
+                [title]="permissions.pmsColor ? 'Click to Apply All' : ''">
+              <i class="fa fa-exchange apply-all" aria-hidden="true"></i>
+            </span>
+        </div>
+      </td>
+      <td>
+        <div class="btn-group" data-toggle="buttons" role="group">
+          <button class="btn btn-default btn-xs"
+                  (click)="selectRadio(i, 0)"
+                  [ngClass]="{active: color.type === 0}"
+                  type="button">
+            P
+          </button>
+          <button class="btn btn-default btn-xs"
+                  (click)="selectRadio(i, 1)"
+                  [ngClass]="{active: color.type === 1}"
+                  type="button">
+            W
+          </button>
+          <button class="btn btn-default btn-xs"
+                  (click)="selectRadio(i, 2)"
+                  [ngClass]="{active: color.type === 2}"
+                  type="button">
+            HS
+          </button>
+          <button class="btn btn-default btn-xs"
+                  *ngIf="permissions.pmsColor"
+                  (click)="applyAllByProp(color.type, 'type')"
+                  [title]="permissions.pmsColor ? 'Click to Apply All' : ''"
+                  type="button">
+            <i class="fa fa-exchange cursor apply-all py-1" aria-hidden="true"></i>
+          </button>
+        </div>
+      </td>
+      <td>
+        <i class="fa fa-times cursor un-p-link py-1" aria-hidden="true"
+           *ngIf="permissions.pmsColor && !first" (click)="removeFilm(i)"
+           [title]="permissions.pmsColor ? 'Click to Remove' : ''"></i>
+      </td>
+    </tr>
+    <tr *ngIf="permissions.pmsColor && pmsColors.length < 16">
+      <td class="no-border">
+        <button class="btn btn-complete btn-cons full-width"
+                (click)="addFilm()">Add Seq
+        </button>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-complete"
+          (click)="onSubmitPmsColor()" *ngIf="tabs[1].isActive">
+    Save
+  </button>
+  <button class="btn btn-default"
+          (click)="activeModal.close(false)">
+    Close
+  </button>
+</div>

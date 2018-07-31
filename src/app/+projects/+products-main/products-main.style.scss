@@ -1,0 +1,20 @@
+products-main {
+  display: block;
+  padding: 0 5px;
+  .wrap-row {
+    word-break: break-all;
+  }
+
+  .ngx-datatable {
+    .datatable-body-row .datatable-body-cell-label:first-child {
+      width: 100% !important;
+      text-align: center!important;
+    }
+    .datatable-header .datatable-header-cell > div {
+      text-align: center;
+    }
+    .datatable-body-cell:last-child {
+      padding: 0 !important;
+    }
+  }
+}

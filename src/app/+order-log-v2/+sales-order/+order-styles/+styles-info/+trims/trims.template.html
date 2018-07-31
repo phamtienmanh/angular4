@@ -1,0 +1,30 @@
+<div class="px-2 py-2">
+  <!--<div class="px-2">-->
+  <!--<p class="title">{{orderIndex?.customerName}} # {{orderIndex?.customerPoId}}<span *ngIf="orderIndex?.retailerName"> /-->
+  <!--{{orderIndex?.retailerName}} #-->
+  <!--{{orderIndex?.retailerPoId}}</span></p>-->
+  <!--</div>-->
+  <div class="panel panel-transparent px-2 pb-2">
+    <button type="button" class="btn btn-complete btn-cons mb-2" (click)="selectTrims()" *ngIf="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled">Select
+      Trim(s)
+    </button>
+    <p *ngIf="styleIndex && styleIndex.noTrimRequired">Trims Not Required.</p>
+    <div [hidden]="!styleIndex || styleIndex.noTrimRequired">
+      <!--<perfect-scrollbar class="scroll-nav" [config]="{suppressScrollX: false}">-->
+      <ul class="nav nav-tabs" #trimNavTab [ngClass]="{'border-none': !tabs.length}">
+        <li class="text-center nav-item" *ngFor="let tab of tabs; let i=index"
+            [ngClass]="{'active': tab.isActive}"
+            (click)="switchTab($event, i)">
+          <a class="justify-center nav-link"
+             href="javascript:void(0)" aria-expanded="true">
+            <span>{{tab.name}}</span>
+          </a>
+        </li>
+      </ul>
+      <!--</perfect-scrollbar>-->
+      <!--</perfect-scrollbar>-->
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>
+

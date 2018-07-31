@@ -1,0 +1,189 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0">Shipping Documentation - Change Status</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()">
+    <!--<div formArrayName="listFolder">-->
+    <!--<div *ngFor="let folder of listFolder.controls; index as i; first as first; last as last"-->
+    <!--[formGroupName]="i">-->
+    <div class="row">
+      <div class="col-sm-5">
+        <div class="row flex py-1"
+             [ngClass]="{'required': true}">
+          <div class="col-sm-6 control-label text-right">
+            <label>Status</label>
+          </div>
+          <div class="col-sm-6"
+               [ngClass]="{'has-error':!frm.get('status').valid, 'disabled': isPageReadOnly}">
+            <ng-select [items]="statusData"
+                       [placeholder]="!isPageReadOnly ? 'Status' : ''"
+                       [searchable]="false" #statusSelect
+                       (focus)="onSelectFocused(statusSelect)"
+                       bindLabel="name"
+                       bindValue="id"
+                       formControlName="status"></ng-select>
+            <label class="error"
+                   *ngIf="frm.get('status').hasError('required') && !frm.get('status').pristine">
+              {{validationMessages['default'].required}}</label>
+          </div>
+        </div>
+        <ng-container *ngIf="+frm.get('status').value === taskStatus.COMPLETED
+              || +frm.get('status').value === taskStatus.RECEIVED
+              || +frm.get('status').value === taskStatus.REJECTED">
+          <div class="row flex py-1"
+               [ngClass]="{'required': frm.get('formRequires').value['folderSubmittedToAccountingCompletedOnUtc'].required}">
+            <div class="col-sm-6 control-label text-right">
+              <label>Completed Date</label>
+            </div>
+            <div class="col-sm-6"
+                 [ngClass]="{'has-error':!frm.get('folderSubmittedToAccountingCompletedOnUtc').valid}">
+              <my-date-picker [options]="folderSubmittedToAccountingCompletedOptions"
+                              #folderSubmittedToAccountingCompletedPicker
+                              formControlName="folderSubmittedToAccountingCompleted"
+                              (dateChanged)="onDateChangedBy($event, frm, 'folderSubmittedToAccountingCompletedOnUtc')"
+                              (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, folderSubmittedToAccountingCompletedPicker, frm.get('folderSubmittedToAccountingCompletedOnUtc'))"></my-date-picker>
+              <label class="error"
+                     *ngIf="frm.get('folderSubmittedToAccountingCompletedOnUtc').hasError('required') && !frm.get('folderSubmittedToAccountingCompletedOnUtc').pristine">
+                {{validationMessages['default'].required}}</label>
+              <label class="error"
+                     *ngIf="frm.get('folderSubmittedToAccountingCompletedOnUtc').hasError('maxDate') && !frm.get('folderSubmittedToAccountingCompletedOnUtc').pristine">
+                {{validationMessages['folderSubmittedToAccountingCompletedOnUtc'].maxLength}}</label>
+              <label class="error"
+                     *ngIf="frm.get('folderSubmittedToAccountingCompletedOnUtc').hasError('maxToday') && !frm.get('folderSubmittedToAccountingCompletedOnUtc').pristine">
+                {{validationMessages['default'].maxLength}}</label>
+            </div>
+          </div>
+          <ng-container *ngIf="+frm.get('status').value === taskStatus.RECEIVED">
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['folderSubmittedToAccountingReceivedOnUtc'].required}">
+              <div class="col-sm-6 control-label text-right">
+                <label>Received Date</label>
+              </div>
+              <div class="col-sm-6"
+                   [ngClass]="{'has-error':!frm.get('folderSubmittedToAccountingReceivedOnUtc').valid}">
+                <my-date-picker [options]="folderSubmittedToAccountingReceivedOptions"
+                                #folderSubmittedToAccountingReceivedPicker
+                                formControlName="folderSubmittedToAccountingReceived"
+                                (dateChanged)="onDateChangedBy($event, frm, 'folderSubmittedToAccountingReceivedOnUtc')"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, folderSubmittedToAccountingReceivedPicker, frm.get('folderSubmittedToAccountingReceivedOnUtc'))"></my-date-picker>
+                <label class="error"
+                       *ngIf="frm.get('folderSubmittedToAccountingReceivedOnUtc').hasError('required') && !frm.get('folderSubmittedToAccountingReceivedOnUtc').pristine">
+                  {{validationMessages['default'].required}}</label>
+                <label class="error"
+                       *ngIf="frm.get('folderSubmittedToAccountingReceivedOnUtc').hasError('minDate') && !frm.get('folderSubmittedToAccountingReceivedOnUtc').pristine">
+                  {{validationMessages['folderSubmittedToAccountingReceivedOnUtc'].maxLength}}</label>
+                <label class="error"
+                       *ngIf="frm.get('folderSubmittedToAccountingReceivedOnUtc').hasError('maxToday') && !frm.get('folderSubmittedToAccountingReceivedOnUtc').pristine">
+                  {{validationMessages['default'].maxLength}}</label>
+              </div>
+            </div>
+          </ng-container>
+          <ng-container *ngIf="+frm.get('status').value === taskStatus.REJECTED">
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['folderSubmittedToAccountingRejectedOnUtc'].required}">
+              <div class="col-sm-6 control-label text-right">
+                <label>Rejected Date</label>
+              </div>
+              <div class="col-sm-6"
+                   [ngClass]="{'has-error':!frm.get('folderSubmittedToAccountingRejectedOnUtc').valid}">
+                <my-date-picker [options]="folderSubmittedToAccountingRejectedOptions"
+                                #folderSubmittedToAccountingRejectedPicker
+                                formControlName="folderSubmittedToAccountingRejected"
+                                (dateChanged)="onDateChangedBy($event, frm, 'folderSubmittedToAccountingRejectedOnUtc')"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, folderSubmittedToAccountingRejectedPicker, frm.get('folderSubmittedToAccountingRejectedOnUtc'))"></my-date-picker>
+                <label class="error"
+                       *ngIf="frm.get('folderSubmittedToAccountingRejectedOnUtc').hasError('required') && !frm.get('folderSubmittedToAccountingRejectedOnUtc').pristine">
+                  {{validationMessages['default'].required}}</label>
+                <label class="error"
+                       *ngIf="frm.get('folderSubmittedToAccountingRejectedOnUtc').hasError('maxToday') && !frm.get('folderSubmittedToAccountingRejectedOnUtc').pristine">
+                  {{validationMessages['default'].maxLength}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['folderSubmittedToAccountingRejectOwnerId'].required}">
+              <div class="col-sm-6 control-label text-right">
+                <label>Reject Owner</label>
+              </div>
+              <div class="col-sm-6"
+                   [ngClass]="{'has-error':!frm.get('folderSubmittedToAccountingRejectOwnerId').valid, 'disabled': isPageReadOnly}">
+                <ng-select [items]="rejectOwnerData" #rejectOwnerSelect
+                           [placeholder]="!isPageReadOnly ? 'Reject Owner' : ''"
+                           [searchable]="false"
+                           (focus)="onSelectFocused(rejectOwnerSelect)"
+                           (add)="onSelectItem($event, frm, 'fullName', 'folderSubmittedToAccountingRejectOwnerName')"
+                           (clear)="frm.get('folderSubmittedToAccountingRejectOwnerName').patchValue('')"
+                           bindLabel="fullName"
+                           bindValue="id"
+                           formControlName="folderSubmittedToAccountingRejectOwnerId"></ng-select>
+                <label class="error"
+                       *ngIf="frm.get('folderSubmittedToAccountingRejectOwnerId').hasError('required') && !frm.get('folderSubmittedToAccountingRejectOwnerId').pristine">
+                  {{validationMessages['default'].required}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['folderSubmittedToAccountingComments'].required}">
+              <div class="col-6 control-label text-right">
+                <label class="nowrap">Comments</label>
+              </div>
+              <div class="col-6 my-textarea"
+                   [ngClass]="{'has-error':!frm.get('folderSubmittedToAccountingComments').valid}">
+                    <textarea formControlName='folderSubmittedToAccountingComments'
+                              type="text"
+                              [placeholder]="'Comments'"
+                              class="form-control"></textarea>
+                <label class="error"
+                       *ngIf="frm.get('folderSubmittedToAccountingComments').hasError('required') && !frm.get('folderSubmittedToAccountingComments').pristine">
+                  {{validationMessages['folderSubmittedToAccountingComments'].required}}</label>
+              </div>
+            </div>
+          </ng-container>
+        </ng-container>
+      </div>
+      <ng-container *ngIf="frm.get('status').value !== null && frm.get('status').value !== undefined">
+        <div class="col-sm-7">
+          <div class="row flex py-1" *ngIf="styleList && styleList.length">
+            <p class="mb-0 bold">Apply to these styles:</p>
+          </div>
+          <div class="row flex py-1" *ngFor="let style of styleList; index as ii">
+            <div class="checkbox">
+              <input type="checkbox" [id]="i + '-' + ii + '-style'"
+                     [disabled]="style.orderDetailId === orderDetailId"
+                     [checked]="activeStylesChanges(frm, style.orderDetailId)"
+                     (change)="onSelectStyle(frm, style.orderDetailId)">
+              <label [for]="i + '-' + ii + '-style'">
+                {{getLabelString(style.styleInfo ? style.styleInfo : style)}}
+              </label>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+    <!--<div class="row flex justify-content-end pb-2 border-bottom-ccc mx-1 my-2">-->
+    <!--<button type="button" class="btn btn-danger" (click)="deleteFolder(i)"-->
+    <!--*ngIf="listFolder.controls.length > 1">-->
+    <!--Delete This Folder-->
+    <!--</button>-->
+    <!--</div>-->
+    <!--</div>-->
+    <!--</div>-->
+    <!--<div class="row flex justify-content-end mx-1">-->
+    <!--<button class="btn btn-complete" type="button" (click)="addFolder()">-->
+    <!--+ Add a Folder-->
+    <!--</button>-->
+    <!--</div>-->
+  </form>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-complete"
+          (click)="onSubmitForm()">
+    Save
+  </button>
+  <button class="btn btn-default"
+          (click)="activeModal.dismiss()">
+    Cancel
+  </button>
+</div>
+

@@ -1,0 +1,2165 @@
+<div class="row py-2">
+  <div class="col-12" *ngIf="!isPageReadOnly">
+    <button type="button" class="btn btn-complete btn-small" (click)="openNewProductPopup()">New Product</button>
+  </div>
+  <div class="col-12 py-2" *ngIf="projectPriorityData.data && projectPriorityData.data.length; else noProducts">
+    <ng-container *ngTemplateOutlet="pagination"></ng-container>
+    <span class="cancel-date">{{inDcStoreDateOnUtc ? ('Cancel Date: ' + (inDcStoreDateOnUtc | amDateFormat: 'MM/DD/YYYY')) : ''}}</span>
+    <ng-container *ngIf="isVerticalLayout; else horizontalTable">
+      <div id="verticalTable">
+        <div class="table table-sm vertical-table" id="header"
+             [ngStyle]="myConfigStyleHeader"></div>
+        <perfect-scrollbar [config]="{suppressScrollX: false}" (psScrollX)="onScrollX($event)">
+          <div id="table">
+            <table name="vertical-table" class="table table-sm vertical-table"
+                   [ngStyle]="myConfigStyle">
+              <thead class="table-header">
+              <tr>
+                <th *ngIf="isShowAllColumns || columns.ProductDescription"
+                    [attr.rowspan]="2"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].description.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].description.width">
+                  Description
+                </th>
+                <th *ngIf="isShowAllColumns || columns.ProductVisual"
+                    [attr.rowspan]="2"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].visualImage.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].visualImage.width">
+                  VISUAL
+                </th>
+                <th *ngIf="isShowAllColumns || columns.ProductCsrCustPoRetailerPo"
+                    [attr.rowspan]="2"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].csr.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].csr.width">
+                  CSR<br/>Cust / PO #<br/>Retailer / PO #
+                </th>
+                <th *ngIf="isShowAllColumns || columns.ProductStyleNameColor"
+                    [attr.rowspan]="2"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].styleInfo.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].styleInfo.width">
+                  Style Name / Color
+                </th>
+                <th *ngIf="isShowAllColumns || columns.ProductComments"
+                    [attr.rowspan]="2"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].comments.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].comments.width">
+                  Comments
+                </th>
+                <th *ngIf="isShowAllColumns || columns.ProductCosting"
+                    [attr.rowspan]="2"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].costing.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].costing.width">
+                  Costing
+                </th>
+                <th *ngIf="isShowAllColumns || columns.ProductRegions"
+                    [attr.rowspan]="2"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].regions.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].regions.width">
+                  Regions
+                </th>
+                <th *ngIf="isShowAllColumns || columns.ProductFactory"
+                    [attr.rowspan]="2"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].factory.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].factory.width">
+                  Factory
+                </th>
+                <th *ngIf="isShowAllColumns || columns.ProductTscPresentationDate"
+                    [attr.rowspan]="2"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].tscPresentationDate.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].tscPresentationDate.width">
+                  TSC Presentation Date
+                </th>
+                <th *ngIf="isShowAllColumns || columns.ProductTscConceptBoardsForSelection"
+                    [attr.rowspan]="2"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].tscConceptBoards.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].tscConceptBoards.width">
+                  TSC Concept Boards for selection
+                </th>
+                <th *ngIf="isShowAllColumns || columns.ProductLicensorSelectionWoConceptApproval"
+                    [attr.rowspan]="2"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].licensorSelection.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].licensorSelection.width">
+                  Retailer Selection (w/o concept approval)
+                </th>
+                <ng-container *ngIf="isShowAllColumns || columns.ProductConceptApprovedByLicensor
+                                                      || columns.ProductPackagingApprovedByLicensor">
+                  <th class="background-ccc" [attr.colspan]="isShowAllColumns ? 2 : (+ columns.ProductConceptApprovedByLicensor
+                                                              + columns.ProductPackagingApprovedByLicensor)"
+                      [style.minWidth.px]="+ columns.ProductConceptApprovedByLicensor * myStyleColumns[myConfigStyle['font-size']].conceptApproved.width
+                       + columns.ProductPackagingApprovedByLicensor * myStyleColumns[myConfigStyle['font-size']].packagingApproved.width"
+                      [style.maxWidth.px]="+ columns.ProductConceptApprovedByLicensor * myStyleColumns[myConfigStyle['font-size']].conceptApproved.width
+                       + columns.ProductPackagingApprovedByLicensor * myStyleColumns[myConfigStyle['font-size']].packagingApproved.width">
+                    Licensing Approval
+                  </th>
+                </ng-container>
+                <th *ngIf="isShowAllColumns || columns.ProductPhysSampleExFactoryDatePp"
+                    [attr.rowspan]="2"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDatePp.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDatePp.width">
+                  Phys. Sample Ex-Factory Date (PP)
+                </th>
+                <th *ngIf="isShowAllColumns || columns.ProductPhysSampleExFactoryDatePpToTestingFacility"
+                    [attr.rowspan]="2"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDatePpToTestingFacility.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDatePpToTestingFacility.width">
+                  Phys. Sample Ex-Factory Date (PP To Testing Facility)
+                </th>
+                <th *ngIf="isShowAllColumns || columns.ProductPhysSampleDeliveredToTestingFacilityPp"
+                    [attr.rowspan]="2"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleDeliveredToTestingFacilityPp.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleDeliveredToTestingFacilityPp.width">
+                  Phys. Sample Delivered to Testing Facility (PP)
+                </th>
+                <th *ngIf="isShowAllColumns || columns.ProductPhysSampleActualDateDeliveredPp"
+                    [attr.rowspan]="2"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleActualDateDeliveredPp.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleActualDateDeliveredPp.width">
+                  Phys. Sample Actual Date Delivered (PP)
+                </th>
+                <th *ngIf="isShowAllColumns || columns.ProductTechDesignReviewDatePp"
+                    [attr.rowspan]="2"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].techDesignReviewDatePp.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].techDesignReviewDatePp.width">
+                  Tech Design Review Date (PP)
+                </th>
+                <th *ngIf="isShowAllColumns || columns.ProductQcSampleDate"
+                    [attr.rowspan]="2"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].qcSampleShipDate.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].qcSampleShipDate.width">
+                  QC Sample / Ship Date (PP)
+                </th>
+                <!--<th *ngIf="isShowAllColumns || columns.ProductSamplesDeliveredToCustomerPp"-->
+                    <!--[attr.rowspan]="2"-->
+                    <!--[style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].samplesDeliveredToCustomer.width"-->
+                    <!--[style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].samplesDeliveredToCustomer.width">-->
+                  <!--Samples delivered to Customer (PP)-->
+                <!--</th>-->
+                <th *ngIf="isShowAllColumns || columns.ProductPhysSampleApprovedByTestingFacilityPp"
+                    [attr.rowspan]="2"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleApprovedByTestingFacilityPp.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleApprovedByTestingFacilityPp.width">
+                  Phys. Sample Approved By Testing Facility (PP)
+                </th>
+                <th *ngIf="isShowAllColumns || columns.ProductFinalApprovalPp"
+                    [attr.rowspan]="2"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].finalApproval.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].finalApproval.width">
+                  Final Approval (PP)
+                </th>
+                <!--<th *ngIf="isShowAllColumns || columns.ProductBulkUpload"-->
+                    <!--[attr.rowspan]="2"-->
+                    <!--[style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].bulkUpload.width"-->
+                    <!--[style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].bulkUpload.width">-->
+                  <!--Bulk Upload-->
+                <!--</th>-->
+                <!--<th *ngIf="isShowAllColumns || columns.ProductCustomerPoReceiveDate"-->
+                    <!--[attr.rowspan]="2"-->
+                    <!--[style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].customerPoReceiveDate.width"-->
+                    <!--[style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].customerPoReceiveDate.width">-->
+                  <!--Customer PO Receive Date-->
+                <!--</th>-->
+                <th *ngIf="isShowAllColumns || columns.ProductProductionDue"
+                    [attr.rowspan]="2"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].productionDue.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].productionDue.width">
+                  Production Due
+                </th>
+                <th *ngIf="isShowAllColumns || columns.ProductXFactoryDate"
+                    [attr.rowspan]="2"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].xFactoryDate.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].xFactoryDate.width">
+                  x-Factory Date
+                </th>
+                <!--<th *ngIf="isShowAllColumns || columns.ProductArrival3Pl"-->
+                    <!--[attr.rowspan]="2"-->
+                    <!--[style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].arrival3Pl.width"-->
+                    <!--[style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].arrival3Pl.width">-->
+                  <!--Arrival @ 3PL-->
+                <!--</th>-->
+                <th *ngIf="isShowAllColumns || columns.ProductReadyToShip3Pl"
+                    [attr.rowspan]="2"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].readyToShip3Pl.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].readyToShip3Pl.width">
+                  Ready To Ship @ 3PL
+                </th>
+                <th *ngIf="isShowAllColumns || columns.ProductInDcStoreDate"
+                    [attr.rowspan]="2"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].inDcStoreDate.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].inDcStoreDate.width">
+                  In DC/Store Date
+                </th>
+              </tr>
+              <tr>
+                <th *ngIf="isShowAllColumns || columns.ProductConceptApprovedByLicensor"
+                    [attr.rowspan]="1"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].conceptApproved.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].conceptApproved.width">
+                  Concept Approved by Licensor
+                </th>
+                <th *ngIf="isShowAllColumns || columns.ProductPackagingApprovedByLicensor"
+                    [attr.rowspan]="1"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].packagingApproved.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].packagingApproved.width">
+                  Packaging approved by Licensor
+                </th>
+              </tr>
+              </thead>
+              <tbody>
+              <ng-container *ngFor="let row of projectPriorityData.data; trackBy: trackByFn; let i = index; let first = first">
+                <ng-container *ngFor="let print of row.printLocations; trackBy: trackByFn; let ii = index; let firstPrint = first">
+                  <tr [ngClass]="{'start-order': !first && firstPrint}">
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ProductDescription)"
+                        [attr.rowspan]="(row.printLocations.length > 0 ? row.printLocations.length : 1) + 2"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].description.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].description.width">
+                      <div class="seperate-child px-1 not-min-height" (click)="openEditProductPopup($event, row, i, 'Description')"
+                           [ngClass]="{'col-readonly': !canModifyCols('Description')}">
+                        <p class="center">{{row.description}}</p>
+                      </div>
+                    </td>
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ProductVisual)"
+                        [attr.rowspan]="(row.printLocations.length > 0 ? row.printLocations.length : 1) + 2"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].visualImage.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].visualImage.width">
+                      <div class="seperate-child" (click)="openEditProductPopup($event, row, i, 'VISUAL')"
+                           [ngClass]="{'col-readonly': !canModifyCols('VISUAL')}">
+                        <img *ngIf="row.visualImageUrl"
+                             [src]="row.visualImageUrl" class="img-thumbnail-none-wh my-2"
+                             height="auto" width="70" imgZoomClick>
+                      </div>
+                    </td>
+
+                    <ng-container *ngTemplateOutlet="csrCustPoRetailerPo;
+                       context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ProductStyleNameColor)"
+                        [attr.rowspan]="(row.printLocations.length > 0 ? row.printLocations.length : 1) + 2"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].styleInfo.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].styleInfo.width">
+                      <div class="seperate-child px-1 p-t-5 not-min-height"
+                           (click)="goToStyle($event, row, i, 'Style Name / Color')"
+                           [ngClass]="{'col-readonly': !canModifyCols('Style Name / Color') && !canViewPages('Orders')}">
+                        <ng-container *ngIf="row.styleInfo.orderDetailId">
+                          <p class="p-link mt-0">{{row.styleInfo.styleName}}</p>
+                          <p class="p-link">{{row.styleInfo.partnerStyleName}}</p>
+                          <p class="p-link mt-0">{{row.styleInfo.colorName}}</p>
+                          <p class="p-link">{{row.styleInfo.units ? (row.styleInfo.units + ' units') : ''}}</p>
+                        </ng-container>
+                      </div>
+                    </td>
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ProductComments)"
+                        [attr.rowspan]="(row.printLocations.length > 0 ? row.printLocations.length : 1) + 2"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].comments.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].comments.width">
+                      <div class="seperate-child not-min-height" (click)="openEditProductPopup($event, row, i, 'Comments')"
+                           [ngClass]="{'col-readonly': !canModifyCols('Comments')}">
+                        <p class="center">{{row.comments}}</p>
+                      </div>
+                    </td>
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ProductCosting)"
+                        [attr.rowspan]="(row.printLocations.length > 0 ? row.printLocations.length : 1) + 2"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].costing.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].costing.width">
+                      <div class="seperate-child"
+                           [ngClass]="{'col-readonly': !canModifyCols('Costing')}"
+                           (click)="onChangeCosting(row, row.costing)">
+                        <column-info [columnInfoObj]="row.costing">
+                          <p *ngIf="row.costing.isUploaded">
+                            <i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"
+                               (click)="openUploader(row, columnType.Costing, 'Costing')"></i>
+                          </p>
+                        </column-info>
+                      </div>
+                    </td>
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ProductRegions)"
+                        class="relative"
+                        [attr.rowspan]="(row.printLocations.length > 0 ? row.printLocations.length : 1) + 2"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].regions.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].regions.width">
+                      <div class="seperate-child not-min-height"
+                           [ngClass]="{'col-readonly': !canModifyCols('Regions')}">
+                        <p>{{row.regions ? row.regions.join(', ') : ''}}</p>
+                      </div>
+                    </td>
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ProductFactory)"
+                        [attr.rowspan]="(row.printLocations.length > 0 ? row.printLocations.length : 1) + 2"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].factory.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].factory.width">
+                      <div class="seperate-child px-1 not-min-height" (click)="openEditProductPopup($event, row, i, 'Factory')"
+                           [ngClass]="{'col-readonly': !canModifyCols('Factory')}">
+                        <p class="center">{{row.factoryName}}</p>
+                      </div>
+                    </td>
+
+                    <ng-container *ngTemplateOutlet="tscPresentation;
+                       context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+                    <ng-container *ngTemplateOutlet="tscConceptBoards;
+                       context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+                    <ng-container *ngTemplateOutlet="licensorSelection;
+                       context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+
+                    <ng-container *ngTemplateOutlet="licensingApproval;
+                       context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+
+                    <ng-container *ngTemplateOutlet="physSampleExFactoryPp;
+                       context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+                    <ng-container *ngTemplateOutlet="physSampleExFactoryPpToTesting;
+                       context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+                    <ng-container *ngTemplateOutlet="physSampleDelivered;
+                       context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+                    <ng-container *ngTemplateOutlet="physSampleActual;
+                       context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+                    <ng-container *ngTemplateOutlet="techDesign;
+                       context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+                    <ng-container *ngTemplateOutlet="qcSampleDate;
+                       context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+                    <!--<ng-container *ngTemplateOutlet="samplesDelivered;-->
+                       <!--context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>-->
+
+                    <ng-container *ngIf="firstPrint; else finalApprovalFull">
+                      <ng-container *ngTemplateOutlet="physSampleApproved;
+                        context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+                      <ng-container *ngTemplateOutlet="finalApproval;
+                       context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+                    </ng-container>
+
+                    <ng-template #finalApprovalFull>
+                      <ng-container *ngTemplateOutlet="physSampleApproved;
+                        context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+                      <ng-container *ngTemplateOutlet="finalApproval;
+                         context: {isShowStatus: true, isShowLeadTime: true, isShowStatusDate: true}"></ng-container>
+                    </ng-template>
+
+                    <!--<ng-container *ngTemplateOutlet="bulkUpload;-->
+                       <!--context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>-->
+                    <!--<ng-container *ngTemplateOutlet="customerPoReceiveDate;-->
+                       <!--context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>-->
+                    <ng-container *ngTemplateOutlet="productionDue;
+                       context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+                    <ng-container *ngTemplateOutlet="xFactoryDate;
+                       context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+                    <!--<ng-container *ngTemplateOutlet="arrival3Pl;-->
+                       <!--context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>-->
+                    <ng-container *ngTemplateOutlet="readyToShip;
+                       context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+
+                    <td *ngIf="first && firstPrint && (isShowAllColumns || columns.ProductInDcStoreDate)"
+                        class="relative"
+                        [attr.rowspan]="projectPriorityData.totalPrintLocationsVertical"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].inDcStoreDate.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].inDcStoreDate.width">
+                      <ng-container
+                        *ngIf="!row.inDcStoreDateOnUtc || row.inDcStoreDateOnUtc.isDisabled; then blackBgBlock28 else infoBgBlock28"></ng-container>
+                      <ng-template #blackBgBlock28>
+                        <ng-container *ngTemplateOutlet="blackCol"></ng-container>
+                      </ng-template>
+                      <ng-template #infoBgBlock28>
+                        <div class="seperate-child col-readonly not-min-height">
+                          <p class="full-width m-t-30 py-1" [ngClass]="{'stt-red': isLessThanTodayDate(row.inDcStoreDateOnUtc)}">
+                            {{row.inDcStoreDateOnUtc ? (row.inDcStoreDateOnUtc | amFromUtc | amLocal | amDateFormat:
+                            'MM/DD/YY') : ''}}
+                          </p>
+                        </div>
+                      </ng-template>
+                    </td>
+                  </tr>
+
+                  <tr *ngIf="firstPrint">
+                    <ng-container *ngTemplateOutlet="csrCustPoRetailerPo;
+                       context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>
+                    <ng-container *ngTemplateOutlet="tscPresentation;
+                       context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>
+                    <ng-container *ngTemplateOutlet="tscConceptBoards;
+                       context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>
+                    <ng-container *ngTemplateOutlet="licensorSelection;
+                       context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>
+
+                    <ng-container *ngIf="firstPrint &&
+                                         (+ columns.ProductConceptApprovedByLicensor
+                                          + columns.ProductPackagingApprovedByLicensor || isShowAllColumns)">
+                      <td [attr.colspan]="isShowAllColumns ? 2 : (+ columns.ProductConceptApprovedByLicensor
+                                          + columns.ProductPackagingApprovedByLicensor)"
+                          [style.minWidth.px]="+ columns.ProductConceptApprovedByLicensor * myStyleColumns[myConfigStyle['font-size']].conceptApproved.width
+                       + columns.ProductPackagingApprovedByLicensor * myStyleColumns[myConfigStyle['font-size']].packagingApproved.width"
+                          [style.maxWidth.px]="+ columns.ProductConceptApprovedByLicensor * myStyleColumns[myConfigStyle['font-size']].conceptApproved.width
+                       + columns.ProductPackagingApprovedByLicensor * myStyleColumns[myConfigStyle['font-size']].packagingApproved.width"
+                          [style.height.px]="40">
+                        <div *ngIf="(!row.conceptApprovedByLicensor || row.conceptApprovedByLicensor.isDisabled)
+                                 && (!row.packagingApproved || row.packagingApproved.isDisabled); then blackBgBlock98 else infoBgBlock98"></div>
+                        <ng-template #blackBgBlock98>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock98>
+                          <div class="lead-time-child"
+                               [ngClass]="{'col-readonly': !columnCanModify([
+                                 'Concept Approved by Licensor',
+                                 'Packaging approved by Licensor'
+                               ])}"
+                               (click)="onChangeLeadTime(row, row.licensingApproval, 'Licensing Approval',
+                               [
+                                'Concept Approved by Licensor',
+                                'Packaging approved by Licensor'
+                               ])">
+                            <ng-container *ngTemplateOutlet="leadTimeRevise; context: {detail: row.licensingApproval}"></ng-container>
+                          </div>
+                        </ng-template>
+                      </td>
+                    </ng-container>
+
+                    <ng-container *ngIf="firstPrint &&
+                                         (+ columns.ProductPhysSampleExFactoryDatePp
+                                          + columns.ProductPhysSampleExFactoryDatePpToTestingFacility || isShowAllColumns)">
+                      <td [attr.colspan]="isShowAllColumns ? 2 : (+ columns.ProductPhysSampleExFactoryDatePp
+                                          + columns.ProductPhysSampleExFactoryDatePpToTestingFacility)"
+                          [style.minWidth.px]="+ columns.ProductPhysSampleExFactoryDatePp * myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDatePp.width
+                       + columns.ProductPhysSampleExFactoryDatePpToTestingFacility * myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDatePpToTestingFacility.width"
+                          [style.maxWidth.px]="+ columns.ProductPhysSampleExFactoryDatePp * myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDatePp.width
+                       + columns.ProductPhysSampleExFactoryDatePpToTestingFacility * myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDatePpToTestingFacility.width"
+                          [style.height.px]="40">
+                        <div *ngIf="(!row.physSampleExFactoryDatePp || row.physSampleExFactoryDatePp.isDisabled)
+                                 && (!row.physSampleExFactoryDatePpToTestingFacility || row.physSampleExFactoryDatePpToTestingFacility.isDisabled); then blackBgBlock99 else infoBgBlock99"></div>
+                        <ng-template #blackBgBlock99>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock99>
+                          <div class="lead-time-child"
+                               [ngClass]="{'col-readonly': !columnCanModify([
+                                 'Phys. Sample Ex-Factory Date (PP)',
+                                 'Phys. Sample Ex-Factory Date (PP To Testing Facility)'
+                               ])}"
+                               (click)="onChangeLeadTime(row, row.physSampleExFactoryDatePpEta, 'Lead Time',
+                               [
+                                'Phys. Sample Ex-Factory Date (PP)',
+                                'Phys. Sample Ex-Factory Date (PP To Testing Facility)'
+                               ])">
+                            <ng-container *ngTemplateOutlet="leadTimeRevise; context: {detail: row.physSampleExFactoryDatePpEta}"></ng-container>
+                          </div>
+                        </ng-template>
+                      </td>
+                    </ng-container>
+
+                    <ng-container *ngIf="firstPrint &&
+                                         (+ columns.ProductPhysSampleDeliveredToTestingFacilityPp
+                                          + columns.ProductPhysSampleActualDateDeliveredPp || isShowAllColumns)">
+                      <td [attr.colspan]="isShowAllColumns ? 2 : (+ columns.ProductPhysSampleDeliveredToTestingFacilityPp
+                                          + columns.ProductPhysSampleActualDateDeliveredPp)"
+                          [style.minWidth.px]="+ columns.ProductPhysSampleDeliveredToTestingFacilityPp * myStyleColumns[myConfigStyle['font-size']].physSampleDeliveredToTestingFacilityPp.width
+                       + columns.ProductPhysSampleActualDateDeliveredPp * myStyleColumns[myConfigStyle['font-size']].physSampleActualDateDeliveredPp.width"
+                          [style.maxWidth.px]="+ columns.ProductPhysSampleDeliveredToTestingFacilityPp * myStyleColumns[myConfigStyle['font-size']].physSampleDeliveredToTestingFacilityPp.width
+                       + columns.ProductPhysSampleActualDateDeliveredPp * myStyleColumns[myConfigStyle['font-size']].physSampleActualDateDeliveredPp.width"
+                          [style.height.px]="40">
+                        <div *ngIf="(!row.physSampleDeliveredToTestingFacilityPp || row.physSampleDeliveredToTestingFacilityPp.isDisabled)
+                                 && (!row.physSampleActualDateDeliveredPp || row.physSampleActualDateDeliveredPp.isDisabled); then blackBgBlock100 else infoBgBlock100"></div>
+                        <ng-template #blackBgBlock100>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock100>
+                          <div class="lead-time-child"
+                               [ngClass]="{'col-readonly': !columnCanModify([
+                                 'Phys. Sample Delivered to Testing Facility (PP)',
+                                 'Phys. Sample Actual Date Delivered (PP)'
+                               ])}"
+                               (click)="onChangeLeadTime(row, row.physSampleDeliveredPpEta, 'Lead Time',
+                               [
+                                'Phys. Sample Delivered to Testing Facility (PP)',
+                                'Phys. Sample Actual Date Delivered (PP)'
+                               ])">
+                            <ng-container *ngTemplateOutlet="leadTimeRevise; context: {detail: row.physSampleDeliveredPpEta}"></ng-container>
+                          </div>
+                        </ng-template>
+                      </td>
+                    </ng-container>
+
+                    <ng-container *ngTemplateOutlet="techDesign;
+                       context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>
+                    <ng-container *ngTemplateOutlet="qcSampleDate;
+                       context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>
+                    <!--<ng-container *ngTemplateOutlet="samplesDelivered;-->
+                       <!--context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>-->
+
+                    <ng-container *ngIf="firstPrint &&
+                                         (+ columns.ProductPhysSampleDeliveredToTestingFacilityPp
+                                          + columns.ProductFinalApprovalPp || isShowAllColumns)">
+                      <td [attr.colspan]="isShowAllColumns ? 2 : (+ columns.ProductPhysSampleDeliveredToTestingFacilityPp
+                                          + columns.ProductFinalApprovalPp)"
+                          [style.minWidth.px]="+ columns.ProductPhysSampleDeliveredToTestingFacilityPp * myStyleColumns[myConfigStyle['font-size']].physSampleApprovedByTestingFacilityPp.width
+                       + columns.ProductFinalApprovalPp * myStyleColumns[myConfigStyle['font-size']].finalApproval.width"
+                          [style.maxWidth.px]="+ columns.ProductPhysSampleDeliveredToTestingFacilityPp * myStyleColumns[myConfigStyle['font-size']].physSampleApprovedByTestingFacilityPp.width
+                       + columns.ProductFinalApprovalPp * myStyleColumns[myConfigStyle['font-size']].finalApproval.width"
+                          [style.height.px]="40">
+                        <div *ngIf="(!row.physSampleApprovedByTestingFacilityPp || row.physSampleApprovedByTestingFacilityPp.isDisabled)
+                                 && (!row.finalApproval || row.finalApproval.isDisabled); then blackBgBlock101 else infoBgBlock101"></div>
+                        <ng-template #blackBgBlock101>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock101>
+                          <div class="lead-time-child"
+                               [ngClass]="{'col-readonly': !columnCanModify([
+                                 'Phys. Sample Approved By Testing Facility (PP)',
+                                 'Final Approval (PP)'
+                               ])}"
+                               (click)="onChangeLeadTime(row, row.physSampleApprovedPpEta, 'Lead Time',
+                               [
+                                'Phys. Sample Approved By Testing Facility (PP)',
+                                'Final Approval (PP)'
+                               ])">
+                            <ng-container *ngTemplateOutlet="leadTimeRevise; context: {detail: row.physSampleApprovedPpEta}"></ng-container>
+                          </div>
+                        </ng-template>
+                      </td>
+                    </ng-container>
+
+                    <!--<ng-container *ngTemplateOutlet="bulkUpload;-->
+                       <!--context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>-->
+                    <!--<ng-container *ngTemplateOutlet="customerPoReceiveDate;-->
+                       <!--context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>-->
+                    <ng-container *ngTemplateOutlet="productionDue;
+                       context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>
+                    <ng-container *ngTemplateOutlet="xFactoryDate;
+                       context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>
+                    <!--<ng-container *ngTemplateOutlet="arrival3Pl;-->
+                       <!--context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>-->
+                    <ng-container *ngTemplateOutlet="readyToShip;
+                       context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>
+                  </tr>
+
+                  <tr *ngIf="firstPrint">
+                    <ng-container *ngTemplateOutlet="csrCustPoRetailerPo; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                    <ng-container *ngTemplateOutlet="tscPresentation; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                    <ng-container *ngTemplateOutlet="tscConceptBoards; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                    <ng-container *ngTemplateOutlet="licensorSelection; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+
+                    <ng-container *ngTemplateOutlet="licensingApproval; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+
+                    <ng-container *ngTemplateOutlet="physSampleExFactoryPp; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                    <ng-container *ngTemplateOutlet="physSampleExFactoryPpToTesting; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                    <ng-container *ngTemplateOutlet="physSampleDelivered; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                    <ng-container *ngTemplateOutlet="physSampleActual; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                    <ng-container *ngTemplateOutlet="techDesign; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                    <ng-container *ngTemplateOutlet="qcSampleDate; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                    <!--<ng-container *ngTemplateOutlet="samplesDelivered; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>-->
+
+                    <ng-container *ngTemplateOutlet="physSampleApproved; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                    <ng-container *ngTemplateOutlet="finalApproval; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+
+                    <!--<ng-container *ngTemplateOutlet="bulkUpload; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>-->
+                    <!--<ng-container *ngTemplateOutlet="customerPoReceiveDate; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>-->
+                    <ng-container *ngTemplateOutlet="productionDue; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                    <ng-container *ngTemplateOutlet="xFactoryDate; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                    <!--<ng-container *ngTemplateOutlet="arrival3Pl; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>-->
+                    <ng-container *ngTemplateOutlet="readyToShip; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                  </tr>
+
+                  <ng-template #csrCustPoRetailerPo let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ProductCsrCustPoRetailerPo)"
+                        [attr.rowSpan]="(!isShowStatusDate) ? 1 : (row.isCollapse ? 1 : row.printLocations.length)"
+                        [style.border-bottom]="(isShowStatus && !isShowLeadTime && !isShowStatusDate) ? 'none' : ((!isShowStatus && isShowLeadTime && !isShowStatusDate) ? '1px solid #fff': '1px solid #999')"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].csr.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].csr.width">
+                      <div class="seperate-child px-1 not-min-height" (click)="goToOrderInfo($event, row, i, 'CSR Cust / PO # Retailer / PO #')"
+                           style="min-height: min-content !important;"
+                           [id]="'csrCustPoRetailerPo-' + row.projectId + '-' + row.productId"
+                           (mouseenter)="onHover($event, true, true, 'csrCustPoRetailerPo', row.projectId, row.productId)"
+                           (mouseleave)="onHover($event, false, true, 'csrCustPoRetailerPo', row.projectId, row.productId)"
+                           [ngClass]="{'col-readonly': !canModifyCols('CSR Cust / PO # Retailer / PO #') || row.isCancelled}">
+                        <ng-container *ngIf="row.orderLogInfo.orderId">
+                          <ng-container *ngIf="isShowStatus">
+                            <p class="center p-link nowrap">{{row.orderLogInfo.csr}}</p>
+                          </ng-container>
+                          <ng-container *ngIf="isShowLeadTime || row.isCollapse">
+                            <p class="center p-link">{{row.orderLogInfo.customerName}}
+                              {{row.orderLogInfo.customerName && row.orderLogInfo.customerPoId ? ' # ' : ''}}
+                              {{row.orderLogInfo.customerPoId}}</p>
+                          </ng-container>
+                          <ng-container *ngIf="isShowStatusDate || row.isCollapse">
+                            <p class="center p-link">{{row.orderLogInfo.retailerName}}
+                              {{row.orderLogInfo.retailerName && row.orderLogInfo.retailerPoId ? ' # ' : ''}}
+                              {{row.orderLogInfo.retailerPoId}}</p>
+                            <p class="center p-link" [ngPlural]="row.orderLogInfo.fulfillmentType">
+                              <ng-template ngPluralCase="0">?</ng-template>
+                              <ng-template ngPluralCase="1">In Fulfillment</ng-template>
+                              <ng-template ngPluralCase="2">In DC</ng-template>
+                              <ng-template ngPluralCase="3">Drop Ship</ng-template>
+                              <ng-template ngPluralCase="4">In Store</ng-template>
+                              <ng-template ngPluralCase="other"></ng-template>
+                            </p>
+                            <p class="center p-link mbe-1 nowrap">
+                              {{row.orderLogInfo.orderDateOnUtc ? ('ORD: ' + (row.orderLogInfo.orderDateOnUtc | amFromUtc |
+                              amLocal | amDateFormat: 'MM/DD/YY')) : ''}}
+                            </p>
+                            <p class="center p-link mbe-1 nowrap">
+                              {{row.orderLogInfo.startDateOnUtc ? ('START: ' + (row.orderLogInfo.startDateOnUtc |
+                              amDateFormat:
+                              'MM/DD/YY')) : ''}}
+                            </p>
+                            <p class="center p-link mbe-1 nowrap">
+                              {{row.orderLogInfo.cancelDateOnUtc ? ('CNCL: ' + (row.orderLogInfo.cancelDateOnUtc |
+                              amDateFormat:
+                              'MM/DD/YY')) : ''}}
+                            </p>
+                            <p class="center p-link mbe-1 nowrap">
+                              {{(row.orderLogInfo.lastDateToShipNonExpedited && row.orderLogInfo.isInDcOrder) ? ('LDSNE: ' +
+                              (row.orderLogInfo.lastDateToShipNonExpedited | amDateFormat: 'MM/DD/YY')) : ''}}
+                            </p>
+                          </ng-container>
+                        </ng-container>
+                      </div>
+                    </td>
+                  </ng-template>
+
+                  <ng-template #tscPresentation let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ProductTscPresentationDate)"
+                        [style.border-bottom]="(isShowStatus && !isShowLeadTime && !isShowStatusDate) ? 'none' : ((!isShowStatus && isShowLeadTime && !isShowStatusDate) ? '1px solid #fff': '1px solid #999')"
+                        [attr.rowSpan]="(!isShowStatusDate) ? 1 : (row.isCollapse ? 1 : row.printLocations.length)"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].tscPresentationDate.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].tscPresentationDate.width">
+                      <ng-container
+                        *ngIf="!row.tscPresentationDate || row.tscPresentationDate.isDisabled; then blackBgBlock8 else infoBgBlock8"></ng-container>
+                      <ng-template #blackBgBlock8>
+                        <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                      </ng-template>
+                      <ng-template #infoBgBlock8>
+                        <div class="seperate-child"
+                             [ngClass]="{'col-readonly': !canModifyCols('TSC Presentation Date'),
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate,
+                                         'only-eta-field': !isShowStatus && !isShowStatusDate}"
+                             [id]="'tscPresentationDate-' + row.projectId + '-' + row.productId"
+                             (mouseenter)="onHover($event, true, true, 'tscPresentationDate', row.projectId, row.productId)"
+                             (mouseleave)="onHover($event, false, true, 'tscPresentationDate', row.projectId, row.productId)"
+                             (click)="onChangeTscPresentationDate(row, row.tscPresentationDate)">
+                          <column-info [columnInfoObj]="row.tscPresentationDate"
+                                       [isShowStatus]="isShowStatus"
+                                       [isShowLeadTime]="isShowLeadTime"
+                                       [isShowStatusDate]="isShowStatusDate">
+                            <ng-container *ngIf="isShowStatusDate">
+                              <p *ngIf="row.tscPresentationDate.isUploaded">
+                              <i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"
+                                 (click)="openUploader(row, columnType.TscPresentationDate, 'TSC Presentation Date')"></i>
+                            </p>
+                            </ng-container>
+                          </column-info>
+                        </div>
+                      </ng-template>
+                    </td>
+                  </ng-template>
+
+                  <ng-template #tscConceptBoards let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ProductTscConceptBoardsForSelection)"
+                        [style.border-bottom]="(isShowStatus && !isShowLeadTime && !isShowStatusDate) ? 'none' : ((!isShowStatus && isShowLeadTime && !isShowStatusDate) ? '1px solid #fff': '1px solid #999')"
+                        [attr.rowSpan]="(!isShowStatusDate) ? 1 : (row.isCollapse ? 1 : row.printLocations.length)"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].tscConceptBoards.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].tscConceptBoards.width">
+                      <ng-container
+                        *ngIf="!row.tscConceptBoardsForSelection || row.tscConceptBoardsForSelection.isDisabled; then blackBgBlock9 else infoBgBlock9"></ng-container>
+                      <ng-template #blackBgBlock9>
+                        <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                      </ng-template>
+                      <ng-template #infoBgBlock9>
+                        <div class="seperate-child"
+                             [ngClass]="{'col-readonly': !canModifyCols('TSC Concept Boards for selection'),
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate,
+                                         'only-eta-field': !isShowStatus && !isShowStatusDate}"
+                             [id]="'tscConceptBoardsForSelection-' + row.projectId + '-' + row.productId"
+                             (mouseenter)="onHover($event, true, true, 'tscConceptBoardsForSelection', row.projectId, row.productId)"
+                             (mouseleave)="onHover($event, false, true, 'tscConceptBoardsForSelection', row.projectId, row.productId)"
+                             (click)="onChangeTscConceptBoards(row, row.tscConceptBoardsForSelection)">
+                          <column-info [columnInfoObj]="row.tscConceptBoardsForSelection"
+                                       [isShowStatus]="isShowStatus"
+                                       [isShowLeadTime]="isShowLeadTime"
+                                       [isShowStatusDate]="isShowStatusDate"></column-info>
+                        </div>
+                      </ng-template>
+                    </td>
+                  </ng-template>
+
+                  <ng-template #licensorSelection let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ProductLicensorSelectionWoConceptApproval)"
+                        [style.border-bottom]="(isShowStatus && !isShowLeadTime && !isShowStatusDate) ? 'none' : ((!isShowStatus && isShowLeadTime && !isShowStatusDate) ? '1px solid #fff': '1px solid #999')"
+                        [attr.rowSpan]="(!isShowStatusDate) ? 1 : (row.isCollapse ? 1 : row.printLocations.length)"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].licensorSelection.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].licensorSelection.width">
+                      <ng-container
+                        *ngIf="!row.licensorSelectionWoConceptApproval || row.licensorSelectionWoConceptApproval.isDisabled; then blackBgBlock10 else infoBgBlock10"></ng-container>
+                      <ng-template #blackBgBlock10>
+                        <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                      </ng-template>
+                      <ng-template #infoBgBlock10>
+                        <div class="seperate-child"
+                             [ngClass]="{'col-readonly': !canModifyCols('Retailer Selection (w/o concept approval)'),
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate,
+                                         'only-eta-field': !isShowStatus && !isShowStatusDate}"
+                             [id]="'licensorSelectionWoConceptApproval-' + row.projectId + '-' + row.productId"
+                             (mouseenter)="onHover($event, true, true, 'licensorSelectionWoConceptApproval', row.projectId, row.productId)"
+                             (mouseleave)="onHover($event, false, true, 'licensorSelectionWoConceptApproval', row.projectId, row.productId)"
+                             (click)="onChangeLicensorSelection(row, row.licensorSelectionWoConceptApproval)">
+                          <column-info [columnInfoObj]="row.licensorSelectionWoConceptApproval"
+                                       [isShowStatus]="isShowStatus"
+                                       [isShowLeadTime]="isShowLeadTime"
+                                       [isShowStatusDate]="isShowStatusDate"></column-info>
+                        </div>
+                      </ng-template>
+                    </td>
+                  </ng-template>
+
+                  <ng-template #licensingApproval let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ProductConceptApprovedByLicensor)"
+                        [style.border-bottom]="(isShowStatus && !isShowLeadTime && !isShowStatusDate) ? 'none' : ((!isShowStatus && isShowLeadTime && !isShowStatusDate) ? '1px solid #fff': '1px solid #999')"
+                        [attr.rowSpan]="(!isShowStatusDate) ? 1 : (row.isCollapse ? 1 : row.printLocations.length)"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].conceptApproved.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].conceptApproved.width">
+                      <ng-container
+                        *ngIf="!row.conceptApprovedByLicensor || row.conceptApprovedByLicensor.isDisabled; then blackBgBlock11 else infoBgBlock11"></ng-container>
+                      <ng-template #blackBgBlock11>
+                        <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                      </ng-template>
+                      <ng-template #infoBgBlock11>
+                        <div class="seperate-child"
+                             [ngClass]="{'col-readonly': !canModifyCols('Concept Approved by Licensor'),
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate,
+                                         'only-eta-field': !isShowStatus && !isShowStatusDate}"
+                             [id]="'conceptApprovedByLicensor-' + row.projectId + '-' + row.productId"
+                             (click)="onChangeConceptApproved(row, row.conceptApprovedByLicensor)">
+                          <column-info [columnInfoObj]="getObjectDetail(row.conceptApprovedByLicensor, row.licensingApproval)"
+                                       [isShowStatus]="isShowStatus"
+                                       [isShowLeadTime]="isShowLeadTime"
+                                       [isShowStatusDate]="isShowStatusDate"></column-info>
+                        </div>
+                      </ng-template>
+                    </td>
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ProductPackagingApprovedByLicensor)"
+                        [style.border-bottom]="(isShowStatus && !isShowLeadTime && !isShowStatusDate) ? 'none' : ((!isShowStatus && isShowLeadTime && !isShowStatusDate) ? '1px solid #fff': '1px solid #999')"
+                        [attr.rowSpan]="(!isShowStatusDate) ? 1 : (row.isCollapse ? 1 : row.printLocations.length)"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].packagingApproved.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].packagingApproved.width">
+                      <ng-container
+                        *ngIf="!row.packagingApprovedByLicensor || row.packagingApprovedByLicensor.isDisabled; then blackBgBlock12 else infoBgBlock12"></ng-container>
+                      <ng-template #blackBgBlock12>
+                        <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                      </ng-template>
+                      <ng-template #infoBgBlock12>
+                        <div class="seperate-child"
+                             [ngClass]="{'col-readonly': !canModifyCols('Packaging approved by Licensor'),
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate,
+                                         'only-eta-field': !isShowStatus && !isShowStatusDate}"
+                             [id]="'packagingApprovedByLicensor-' + row.projectId + '-' + row.productId"
+                             (click)="onChangePackagingApproved(row, row.packagingApprovedByLicensor)">
+                          <column-info [columnInfoObj]="getObjectDetail(row.packagingApprovedByLicensor, row.licensingApproval)"
+                                       [isShowStatus]="isShowStatus"
+                                       [isShowLeadTime]="isShowLeadTime"
+                                       [isShowStatusDate]="isShowStatusDate"></column-info>
+                        </div>
+                      </ng-template>
+                    </td>
+                  </ng-template>
+
+                  <ng-template #physSampleExFactoryPp let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ProductPhysSampleExFactoryDatePp)"
+                        [style.border-bottom]="(isShowStatus && !isShowLeadTime && !isShowStatusDate) ? 'none' : ((!isShowStatus && isShowLeadTime && !isShowStatusDate) ? '1px solid #fff': '1px solid #999')"
+                        [attr.rowSpan]="(!isShowStatusDate) ? 1 : (row.isCollapse ? 1 : row.printLocations.length)"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDatePp.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDatePp.width">
+                      <ng-container
+                        *ngIf="!row.physSampleExFactoryDatePp || row.physSampleExFactoryDatePp.isDisabled; then blackBgBlock13 else infoBgBlock13"></ng-container>
+                      <ng-template #blackBgBlock13>
+                        <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                      </ng-template>
+                      <ng-template #infoBgBlock13>
+                        <div class="seperate-child"
+                             [ngClass]="{'col-readonly': !canModifyCols('Phys. Sample Ex-Factory Date (PP)'),
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate,
+                                         'only-eta-field': !isShowStatus && !isShowStatusDate}"
+                             [id]="'physSampleExFactoryDatePp-' + row.projectId + '-' + row.productId"
+                             (mouseenter)="onHover($event, true, true, 'physSampleExFactoryDatePp', row.projectId, row.productId)"
+                             (mouseleave)="onHover($event, false, true, 'physSampleExFactoryDatePp', row.projectId, row.productId)"
+                             (click)="onChangePhysSampleExFactoryPp(row, row.physSampleExFactoryDatePp)">
+                          <column-info [columnInfoObj]="getObjectDetail(row.physSampleExFactoryDatePp, row.physSampleExFactoryDatePpEta)"
+                                       [isShowStatus]="isShowStatus"
+                                       [isShowLeadTime]="isShowLeadTime"
+                                       [isShowStatusDate]="isShowStatusDate"></column-info>
+                        </div>
+                      </ng-template>
+                    </td>
+                  </ng-template>
+
+                  <ng-template #physSampleExFactoryPpToTesting let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ProductPhysSampleExFactoryDatePpToTestingFacility)"
+                        [style.border-bottom]="(isShowStatus && !isShowLeadTime && !isShowStatusDate) ? 'none' : ((!isShowStatus && isShowLeadTime && !isShowStatusDate) ? '1px solid #fff': '1px solid #999')"
+                        [attr.rowSpan]="(!isShowStatusDate) ? 1 : (row.isCollapse ? 1 : row.printLocations.length)"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDatePpToTestingFacility.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDatePpToTestingFacility.width">
+                      <ng-container
+                        *ngIf="!row.physSampleExFactoryDatePpToTestingFacility || row.physSampleExFactoryDatePpToTestingFacility.isDisabled; then blackBgBlock14 else infoBgBlock14"></ng-container>
+                      <ng-template #blackBgBlock14>
+                        <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                      </ng-template>
+                      <ng-template #infoBgBlock14>
+                        <div class="seperate-child"
+                             [ngClass]="{'col-readonly': !canModifyCols('Phys. Sample Ex-Factory Date (PP To Testing Facility)'),
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate,
+                                         'only-eta-field': !isShowStatus && !isShowStatusDate}"
+                             [id]="'physSampleExFactoryDatePpToTestingFacility-' + row.projectId + '-' + row.productId"
+                             (mouseenter)="onHover($event, true, true, 'physSampleExFactoryDatePpToTestingFacility', row.projectId, row.productId)"
+                             (mouseleave)="onHover($event, false, true, 'physSampleExFactoryDatePpToTestingFacility', row.projectId, row.productId)"
+                             (click)="onChangePPToTestingFacility(row, row.physSampleExFactoryDatePpToTestingFacility)">
+                          <column-info [columnInfoObj]="getObjectDetail(row.physSampleExFactoryDatePpToTestingFacility, row.physSampleExFactoryDatePpEta)"
+                                       [isShowStatus]="isShowStatus"
+                                       [isShowLeadTime]="isShowLeadTime"
+                                       [isShowStatusDate]="isShowStatusDate"></column-info>
+                        </div>
+                      </ng-template>
+                    </td>
+                  </ng-template>
+
+                  <ng-template #physSampleDelivered let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ProductPhysSampleDeliveredToTestingFacilityPp)"
+                        [style.border-bottom]="(isShowStatus && !isShowLeadTime && !isShowStatusDate) ? 'none' : ((!isShowStatus && isShowLeadTime && !isShowStatusDate) ? '1px solid #fff': '1px solid #999')"
+                        [attr.rowSpan]="(!isShowStatusDate) ? 1 : (row.isCollapse ? 1 : row.printLocations.length)"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleDeliveredToTestingFacilityPp.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleDeliveredToTestingFacilityPp.width">
+                      <ng-container
+                        *ngIf="!row.physSampleDeliveredToTestingFacilityPp || row.physSampleDeliveredToTestingFacilityPp.isDisabled; then blackBgBlock15 else infoBgBlock15"></ng-container>
+                      <ng-template #blackBgBlock15>
+                        <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                      </ng-template>
+                      <ng-template #infoBgBlock15>
+                        <div class="seperate-child"
+                             [ngClass]="{'col-readonly': !canModifyCols('Phys. Sample Delivered to Testing Facility (PP)'),
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate,
+                                         'only-eta-field': !isShowStatus && !isShowStatusDate}"
+                             [id]="'physSampleDeliveredToTestingFacilityPp-' + row.projectId + '-' + row.productId"
+                             (mouseenter)="onHover($event, true, true, 'physSampleDeliveredToTestingFacilityPp', row.projectId, row.productId)"
+                             (mouseleave)="onHover($event, false, true, 'physSampleDeliveredToTestingFacilityPp', row.projectId, row.productId)"
+                             (click)="onChangePhysSampleDelivered(row, row.physSampleDeliveredToTestingFacilityPp)">
+                          <column-info [columnInfoObj]="getObjectDetail(row.physSampleDeliveredToTestingFacilityPp, row.physSampleDeliveredPpEta)"
+                                       [isShowStatus]="isShowStatus"
+                                       [isShowLeadTime]="isShowLeadTime"
+                                       [isShowStatusDate]="isShowStatusDate"></column-info>
+                        </div>
+                      </ng-template>
+                    </td>
+                  </ng-template>
+
+                  <ng-template #physSampleActual let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ProductPhysSampleActualDateDeliveredPp)"
+                        [style.border-bottom]="(isShowStatus && !isShowLeadTime && !isShowStatusDate) ? 'none' : ((!isShowStatus && isShowLeadTime && !isShowStatusDate) ? '1px solid #fff': '1px solid #999')"
+                        [attr.rowSpan]="(!isShowStatusDate) ? 1 : (row.isCollapse ? 1 : row.printLocations.length)"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleActualDateDeliveredPp.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleActualDateDeliveredPp.width">
+                      <ng-container
+                        *ngIf="!row.physSampleActualDateDeliveredPp || row.physSampleActualDateDeliveredPp.isDisabled; then blackBgBlock17 else infoBgBlock17"></ng-container>
+                      <ng-template #blackBgBlock17>
+                        <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                      </ng-template>
+                      <ng-template #infoBgBlock17>
+                        <div class="seperate-child"
+                             [ngClass]="{'col-readonly': !canModifyCols('Phys. Sample Actual Date Delivered (PP)'),
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate,
+                                         'only-eta-field': !isShowStatus && !isShowStatusDate}"
+                             [id]="'physSampleActualDateDeliveredPp-' + row.projectId + '-' + row.productId"
+                             (mouseenter)="onHover($event, true, true, 'physSampleActualDateDeliveredPp', row.projectId, row.productId)"
+                             (mouseleave)="onHover($event, false, true, 'physSampleActualDateDeliveredPp', row.projectId, row.productId)"
+                             (click)="onChangePhysSampleActual(row, row.physSampleActualDateDeliveredPp)">
+                          <column-info [columnInfoObj]="getObjectDetail(row.physSampleActualDateDeliveredPp, row.physSampleDeliveredPpEta)"
+                                       [isShowStatus]="isShowStatus"
+                                       [isShowLeadTime]="isShowLeadTime"
+                                       [isShowStatusDate]="isShowStatusDate"></column-info>
+                        </div>
+                      </ng-template>
+                    </td>
+                  </ng-template>
+
+                  <ng-template #techDesign let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ProductTechDesignReviewDatePp)"
+                        [style.border-bottom]="(isShowStatus && !isShowLeadTime && !isShowStatusDate) ? 'none' : ((!isShowStatus && isShowLeadTime && !isShowStatusDate) ? '1px solid #fff': '1px solid #999')"
+                        [attr.rowSpan]="(!isShowStatusDate) ? 1 : (row.isCollapse ? 1 : row.printLocations.length)"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].techDesignReviewDatePp.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].techDesignReviewDatePp.width">
+                      <ng-container
+                        *ngIf="!row.techDesignReviewDatePp || row.techDesignReviewDatePp.isDisabled; then blackBgBlock18 else infoBgBlock18"></ng-container>
+                      <ng-template #blackBgBlock18>
+                        <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                      </ng-template>
+                      <ng-template #infoBgBlock18>
+                        <div class="seperate-child"
+                             [ngClass]="{'col-readonly': !canModifyCols('Tech Design Review Date (PP)'),
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate,
+                                         'only-eta-field': !isShowStatus && !isShowStatusDate}"
+                             [id]="'techDesignReviewDatePp-' + row.projectId + '-' + row.productId"
+                             (mouseenter)="onHover($event, true, true, 'techDesignReviewDatePp', row.projectId, row.productId)"
+                             (mouseleave)="onHover($event, false, true, 'techDesignReviewDatePp', row.projectId, row.productId)"
+                             (click)="onChangeTechDesign(row, row.techDesignReviewDatePp)">
+                          <column-info [columnInfoObj]="row.techDesignReviewDatePp"
+                                       [isShowStatus]="isShowStatus"
+                                       [isShowLeadTime]="isShowLeadTime"
+                                       [isShowStatusDate]="isShowStatusDate"></column-info>
+                        </div>
+                      </ng-template>
+                    </td>
+                  </ng-template>
+
+                  <ng-template #qcSampleDate let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ProductQcSampleDate)"
+                        [style.border-bottom]="(isShowStatus && !isShowLeadTime && !isShowStatusDate) ? 'none' : ((!isShowStatus && isShowLeadTime && !isShowStatusDate) ? '1px solid #fff': '1px solid #999')"
+                        [attr.rowSpan]="(!isShowStatusDate) ? 1 : (row.isCollapse ? 1 : row.printLocations.length)"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].qcSampleShipDate.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].qcSampleShipDate.width">
+                      <ng-container
+                        *ngIf="!row.qcSampleDate || row.qcSampleDate.isDisabled; then blackBgBlock19 else infoBgBlock19"></ng-container>
+                      <ng-template #blackBgBlock19>
+                        <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                      </ng-template>
+                      <ng-template #infoBgBlock19>
+                        <div class="seperate-child"
+                             [ngClass]="{'col-readonly': !canModifyCols('QC Sample / Ship Date (PP)'),
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate,
+                                         'only-eta-field': !isShowStatus && !isShowStatusDate}"
+                             [id]="'qcSampleDate-' + row.projectId + '-' + row.productId"
+                             (mouseenter)="onHover($event, true, true, 'qcSampleDate', row.projectId, row.productId)"
+                             (mouseleave)="onHover($event, false, true, 'qcSampleDate', row.projectId, row.productId)"
+                             (click)="onChangeQcSampleShipDate(row, row.qcSampleDate)">
+                          <column-info [columnInfoObj]="row.qcSampleDate"
+                                       [isShowStatus]="isShowStatus"
+                                       [isShowLeadTime]="isShowLeadTime"
+                                       [isShowStatusDate]="isShowStatusDate"></column-info>
+                        </div>
+                      </ng-template>
+                    </td>
+                  </ng-template>
+
+                  <!--<ng-template #samplesDelivered let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">-->
+                    <!--<td *ngIf="firstPrint && (isShowAllColumns || columns.ProductSamplesDeliveredToCustomerPp)"-->
+                        <!--[style.border-bottom]="(isShowStatus && !isShowLeadTime && !isShowStatusDate) ? 'none' : ((!isShowStatus && isShowLeadTime && !isShowStatusDate) ? '1px solid #fff': '1px solid #999')"-->
+                        <!--[attr.rowSpan]="(!isShowStatusDate) ? 1 : (row.isCollapse ? 1 : row.printLocations.length)"-->
+                        <!--[style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].samplesDeliveredToCustomer.width"-->
+                        <!--[style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].samplesDeliveredToCustomer.width">-->
+                      <!--<ng-container-->
+                        <!--*ngIf="!row.samplesDeliveredToCustomerPp || row.samplesDeliveredToCustomerPp.isDisabled; then blackBgBlock20 else infoBgBlock20"></ng-container>-->
+                      <!--<ng-template #blackBgBlock20>-->
+                        <!--<ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>-->
+                      <!--</ng-template>-->
+                      <!--<ng-template #infoBgBlock20>-->
+                        <!--<div class="seperate-child"-->
+                             <!--[ngClass]="{'col-readonly': !canModifyCols('Samples delivered to Customer (PP)'),-->
+                                         <!--'only-status-field': !isShowLeadTime && !isShowStatusDate,-->
+                                         <!--'only-eta-field': !isShowStatus && !isShowStatusDate}"-->
+                             <!--[id]="'samplesDeliveredToCustomerPp-' + row.projectId + '-' + row.productId"-->
+                             <!--(mouseenter)="onHover($event, true, true, 'samplesDeliveredToCustomerPp', row.projectId, row.productId)"-->
+                             <!--(mouseleave)="onHover($event, false, true, 'samplesDeliveredToCustomerPp', row.projectId, row.productId)"-->
+                             <!--(click)="onChangeSamplesDelivered(row, row.samplesDeliveredToCustomerPp)">-->
+                          <!--<column-info [columnInfoObj]="row.samplesDeliveredToCustomerPp"-->
+                                       <!--[isShowStatus]="isShowStatus"-->
+                                       <!--[isShowLeadTime]="isShowLeadTime"-->
+                                       <!--[isShowStatusDate]="isShowStatusDate">-->
+                            <!--<ng-container *ngIf="isShowStatusDate">-->
+                              <!--<p *ngIf="row.samplesDeliveredToCustomerPp.isUploaded">-->
+                                <!--<i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"-->
+                                   <!--(click)="openUploader(row, columnType.SamplesDeliveredToCustomer, 'Samples delivered to Customer (PP)')"></i>-->
+                              <!--</p>-->
+                            <!--</ng-container>-->
+                          <!--</column-info>-->
+                        <!--</div>-->
+                      <!--</ng-template>-->
+                    <!--</td>-->
+                  <!--</ng-template>-->
+
+                  <ng-template #physSampleApproved let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ProductPhysSampleApprovedByTestingFacilityPp)"
+                        [style.border-bottom]="(isShowStatus && !isShowLeadTime && !isShowStatusDate) ? 'none' : ((!isShowStatus && isShowLeadTime && !isShowStatusDate) ? '1px solid #fff': '1px solid #999')"
+                        [attr.rowSpan]="(!isShowStatusDate) ? 1 : (row.isCollapse ? 1 : row.printLocations.length)"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleApprovedByTestingFacilityPp.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleApprovedByTestingFacilityPp.width">
+                      <ng-container
+                        *ngIf="!row.physSampleApprovedByTestingFacilityPp || row.physSampleApprovedByTestingFacilityPp.isDisabled; then blackBgBlock16 else infoBgBlock16"></ng-container>
+                      <ng-template #blackBgBlock16>
+                        <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                      </ng-template>
+                      <ng-template #infoBgBlock16>
+                        <div class="seperate-child"
+                             [ngClass]="{'col-readonly': !canModifyCols('Phys. Sample Approved By Testing Facility (PP)'),
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate,
+                                         'only-eta-field': !isShowStatus && !isShowStatusDate}"
+                             [id]="'physSampleApprovedByTestingFacilityPp-' + row.projectId + '-' + row.productId"
+                             (mouseenter)="onHover($event, true, true, 'physSampleApprovedByTestingFacilityPp', row.projectId, row.productId)"
+                             (mouseleave)="onHover($event, false, true, 'physSampleApprovedByTestingFacilityPp', row.projectId, row.productId)"
+                             (click)="onChangePhysSampleApproved(row, row.physSampleApprovedByTestingFacilityPp)">
+                          <column-info [columnInfoObj]="getObjectDetail(row.physSampleApprovedByTestingFacilityPp, row.physSampleApprovedPpEta)"
+                                       [isShowStatus]="isShowStatus"
+                                       [isShowLeadTime]="isShowLeadTime"
+                                       [isShowStatusDate]="isShowStatusDate"></column-info>
+                        </div>
+                      </ng-template>
+                    </td>
+                  </ng-template>
+
+                  <ng-template #finalApproval let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="isShowAllColumns || columns.ProductFinalApprovalPp"
+                        [style.border-bottom]="(isShowStatus && !isShowLeadTime && !isShowStatusDate) ? 'none' : ((!isShowStatus && isShowLeadTime && !isShowStatusDate) ? '1px solid #fff': '1px solid #999')"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].finalApproval.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].finalApproval.width">
+                      <ng-container
+                        *ngIf="!print || !print.finalApprovalPp || print.finalApprovalPp.isDisabled; then blackBgBlock21 else infoBgBlock21"></ng-container>
+                      <ng-template #blackBgBlock21>
+                        <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                      </ng-template>
+                      <ng-template #infoBgBlock21>
+                        <div class="seperate-child"
+                             [ngClass]="{'col-readonly': !canModifyCols('Final Approval (PP)'),
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate,
+                                         'only-eta-field': !isShowStatus && !isShowStatusDate}"
+                             [id]="(!isShowStatus || !isShowLeadTime) && !isShowStatusDate && firstPrint ? ('finalApprovalPp-' + row.productId + '-' + print.printLocationId) : ('finalApprovalPp-' + row.productId + '-' + print.printLocationId + '-' + ii)"
+                             (mouseenter)="onHover($event, true, true, 'finalApprovalPp', row.productId, print.printLocationId)"
+                             (mouseleave)="onHover($event, false, true, 'finalApprovalPp', row.productId, print.printLocationId)"
+                             (click)="onChangeFinalApproval(row, print, print.finalApprovalPp)">
+                          <column-info [columnInfoObj]="getObjectDetail(print.finalApprovalPp, row.physSampleApprovedPpEta)"
+                                       [isShowStatus]="isShowStatus"
+                                       [isShowLeadTime]="isShowLeadTime"
+                                       [isShowStatusDate]="isShowStatusDate"></column-info>
+                        </div>
+                      </ng-template>
+                    </td>
+                  </ng-template>
+
+                  <!--<ng-template #bulkUpload let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">-->
+                    <!--<td *ngIf="firstPrint && (isShowAllColumns || columns.ProductBulkUpload)"-->
+                        <!--[style.border-bottom]="(isShowStatus && !isShowLeadTime && !isShowStatusDate) ? 'none' : ((!isShowStatus && isShowLeadTime && !isShowStatusDate) ? '1px solid #fff': '1px solid #999')"-->
+                        <!--[attr.rowSpan]="(!isShowStatusDate) ? 1 : (row.isCollapse ? 1 : row.printLocations.length)"-->
+                        <!--[style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].bulkUpload.width"-->
+                        <!--[style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].bulkUpload.width">-->
+                      <!--<ng-container-->
+                        <!--*ngIf="!row.bulkUpload || row.bulkUpload.isDisabled; then blackBgBlock22 else infoBgBlock22"></ng-container>-->
+                      <!--<ng-template #blackBgBlock22>-->
+                        <!--<ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>-->
+                      <!--</ng-template>-->
+                      <!--<ng-template #infoBgBlock22>-->
+                        <!--<div class="seperate-child"-->
+                             <!--[ngClass]="{'col-readonly': !canModifyCols('Bulk Upload'),-->
+                                         <!--'only-status-field': !isShowLeadTime && !isShowStatusDate,-->
+                                         <!--'only-eta-field': !isShowStatus && !isShowStatusDate}"-->
+                             <!--[id]="'bulkUpload-' + row.projectId + '-' + row.productId"-->
+                             <!--(mouseenter)="onHover($event, true, true, 'bulkUpload', row.projectId, row.productId)"-->
+                             <!--(mouseleave)="onHover($event, false, true, 'bulkUpload', row.projectId, row.productId)"-->
+                             <!--(click)="onChangeBulkUpload(row, row.bulkUpload)">-->
+                          <!--<column-info [columnInfoObj]="row.bulkUpload"-->
+                                       <!--[isShowStatus]="isShowStatus"-->
+                                       <!--[isShowLeadTime]="isShowLeadTime"-->
+                                       <!--[isShowStatusDate]="isShowStatusDate">-->
+                            <!--<ng-container *ngIf="isShowStatusDate">-->
+                              <!--<p *ngIf="row.bulkUpload.isUploaded">-->
+                                <!--<i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"-->
+                                   <!--(click)="openUploader(row, columnType.BulkUpload, 'Bulk Upload')"></i>-->
+                              <!--</p>-->
+                            <!--</ng-container>-->
+                          <!--</column-info>-->
+                        <!--</div>-->
+                      <!--</ng-template>-->
+                    <!--</td>-->
+                  <!--</ng-template>-->
+
+                  <!--<ng-template #customerPoReceiveDate let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">-->
+                    <!--<td *ngIf="firstPrint && (isShowAllColumns || columns.ProductCustomerPoReceiveDate)"-->
+                        <!--[style.border-bottom]="(isShowStatus && !isShowLeadTime && !isShowStatusDate) ? 'none' : ((!isShowStatus && isShowLeadTime && !isShowStatusDate) ? '1px solid #fff': '1px solid #999')"-->
+                        <!--[attr.rowSpan]="(!isShowStatusDate) ? 1 : (row.isCollapse ? 1 : row.printLocations.length)"-->
+                        <!--[style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].customerPoReceiveDate.width"-->
+                        <!--[style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].customerPoReceiveDate.width">-->
+                      <!--<ng-container-->
+                        <!--*ngIf="!row.customerPoReceiveDate || row.customerPoReceiveDate.isDisabled; then blackBgBlock23 else infoBgBlock23"></ng-container>-->
+                      <!--<ng-template #blackBgBlock23>-->
+                        <!--<ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>-->
+                      <!--</ng-template>-->
+                      <!--<ng-template #infoBgBlock23>-->
+                        <!--<div class="seperate-child"-->
+                             <!--[ngClass]="{'col-readonly': !canModifyCols('Customer PO Receive Date'),-->
+                                         <!--'only-status-field': !isShowLeadTime && !isShowStatusDate,-->
+                                         <!--'only-eta-field': !isShowStatus && !isShowStatusDate}"-->
+                             <!--[id]="'customerPoReceiveDate-' + row.projectId + '-' + row.productId"-->
+                             <!--(mouseenter)="onHover($event, true, true, 'customerPoReceiveDate', row.projectId, row.productId)"-->
+                             <!--(mouseleave)="onHover($event, false, true, 'customerPoReceiveDate', row.projectId, row.productId)"-->
+                             <!--(click)="onChangeCustomerPoReceive(row, row.customerPoReceiveDate)">-->
+                          <!--<column-info [columnInfoObj]="row.customerPoReceiveDate"-->
+                                       <!--[isShowStatus]="isShowStatus"-->
+                                       <!--[isShowLeadTime]="isShowLeadTime"-->
+                                       <!--[isShowStatusDate]="isShowStatusDate">-->
+                            <!--<ng-container *ngIf="isShowStatusDate">-->
+                              <!--<p *ngIf="row.customerPoReceiveDate.isUploaded">-->
+                                <!--<i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"-->
+                                   <!--(click)="openUploader(row, columnType.CustomerPoReceiveDate, 'Customer PO Receive Date')"></i>-->
+                              <!--</p>-->
+                            <!--</ng-container>-->
+                          <!--</column-info>-->
+                        <!--</div>-->
+                      <!--</ng-template>-->
+                    <!--</td>-->
+                  <!--</ng-template>-->
+
+                  <ng-template #productionDue let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ProductProductionDue)"
+                        [style.border-bottom]="(isShowStatus && !isShowLeadTime && !isShowStatusDate) ? 'none' : ((!isShowStatus && isShowLeadTime && !isShowStatusDate) ? '1px solid #fff': '1px solid #999')"
+                        [attr.rowSpan]="(!isShowStatusDate) ? 1 : (row.isCollapse ? 1 : row.printLocations.length)"
+                        class="relative"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].productionDue.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].productionDue.width">
+                      <ng-container
+                        *ngIf="!row.productionDue || row.productionDue.isDisabled; then blackBgBlock24 else infoBgBlock24"></ng-container>
+                      <ng-template #blackBgBlock24>
+                        <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                      </ng-template>
+                      <ng-template #infoBgBlock24>
+                        <div class="seperate-child col-readonly"
+                             [ngClass]="{'only-status-field': !isShowLeadTime && !isShowStatusDate,
+                                         'only-eta-field': !isShowStatus && !isShowStatusDate}">
+                          <column-info [columnInfoObj]="row.productionDue"
+                                       [isShowStatus]="isShowStatus"
+                                       [isShowLeadTime]="isShowLeadTime"
+                                       [isShowStatusDate]="isShowStatusDate">
+                            <ng-container *ngIf="isShowStatusDate">
+                              <p *ngIf="!!row.productionDue.statusDateMinOnUtc">
+                                {{row.productionDue.statusDateMinOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD'}}
+                                {{row.productionDue.statusDateMaxOnUtc ? (' to ' +
+                                (row.productionDue.statusDateMaxOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD'))
+                                : ''}}
+                              </p>
+                            </ng-container>
+                          </column-info>
+                        </div>
+                      </ng-template>
+                    </td>
+                  </ng-template>
+
+                  <ng-template #xFactoryDate let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ProductXFactoryDate)"
+                        [style.border-bottom]="(isShowStatus && !isShowLeadTime && !isShowStatusDate) ? 'none' : ((!isShowStatus && isShowLeadTime && !isShowStatusDate) ? '1px solid #fff': '1px solid #999')"
+                        [attr.rowSpan]="(!isShowStatusDate) ? 1 : (row.isCollapse ? 1 : row.printLocations.length)"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].xFactoryDate.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].xFactoryDate.width">
+                      <ng-container
+                        *ngIf="!row.exFactoryDate || row.exFactoryDate.isDisabled; then blackBgBlock25 else infoBgBlock25"></ng-container>
+                      <ng-template #blackBgBlock25>
+                        <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                      </ng-template>
+                      <ng-template #infoBgBlock25>
+                        <div class="seperate-child"
+                             [ngClass]="{'col-readonly': !canModifyCols('x-Factory Date'),
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate,
+                                         'only-eta-field': !isShowStatus && !isShowStatusDate}"
+                             [id]="'exFactoryDate-' + row.projectId + '-' + row.productId"
+                             (mouseenter)="onHover($event, true, true, 'exFactoryDate', row.projectId, row.productId)"
+                             (mouseleave)="onHover($event, false, true, 'exFactoryDate', row.projectId, row.productId)"
+                             (click)="onChangeXFactoryDate(row, row.exFactoryDate)">
+                          <column-info [columnInfoObj]="row.exFactoryDate"
+                                       [isShowStatus]="isShowStatus"
+                                       [isShowLeadTime]="isShowLeadTime"
+                                       [isShowStatusDate]="isShowStatusDate"></column-info>
+                        </div>
+                      </ng-template>
+                    </td>
+                  </ng-template>
+
+                  <!--<ng-template #arrival3Pl let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">-->
+                    <!--<td *ngIf="firstPrint && (isShowAllColumns || columns.ProductArrival3Pl)"-->
+                        <!--[style.border-bottom]="(isShowStatus && !isShowLeadTime && !isShowStatusDate) ? 'none' : ((!isShowStatus && isShowLeadTime && !isShowStatusDate) ? '1px solid #fff': '1px solid #999')"-->
+                        <!--[attr.rowSpan]="(!isShowStatusDate) ? 1 : (row.isCollapse ? 1 : row.printLocations.length)"-->
+                        <!--[style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].arrival3Pl.width"-->
+                        <!--[style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].arrival3Pl.width">-->
+                      <!--<ng-container-->
+                        <!--*ngIf="!row.arrival3Pl || row.arrival3Pl.isDisabled; then blackBgBlock26 else infoBgBlock26"></ng-container>-->
+                      <!--<ng-template #blackBgBlock26>-->
+                        <!--<ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>-->
+                      <!--</ng-template>-->
+                      <!--<ng-template #infoBgBlock26>-->
+                        <!--<div class="seperate-child"-->
+                             <!--[ngClass]="{'col-readonly': !canModifyCols('Arrival @ 3PL'),-->
+                                         <!--'only-status-field': !isShowLeadTime && !isShowStatusDate,-->
+                                         <!--'only-eta-field': !isShowStatus && !isShowStatusDate}"-->
+                             <!--[id]="'arrival3Pl-' + row.projectId + '-' + row.productId"-->
+                             <!--(mouseenter)="onHover($event, true, true, 'arrival3Pl', row.projectId, row.productId)"-->
+                             <!--(mouseleave)="onHover($event, false, true, 'arrival3Pl', row.projectId, row.productId)"-->
+                             <!--(click)="onChangeArrival3pl(row, row.arrival3Pl)">-->
+                          <!--<column-info [columnInfoObj]="row.arrival3Pl"-->
+                                       <!--[isShowStatus]="isShowStatus"-->
+                                       <!--[isShowLeadTime]="isShowLeadTime"-->
+                                       <!--[isShowStatusDate]="isShowStatusDate"></column-info>-->
+                        <!--</div>-->
+                      <!--</ng-template>-->
+                    <!--</td>-->
+                  <!--</ng-template>-->
+
+                  <ng-template #readyToShip let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ProductReadyToShip3Pl)"
+                        [style.border-bottom]="(isShowStatus && !isShowLeadTime && !isShowStatusDate) ? 'none' : ((!isShowStatus && isShowLeadTime && !isShowStatusDate) ? '1px solid #fff': '1px solid #999')"
+                        [attr.rowSpan]="(!isShowStatusDate) ? 1 : (row.isCollapse ? 1 : row.printLocations.length)"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].readyToShip3Pl.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].readyToShip3Pl.width">
+                      <ng-container
+                        *ngIf="!row.readyToShip3Pl || row.readyToShip3Pl.isDisabled; then blackBgBlock27 else infoBgBlock27"></ng-container>
+                      <ng-template #blackBgBlock27>
+                        <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                      </ng-template>
+                      <ng-template #infoBgBlock27>
+                        <div class="seperate-child"
+                             [ngClass]="{'col-readonly': !canModifyCols('Ready To Ship @ 3PL'),
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate,
+                                         'only-eta-field': !isShowStatus && !isShowStatusDate}"
+                             [id]="'readyToShip3Pl-' + row.projectId + '-' + row.productId"
+                             (mouseenter)="onHover($event, true, true, 'readyToShip3Pl', row.projectId, row.productId)"
+                             (mouseleave)="onHover($event, false, true, 'readyToShip3Pl', row.projectId, row.productId)"
+                             (click)="onChangeReadyToShip3Pl(row, row.readyToShip3Pl)">
+                          <column-info [columnInfoObj]="row.readyToShip3Pl"
+                                       [isShowStatus]="isShowStatus"
+                                       [isShowLeadTime]="isShowLeadTime"
+                                       [isShowStatusDate]="isShowStatusDate">
+                            <ng-container *ngIf="isShowStatusDate">
+                              <p *ngIf="!!row.readyToShip3Pl.statusDateMinOnUtc">
+                                {{row.readyToShip3Pl.statusDateMinOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                                {{row.readyToShip3Pl.statusDateMaxOnUtc ? (' - ' +
+                                (row.readyToShip3Pl.statusDateMaxOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY')) :
+                                ''}}
+                              </p>
+                            </ng-container>
+                          </column-info>
+                        </div>
+                      </ng-template>
+                    </td>
+                  </ng-template>
+                </ng-container>
+              </ng-container>
+              </tbody>
+            </table>
+          </div>
+        </perfect-scrollbar>
+      </div>
+    </ng-container>
+    <ng-template #horizontalTable>
+      <div class="table table-sm horizontal-table">
+        <tbody class="find-header" id="header" [ngStyle]="myConfigStyleHeader"></tbody>
+        <tbody id="abHeader"></tbody>
+      </div>
+      <div id="horizontalTable">
+        <table class="table table-sm horizontal-table clone-horizontal-header"
+               [ngClass]="{'fixed-hoz-header': projectPriorityData.data.length > 7}"
+               [style.width]="horizHeader?.offsetWidth + 'px'">
+          <tbody>
+          <tr *ngIf="isShowAllColumns || columns.ProductDescription"
+              [style.height]="description?.offsetHeight + 'px'">
+            <td colspan="2">Description</td>
+          </tr>
+          <tr *ngIf="isShowAllColumns || columns.ProductVisual"
+              [style.height]="visualImageUrl?.offsetHeight + 'px'">
+            <td colspan="2">VISUAL</td>
+          </tr>
+          <tr *ngIf="isShowAllColumns || columns.ProductCsrCustPoRetailerPo"
+              [style.height]="orderLogInfo?.offsetHeight + 'px'">
+            <td colspan="2">CSR<br/>Cust / PO #<br/>Retailer / PO #</td>
+          </tr>
+          <tr *ngIf="isShowAllColumns || columns.ProductStyleNameColor"
+              [style.height]="styleInfo?.offsetHeight + 'px'">
+            <td colspan="2">Style Name /<br/> Color</td>
+          </tr>
+          <tr *ngIf="isShowAllColumns || columns.ProductComments"
+              [style.height]="comments?.offsetHeight + 'px'">
+            <td colspan="2">Comments</td>
+          </tr>
+          <tr *ngIf="isShowAllColumns || columns.ProductCosting"
+              [style.height]="costing?.offsetHeight + 'px'">
+            <td colspan="2">Costing</td>
+          </tr>
+          <tr *ngIf="isShowAllColumns || columns.ProductRegions"
+              [style.height]="regions?.offsetHeight + 'px'">
+            <td colspan="2">Regions</td>
+          </tr>
+          <tr *ngIf="isShowAllColumns || columns.ProductFactory"
+              [style.height]="factory?.offsetHeight + 'px'">
+            <td colspan="2">Factory</td>
+          </tr>
+          <tr *ngIf="isShowAllColumns || columns.ProductTscPresentationDate"
+              [style.height]="tscPresentationDate?.offsetHeight + 'px'">
+            <td colspan="2">TSC Presentation Date</td>
+          </tr>
+          <tr *ngIf="isShowAllColumns || columns.ProductTscConceptBoardsForSelection"
+              [style.height]="tscConceptBoards?.offsetHeight + 'px'">
+            <td colspan="2">TSC Concept Boards for selection</td>
+          </tr>
+          <tr *ngIf="isShowAllColumns || columns.ProductLicensorSelectionWoConceptApproval"
+              [style.height]="licensorSelection?.offsetHeight + 'px'">
+            <td colspan="2">Retailer Selection (w/o concept approval)</td>
+          </tr>
+          <tr *ngIf="isShowAllColumns || columns.ProductConceptApprovedByLicensor"
+              [style.height]="conceptApproved?.offsetHeight + 'px'">
+            <td rowspan="2" class="background-ccc">Licensing Approval</td>
+            <td class="td-header-a">Concept Approved by Licensor</td>
+          </tr>
+          <tr *ngIf="isShowAllColumns || columns.ProductPackagingApprovedByLicensor"
+              [style.height]="packagingApproved?.offsetHeight + 'px'">
+            <td>Packaging approved by Licensor</td>
+          </tr>
+          <tr *ngIf="isShowAllColumns || columns.ProductPhysSampleExFactoryDatePp"
+              [style.height]="physSampleExFactoryDatePp?.offsetHeight + 'px'">
+            <td colspan="2">Phys. Sample Ex-Factory Date (PP)</td>
+          </tr>
+          <tr *ngIf="isShowAllColumns || columns.ProductPhysSampleExFactoryDatePpToTestingFacility"
+              [style.height]="physSampleExFactoryDatePpToTestingFacility?.offsetHeight + 'px'">
+            <td colspan="2">Phys. Sample Ex-Factory Date (PP To Testing Facility)</td>
+          </tr>
+          <tr *ngIf="isShowAllColumns || columns.ProductPhysSampleDeliveredToTestingFacilityPp"
+              [style.height]="physSampleDeliveredToTestingFacilityPp?.offsetHeight + 'px'">
+            <td colspan="2">Phys. Sample Delivered to Testing Facility (PP)</td>
+          </tr>
+          <tr *ngIf="isShowAllColumns || columns.ProductPhysSampleActualDateDeliveredPp"
+              [style.height]="physSampleActualDateDeliveredPp?.offsetHeight + 'px'">
+            <td colspan="2">Phys. Sample Actual Date Delivered (PP)</td>
+          </tr>
+          <tr *ngIf="isShowAllColumns || columns.ProductTechDesignReviewDatePp"
+              [style.height]="techDesignReviewDatePp?.offsetHeight + 'px'">
+            <td colspan="2">Tech Design Review Date (PP)</td>
+          </tr>
+          <tr *ngIf="isShowAllColumns || columns.ProductQcSampleDate"
+              [style.height]="qcSampleShipDate?.offsetHeight + 'px'">
+            <td colspan="2">QC Sample / Ship Date (PP)</td>
+          </tr>
+          <!--<tr *ngIf="isShowAllColumns || columns.ProductSamplesDeliveredToCustomerPp"-->
+              <!--[style.height]="samplesDeliveredToCustomer?.offsetHeight + 'px'">-->
+            <!--<td colspan="2">Samples delivered to Customer (PP)</td>-->
+          <!--</tr>-->
+          <tr *ngIf="isShowAllColumns || columns.ProductPhysSampleApprovedByTestingFacilityPp"
+              [style.height]="physSampleApprovedByTestingFacilityPp?.offsetHeight + 'px'">
+            <td colspan="2">Phys. Sample Approved By Testing Facility (PP)</td>
+          </tr>
+          <tr *ngIf="isShowAllColumns || columns.ProductFinalApprovalPp"
+              [style.height]="finalApproval?.offsetHeight + 'px'">
+            <td colspan="2">Final Approval (PP)</td>
+          </tr>
+          <!--<tr *ngIf="isShowAllColumns || columns.ProductBulkUpload"-->
+              <!--[style.height]="bulkUpload?.offsetHeight + 'px'">-->
+            <!--<td colspan="2">Bulk Upload</td>-->
+          <!--</tr>-->
+          <!--<tr *ngIf="isShowAllColumns || columns.ProductCustomerPoReceiveDate"-->
+              <!--[style.height]="customerPoReceiveDate?.offsetHeight + 'px'">-->
+            <!--<td colspan="2">Customer PO Receive Date</td>-->
+          <!--</tr>-->
+          <tr *ngIf="isShowAllColumns || columns.ProductProductionDue"
+              [style.height]="productionDue?.offsetHeight + 'px'">
+            <td colspan="2">Production Due</td>
+          </tr>
+          <tr *ngIf="isShowAllColumns || columns.ProductXFactoryDate"
+              [style.height]="xFactoryDate?.offsetHeight + 'px'">
+            <td colspan="2">x-Factory Date</td>
+          </tr>
+          <!--<tr *ngIf="isShowAllColumns || columns.ProductArrival3Pl"-->
+              <!--[style.height]="arrival3Pl?.offsetHeight + 'px'">-->
+            <!--<td colspan="2">Arrival @ 3PL</td>-->
+          <!--</tr>-->
+          <tr *ngIf="isShowAllColumns || columns.ProductReadyToShip3Pl"
+              [style.height]="readyToShip3Pl?.offsetHeight + 'px'">
+            <td colspan="2">Ready To Ship @ 3PL</td>
+          </tr>
+          <tr *ngIf="isShowAllColumns || columns.ProductInDcStoreDate"
+              [style.height]="inDcStoreDate?.offsetHeight + 'px'">
+            <td colspan="2">In DC/Store Date</td>
+          </tr>
+          </tbody>
+        </table>
+        <perfect-scrollbar [config]="{suppressScrollX: false}" (psScrollX)="onScrollX($event)">
+          <table class="table table-sm horizontal-table horizontal-table-custom"
+                 [ngClass]="{'fixed-hoz-header': projectPriorityData.data.length > 7}">
+            <tbody class="find-header">
+            <tr class="product-description" [ngClass]="{'hidden': !(isShowAllColumns || columns.ProductDescription)}"
+                #description>
+              <td colspan="2">Description</td>
+              <ng-template ngFor [ngForOf]="projectPriorityData.data" [ngForTrackBy]="trackByFn" let-row let-i="index">
+                <td [attr.colspan]="row.printLocations.length > 0 ? row.printLocations.length : 1">
+                  <div class="seperate-child px-1 not-min-height" (click)="openEditProductPopup($event, row, i, 'Description')"
+                       [ngClass]="{'col-readonly': !canModifyCols('Description')}">
+                    <p class="center">{{row.description}}</p>
+                  </div>
+                </td>
+              </ng-template>
+            </tr>
+            <tr class="product-visual" [ngClass]="{'hidden': !(isShowAllColumns || columns.ProductVisual)}"
+                #visualImageUrl>
+              <td colspan="2">VISUAL</td>
+              <ng-template ngFor [ngForOf]="projectPriorityData.data" [ngForTrackBy]="trackByFn" let-row let-i="index">
+                <td [attr.colspan]="row.printLocations.length > 0 ? row.printLocations.length : 1">
+                  <div class="seperate-child" (click)="openEditProductPopup($event, row, i, 'VISUAL')"
+                       [ngClass]="{'col-readonly': !canModifyCols('VISUAL')}">
+                    <img *ngIf="row.visualImageUrl"
+                         [src]="row.visualImageUrl" class="img-thumbnail-none-wh my-2"
+                         height="auto" width="70" imgZoomClick>
+                  </div>
+                </td>
+              </ng-template>
+            </tr>
+            <tr [ngClass]="{'hidden': !(isShowAllColumns || columns.ProductCsrCustPoRetailerPo)}"
+                #orderLogInfo>
+              <td colspan="2" #horizHeader>CSR<br/>Cust / PO #<br/>Retailer / PO #</td>
+              <ng-template ngFor [ngForOf]="projectPriorityData.data" [ngForTrackBy]="trackByFn" let-row let-i="index">
+                <td [attr.colspan]="row.printLocations.length > 0 ? row.printLocations.length : 1">
+                  <div class="seperate-child px-1 not-min-height" (click)="goToOrderInfo($event, row, i, 'CSR Cust / PO # Retailer / PO #')"
+                       [ngClass]="{'col-readonly': !canModifyCols('CSR Cust / PO # Retailer / PO #') && !canViewPages('Orders')}">
+                    <ng-container *ngIf="row.orderLogInfo.orderId">
+                      <p class="center p-link">{{row.orderLogInfo.csr}}</p>
+                      <p class="center p-link">{{row.orderLogInfo.customerName}}
+                        {{row.orderLogInfo.customerName && row.orderLogInfo.customerPoId ? '#' : ''}}
+                        {{row.orderLogInfo.customerPoId}}</p>
+                      <p class="center p-link">{{row.orderLogInfo.retailerName}}
+                        {{row.orderLogInfo.retailerName && row.orderLogInfo.retailerPoId ? '#' : ''}}
+                        {{row.orderLogInfo.retailerPoId}}</p>
+                      <p class="center p-link" [ngPlural]="row.orderLogInfo.fulfillmentType">
+                        <ng-template ngPluralCase="0">?</ng-template>
+                        <ng-template ngPluralCase="1">In Fulfillment</ng-template>
+                        <ng-template ngPluralCase="2">In DC</ng-template>
+                        <ng-template ngPluralCase="3">Drop Ship</ng-template>
+                        <ng-template ngPluralCase="4">In Store</ng-template>
+                        <ng-template ngPluralCase="other"></ng-template>
+                      </p>
+                      <p class="center p-link mbe-1 nowrap">
+                        {{row.orderLogInfo.orderDateOnUtc ? ('ORD: ' + (row.orderLogInfo.orderDateOnUtc | amFromUtc |
+                        amLocal | amDateFormat: 'MM/DD/YY')) : ''}}
+                      </p>
+                      <p class="center p-link mbe-1 nowrap">
+                        {{row.orderLogInfo.startDateOnUtc ? ('START: ' + (row.orderLogInfo.startDateOnUtc | amDateFormat:
+                        'MM/DD/YY')) : ''}}
+                      </p>
+                      <p class="center p-link mbe-1 nowrap">
+                        {{row.orderLogInfo.cancelDateOnUtc ? ('CNCL: ' + (row.orderLogInfo.cancelDateOnUtc | amDateFormat:
+                        'MM/DD/YY')) : ''}}
+                      </p>
+                      <p class="center p-link mbe-1 nowrap">
+                        {{(row.orderLogInfo.lastDateToShipNonExpedited && row.orderLogInfo.isInDcOrder) ? ('LDSNE: ' +
+                        (row.orderLogInfo.lastDateToShipNonExpedited | amDateFormat: 'MM/DD/YY')) : ''}}
+                      </p>
+                    </ng-container>
+                  </div>
+                </td>
+              </ng-template>
+            </tr>
+            <tr [ngClass]="{'hidden': !(isShowAllColumns || columns.ProductStyleNameColor)}"
+                #styleInfo>
+              <td colspan="2">Style Name /<br/> Color</td>
+              <ng-template ngFor [ngForOf]="projectPriorityData.data" [ngForTrackBy]="trackByFn" let-row let-i="index">
+                <td [attr.colspan]="row.printLocations.length > 0 ? row.printLocations.length : 1">
+                  <div class="seperate-child p-1 not-min-height"
+                       (click)="goToStyle($event, row, i, 'Style Name / Color')"
+                       [ngClass]="{'col-readonly': !canModifyCols('Style Name / Color') && !canViewPages('Orders')}">
+                    <ng-container *ngIf="row.styleInfo.orderDetailId">
+                      <p class="p-link mt-0">{{row.styleInfo.styleName}}</p>
+                      <p class="p-link">{{row.styleInfo.partnerStyleName}}</p>
+                      <p class="p-link mt-0">{{row.styleInfo.colorName}}</p>
+                      <p class="p-link">{{row.styleInfo.units ? (row.styleInfo.units + ' units') : ''}}</p>
+                    </ng-container>
+                  </div>
+                </td>
+              </ng-template>
+            </tr>
+            <tr [ngClass]="{'hidden': !(isShowAllColumns || columns.ProductComments)}"
+                #comments>
+              <td colspan="2">Comments</td>
+              <ng-template ngFor [ngForOf]="projectPriorityData.data" [ngForTrackBy]="trackByFn" let-row let-i="index">
+                <td [attr.colspan]="row.printLocations.length > 0 ? row.printLocations.length : 1">
+                  <div class="seperate-child not-min-height" (click)="openEditProductPopup($event, row, i, 'Comments')"
+                       [ngClass]="{'col-readonly': !canModifyCols('Comments')}">
+                    <p class="center">{{row.comments}}</p>
+                  </div>
+                </td>
+              </ng-template>
+            </tr>
+            <tr [ngClass]="{'hidden': !(isShowAllColumns || columns.ProductCosting)}"
+                #costing>
+              <td colspan="2">Costing</td>
+              <ng-template ngFor [ngForOf]="projectPriorityData.data" [ngForTrackBy]="trackByFn" let-row let-i="index">
+                <td [attr.colspan]="row.printLocations.length > 0 ? row.printLocations.length : 1">
+                  <div class="seperate-child"
+                       [ngClass]="{'col-readonly': !canModifyCols('Costing')}"
+                       (click)="onChangeCosting(row, row.costing)">
+                    <column-info [columnInfoObj]="row.costing">
+                      <p *ngIf="row.costing.isUploaded">
+                        <i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"
+                           (click)="openUploader(row, columnType.Costing, 'Costing')"></i>
+                      </p>
+                    </column-info>
+                  </div>
+                </td>
+              </ng-template>
+            </tr>
+            <tr [ngClass]="{'hidden': !(isShowAllColumns || columns.ProductRegions)}"
+                #regions>
+              <td colspan="2">Regions</td>
+              <ng-template ngFor [ngForOf]="projectPriorityData.data" [ngForTrackBy]="trackByFn" let-row let-i="index">
+                <td [attr.colspan]="row.printLocations.length > 0 ? row.printLocations.length : 1" class="relative">
+                  <div class="seperate-child not-min-height"
+                       [ngClass]="{'col-readonly': !canModifyCols('Regions')}">
+                    <p>{{row.regions ? row.regions.join(', ') : ''}}</p>
+                  </div>
+                </td>
+              </ng-template>
+            </tr>
+            <tr [ngClass]="{'hidden': !(isShowAllColumns || columns.ProductFactory)}"
+                #factory>
+              <td colspan="2">Factory</td>
+              <ng-template ngFor [ngForOf]="projectPriorityData.data" [ngForTrackBy]="trackByFn" let-row let-i="index">
+                <td [attr.colspan]="row.printLocations.length > 0 ? row.printLocations.length : 1">
+                  <div class="seperate-child px-1 not-min-height" (click)="openEditProductPopup($event, row, i, 'Factory')"
+                       [ngClass]="{'col-readonly': !canModifyCols('Factory')}">
+                    <p class="center">{{row.factoryName}}</p>
+                  </div>
+                </td>
+              </ng-template>
+            </tr>
+            <tr [ngClass]="{'hidden': !(isShowAllColumns || columns.ProductTscPresentationDate)}"
+                #tscPresentationDate>
+              <td colspan="2">TSC Presentation Date</td>
+              <ng-template ngFor [ngForOf]="projectPriorityData.data" [ngForTrackBy]="trackByFn" let-row let-i="index">
+                <td [attr.colspan]="row.printLocations.length > 0 ? row.printLocations.length : 1">
+                  <ng-container
+                    *ngIf="!row.tscPresentationDate || row.tscPresentationDate.isDisabled; then blackBgBlock8 else infoBgBlock8"></ng-container>
+                  <ng-template #blackBgBlock8>
+                    <ng-container *ngTemplateOutlet="blackCol"></ng-container>
+                  </ng-template>
+                  <ng-template #infoBgBlock8>
+                    <div class="seperate-child"
+                         [ngClass]="{'col-readonly': !canModifyCols('TSC Presentation Date')}"
+                         (click)="onChangeTscPresentationDate(row, row.tscPresentationDate)">
+                      <column-info [columnInfoObj]="row.tscPresentationDate">
+                        <p *ngIf="row.tscPresentationDate.isUploaded">
+                          <i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"
+                             (click)="openUploader(row, columnType.TscPresentationDate, 'TSC Presentation Date')"></i>
+                        </p>
+                      </column-info>
+                    </div>
+                  </ng-template>
+                </td>
+              </ng-template>
+            </tr>
+            <tr [ngClass]="{'hidden': !(isShowAllColumns || columns.ProductTscConceptBoardsForSelection)}"
+                #tscConceptBoards>
+              <td colspan="2">TSC Concept Boards for selection</td>
+              <ng-template ngFor [ngForOf]="projectPriorityData.data" [ngForTrackBy]="trackByFn" let-row let-i="index">
+                <td [attr.colspan]="row.printLocations.length > 0 ? row.printLocations.length : 1">
+                  <ng-container
+                    *ngIf="!row.tscConceptBoardsForSelection || row.tscConceptBoardsForSelection.isDisabled; then blackBgBlock9 else infoBgBlock9"></ng-container>
+                  <ng-template #blackBgBlock9>
+                    <ng-container *ngTemplateOutlet="blackCol"></ng-container>
+                  </ng-template>
+                  <ng-template #infoBgBlock9>
+                    <div class="seperate-child"
+                         [ngClass]="{'col-readonly': !canModifyCols('TSC Concept Boards for selection')}"
+                         (click)="onChangeTscConceptBoards(row, row.tscConceptBoardsForSelection)">
+                      <column-info [columnInfoObj]="row.tscConceptBoardsForSelection"></column-info>
+                    </div>
+                  </ng-template>
+                </td>
+              </ng-template>
+            </tr>
+            <tr [ngClass]="{'hidden': !(isShowAllColumns || columns.ProductLicensorSelectionWoConceptApproval)}"
+                #licensorSelection>
+              <td colspan="2">Retailer Selection (w/o concept approval)</td>
+              <ng-template ngFor [ngForOf]="projectPriorityData.data" [ngForTrackBy]="trackByFn" let-row let-i="index">
+                <td [attr.colspan]="row.printLocations.length > 0 ? row.printLocations.length : 1">
+                  <ng-container
+                    *ngIf="!row.licensorSelectionWoConceptApproval || row.licensorSelectionWoConceptApproval.isDisabled; then blackBgBlock10 else infoBgBlock10"></ng-container>
+                  <ng-template #blackBgBlock10>
+                    <ng-container *ngTemplateOutlet="blackCol"></ng-container>
+                  </ng-template>
+                  <ng-template #infoBgBlock10>
+                    <div class="seperate-child"
+                         [ngClass]="{'col-readonly': !canModifyCols('Retailer Selection (w/o concept approval)')}"
+                         (click)="onChangeLicensorSelection(row, row.licensorSelectionWoConceptApproval)">
+                      <column-info [columnInfoObj]="row.licensorSelectionWoConceptApproval"></column-info>
+                    </div>
+                  </ng-template>
+                </td>
+              </ng-template>
+            </tr>
+            <tr [ngClass]="{'hidden': !(isShowAllColumns || columns.ProductConceptApprovedByLicensor)}"
+                #conceptApproved>
+              <td rowspan="2">Licensing Approval</td>
+              <td class="td-header-a">Concept Approved by Licensor</td>
+              <ng-template ngFor [ngForOf]="projectPriorityData.data" [ngForTrackBy]="trackByFn" let-row let-i="index">
+                <td [attr.colspan]="row.printLocations.length > 0 ? row.printLocations.length : 1">
+                  <ng-container
+                    *ngIf="!row.conceptApprovedByLicensor || row.conceptApprovedByLicensor.isDisabled; then blackBgBlock11 else infoBgBlock11"></ng-container>
+                  <ng-template #blackBgBlock11>
+                    <ng-container *ngTemplateOutlet="blackCol"></ng-container>
+                  </ng-template>
+                  <ng-template #infoBgBlock11>
+                    <div class="seperate-child"
+                         [ngClass]="{'col-readonly': !canModifyCols('Concept Approved by Licensor')}"
+                         (click)="onChangeConceptApproved(row, row.conceptApprovedByLicensor)">
+                      <column-info [columnInfoObj]="getObjectDetail(row.conceptApprovedByLicensor, row.licensingApproval)"></column-info>
+                    </div>
+                  </ng-template>
+                </td>
+              </ng-template>
+            </tr>
+            <tr [ngClass]="{'hidden': !(isShowAllColumns || columns.ProductPackagingApprovedByLicensor)}"
+                #packagingApproved>
+              <td>Packaging approved by Licensor</td>
+              <ng-template ngFor [ngForOf]="projectPriorityData.data" [ngForTrackBy]="trackByFn" let-row let-i="index">
+                <td [attr.colspan]="row.printLocations.length > 0 ? row.printLocations.length : 1">
+                  <ng-container
+                    *ngIf="!row.packagingApprovedByLicensor || row.packagingApprovedByLicensor.isDisabled; then blackBgBlock12 else infoBgBlock12"></ng-container>
+                  <ng-template #blackBgBlock12>
+                    <ng-container *ngTemplateOutlet="blackCol"></ng-container>
+                  </ng-template>
+                  <ng-template #infoBgBlock12>
+                    <div class="seperate-child"
+                         [ngClass]="{'col-readonly': !canModifyCols('Packaging approved by Licensor')}"
+                         (click)="onChangePackagingApproved(row, row.packagingApprovedByLicensor)">
+                      <column-info [columnInfoObj]="getObjectDetail(row.packagingApprovedByLicensor, row.licensingApproval)"></column-info>
+                    </div>
+                  </ng-template>
+                </td>
+              </ng-template>
+            </tr>
+            <tr [ngClass]="{'hidden': !(isShowAllColumns || columns.ProductPhysSampleExFactoryDatePp)}"
+                #physSampleExFactoryDatePp>
+              <td colspan="2">Phys. Sample Ex-Factory Date (PP)</td>
+              <ng-template ngFor [ngForOf]="projectPriorityData.data" [ngForTrackBy]="trackByFn" let-row let-i="index">
+                <td [attr.colspan]="row.printLocations.length > 0 ? row.printLocations.length : 1">
+                  <ng-container
+                    *ngIf="!row.physSampleExFactoryDatePp || row.physSampleExFactoryDatePp.isDisabled; then blackBgBlock13 else infoBgBlock13"></ng-container>
+                  <ng-template #blackBgBlock13>
+                    <ng-container *ngTemplateOutlet="blackCol"></ng-container>
+                  </ng-template>
+                  <ng-template #infoBgBlock13>
+                    <div class="seperate-child"
+                         [ngClass]="{'col-readonly': !canModifyCols('Phys. Sample Ex-Factory Date (PP)')}"
+                         (click)="onChangePhysSampleExFactoryPp(row, row.physSampleExFactoryDatePp, $event)">
+                      <column-info [columnInfoObj]="getObjectDetail(row.physSampleExFactoryDatePp, row.physSampleExFactoryDatePpEta)"
+                                   [isShowLeadTime]="false">
+                        <div class="lead-time-child min-height"
+                             [ngClass]="{'col-readonly': !columnCanModify([
+                                 'Phys. Sample Ex-Factory Date (PP)',
+                                 'Phys. Sample Ex-Factory Date (PP To Testing Facility)'
+                               ])}"
+                             (click)="onChangeLeadTime(row, row.physSampleExFactoryDatePpEta, 'Lead Time',
+                               [
+                                'Phys. Sample Ex-Factory Date (PP)',
+                                'Phys. Sample Ex-Factory Date (PP To Testing Facility)'
+                               ])">
+                          <ng-container *ngTemplateOutlet="leadTimeRevise; context: {detail: row.physSampleExFactoryDatePpEta}"></ng-container>
+                        </div>
+                      </column-info>
+                    </div>
+                  </ng-template>
+                </td>
+              </ng-template>
+            </tr>
+            <tr [ngClass]="{'hidden': !(isShowAllColumns || columns.ProductPhysSampleExFactoryDatePpToTestingFacility)}"
+                #physSampleExFactoryDatePpToTestingFacility>
+              <td colspan="2">Phys. Sample Ex-Factory Date (PP To Testing Facility)</td>
+              <ng-template ngFor [ngForOf]="projectPriorityData.data" [ngForTrackBy]="trackByFn" let-row let-i="index">
+                <td [attr.colspan]="row.printLocations.length > 0 ? row.printLocations.length : 1">
+                  <ng-container
+                    *ngIf="!row.physSampleExFactoryDatePpToTestingFacility || row.physSampleExFactoryDatePpToTestingFacility.isDisabled; then blackBgBlock14 else infoBgBlock14"></ng-container>
+                  <ng-template #blackBgBlock14>
+                    <ng-container *ngTemplateOutlet="blackCol"></ng-container>
+                  </ng-template>
+                  <ng-template #infoBgBlock14>
+                    <div class="seperate-child"
+                         [ngClass]="{'col-readonly': !canModifyCols('Phys. Sample Ex-Factory Date (PP To Testing Facility)')}"
+                         (click)="onChangePPToTestingFacility(row, row.physSampleExFactoryDatePpToTestingFacility, $event)">
+                      <column-info [columnInfoObj]="getObjectDetail(row.physSampleExFactoryDatePpToTestingFacility, row.physSampleExFactoryDatePpEta)"
+                                   [isShowLeadTime]="false">
+                        <div class="lead-time-child min-height"
+                             [ngClass]="{'col-readonly': !columnCanModify([
+                                 'Phys. Sample Ex-Factory Date (PP)',
+                                 'Phys. Sample Ex-Factory Date (PP To Testing Facility)'
+                               ])}"
+                             (click)="onChangeLeadTime(row, row.physSampleExFactoryDatePpEta, 'Lead Time',
+                               [
+                                'Phys. Sample Ex-Factory Date (PP)',
+                                'Phys. Sample Ex-Factory Date (PP To Testing Facility)'
+                               ])">
+                          <ng-container *ngTemplateOutlet="leadTimeRevise; context: {detail: row.physSampleExFactoryDatePpEta}"></ng-container>
+                        </div>
+                      </column-info>
+                    </div>
+                  </ng-template>
+                </td>
+              </ng-template>
+            </tr>
+            <tr [ngClass]="{'hidden': !(isShowAllColumns || columns.ProductPhysSampleDeliveredToTestingFacilityPp)}"
+                #physSampleDeliveredToTestingFacilityPp>
+              <td colspan="2">Phys. Sample Delivered to Testing Facility (PP)</td>
+              <ng-template ngFor [ngForOf]="projectPriorityData.data" [ngForTrackBy]="trackByFn" let-row let-i="index">
+                <td [attr.colspan]="row.printLocations.length > 0 ? row.printLocations.length : 1">
+                  <ng-container
+                    *ngIf="!row.physSampleDeliveredToTestingFacilityPp || row.physSampleDeliveredToTestingFacilityPp.isDisabled; then blackBgBlock15 else infoBgBlock15"></ng-container>
+                  <ng-template #blackBgBlock15>
+                    <ng-container *ngTemplateOutlet="blackCol"></ng-container>
+                  </ng-template>
+                  <ng-template #infoBgBlock15>
+                    <div class="seperate-child"
+                         [ngClass]="{'col-readonly': !canModifyCols('Phys. Sample Delivered to Testing Facility (PP)')}"
+                         (click)="onChangePhysSampleDelivered(row, row.physSampleDeliveredToTestingFacilityPp, $event)">
+                      <column-info [columnInfoObj]="getObjectDetail(row.physSampleDeliveredToTestingFacilityPp, row.physSampleDeliveredPpEta)"
+                                   [isShowLeadTime]="false">
+                        <div class="lead-time-child min-height"
+                             [ngClass]="{'col-readonly': !columnCanModify([
+                                 'Phys. Sample Delivered to Testing Facility (PP)',
+                                 'Phys. Sample Actual Date Delivered (PP)'
+                               ])}"
+                             (click)="onChangeLeadTime(row, row.physSampleDeliveredPpEta, 'Lead Time',
+                               [
+                                'Phys. Sample Delivered to Testing Facility (PP)',
+                                'Phys. Sample Actual Date Delivered (PP)'
+                               ])">
+                          <ng-container *ngTemplateOutlet="leadTimeRevise; context: {detail: row.physSampleDeliveredPpEta}"></ng-container>
+                        </div>
+                      </column-info>
+                    </div>
+                  </ng-template>
+                </td>
+              </ng-template>
+            </tr>
+            <tr [ngClass]="{'hidden': !(isShowAllColumns || columns.ProductPhysSampleActualDateDeliveredPp)}"
+                #physSampleActualDateDeliveredPp>
+              <td colspan="2">Phys. Sample Actual Date Delivered (PP)</td>
+              <ng-template ngFor [ngForOf]="projectPriorityData.data" [ngForTrackBy]="trackByFn" let-row let-i="index">
+                <td [attr.colspan]="row.printLocations.length > 0 ? row.printLocations.length : 1">
+                  <ng-container
+                    *ngIf="!row.physSampleActualDateDeliveredPp || row.physSampleActualDateDeliveredPp.isDisabled; then blackBgBlock17 else infoBgBlock17"></ng-container>
+                  <ng-template #blackBgBlock17>
+                    <ng-container *ngTemplateOutlet="blackCol"></ng-container>
+                  </ng-template>
+                  <ng-template #infoBgBlock17>
+                    <div class="seperate-child"
+                         [ngClass]="{'col-readonly': !canModifyCols('Phys. Sample Actual Date Delivered (PP)')}"
+                         (click)="onChangePhysSampleActual(row, row.physSampleActualDateDeliveredPp, $event)">
+                      <column-info [columnInfoObj]="getObjectDetail(row.physSampleActualDateDeliveredPp, row.physSampleDeliveredPpEta)"
+                                   [isShowLeadTime]="false">
+                        <div class="lead-time-child min-height"
+                             [ngClass]="{'col-readonly': !columnCanModify([
+                                 'Phys. Sample Delivered to Testing Facility (PP)',
+                                 'Phys. Sample Actual Date Delivered (PP)'
+                               ])}"
+                             (click)="onChangeLeadTime(row, row.physSampleDeliveredPpEta, 'Lead Time',
+                               [
+                                'Phys. Sample Delivered to Testing Facility (PP)',
+                                'Phys. Sample Actual Date Delivered (PP)'
+                               ])">
+                          <ng-container *ngTemplateOutlet="leadTimeRevise; context: {detail: row.physSampleDeliveredPpEta}"></ng-container>
+                        </div>
+                      </column-info>
+                    </div>
+                  </ng-template>
+                </td>
+              </ng-template>
+            </tr>
+            <tr [ngClass]="{'hidden': !(isShowAllColumns || columns.ProductTechDesignReviewDatePp)}"
+                #techDesignReviewDatePp>
+              <td colspan="2">Tech Design Review Date (PP)</td>
+              <ng-template ngFor [ngForOf]="projectPriorityData.data" [ngForTrackBy]="trackByFn" let-row let-i="index">
+                <td [attr.colspan]="row.printLocations.length > 0 ? row.printLocations.length : 1">
+                  <ng-container
+                    *ngIf="!row.techDesignReviewDatePp || row.techDesignReviewDatePp.isDisabled; then blackBgBlock18 else infoBgBlock18"></ng-container>
+                  <ng-template #blackBgBlock18>
+                    <ng-container *ngTemplateOutlet="blackCol"></ng-container>
+                  </ng-template>
+                  <ng-template #infoBgBlock18>
+                    <div class="seperate-child"
+                         [ngClass]="{'col-readonly': !canModifyCols('Tech Design Review Date (PP)')}"
+                         (click)="onChangeTechDesign(row, row.techDesignReviewDatePp)">
+                      <column-info [columnInfoObj]="row.techDesignReviewDatePp"></column-info>
+                    </div>
+                  </ng-template>
+                </td>
+              </ng-template>
+            </tr>
+            <tr [ngClass]="{'hidden': !(isShowAllColumns || columns.ProductQcSampleDate)}"
+                #qcSampleShipDate>
+              <td colspan="2">QC Sample / Ship Date (PP)</td>
+              <ng-template ngFor [ngForOf]="projectPriorityData.data" [ngForTrackBy]="trackByFn" let-row let-i="index">
+                <td [attr.colspan]="row.printLocations.length > 0 ? row.printLocations.length : 1">
+                  <ng-container
+                    *ngIf="!row.qcSampleDate || row.qcSampleDate.isDisabled; then blackBgBlock19 else infoBgBlock19"></ng-container>
+                  <ng-template #blackBgBlock19>
+                    <ng-container *ngTemplateOutlet="blackCol"></ng-container>
+                  </ng-template>
+                  <ng-template #infoBgBlock19>
+                    <div class="seperate-child"
+                         [ngClass]="{'col-readonly': !canModifyCols('QC Sample / Ship Date (PP)')}"
+                         (click)="onChangeQcSampleShipDate(row, row.qcSampleDate)">
+                      <column-info [columnInfoObj]="row.qcSampleDate"></column-info>
+                    </div>
+                  </ng-template>
+                </td>
+              </ng-template>
+            </tr>
+            <!--<tr [ngClass]="{'hidden': !(isShowAllColumns || columns.ProductSamplesDeliveredToCustomerPp)}"-->
+                <!--#samplesDeliveredToCustomer>-->
+              <!--<td colspan="2">Samples delivered to Customer (PP)</td>-->
+              <!--<ng-template ngFor [ngForOf]="projectPriorityData.data" [ngForTrackBy]="trackByFn" let-row let-i="index">-->
+                <!--<td [attr.colspan]="row.printLocations.length > 0 ? row.printLocations.length : 1">-->
+                  <!--<ng-container-->
+                    <!--*ngIf="!row.samplesDeliveredToCustomerPp || row.samplesDeliveredToCustomerPp.isDisabled; then blackBgBlock20 else infoBgBlock20"></ng-container>-->
+                  <!--<ng-template #blackBgBlock20>-->
+                    <!--<ng-container *ngTemplateOutlet="blackCol"></ng-container>-->
+                  <!--</ng-template>-->
+                  <!--<ng-template #infoBgBlock20>-->
+                    <!--<div class="seperate-child"-->
+                         <!--[ngClass]="{'col-readonly': !canModifyCols('Samples delivered to Customer (PP)')}"-->
+                         <!--(click)="onChangeSamplesDelivered(row, row.samplesDeliveredToCustomerPp)">-->
+                      <!--<column-info [columnInfoObj]="row.samplesDeliveredToCustomerPp">-->
+                        <!--<p *ngIf="row.samplesDeliveredToCustomerPp.isUploaded">-->
+                          <!--<i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"-->
+                             <!--(click)="openUploader(row, columnType.SamplesDeliveredToCustomer, 'Samples delivered to Customer (PP)')"></i>-->
+                        <!--</p>-->
+                      <!--</column-info>-->
+                    <!--</div>-->
+                  <!--</ng-template>-->
+                <!--</td>-->
+              <!--</ng-template>-->
+            <!--</tr>-->
+            <tr [ngClass]="{'hidden': !(isShowAllColumns || columns.ProductPhysSampleApprovedByTestingFacilityPp)}"
+                #physSampleApprovedByTestingFacilityPp>
+              <td colspan="2">Phys. Sample Approved By Testing Facility (PP)</td>
+              <ng-template ngFor [ngForOf]="projectPriorityData.data" [ngForTrackBy]="trackByFn" let-row let-i="index">
+                <td [attr.colspan]="row.printLocations.length > 0 ? row.printLocations.length : 1">
+                  <ng-container
+                    *ngIf="!row.physSampleApprovedByTestingFacilityPp || row.physSampleApprovedByTestingFacilityPp.isDisabled; then blackBgBlock16 else infoBgBlock16"></ng-container>
+                  <ng-template #blackBgBlock16>
+                    <ng-container *ngTemplateOutlet="blackCol"></ng-container>
+                  </ng-template>
+                  <ng-template #infoBgBlock16>
+                    <div class="seperate-child"
+                         [ngClass]="{'col-readonly': !canModifyCols('Phys. Sample Approved By Testing Facility (PP)')}"
+                         (click)="onChangePhysSampleApproved(row, row.physSampleApprovedByTestingFacilityPp, $event)">
+                      <column-info [columnInfoObj]="getObjectDetail(row.physSampleApprovedByTestingFacilityPp, row.physSampleApprovedPpEta)"
+                                   [isShowLeadTime]="false">
+                        <div class="lead-time-child min-height"
+                             [ngClass]="{'col-readonly': !columnCanModify([
+                                 'Phys. Sample Approved By Testing Facility (PP)',
+                                 'Final Approval (PP)'
+                               ])}"
+                             (click)="onChangeLeadTime(row, row.physSampleApprovedPpEta, 'Lead Time',
+                               [
+                                'Phys. Sample Approved By Testing Facility (PP)',
+                                'Final Approval (PP)'
+                               ])">
+                          <ng-container *ngTemplateOutlet="leadTimeRevise; context: {detail: row.physSampleApprovedPpEta}"></ng-container>
+                        </div>
+                      </column-info>
+                    </div>
+                  </ng-template>
+                </td>
+              </ng-template>
+            </tr>
+            <tr [ngClass]="{'hidden': !(isShowAllColumns || columns.ProductFinalApprovalPp)}"
+                #finalApproval>
+              <td colspan="2">Final Approval (PP)</td>
+              <ng-template ngFor [ngForOf]="projectPriorityData.data" [ngForTrackBy]="trackByFn" let-row let-i="index">
+                <ng-container *ngFor="let print of row.printLocations; trackBy: trackByFn; let ii = index;" >
+                  <td>
+                    <ng-container *ngIf="!print || !print.finalApprovalPp || print.finalApprovalPp.isDisabled; then blackBgBlock21 else infoBgBlock21"></ng-container>
+                    <ng-template #blackBgBlock21>
+                      <ng-container *ngTemplateOutlet="blackCol"></ng-container>
+                    </ng-template>
+                    <ng-template #infoBgBlock21>
+                      <div class="seperate-child"
+                           [ngClass]="{'col-readonly': !canModifyCols('Final Approval (PP)')}"
+                           (click)="onChangeFinalApproval(row, print, print.finalApprovalPp, $event)">
+                        <column-info [columnInfoObj]="getObjectDetail(print.finalApprovalPp, row.physSampleApprovedPpEta)"
+                                     [isShowLeadTime]="false">
+                          <div class="lead-time-child min-height"
+                               [ngClass]="{'col-readonly': !columnCanModify([
+                                 'Phys. Sample Approved By Testing Facility (PP)',
+                                 'Final Approval (PP)'
+                               ])}"
+                               (click)="onChangeLeadTime(row, row.physSampleApprovedPpEta, 'Lead Time',
+                               [
+                                'Phys. Sample Approved By Testing Facility (PP)',
+                                'Final Approval (PP)'
+                               ])">
+                            <ng-container *ngTemplateOutlet="leadTimeRevise; context: {detail: row.physSampleApprovedPpEta}"></ng-container>
+                          </div>
+                        </column-info>
+                      </div>
+                    </ng-template>
+                  </td>
+                </ng-container>
+              </ng-template>
+            </tr>
+            <!--<tr [ngClass]="{'hidden': !(isShowAllColumns || columns.ProductBulkUpload)}"-->
+                <!--#bulkUpload>-->
+              <!--<td colspan="2">Bulk Upload</td>-->
+              <!--<ng-template ngFor [ngForOf]="projectPriorityData.data" [ngForTrackBy]="trackByFn" let-row let-i="index">-->
+                <!--<td [attr.colspan]="row.printLocations.length > 0 ? row.printLocations.length : 1">-->
+                  <!--<ng-container-->
+                    <!--*ngIf="!row.bulkUpload || row.bulkUpload.isDisabled; then blackBgBlock22 else infoBgBlock22"></ng-container>-->
+                  <!--<ng-template #blackBgBlock22>-->
+                    <!--<ng-container *ngTemplateOutlet="blackCol"></ng-container>-->
+                  <!--</ng-template>-->
+                  <!--<ng-template #infoBgBlock22>-->
+                    <!--<div class="seperate-child"-->
+                         <!--[ngClass]="{'col-readonly': !canModifyCols('Bulk Upload')}"-->
+                         <!--(click)="onChangeBulkUpload(row, row.bulkUpload)">-->
+                      <!--<column-info [columnInfoObj]="row.bulkUpload">-->
+                        <!--<p *ngIf="row.bulkUpload.isUploaded">-->
+                          <!--<i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"-->
+                             <!--(click)="openUploader(row, columnType.BulkUpload, 'Bulk Upload')"></i>-->
+                        <!--</p>-->
+                      <!--</column-info>-->
+                    <!--</div>-->
+                  <!--</ng-template>-->
+                <!--</td>-->
+              <!--</ng-template>-->
+            <!--</tr>-->
+            <!--<tr [ngClass]="{'hidden': !(isShowAllColumns || columns.ProductCustomerPoReceiveDate)}"-->
+                <!--#customerPoReceiveDate>-->
+              <!--<td colspan="2">Customer PO Receive Date</td>-->
+              <!--<ng-template ngFor [ngForOf]="projectPriorityData.data" [ngForTrackBy]="trackByFn" let-row let-i="index">-->
+                <!--<td [attr.colspan]="row.printLocations.length > 0 ? row.printLocations.length : 1">-->
+                  <!--<ng-container-->
+                    <!--*ngIf="!row.customerPoReceiveDate || row.customerPoReceiveDate.isDisabled; then blackBgBlock23 else infoBgBlock23"></ng-container>-->
+                  <!--<ng-template #blackBgBlock23>-->
+                    <!--<ng-container *ngTemplateOutlet="blackCol"></ng-container>-->
+                  <!--</ng-template>-->
+                  <!--<ng-template #infoBgBlock23>-->
+                    <!--<div class="seperate-child"-->
+                         <!--[ngClass]="{'col-readonly': !canModifyCols('Customer PO Receive Date')}"-->
+                         <!--(click)="onChangeCustomerPoReceive(row, row.customerPoReceiveDate)">-->
+                      <!--<column-info [columnInfoObj]="row.customerPoReceiveDate">-->
+                        <!--<p *ngIf="row.customerPoReceiveDate.isUploaded">-->
+                          <!--<i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"-->
+                             <!--(click)="openUploader(row, columnType.CustomerPoReceiveDate, 'Customer PO Receive Date')"></i>-->
+                        <!--</p>-->
+                      <!--</column-info>-->
+                    <!--</div>-->
+                  <!--</ng-template>-->
+                <!--</td>-->
+              <!--</ng-template>-->
+            <!--</tr>-->
+            <tr [ngClass]="{'hidden': !(isShowAllColumns || columns.ProductProductionDue)}"
+                #productionDue>
+              <td colspan="2">Production Due</td>
+              <ng-template ngFor [ngForOf]="projectPriorityData.data" [ngForTrackBy]="trackByFn" let-row let-i="index">
+                <td [attr.colspan]="row.printLocations.length > 0 ? row.printLocations.length : 1" class="relative">
+                  <ng-container
+                    *ngIf="!row.productionDue || row.productionDue.isDisabled; then blackBgBlock24 else infoBgBlock24"></ng-container>
+                  <ng-template #blackBgBlock24>
+                    <ng-container *ngTemplateOutlet="blackCol"></ng-container>
+                  </ng-template>
+                  <ng-template #infoBgBlock24>
+                    <div class="seperate-child col-readonly">
+                      <column-info [columnInfoObj]="row.productionDue">
+                        <p *ngIf="!!row.productionDue.statusDateMinOnUtc">
+                          {{row.productionDue.statusDateMinOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD'}}
+                          {{row.productionDue.statusDateMaxOnUtc ? (' to ' +
+                          (row.productionDue.statusDateMaxOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD')) :
+                          ''}}
+                        </p>
+                      </column-info>
+                    </div>
+                  </ng-template>
+                </td>
+              </ng-template>
+            </tr>
+            <tr [ngClass]="{'hidden': !(isShowAllColumns || columns.ProductXFactoryDate)}"
+                #xFactoryDate>
+              <td colspan="2">x-Factory Date</td>
+              <ng-template ngFor [ngForOf]="projectPriorityData.data" [ngForTrackBy]="trackByFn" let-row let-i="index">
+                <td [attr.colspan]="row.printLocations.length > 0 ? row.printLocations.length : 1">
+                  <ng-container
+                    *ngIf="!row.exFactoryDate || row.exFactoryDate.isDisabled; then blackBgBlock25 else infoBgBlock25"></ng-container>
+                  <ng-template #blackBgBlock25>
+                    <ng-container *ngTemplateOutlet="blackCol"></ng-container>
+                  </ng-template>
+                  <ng-template #infoBgBlock25>
+                    <div class="seperate-child"
+                         [ngClass]="{'col-readonly': !canModifyCols('x-Factory Date')}"
+                         (click)="onChangeXFactoryDate(row, row.exFactoryDate)">
+                      <column-info [columnInfoObj]="row.exFactoryDate"></column-info>
+                    </div>
+                  </ng-template>
+                </td>
+              </ng-template>
+            </tr>
+            <!--<tr [ngClass]="{'hidden': !(isShowAllColumns || columns.ProductArrival3Pl)}"-->
+                <!--#arrival3Pl>-->
+              <!--<td colspan="2">Arrival @ 3PL</td>-->
+              <!--<ng-template ngFor [ngForOf]="projectPriorityData.data" [ngForTrackBy]="trackByFn" let-row let-i="index">-->
+                <!--<td [attr.colspan]="row.printLocations.length > 0 ? row.printLocations.length : 1">-->
+                  <!--<ng-container-->
+                    <!--*ngIf="!row.arrival3Pl || row.arrival3Pl.isDisabled; then blackBgBlock26 else infoBgBlock26"></ng-container>-->
+                  <!--<ng-template #blackBgBlock26>-->
+                    <!--<ng-container *ngTemplateOutlet="blackCol"></ng-container>-->
+                  <!--</ng-template>-->
+                  <!--<ng-template #infoBgBlock26>-->
+                    <!--<div class="seperate-child"-->
+                         <!--[ngClass]="{'col-readonly': !canModifyCols('Arrival @ 3PL')}"-->
+                         <!--(click)="onChangeArrival3pl(row, row.arrival3Pl)">-->
+                      <!--<column-info [columnInfoObj]="row.arrival3Pl"></column-info>-->
+                    <!--</div>-->
+                  <!--</ng-template>-->
+                <!--</td>-->
+              <!--</ng-template>-->
+            <!--</tr>-->
+            <tr [ngClass]="{'hidden': !(isShowAllColumns || columns.ProductReadyToShip3Pl)}"
+                #readyToShip3Pl>
+              <td colspan="2">Ready To Ship @ 3PL</td>
+              <ng-template ngFor [ngForOf]="projectPriorityData.data" [ngForTrackBy]="trackByFn" let-row let-i="index">
+                <td [attr.colspan]="row.printLocations.length > 0 ? row.printLocations.length : 1">
+                  <ng-container
+                    *ngIf="!row.readyToShip3Pl || row.readyToShip3Pl.isDisabled; then blackBgBlock27 else infoBgBlock27"></ng-container>
+                  <ng-template #blackBgBlock27>
+                    <ng-container *ngTemplateOutlet="blackCol"></ng-container>
+                  </ng-template>
+                  <ng-template #infoBgBlock27>
+                    <div class="seperate-child"
+                         [ngClass]="{'col-readonly': !canModifyCols('Ready To Ship @ 3PL')}"
+                         (click)="onChangeReadyToShip3Pl(row, row.readyToShip3Pl)">
+                      <column-info [columnInfoObj]="row.readyToShip3Pl">
+                        <p *ngIf="!!row.readyToShip3Pl.statusDateMinOnUtc">
+                          {{row.readyToShip3Pl.statusDateMinOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                          {{row.readyToShip3Pl.statusDateMaxOnUtc ? (' - ' +
+                          (row.readyToShip3Pl.statusDateMaxOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY')) :
+                          ''}}
+                        </p>
+                      </column-info>
+                    </div>
+                  </ng-template>
+                </td>
+              </ng-template>
+            </tr>
+            <tr [ngClass]="{'hidden': !(isShowAllColumns || columns.ProductInDcStoreDate)}"
+                #inDcStoreDate>
+              <td colspan="2">In DC/Store Date</td>
+              <ng-template ngFor [ngForOf]="projectPriorityData.data" [ngForTrackBy]="trackByFn" let-row let-i="index"
+                           let-first="first">
+                <td [attr.colspan]="projectPriorityData.totalPrintLocationsHorizontal" *ngIf="first" class="relative">
+                  <ng-container
+                    *ngIf="!row.inDcStoreDateOnUtc || row.inDcStoreDateOnUtc.isDisabled; then blackBgBlock28 else infoBgBlock28"></ng-container>
+                  <ng-template #blackBgBlock28>
+                    <ng-container *ngTemplateOutlet="blackCol"></ng-container>
+                  </ng-template>
+                  <ng-template #infoBgBlock28>
+                    <div class="seperate-child col-readonly not-min-height">
+                      <p class="full-width m-t-30 py-1" [ngClass]="{'stt-red': isLessThanTodayDate(row.inDcStoreDateOnUtc)}">
+                        {{row.inDcStoreDateOnUtc ? (row.inDcStoreDateOnUtc | amFromUtc | amLocal | amDateFormat:
+                        'MM/DD/YY') : ''}}
+                      </p>
+                    </div>
+                  </ng-template>
+                </td>
+              </ng-template>
+            </tr>
+            </tbody>
+          </table>
+        </perfect-scrollbar>
+      </div>
+    </ng-template>
+    <ng-container *ngTemplateOutlet="paginationTop"></ng-container>
+  </div>
+  <ng-template #noProducts>
+    <div class="col-12 py-2">
+      <p class="font-size-16">No {{productType === cProductType.Priority ? 'priority' : 'secondary'}} products exist in this project.</p>
+    </div>
+  </ng-template>
+</div>
+
+<ng-template #pagination>
+  <pagination-control [totalRecord]="projectPriorityData.totalRecord"
+                      *ngIf="projectPriorityData.data && projectPriorityData.data.length"
+                      [disablePageSize]="true"
+                      [isShowPageSize]="false"
+                      [isShowPagination]="false"
+                      (onSelectedPageSize)="onSelectedPageSize($event)"
+                      (onPageChange)="onPageChange($event)">
+    <ng-container rightTotalRecord>
+      <div class="ml-4">
+        <a class="left px-1" href="javascript:void(0)" (click)="exportOrder('pdf')">
+          <i class="fa fa-file-pdf-o fa-2x text-danger" aria-hidden="true"></i>
+        </a>
+        <div ngbDropdown class="d-inline-block" #myFontDrop="ngbDropdown"
+             class="select-size-dropdown left px-1"
+             placement="bottom-right"
+             (clickOutside)="myFontDrop.close();"
+             [attachOutsideOnClick]="true">
+          <i class="fa fa-font fa-2x cursor" id="dropdown4" ngbDropdownToggle></i>
+          <div ngbDropdownMenu aria-labelledby="dropdown4">
+            <button class="dropdown-item" *ngFor="let item of fontSizeData; trackBy: trackByFn"
+                    [ngClass]="{'active': item === myConfigStyle['font-size']}"
+                    (click)="onChangeFontSize(item);myFontDrop.close();">{{item}}
+            </button>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+    <ng-container center>
+      <div class="hidden-sm hidden-md hidden-lg col-12 layout-xs">
+        <ng-container *ngTemplateOutlet="layout"></ng-container>
+      </div>
+    </ng-container>
+    <ng-container right>
+      <a class="show-all-col right" href="javascript:void(0)"
+         (click)="showAllColumns()">{{!isShowAllColumns ? 'Show All Columns' : 'Show My Columns'}}</a>
+      <div ngbDropdown class="select-column-dropdown px-1 right m-r-5" #myDrop2="ngbDropdown"
+           placement="bottom-right"
+           (openChange)="onChangeShowHideColumn($event)"
+           (clickOutside)="myDrop2.close()"
+           [attachOutsideOnClick]="true">
+        <i class="fa fa-sliders fa-2x cursor" id="dropdown5" ngbDropdownToggle></i>
+        <div ngbDropdownMenu aria-labelledby="dropdown5">
+          <div class="col-12 px-1">
+            <div class="checkbox">
+              <input type="checkbox" id="all-options5" [checked]="isCheckedAll"
+                     (change)="onCheckedColsAll($event)">
+              <label [style.margin-bottom]="'.2rem'" for="all-options5">All</label>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="">
+            <div class="col-12 px-1" *ngFor="let col of showHideColumns; trackBy: trackByFn; let i = index">
+              <div class="checkbox">
+                <input type="checkbox"
+                       [id]="'col-' + i"
+                       [name]="'col-' + i"
+                       [(ngModel)]="col.isView"
+                       (change)="changeCheckedCol($event)">
+                <label [for]="'col-' + i">{{col.description}}</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="hidden-xs">
+        <ng-container *ngTemplateOutlet="layout"></ng-container>
+      </div>
+    </ng-container>
+  </pagination-control>
+  <ng-template #layout>
+    <span class="px-1 right m-r-15" (click)="onChangeLayout(false)">
+        <img class="cursor horizontal" *ngIf="isVerticalLayout; else activeHorizontalBlock"
+             src="../../../../assets/img/icons/table-layout.png">
+        <ng-template #activeHorizontalBlock>
+          <img class="cursor horizontal" src="../../../../assets/img/icons/table-layout-active.png">
+        </ng-template>
+      </span>
+    <span class="px-1 right" (click)="onChangeLayout(true)">
+        <img class="cursor" *ngIf="!isVerticalLayout; else activeVerticalBlock"
+             src="../../../../assets/img/icons/table-layout.png">
+        <ng-template #activeVerticalBlock>
+          <img class="cursor" src="../../../../assets/img/icons/table-layout-active.png">
+        </ng-template>
+      </span>
+  </ng-template>
+</ng-template>
+<ng-template #paginationTop>
+  <pagination-control [totalRecord]="projectPriorityData.totalRecord"
+                      *ngIf="projectPriorityData.data && projectPriorityData.data.length"
+                      [disablePageSize]="true"
+                      [dropdownPosition]="'top-left'"
+                      [isShowPageSize]="false"
+                      [isShowPagination]="false"
+                      (onSelectedPageSize)="onSelectedPageSize($event)"
+                      (onPageChange)="onPageChange($event)"></pagination-control>
+</ng-template>
+
+<ng-template #blackCol let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+  <div class="full-black-bg"
+       [ngClass]="{'height-25': !isShowLeadTime && !isShowStatusDate}"></div>
+</ng-template>
+
+<ng-template #leadTimeRevise let-detail="detail">
+  <column-info [columnInfoObj]="detail" [isShowStatus]="false" [isShowStatusDate]="false"></column-info>
+</ng-template>

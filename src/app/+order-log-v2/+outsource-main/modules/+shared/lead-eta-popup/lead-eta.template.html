@@ -1,0 +1,89 @@
+<form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()">
+  <div class="row py-1">
+    <div [class]="parentClass">
+      <div class="row flex py-1"
+           [ngClass]="{'required': frm.get('formRequires').value['leadTimeRevise'].required}">
+        <div [class]="'control-label text-right ' + labelClass">
+          <label class="nowrap">Lead Time (Days)</label>
+        </div>
+        <div [class]="controlClass">
+          <p class="p-readonly" [ngClass]="{'line-through': !isNaN(frm.get('leadTimeRevise').value)}">
+            {{frm.get('leadTime').value}}</p>
+        </div>
+      </div>
+      <div class="row flex py-1"
+           [ngClass]="{'required': frm.get('formRequires').value['etaDateReviseOnUtc'].required}">
+        <div [class]="'control-label text-right ' + labelClass">
+          <label class="nowrap">ETA Date</label>
+        </div>
+        <div [class]="controlClass">
+          <p class="p-readonly" [ngClass]="{'line-through': !!frm.get('etaDateReviseOnUtc').value}">
+            {{frm.get('etaDateOnUtc').value | amFromUtc | amLocal | amDateFormat: 'MM/DD/YYYY'}}</p>
+        </div>
+      </div>
+    </div>
+    <div [class]="parentSubClass">
+      <div class="row flex py-1 align-items-center" style="height: 39px">
+        <ng-container *ngIf="isReviseLeadTime">
+          <div [class]="'px-0'" [ngStyle]="{'width': '135px'}"
+               [ngClass]="{'has-error':!frm.get('leadTimeRevise').valid || isMinLengthLeadTime}">
+            <input formControlName='leadTimeRevise' IntegerNumber
+                   type="text"
+                   [attr.disabled]="isPageReadOnly ? true : null"
+                   [placeholder]="!isPageReadOnly ? 'Lead Time (Days)' : ''"
+                   (keyup)="onLeadTimeChange($event)"
+                   class="form-control">
+            <label class="error"
+                   *ngIf="frm.get('leadTimeRevise').hasError('required') && !frm.get('leadTimeRevise').pristine">
+              {{validationMessages['default'].required}}</label>
+            <label class="error lead-time-error nowrap" *ngIf="isMinLengthLeadTime">
+              Lead Time (Days) must be greater 0</label>
+          </div>
+        </ng-container>
+        <ng-container *ngIf="!isReviseLeadTime && (!!frm.get('leadTimeRevise').value || !!frm.get('etaDateReviseOnUtc').value)">
+          <div [class]="controlClass">
+            <p class="p-readonly">{{frm.get('leadTimeRevise').value}}</p>
+          </div>
+        </ng-container>
+        <ng-container *ngIf="!isReviseLeadTime && !isReviseEtaDate && !isPageReadOnly">
+          <div class="ab-left" [ngClass]="{'ab-right': !!frm.get('leadTimeRevise').value || !!frm.get('etaDateReviseOnUtc').value}">
+            <a href="javascript:void(0)" (click)="onReviseLeadTime()" class="underline">Revise</a>
+          </div>
+        </ng-container>
+      </div>
+      <div class="row flex py-1" style="height: 39px">
+        <ng-container *ngIf="isReviseEtaDate">
+          <div [class]="'px-0 ' + controlClass"
+               [ngClass]="{'has-error':!frm.get('etaDateReviseOnUtc').valid || (isReviseEtaDate && !frm.get('etaDateReviseOnUtc').value)}">
+            <my-date-picker class="flex" [options]="myDatePickerOptions"
+                            #etaDateRevisePicker
+                            formControlName='etaDateRevise'
+                            [ngClass]="{'disabled': isPageReadOnly}"
+                            [disabled]="isPageReadOnly"
+                            (dateChanged)="onDateChangedBy($event, 'etaDateReviseOnUtc', true)"
+                            (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, etaDateRevisePicker)"
+                            (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, etaDateRevisePicker, frm.get('etaDateReviseOnUtc'))"></my-date-picker>
+            <label class="error lead-time-error"
+                   *ngIf="isReviseEtaDate && !frm.get('etaDateReviseOnUtc').value">
+              {{validationMessages['default'].required}}</label>
+            <label class="error lead-time-error"
+                   *ngIf="frm.get('etaDateReviseOnUtc').hasError('maxDate') && !frm.get('etaDateReviseOnUtc').pristine">
+              {{validationMessages['default'].maxLength}}
+            </label>
+          </div>
+        </ng-container>
+        <ng-container *ngIf="!isReviseEtaDate && (!!frm.get('leadTimeRevise').value || !!frm.get('etaDateReviseOnUtc').value)">
+          <div [class]="controlClass">
+            <p class="p-readonly" *ngIf="frm.get('etaDateReviseOnUtc').value">
+              {{frm.get('etaDateReviseOnUtc').value | amFromUtc | amLocal | amDateFormat: 'MM/DD/YYYY'}}</p>
+          </div>
+        </ng-container>
+        <ng-container *ngIf="!isReviseEtaDate && !isReviseLeadTime && !isPageReadOnly">
+          <div class="ab-left" [ngClass]="{'ab-right': !!frm.get('leadTimeRevise').value || !!frm.get('etaDateReviseOnUtc').value}">
+            <a href="javascript:void(0)" (click)="onReviseEtaDate()" class="underline">Revise</a>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</form>

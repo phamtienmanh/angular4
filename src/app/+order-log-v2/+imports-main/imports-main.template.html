@@ -1,0 +1,2472 @@
+<div class="row mt-2" #importHeader>
+  <div class="panel panel-transparent" id="importHeader">
+    <perfect-scrollbar class="scroll-sm" [config]="{suppressScrollX: false}" (psScrollX)="onScrollTabX($event)"
+                       #dashboardScroll>
+      <ul class="nav nav-tabs m-b-10" fitcontent>
+        <ng-template ngFor [ngForOf]="tabs" [ngForTrackBy]="trackByFn" let-tab let-i="index">
+          <li class="text-center nav-item" *ngIf="tab.isView"
+              [ngClass]="{'active': tab.isActive, 'disabled': tab.isDisabled}"
+              (click)="switchTab($event, i)">
+            <a class="justify-center nav-link"
+               href="javascript:void(0)" aria-expanded="true">
+              <span>{{tab.name}}</span>
+            </a>
+          </li>
+        </ng-template>
+      </ul>
+    </perfect-scrollbar>
+  </div>
+</div>
+<div class="panel panel-transparent pb-3">
+  <import-main-filter [fontSize]="myConfigStyle['font-size']"
+                         [typeTab]="getActivatedTabId()"
+                         [isHaveData]="importsData.data && !!importsData.data.length"
+                         [isShowExportBulkPo]="getCurrentTab().name === 'Blanks Not Purchased'"
+                         (onExportOrder)="onExportOrder($event)"
+                         (onExportBulkPo)="onExportBulkPo($event)"
+                         (onChangeFontSize)="onChangeFontSize($event)"
+                         (onUpdateFilter)="onUpdateFilter($event)"
+                         (onFilter)="onFilter($event)"></import-main-filter>
+  <div class="py-2" *ngIf="importsData.data === null">
+    <span class="font-size-16">No orders match the current selections.</span>
+  </div>
+  <div class="py-2" *ngIf="importsData.data && !importsData.data.length">
+    <span class="font-size-16">
+      {{isA2000Dashboard ? 'No orders match the current selections.' : 'No orders have been created.'}}
+    </span>
+  </div>
+  <div class="py-2" [hidden]="!importsData.data || !importsData.data.length">
+    <div class="ngx-datatable material custom-ngx-dtb" id="header"
+         [ngStyle]="myConfigStyleHeader"></div>
+    <ng-container *ngTemplateOutlet="pagination"></ng-container>
+    <div class="relative" id="importTable">
+      <div class="overlay-cancelled" *ngIf="getCurrentTab().name === 'Cancelled'"></div>
+      <perfect-scrollbar [config]="{suppressScrollX: false, suppressScrollY: true}" (psScrollX)="onScrollX($event)">
+        <div class="table-wrapper" #tableWrapper id="tableWrapper">
+          <table class="table order-table" border="1px"
+                 [ngStyle]="myConfigStyle"
+                 *ngIf="!isNoColumnChecked()">
+            <thead>
+            <tr class="table-header">
+              <th class="center cursor" (click)="collapseAll()"
+                  [attr.rowspan]="2">
+                <i class="collapse-toggle cursor fa fa-caret-down fa-2x"
+                   [ngClass]="{'collapsed': isAllCollapse}"></i>
+              </th>
+              <th *ngIf="isShowAllColumns || columns.ImportCSRCustPORetailerPOOrderDates"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].csr.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].csr.width"
+                  [attr.rowspan]="2">
+                CSR<br>Cust / PO #<br>Retailer / PO #<br>Order Dates
+              </th>
+              <th *ngIf="isShowAllColumns || columns.ImportFactory"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].factory.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].factory.width"
+                  [attr.rowspan]="2">
+                Factory
+              </th>
+              <th *ngIf="isShowAllColumns || columns.ImportDesignDescriptionTotal"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].styleInfo.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].styleInfo.width"
+                  [attr.rowspan]="2">
+                Design #<br>Description<br>Total
+              </th>
+              <th *ngIf="isShowAllColumns || columns.ImportNeckLabel"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].neckLabel.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].neckLabel.width"
+                  [attr.rowspan]="2">
+                Neck Label
+              </th>
+              <th *ngIf="isShowAllColumns || columns.ImportArt"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].art.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].art.width"
+                  [attr.rowspan]="2">
+                Art
+              </th>
+              <th *ngIf="isShowAllColumns || columns.ImportPOIssueDate"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].poIssueDueDate.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].poIssueDueDate.width"
+                  [attr.rowspan]="2">
+                PO Issue Date
+              </th>
+              <th *ngIf="isShowAllColumns || columns.ImportOWSTechPackReady"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].owsTechPackReady.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].owsTechPackReady.width"
+                  [attr.rowspan]="2">
+                OWS / Tech<br>Pack Ready
+              </th>
+              <th *ngIf="isShowAllColumns || columns.ImportArtRequested"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].artRequested.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].artRequested.width"
+                  [attr.rowspan]="2">
+                Art<br>Requested
+              </th>
+              <th *ngIf="isShowAllColumns || columns.ImportArtReceived"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].artReceived.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].artReceived.width"
+                  [attr.rowspan]="2">
+                Art<br>Received
+              </th>
+              <th *ngIf="isShowAllColumns || columns.ImportArtReleased"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].artReleased.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].artReleased.width"
+                  [attr.rowspan]="2">
+                Art<br>Released
+              </th>
+              <th *ngIf="isShowAllColumns || columns.ImportFabricQualityDue"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].fabricQualityDue.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].fabricQualityDue.width"
+                  [attr.rowspan]="2">
+                Fabric Quality<br>Due
+              </th>
+              <th *ngIf="isShowAllColumns || columns.ImportLabDipsDue"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].labDipsDue.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].labDipsDue.width"
+                  [attr.rowspan]="2">
+                Lab Dips Due
+              </th>
+              <th *ngIf="isShowAllColumns || columns.ImportFitSampleDue"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].fitSampleDue.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].fitSampleDue.width"
+                  [attr.rowspan]="2">
+                Fit Sample Due
+              </th>
+              <th *ngIf="isShowAllColumns || columns.ImportTrimSubmitsDue"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].trimSubmitsDue.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].trimSubmitsDue.width"
+                  [attr.rowspan]="2">
+                Trim Submits Due
+              </th>
+              <th *ngIf="isShowAllColumns || columns.ImportBulkFabric"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].bulkFabric.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].bulkFabric.width"
+                  [attr.rowspan]="2">
+                Bulk Fabric
+              </th>
+              <th *ngIf="isShowAllColumns || columns.ImportStrikeOffKnitDownDue"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].strikeOffKnitDownDue.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].strikeOffKnitDownDue.width"
+                  [attr.rowspan]="2">
+                Strike Off / Knit<br>Down Due
+              </th>
+              <th *ngIf="isShowAllColumns || columns.ImportPpSampleDue"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].ppSampleDue.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].ppSampleDue.width"
+                  [attr.rowspan]="2">
+                PP Sample Due
+              </th>
+              <th *ngIf="isShowAllColumns || columns.ImportPhysSampleExFactoryDatePP"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDatePp.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDatePp.width"
+                  [attr.rowspan]="2">
+                Phys. Sample<br>Ex-Factory<br>Date (PP)
+              </th>
+              <th *ngIf="isShowAllColumns || columns.ImportPhysSampleExFactoryDatePPToTestingFacility"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDatePpToTestingFacility.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDatePpToTestingFacility.width"
+                  [attr.rowspan]="2">
+                Phys. Sample<br>Ex-Factory<br>Date (PP To<br>Testing Facility)
+              </th>
+              <th *ngIf="isShowAllColumns || columns.ImportPhysSampleDeliveredtoTestingFacilityPP"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleDeliveredToTestingFacilityPp.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleDeliveredToTestingFacilityPp.width"
+                  [attr.rowspan]="2">
+                Phys. Sample<br>Delivered to<br>Testing Facility<br>(PP)
+              </th>
+              <th *ngIf="isShowAllColumns || columns.ImportPhysSampleActualDateDeliveredPP"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleActualDateDeliveredPp.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleActualDateDeliveredPp.width"
+                  [attr.rowspan]="2">
+                Phys. Sample<br>Actual Date<br>Delivered (PP)
+              </th>
+              <th *ngIf="isShowAllColumns || columns.ImportTechDesignReviewDatePp"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].techDesignReviewDate.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].techDesignReviewDate.width"
+                  [attr.rowspan]="2">
+                Tech Design /<br>Review Date (PP)
+              </th>
+              <th *ngIf="isShowAllColumns || columns.ImportQCSampleShipDatePP"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].qcSampleShipDate.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].qcSampleShipDate.width"
+                  [attr.rowspan]="2">
+                QC Sample /<br>Ship Date (PP)
+              </th>
+              <th *ngIf="isShowAllColumns || columns.ImportPhysSampleApprovedByTestingFacilityPP"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleApprovedByTestingFacilityPp.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleApprovedByTestingFacilityPp.width"
+                  [attr.rowspan]="2">
+                Phys. Sample<br>Approved By<br>Testing Facility<br>(PP)
+              </th>
+              <th *ngIf="isShowAllColumns || columns.ImportFinalApprovalPP"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].finalApproval.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].finalApproval.width"
+                  [attr.rowspan]="2">
+                Final<br>Approval (PP)
+              </th>
+              <ng-container *ngIf="isShowAllColumns || columns.ImportProductionDue
+                                                    || columns.ImportPackingValidationDue
+                                                    || columns.ImportTopDue
+                                                    || columns.ImportPhysSampleExFactoryDateTOP
+                                                    || columns.ImportPhysSampleActualDateDeliveredTOP
+                                                    || columns.ImportQCSampleShipDateTOP
+                                                    || columns.ImportFinalApprovalTOP
+                                                    || columns.ImportShippingLabelsTSCPackingList">
+                <th class="background-ccc" [attr.colspan]="isShowAllColumns ? 8 : (+ columns.ImportProductionDue
+                                    + columns.ImportPackingValidationDue
+                                    + columns.ImportTopDue
+                                    + columns.ImportPhysSampleExFactoryDateTOP
+                                    + columns.ImportPhysSampleActualDateDeliveredTOP
+                                    + columns.ImportQCSampleShipDateTOP
+                                    + columns.ImportFinalApprovalTOP
+                                    + columns.ImportShippingLabelsTSCPackingList)"
+                    [style.minWidth.px]="+ columns.ImportProductionDue * myStyleColumns[myConfigStyle['font-size']].productionDue.width
+                       + columns.ImportPackingValidationDue * myStyleColumns[myConfigStyle['font-size']].packingValidationDue.width
+                       + columns.ImportTopDue * myStyleColumns[myConfigStyle['font-size']].topDue.width
+                       + columns.ImportPhysSampleExFactoryDateTOP * myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDateTop.width
+                       + columns.ImportPhysSampleActualDateDeliveredTOP * myStyleColumns[myConfigStyle['font-size']].physSampleActualDateDeliveredTop.width
+                       + columns.ImportQCSampleShipDateTOP * myStyleColumns[myConfigStyle['font-size']].qcSampleShipDateTop.width
+                       + columns.ImportFinalApprovalTOP * myStyleColumns[myConfigStyle['font-size']].finalApprovalTop.width
+                       + columns.ImportShippingLabelsTSCPackingList * myStyleColumns[myConfigStyle['font-size']].shippingLabelsTscPackingList.width"
+                    [style.maxWidth.px]="+ columns.ImportProductionDue * myStyleColumns[myConfigStyle['font-size']].productionDue.width
+                       + columns.ImportPackingValidationDue * myStyleColumns[myConfigStyle['font-size']].packingValidationDue.width
+                       + columns.ImportTopDue * myStyleColumns[myConfigStyle['font-size']].topDue.width
+                       + columns.ImportPhysSampleExFactoryDateTOP * myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDateTop.width
+                       + columns.ImportPhysSampleActualDateDeliveredTOP * myStyleColumns[myConfigStyle['font-size']].physSampleActualDateDeliveredTop.width
+                       + columns.ImportQCSampleShipDateTOP * myStyleColumns[myConfigStyle['font-size']].qcSampleShipDateTop.width
+                       + columns.ImportFinalApprovalTOP * myStyleColumns[myConfigStyle['font-size']].finalApprovalTop.width
+                       + columns.ImportShippingLabelsTSCPackingList * myStyleColumns[myConfigStyle['font-size']].shippingLabelsTscPackingList.width">
+                  Production Lead Time
+                </th>
+              </ng-container>
+              <th *ngIf="isShowAllColumns || columns.ImportFactoryPackingListCI"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].factoryPackingListCi.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].factoryPackingListCi.width"
+                  [attr.rowspan]="2">
+                Factory<br>Packing List /<br>CI
+              </th>
+              <th *ngIf="isShowAllColumns || columns.ImportXFactoryDate"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].xFactoryDate.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].xFactoryDate.width"
+                  [attr.rowspan]="2">
+                x-Factory<br>Date
+              </th>
+              <th *ngIf="isShowAllColumns || columns.ImportReadyToShip3PL"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].readyToShip3Pl.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].readyToShip3Pl.width"
+                  [attr.rowspan]="2">
+                Ready To<br>Ship @ 3PL
+              </th>
+              <th *ngIf="isShowAllColumns || columns.ImportEtaTsc"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].etatsc.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].etatsc.width"
+                  [attr.rowspan]="2">
+                ETA @<br>TSC
+              </th>
+            </tr>
+            <tr class="table-header">
+              <th *ngIf="isShowAllColumns || columns.ImportProductionDue"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].productionDue.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].productionDue.width">
+                Production Due
+              </th>
+              <th *ngIf="isShowAllColumns || columns.ImportPackingValidationDue"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].packingValidationDue.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].packingValidationDue.width">
+                Packing<br>Validation Due
+              </th>
+              <th *ngIf="isShowAllColumns || columns.ImportTopDue"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].topDue.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].topDue.width">
+                TOP Due
+              </th>
+              <th *ngIf="isShowAllColumns || columns.ImportPhysSampleExFactoryDateTOP"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDateTop.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDateTop.width">
+                Phys. Sample<br>Ex-Factory<br>Date (TOP)
+              </th>
+              <th *ngIf="isShowAllColumns || columns.ImportPhysSampleActualDateDeliveredTOP"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleActualDateDeliveredTop.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleActualDateDeliveredTop.width">
+                Phys. Sample<br>Actual Date<br>Delivered (TOP)
+              </th>
+              <th *ngIf="isShowAllColumns || columns.ImportQCSampleShipDateTOP"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].qcSampleShipDateTop.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].qcSampleShipDateTop.width">
+                QC Sample /<br>Ship Date (TOP)
+              </th>
+              <th *ngIf="isShowAllColumns || columns.ImportFinalApprovalTOP"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].finalApprovalTop.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].finalApprovalTop.width">
+                Final Approval<br>(TOP)
+              </th>
+              <th *ngIf="isShowAllColumns || columns.ImportShippingLabelsTSCPackingList"
+                  [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].shippingLabelsTscPackingList.width"
+                  [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].shippingLabelsTscPackingList.width">
+                Shipping<br>Labels /<br>TSC Packing<br>List
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <ng-template ngFor let-row [ngForOf]="importsData.data" let-i="index"
+                         let-first="first">
+              <ng-template ngFor let-detail [ngForOf]="row.styles" let-ii="index"
+                           let-firstStyle="first" let-lastStyle="last">
+                <ng-template ngFor let-item [ngForOf]="detail.printLocations" let-iii="index"
+                             let-firstPrint="first" let-lastPrint="last">
+                  <!--Status field-->
+                  <tr *ngIf="!row.isCollapse || (firstStyle && firstPrint)"
+                      [ngClass]="{'start-order': !first && firstStyle && firstPrint}">
+                    <td *ngIf="firstStyle && firstPrint"
+                        (click)="collapseRow(row)"
+                        [attr.rowSpan]="orderColSpan(row)"
+                        class="center cursor">
+                      <div class="seperate-child">
+                        <i class="collapse-toggle cursor fa fa-caret-down fa-2x"
+                           [ngClass]="{'collapsed': row.isCollapse}"></i>
+                        <b class="m-t-5">{{(tableConfig.currentPage - 1) * tableConfig.pageSize + i + 1}}</b>
+                      </div>
+                    </td>
+                    <ng-container *ngTemplateOutlet="csrCustPORetailerPOOrderDates;
+                       context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ImportFactory)"
+                        [attr.rowSpan]="row.isCollapse ? 1 : (detail.printLocations.length + 2)"
+                        [style.border-bottom]="'1px solid #999'"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].factory.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].factory.width">
+                      <div *ngIf="row.isCollapse; then disabledCol1 else infoCol1"></div>
+                      <ng-template #disabledCol1>
+                        <ng-container *ngTemplateOutlet="disabledCol"></ng-container>
+                      </ng-template>
+                      <ng-template #infoCol1>
+                        <ng-container *ngIf="detail.isCancelled">
+                          <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                        </ng-container>
+                        <div class="seperate-child"
+                             [id]="row.orderId + '-' + detail.orderDetailId + '-' + 'factory'"
+                             [ngClass]="{'col-readonly': !canModifyCols('Factory') || row.isCancelled, 'unread': !row.isReaded}">
+                          <p class="center">{{detail.factoryName}}</p>
+                        </div>
+                      </ng-template>
+                    </td>
+                    <ng-container *ngIf="firstPrint && row.isCollapse &&
+                                         (+ columns.ImportDesignDescriptionTotal
+                                          + columns.ImportNeckLabel
+                                          + columns.ImportArt
+                                          + columns.ImportPOIssueDate
+                                          + columns.ImportOWSTechPackReady
+                                          + columns.ImportArtRequested
+                                          + columns.ImportArtReceived
+                                          + columns.ImportArtReleased || isShowAllColumns) &&
+                                          (!row.isOrderNotification ||
+                                            row.orderNotificationImportedDateOnUtc)">
+                      <td [attr.colspan]="isShowAllColumns ? 8 : (+ columns.ImportDesignDescriptionTotal
+                                          + columns.ImportNeckLabel
+                                          + columns.ImportArt
+                                          + columns.ImportPOIssueDate
+                                          + columns.ImportOWSTechPackReady
+                                          + columns.ImportArtRequested
+                                          + columns.ImportArtReceived
+                                          + columns.ImportArtReleased)"
+                          [style.minWidth.px]="+ columns.ImportDesignDescriptionTotal * myStyleColumns[myConfigStyle['font-size']].styleInfo.width
+                       + columns.ImportNeckLabel * myStyleColumns[myConfigStyle['font-size']].neckLabel.width
+                       + columns.ImportArt * myStyleColumns[myConfigStyle['font-size']].art.width
+                       + columns.ImportPOIssueDate * myStyleColumns[myConfigStyle['font-size']].poIssueDueDate.width
+                       + columns.ImportOWSTechPackReady * myStyleColumns[myConfigStyle['font-size']].owsTechPackReady.width
+                       + columns.ImportArtRequested * myStyleColumns[myConfigStyle['font-size']].artRequested.width
+                       + columns.ImportArtReceived * myStyleColumns[myConfigStyle['font-size']].artReceived.width
+                       + columns.ImportArtReleased * myStyleColumns[myConfigStyle['font-size']].artReleased.width"
+                          [style.maxWidth.px]="+ columns.ImportDesignDescriptionTotal * myStyleColumns[myConfigStyle['font-size']].styleInfo.width
+                       + columns.ImportNeckLabel * myStyleColumns[myConfigStyle['font-size']].neckLabel.width
+                       + columns.ImportArt * myStyleColumns[myConfigStyle['font-size']].art.width
+                       + columns.ImportPOIssueDate * myStyleColumns[myConfigStyle['font-size']].poIssueDueDate.width
+                       + columns.ImportOWSTechPackReady * myStyleColumns[myConfigStyle['font-size']].owsTechPackReady.width
+                       + columns.ImportArtRequested * myStyleColumns[myConfigStyle['font-size']].artRequested.width
+                       + columns.ImportArtReceived * myStyleColumns[myConfigStyle['font-size']].artReceived.width
+                       + columns.ImportArtReleased * myStyleColumns[myConfigStyle['font-size']].artReleased.width">
+                        <div class="relative py-1 flex img-container">
+                          <ng-container *ngFor="let style of row.styles">
+                            <ng-container *ngIf="!style.isCancelled">
+                              <ng-container
+                                *ngFor="let item of style.printLocations; let i = index; let firstItem = first">
+                                  <span *ngIf="firstItem" class="img-child-collapse center">
+                                      <p class="p-link m-b-5 break-word" *ngIf="style.licensorName">({{style.licensorName}})</p>
+                                      <p class="p-link" (click)="goToStyle(row.orderId, style.orderDetailId)"
+                                         [ngClass]="{'type-domestic': style.itemType === itemTypes.DOMESTIC,
+                                                     'type-outsource': style.itemType === itemTypes.OUTSOURCE,
+                                                     'type-cutandsew': style.itemType === itemTypes.IMPORTS}">
+                                        {{style.units}} units</p>
+                                    <img *ngIf="item && item.printLocationImageUrl"
+                                         class="img-thumbnail-none-wh"
+                                         [src]="item.printLocationImageUrl" width="50"
+                                         height="50" imgZoomClick>
+                                    <img *ngIf="(!item || !item.printLocationImageUrl) && style.styleImageUrl"
+                                         class="img-thumbnail-none-wh"
+                                         [src]="style.styleImageUrl" width="50"
+                                         height="50"
+                                         imgZoomClick>
+                                  </span>
+                              </ng-container>
+                            </ng-container>
+                          </ng-container>
+                        </div>
+                        <div class="px-2 total-badge">{{row.totalStyleUnits}} units</div>
+                      </td>
+                    </ng-container>
+                    <ng-container *ngIf="!row.isCollapse ||
+                                            row.isOrderNotification
+                                            && !row.orderNotificationImportedDateOnUtc">
+                      <ng-container *ngTemplateOutlet="designDescriptionTotal;
+                       context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+
+                      <td *ngIf="firstPrint && (isShowAllColumns || columns.ImportNeckLabel)"
+                          [style.border-bottom]="'1px solid #999'"
+                          [attr.rowSpan]="row.isCollapse ? 1 : (detail.printLocations.length + 2)"
+                          [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].neckLabel.width"
+                          [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].neckLabel.width">
+                        <ng-container *ngIf="detail.isCancelled">
+                          <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                        </ng-container>
+                        <div *ngIf="detail.noNeckLabel === false; then noNeckLabelBlock else neckLabelBlock"></div>
+                        <ng-template #noNeckLabelBlock>
+                          <div class="seperate-child"
+                               [id]="row.orderId + '-' + detail.orderDetailId + '-' + 'neckLabel'"
+                               [ngClass]="{'col-readonly': !canModifyCols('Neck Label') || row.isCancelled, 'unread': !row.isReaded}"
+                               (click)="goToNeckLabelSetup(row, detail)">
+                            <img class="img-thumbnail-none-wh m-t-10" (click)="$event.stopPropagation()"
+                                 [src]="detail.neckLabelImageUrl" width="50" height="50" imgZoomClick>
+                          </div>
+                        </ng-template>
+                        <ng-template #neckLabelBlock>
+                          <div class="seperate-child"
+                               [id]="row.orderId + '-' + detail.orderDetailId + '-' + 'neckLabel'"
+                               [ngClass]="{'col-readonly': !canModifyCols('Neck Label') || row.isCancelled, 'unread': !row.isReaded}">
+                            <div class="row center p-link">
+                              <p class="col-sm-12" (click)="goToNeckLabelSetup(row, detail)">
+                                {{detail.noNeckLabel === true ? 'Neck Label Not Required' : 'No Neck Label Setup'}}</p>
+                            </div>
+                          </div>
+                        </ng-template>
+                      </td>
+                      <td *ngIf="isShowAllColumns || columns.ImportArt"
+                          [style.border-bottom]="'1px solid #999'"
+                          [attr.rowSpan]="firstPrint && !row.isCollapse ? 3 : 1"
+                          [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].art.width"
+                          [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].art.width">
+                        <div *ngIf="!detail || detail.isCancelled; then noPrintBlock1 else printBlock1"></div>
+                        <ng-template #noPrintBlock1>
+                          <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                        </ng-template>
+                        <ng-template #printBlock1>
+                          <div *ngIf="!item; then blackBgBlock1 else infoBgBlock1"></div>
+                          <ng-template #blackBgBlock1>
+                            <div class="seperate-child"
+                                 [ngClass]="{'col-readonly': !canModifyCols('Art') || row.isCancelled || detail.isCancelled, 'unread': !row.isReaded}">
+                              <div class="row center p-link">
+                                <p class="col-sm-12" (click)="goToPrintLocationSetup(row, detail)">No Print Locations
+                                  Setup</p>
+                              </div>
+                            </div>
+                          </ng-template>
+                          <ng-template #infoBgBlock1>
+                            <div class="seperate-child"
+                                 [id]="row.orderId + '-' + detail.orderDetailId + '-' + item.printLocationId + '-' + 'art'"
+                                 [ngClass]="{'col-readonly': !canModifyCols('Art') || row.isCancelled || detail.isCancelled, 'unread': !row.isReaded}">
+                              <p class="p-link"
+                                 (click)="goToPrintLocation(row.orderId, detail.orderDetailId, item.printLocationId)">
+                                {{item.locationName}}</p>
+
+                              <img *ngIf="item.printLocationImageUrl" class="img-thumbnail-none-wh mb-1"
+                                   [src]="item.printLocationImageUrl" width="50" height="50" imgZoomClick>
+                            </div>
+                          </ng-template>
+                        </ng-template>
+                      </td>
+
+                      <ng-container *ngTemplateOutlet="poIssueOwsTechPackReady;
+                       context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+
+                      <ng-container *ngTemplateOutlet="artRequested;
+                       context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+
+                      <ng-container *ngIf="firstPrint; else artReceivedFull">
+                        <ng-container *ngTemplateOutlet="artReceived;
+                         context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+                      </ng-container>
+
+                      <ng-template #artReceivedFull>
+                        <ng-container *ngTemplateOutlet="artReceived;
+                         context: {isShowStatus: true, isShowLeadTime: true, isShowStatusDate: true}"></ng-container>
+                      </ng-template>
+
+                      <ng-container *ngIf="firstPrint; else artReleasedFull">
+                        <ng-container *ngTemplateOutlet="artReleased;
+                         context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+                      </ng-container>
+
+                      <ng-template #artReleasedFull>
+                        <ng-container *ngTemplateOutlet="artReleased;
+                         context: {isShowStatus: true, isShowLeadTime: true, isShowStatusDate: true}"></ng-container>
+                      </ng-template>
+                    </ng-container>
+
+                    <ng-container *ngTemplateOutlet="fabricQualityDue;
+                       context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+
+                    <ng-container *ngTemplateOutlet="labDipsDue;
+                       context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+
+                    <ng-container *ngTemplateOutlet="fitSampleDue;
+                       context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+
+                    <ng-container *ngTemplateOutlet="trimSubmitsDue;
+                       context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+
+                    <ng-container *ngTemplateOutlet="bulkFabric;
+                       context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+
+                    <ng-container *ngTemplateOutlet="strikeOffKnitDownDue;
+                       context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+
+                    <ng-container *ngTemplateOutlet="ppSampleDate;
+                       context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+
+                    <ng-container *ngTemplateOutlet="physSampleExFactoryDatePp;
+                       context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+
+                    <ng-container *ngTemplateOutlet="physSampleDeliveredActual;
+                       context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+
+                    <ng-container *ngTemplateOutlet="techDesignReviewDate;
+                       context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+
+                    <ng-container *ngTemplateOutlet="qcSampleShipDate;
+                       context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+
+                    <ng-container *ngIf="firstPrint">
+                      <ng-container *ngTemplateOutlet="physSampleFinalApproval;
+                         context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+                    </ng-container>
+
+                    <!--Show in the tr below-->
+                    <ng-container *ngIf="!firstPrint && !row.isCollapse">
+                      <ng-container *ngTemplateOutlet="finalApproval;
+                         context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                    </ng-container>
+                    <!--Show in the tr below-->
+
+                    <ng-container *ngTemplateOutlet="productionLeadTime;
+                       context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+
+                    <ng-container *ngTemplateOutlet="factoryPackingListXFactory;
+                       context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+
+                    <ng-container *ngTemplateOutlet="readyToShip3Pl;
+                       context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+
+                    <ng-container *ngTemplateOutlet="etaTsc;
+                       context: {isShowStatus: true, isShowLeadTime: false, isShowStatusDate: false}"></ng-container>
+                  </tr>
+                  <!--Merge lead time-->
+                  <tr *ngIf="firstPrint && !row.isCollapse">
+                    <ng-container *ngTemplateOutlet="csrCustPORetailerPOOrderDates;
+                       context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>
+
+                    <ng-container *ngTemplateOutlet="designDescriptionTotal;
+                       context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>
+
+                    <ng-container *ngIf="firstPrint && !row.isCollapse &&
+                                         (+ columns.ImportPOIssueDate
+                                          + columns.ImportOWSTechPackReady || isShowAllColumns)">
+                      <td [attr.colspan]="isShowAllColumns ? 2 : (+ columns.ImportPOIssueDate
+                                            + columns.ImportOWSTechPackReady)"
+                          [style.minWidth.px]="+ columns.ImportPOIssueDate * myStyleColumns[myConfigStyle['font-size']].poIssueDueDate.width
+                       + columns.ImportOWSTechPackReady * myStyleColumns[myConfigStyle['font-size']].owsTechPackReady.width"
+                          [style.maxWidth.px]="+ columns.ImportPOIssueDate * myStyleColumns[myConfigStyle['font-size']].poIssueDueDate.width
+                       + columns.ImportOWSTechPackReady * myStyleColumns[myConfigStyle['font-size']].owsTechPackReady.width"
+                          [style.height.px]="40">
+                        <div
+                          *ngIf="!detail.poIssueDueDate && !detail.owsTechPackReady; then blackBgBlock2 else infoBgBlock2"></div>
+                        <ng-template #blackBgBlock2>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock2>
+                          <div class="lead-time-child"
+                               [ngClass]="{'once-print': detail.printLocations.length === 1 && getLengthFabLab(detail) < 3,
+                               'col-readonly': !columnCanModify([
+                                  'PO Issue Date',
+                                  'OWS / Tech Pack Ready'
+                               ])}"
+                               (click)="onChangeLeadTime(row, detail, detail.poIssueDueOwsTechPackReadyEta, 'Lead Time',
+                                  [
+                                    'PO Issue Date',
+                                    'OWS / Tech Pack Ready'
+                                  ])">
+                            <ng-container
+                              *ngTemplateOutlet="leadTimeRevise; context: {detail: detail.poIssueDueOwsTechPackReadyEta}"></ng-container>
+                          </div>
+                        </ng-template>
+                      </td>
+                    </ng-container>
+
+                    <ng-container *ngTemplateOutlet="artRequested;
+                       context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>
+
+                    <ng-container *ngTemplateOutlet="artReceived;
+                       context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>
+
+                    <ng-container *ngTemplateOutlet="artReleased;
+                       context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>
+
+                    <ng-container *ngTemplateOutlet="fabricQualityDue;
+                       context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>
+
+                    <ng-container *ngTemplateOutlet="labDipsDue;
+                       context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>
+
+                    <ng-container *ngTemplateOutlet="fitSampleDue;
+                       context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>
+
+                    <ng-container *ngTemplateOutlet="trimSubmitsDue;
+                       context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>
+
+                    <ng-container *ngTemplateOutlet="bulkFabric;
+                       context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>
+
+                    <ng-container *ngTemplateOutlet="strikeOffKnitDownDue;
+                       context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>
+
+                    <ng-container *ngTemplateOutlet="ppSampleDate;
+                       context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>
+
+                    <ng-container *ngIf="firstPrint && !row.isCollapse &&
+                                         (+ columns.ImportPhysSampleExFactoryDatePP
+                                          + columns.ImportPhysSampleExFactoryDatePPToTestingFacility || isShowAllColumns)">
+                      <td [attr.colspan]="isShowAllColumns ? 2 : (+ columns.ImportPhysSampleExFactoryDatePP
+                                          + columns.ImportPhysSampleExFactoryDatePPToTestingFacility)"
+                          [style.minWidth.px]="+ columns.ImportPhysSampleExFactoryDatePP * myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDatePp.width
+                       + columns.ImportPhysSampleExFactoryDatePPToTestingFacility * myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDatePpToTestingFacility.width"
+                          [style.maxWidth.px]="+ columns.ImportPhysSampleExFactoryDatePP * myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDatePp.width
+                       + columns.ImportPhysSampleExFactoryDatePPToTestingFacility * myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDatePpToTestingFacility.width"
+                          [style.height.px]="40">
+                        <div
+                          *ngIf="(!detail.physSampleExFactoryDatePp || detail.physSampleExFactoryDatePp.isDisabled)
+                           && (!detail.physSampleExFactoryDatePpToTestingFacility || detail.physSampleExFactoryDatePpToTestingFacility.isDisabled); then blackBgBlock15 else infoBgBlock15"></div>
+                        <ng-template #blackBgBlock15>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock15>
+                          <div class="lead-time-child"
+                               [ngClass]="{'once-print': detail.printLocations.length === 1 && getLengthFabLab(detail) < 3,
+                               'col-readonly': !columnCanModify([
+                                  'Phys. Sample Ex-Factory Date (PP)',
+                                  'Phys. Sample Ex-Factory Date (PP To Testing Facility)'
+                               ])}"
+                               (click)="onChangeLeadTime(row, detail, detail.physSampleExFactoryDatePpEta, 'Lead Time',
+                               [
+                                'Phys. Sample Ex-Factory Date (PP)',
+                                'Phys. Sample Ex-Factory Date (PP To Testing Facility)'
+                               ])">
+                            <ng-container
+                              *ngTemplateOutlet="leadTimeRevise; context: {detail: detail.physSampleExFactoryDatePpEta}"></ng-container>
+                          </div>
+                        </ng-template>
+                      </td>
+                    </ng-container>
+
+                    <ng-container *ngIf="firstPrint && !row.isCollapse &&
+                                         (+ columns.ImportPhysSampleDeliveredtoTestingFacilityPP
+                                          + columns.ImportPhysSampleActualDateDeliveredPP || isShowAllColumns)">
+                      <td [attr.colspan]="isShowAllColumns ? 2 : (+ columns.ImportPhysSampleDeliveredtoTestingFacilityPP
+                                          + columns.ImportPhysSampleActualDateDeliveredPP)"
+                          [style.minWidth.px]="+ columns.ImportPhysSampleDeliveredtoTestingFacilityPP * myStyleColumns[myConfigStyle['font-size']].physSampleDeliveredToTestingFacilityPp.width
+                       + columns.ImportPhysSampleActualDateDeliveredPP * myStyleColumns[myConfigStyle['font-size']].physSampleActualDateDeliveredPp.width"
+                          [style.maxWidth.px]="+ columns.ImportPhysSampleDeliveredtoTestingFacilityPP * myStyleColumns[myConfigStyle['font-size']].physSampleDeliveredToTestingFacilityPp.width
+                       + columns.ImportPhysSampleActualDateDeliveredPP * myStyleColumns[myConfigStyle['font-size']].physSampleActualDateDeliveredPp.width"
+                          [style.height.px]="40">
+                        <div
+                          *ngIf="(!detail.physSampleDeliveredToTestingFacilityPp || detail.physSampleDeliveredToTestingFacilityPp.isDisabled)
+                           && (!detail.physSampleActualDateDeliveredPp || detail.physSampleActualDateDeliveredPp.isDisabled); then blackBgBlock18 else infoBgBlock18"></div>
+                        <ng-template #blackBgBlock18>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock18>
+                          <div class="lead-time-child"
+                               [ngClass]="{'once-print': detail.printLocations.length === 1 && getLengthFabLab(detail) < 3,
+                               'col-readonly': !columnCanModify([
+                                  'Phys. Sample Delivered to Testing Facility (PP)',
+                                  'Phys. Sample Actual Date Delivered'
+                               ])}"
+                               (click)="onChangeLeadTime(row, detail, detail.physSampleDeliveredPpEta, 'Lead Time',
+                               [
+                                'Phys. Sample Delivered to Testing Facility (PP)',
+                                'Phys. Sample Actual Date Delivered'
+                               ])">
+                            <ng-container
+                              *ngTemplateOutlet="leadTimeRevise; context: {detail: detail.physSampleDeliveredPpEta}"></ng-container>
+                          </div>
+                        </ng-template>
+                      </td>
+                    </ng-container>
+
+                    <ng-container *ngTemplateOutlet="techDesignReviewDate;
+                       context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>
+
+                    <ng-container *ngTemplateOutlet="qcSampleShipDate;
+                       context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>
+
+                    <ng-container *ngIf="firstPrint && !row.isCollapse &&
+                                         (+ columns.ImportPhysSampleApprovedByTestingFacilityPP
+                                          + columns.ImportFinalApprovalPP || isShowAllColumns)">
+                      <td [attr.colspan]="isShowAllColumns ? 2 : (+ columns.ImportPhysSampleApprovedByTestingFacilityPP
+                                          + columns.ImportFinalApprovalPP)"
+                          [style.minWidth.px]="+ columns.ImportPhysSampleApprovedByTestingFacilityPP * myStyleColumns[myConfigStyle['font-size']].physSampleApprovedByTestingFacilityPp.width
+                       + columns.ImportFinalApprovalPP * myStyleColumns[myConfigStyle['font-size']].finalApproval.width"
+                          [style.maxWidth.px]="+ columns.ImportPhysSampleApprovedByTestingFacilityPP * myStyleColumns[myConfigStyle['font-size']].physSampleApprovedByTestingFacilityPp.width
+                       + columns.ImportFinalApprovalPP * myStyleColumns[myConfigStyle['font-size']].finalApproval.width"
+                          [style.height.px]="40">
+                        <div
+                          *ngIf="(detail.physSampleApprovedByTestingFacilityPp && !detail.physSampleApprovedByTestingFacilityPp.isSetup && !detail.physSampleApprovedByTestingFacilityPp.isDisabled)
+                                       || (item && item.finalApproval && !item.finalApproval.isSetup && !item.finalApproval.isDisabled); then infoBgBlock22 else blackBgBlock22"></div>
+                        <ng-template #blackBgBlock22>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock22>
+                          <div class="lead-time-child"
+                               [ngClass]="{'once-print': detail.printLocations.length === 1 && getLengthFabLab(detail) < 3,
+                               'col-readonly': !columnCanModify([
+                                  'Phys. Sample Approved By Testing Facility (PP)',
+                                  'Final Approval'
+                               ])}"
+                               (click)="onChangeLeadTime(row, detail, detail.physSampleApprovedPpEta, 'Lead Time',
+                               [
+                                'Phys. Sample Approved By Testing Facility (PP)',
+                                'Final Approval'
+                               ])">
+                            <ng-container
+                              *ngTemplateOutlet="leadTimeRevise; context: {detail: detail.physSampleApprovedPpEta}"></ng-container>
+                          </div>
+                        </ng-template>
+                      </td>
+                    </ng-container>
+
+                    <ng-container *ngIf="firstPrint && !row.isCollapse &&
+                                         (+ columns.ImportTopDue
+                                          + columns.ImportPackingValidationDue
+                                          + columns.ImportPhysSampleExFactoryDateTOP
+                                          + columns.ImportPhysSampleActualDateDeliveredTOP
+                                          + columns.ImportQCSampleShipDateTOP
+                                          + columns.ImportFinalApprovalTOP
+                                          + columns.ImportShippingLabelsTSCPackingList
+                                          + columns.ImportProductionDue || isShowAllColumns)">
+                      <td [attr.colspan]="isShowAllColumns ? 8 : (+ columns.ImportTopDue
+                                          + columns.ImportPackingValidationDue
+                                          + columns.ImportPhysSampleExFactoryDateTOP
+                                          + columns.ImportPhysSampleActualDateDeliveredTOP
+                                          + columns.ImportQCSampleShipDateTOP
+                                          + columns.ImportFinalApprovalTOP
+                                          + columns.ImportShippingLabelsTSCPackingList
+                                          + columns.ImportProductionDue)"
+                          [style.minWidth.px]="+ columns.ImportTopDue * myStyleColumns[myConfigStyle['font-size']].topDue.width
+                       + columns.ImportPackingValidationDue * myStyleColumns[myConfigStyle['font-size']].packingValidationDue.width
+                       + columns.ImportPhysSampleExFactoryDateTOP * myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDateTop.width
+                       + columns.ImportPhysSampleActualDateDeliveredTOP * myStyleColumns[myConfigStyle['font-size']].physSampleActualDateDeliveredTop.width
+                       + columns.ImportQCSampleShipDateTOP * myStyleColumns[myConfigStyle['font-size']].qcSampleShipDateTop.width
+                       + columns.ImportFinalApprovalTOP * myStyleColumns[myConfigStyle['font-size']].finalApprovalTop.width
+                       + columns.ImportShippingLabelsTSCPackingList * myStyleColumns[myConfigStyle['font-size']].shippingLabelsTscPackingList.width
+                       + columns.ImportProductionDue * myStyleColumns[myConfigStyle['font-size']].productionDue.width"
+                          [style.maxWidth.px]="+ columns.ImportTopDue * myStyleColumns[myConfigStyle['font-size']].topDue.width
+                       + columns.ImportPackingValidationDue * myStyleColumns[myConfigStyle['font-size']].packingValidationDue.width
+                       + columns.ImportPhysSampleExFactoryDateTOP * myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDateTop.width
+                       + columns.ImportPhysSampleActualDateDeliveredTOP * myStyleColumns[myConfigStyle['font-size']].physSampleActualDateDeliveredTop.width
+                       + columns.ImportQCSampleShipDateTOP * myStyleColumns[myConfigStyle['font-size']].qcSampleShipDateTop.width
+                       + columns.ImportFinalApprovalTOP * myStyleColumns[myConfigStyle['font-size']].finalApprovalTop.width
+                       + columns.ImportShippingLabelsTSCPackingList * myStyleColumns[myConfigStyle['font-size']].shippingLabelsTscPackingList.width
+                       + columns.ImportProductionDue * myStyleColumns[myConfigStyle['font-size']].productionDue.width"
+                          [style.height.px]="40">
+                        <div
+                          *ngIf="detail.topQty === 0 && !detail.shippingLabelsTscPackingList && !detail.productionDue && !detail.packingValidationDue
+                                       || ((!detail.productionDue || detail.productionDue.isDisabled)
+                                       && (!detail.packingValidationDue || detail.packingValidationDue.isDisabled)
+                                       && (!detail.topDue || detail.topDue.isSetup || detail.topDue.isDisabled)
+                                       && (!detail.physSampleExFactoryDateTop || detail.physSampleExFactoryDateTop.isSetup || detail.physSampleExFactoryDateTop.isDisabled)
+                                       && (!detail.physSampleActualDateDeliveredTop || detail.physSampleActualDateDeliveredTop.isSetup || detail.physSampleActualDateDeliveredTop.isDisabled)
+                                       && (!detail.qcSampleShipDateTop || detail.qcSampleShipDateTop.isSetup || detail.qcSampleShipDateTop.isDisabled)
+                                       && (!detail.shippingLabelsTscPackingList || detail.shippingLabelsTscPackingList.isDisabled)
+                                       && (!detail.finalApprovalTop || detail.finalApprovalTop.isDisabled)); then blackBgBlock25 else infoBgBlock25"></div>
+                        <ng-template #blackBgBlock25>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock25>
+                          <div class="lead-time-child"
+                               [ngClass]="{'once-print': detail.printLocations.length === 1 && getLengthFabLab(detail) < 3,
+                               'col-readonly': !columnCanModify([
+                                  'Production Due',
+                                  'Packing Validation Due',
+                                  'TOP Due',
+                                  'Phys. Sample Ex-Factory Date (TOP)',
+                                  'Phys. Sample Actual Date Delivered (TOP)',
+                                  'QC Sample / Ship Date (TOP)',
+                                  'Final Approval (TOP)',
+                                  'Shipping Labels / TSC Packing List'
+                               ])}"
+                               (click)="onChangeLeadTime(row, detail, detail.productionLeadTimeEta, 'Production Lead Time',
+                               [
+                                'Production Due',
+                                'Packing Validation Due',
+                                'TOP Due',
+                                'Phys. Sample Ex-Factory Date (TOP)',
+                                'Phys. Sample Actual Date Delivered (TOP)',
+                                'QC Sample / Ship Date (TOP)',
+                                'Final Approval (TOP)',
+                                'Shipping Labels / TSC Packing List'
+                               ])">
+                            <ng-container
+                              *ngTemplateOutlet="leadTimeRevise; context: {detail: detail.productionLeadTimeEta}"></ng-container>
+                          </div>
+                        </ng-template>
+                      </td>
+                    </ng-container>
+
+                    <ng-container *ngIf="firstPrint && !row.isCollapse &&
+                                         (+ columns.ImportFactoryPackingListCI
+                                          + columns.ImportXFactoryDate || isShowAllColumns)">
+                      <td [attr.colspan]="isShowAllColumns ? 2 : (+ columns.ImportFactoryPackingListCI
+                                          + columns.ImportXFactoryDate)"
+                          [style.minWidth.px]="+ columns.ImportFactoryPackingListCI * myStyleColumns[myConfigStyle['font-size']].factoryPackingListCi.width
+                       + columns.ImportXFactoryDate * myStyleColumns[myConfigStyle['font-size']].xFactoryDate.width"
+                          [style.maxWidth.px]="+ columns.ImportFactoryPackingListCI * myStyleColumns[myConfigStyle['font-size']].factoryPackingListCi.width
+                       + columns.ImportXFactoryDate * myStyleColumns[myConfigStyle['font-size']].xFactoryDate.width"
+                          [style.height.px]="40">
+                        <div
+                          *ngIf="(!detail.factoryPackingListCi || detail.factoryPackingListCi.isDisabled)
+                           && (!detail.xFactoryDate || detail.xFactoryDate.isDisabled); then blackBgBlock33 else infoBgBlock33"></div>
+                        <ng-template #blackBgBlock33>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock33>
+                          <div class="lead-time-child"
+                               [ngClass]="{'once-print': detail.printLocations.length === 1 && getLengthFabLab(detail) < 3,
+                               'col-readonly': !columnCanModify([
+                                'Factory Packing List / CI',
+                                'x-Factory Date'
+                               ])}"
+                               (click)="onChangeLeadTime(row, detail, detail.factoryPackingListCiXFactoryDateEta, 'Lead Time',
+                               [
+                                'Factory Packing List / CI',
+                                'x-Factory Date'
+                               ])">
+                            <ng-container
+                              *ngTemplateOutlet="leadTimeRevise; context: {detail: detail.factoryPackingListCiXFactoryDateEta}"></ng-container>
+                          </div>
+                        </ng-template>
+                      </td>
+                    </ng-container>
+
+                    <ng-container *ngTemplateOutlet="readyToShip3Pl;
+                       context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>
+
+                    <ng-container *ngTemplateOutlet="etaTsc;
+                       context: {isShowStatus: false, isShowLeadTime: true, isShowStatusDate: false}"></ng-container>
+                  </tr>
+                  <!--Date Completed Detail-->
+                  <tr *ngIf="firstPrint && !row.isCollapse">
+                    <ng-container *ngTemplateOutlet="csrCustPORetailerPOOrderDates; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                    <ng-container *ngTemplateOutlet="designDescriptionTotal; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                    <ng-container *ngTemplateOutlet="poIssueOwsTechPackReady; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                    <ng-container *ngTemplateOutlet="artRequested; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                    <ng-container *ngTemplateOutlet="artReceived; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                    <ng-container *ngTemplateOutlet="artReleased; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                    <ng-container *ngTemplateOutlet="fabricQualityDue; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                    <ng-container *ngTemplateOutlet="labDipsDue; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                    <ng-container *ngTemplateOutlet="fitSampleDue; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                    <ng-container *ngTemplateOutlet="trimSubmitsDue; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                    <ng-container *ngTemplateOutlet="bulkFabric; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                    <ng-container *ngTemplateOutlet="strikeOffKnitDownDue; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                    <ng-container *ngTemplateOutlet="ppSampleDate; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                    <ng-container *ngTemplateOutlet="physSampleExFactoryDatePp; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                    <ng-container *ngTemplateOutlet="physSampleDeliveredActual; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                    <ng-container *ngTemplateOutlet="techDesignReviewDate; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                    <ng-container *ngTemplateOutlet="qcSampleShipDate; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                    <ng-container *ngTemplateOutlet="physSampleFinalApproval; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                    <ng-container *ngTemplateOutlet="productionLeadTime; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                    <ng-container *ngTemplateOutlet="factoryPackingListXFactory; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                    <ng-container *ngTemplateOutlet="readyToShip3Pl; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                    <ng-container *ngTemplateOutlet="etaTsc; context: {isShowStatus: false, isShowLeadTime: false, isShowStatusDate: true}"></ng-container>
+                  </tr>
+
+                  <ng-template #csrCustPORetailerPOOrderDates let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="firstStyle && firstPrint && (isShowAllColumns || columns.ImportCSRCustPORetailerPOOrderDates)"
+                        [attr.rowSpan]="(!isShowStatusDate) ? 1 : (orderColSpan(row) - 2)"
+                        [style.border-bottom]="(isShowStatus && !isShowLeadTime && !isShowStatusDate) ? 'none' : ((!isShowStatus && isShowLeadTime && !isShowStatusDate) ? '1px solid #fff': '1px solid #999')"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].csr.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].csr.width">
+                      <div class="p-1 full-height" (click)="goToOrderInfo($event, row.orderId)"
+                           [id]="'csrCustPORetailerPOOrderDates-' + row.orderId + '-' + detail.orderDetailId"
+                           (mouseenter)="onHover($event, true, true, 'csrCustPORetailerPOOrderDates', row.orderId, detail.orderDetailId)"
+                           (mouseleave)="onHover($event, false, true, 'csrCustPORetailerPOOrderDates', row.orderId, detail.orderDetailId)"
+                           [ngClass]="{'col-readonly': !canModifyCols('CSR Cust / PO # Retailer / PO # Order Dates') || row.isCancelled, 'unread': !row.isReaded,
+                                       'red-csr': isEtaWrong(row)}">
+                        <ng-container *ngIf="isShowStatus">
+                          <p class="center p-link mb-0 nowrap">{{row.csr}}</p>
+                        </ng-container>
+                        <ng-container *ngIf="isShowLeadTime || row.isCollapse">
+                          <p class="center p-link">{{row.customerName}} <span
+                            *ngIf="row.customerName && row.customerPoId">#</span>
+                            {{row.customerPoId}}</p>
+                        </ng-container>
+                        <ng-container *ngIf="isShowStatusDate || row.isCollapse">
+                          <p class="center p-link">{{row.retailerName}} <span
+                            *ngIf="row.retailerName && row.retailerPoId">#</span>
+                            {{row.retailerPoId}}</p>
+                          <p class="center p-link" [ngPlural]="row.fulfillmentType">
+                            <ng-template ngPluralCase="0">?</ng-template>
+                            <ng-template ngPluralCase="1">In Fulfillment</ng-template>
+                            <ng-template ngPluralCase="2">In DC</ng-template>
+                            <ng-template ngPluralCase="3">Drop Ship</ng-template>
+                            <ng-template ngPluralCase="4">In Store</ng-template>
+                            <ng-template ngPluralCase="other"></ng-template>
+                          </p>
+                          <p class="center p-link mbe-1">
+                            <span class="inline">{{row.orderDateOnUtc ? ('ORD: ' + (row.orderDateOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY')) : ''}}</span>
+                          </p>
+                          <p class="center p-link mbe-1">
+                            <span class="inline">{{row.startDateOnUtc ? ('START: ' + (row.startDateOnUtc | amDateFormat: 'MM/DD/YY')) : ''}}</span>
+                          </p>
+                          <p class="center p-link mbe-1">
+                            <span class="inline">{{row.cancelDateOnUtc ? ('CNCL: ' + (row.cancelDateOnUtc | amDateFormat: 'MM/DD/YY')) : ''}}</span>
+                          </p>
+                          <p class="center p-link mbe-1">
+                            <span class="inline">{{(row.lastDateToShipNonExpedited && row.isInDcOrder) ? ('LDSNE: ' + (row.lastDateToShipNonExpedited | amDateFormat: 'MM/DD/YY')) : ''}}</span>
+                          </p>
+                        </ng-container>
+                      </div>
+                    </td>
+                  </ng-template>
+
+                  <ng-template #designDescriptionTotal let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ImportDesignDescriptionTotal)"
+                        [style.border-bottom]="(isShowStatus && !isShowLeadTime && !isShowStatusDate) ? 'none' : ((!isShowStatus && isShowLeadTime && !isShowStatusDate) ? '1px solid #fff': '1px solid #999')"
+                        [attr.rowSpan]="(!isShowStatusDate) ? 1 : (row.isCollapse ? 1 : detail.printLocations.length)"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].styleInfo.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].styleInfo.width">
+                      <ng-container *ngIf="detail.isCancelled">
+                        <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                      </ng-container>
+                      <ng-container *ngIf="detail; else noStyleBlock">
+                        <div class="seperate-child" (click)="goToStyle(row.orderId, detail.orderDetailId)"
+                             [id]="'designDescriptionTotal-' + row.orderId + '-' + detail.orderDetailId"
+                             (mouseenter)="onHover($event, true, true, 'designDescriptionTotal', row.orderId, detail.orderDetailId)"
+                             (mouseleave)="onHover($event, false, true, 'designDescriptionTotal', row.orderId, detail.orderDetailId)"
+                             [ngClass]="{'col-readonly': !canModifyCols('Design # Description Total') || row.isCancelled || detail.isCancelled, 'unread': !row.isReaded,
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate,
+                                         'only-eta-field': !isShowStatus && !isShowStatusDate}">
+                          <ng-container *ngIf="isShowStatus">
+                            <p class="stt-p type-domestic"
+                               *ngIf="detail.itemType === itemTypes.DOMESTIC">Domestic</p>
+                            <p class="stt-p type-outsource"
+                               *ngIf="detail.itemType === itemTypes.OUTSOURCE">Outsource</p>
+                            <p class="stt-p type-cutandsew"
+                               *ngIf="detail.itemType === itemTypes.IMPORTS">Imports</p>
+                          </ng-container>
+
+                          <ng-container *ngIf="isShowLeadTime">
+                            <p class="p-link min-height-content mt-3">{{detail.brand}}</p>
+                          </ng-container>
+
+                          <ng-container *ngIf="isShowStatusDate">
+                            <p class="p-link">{{detail.partnerStyleName}}</p>
+                            <p class="p-link min-height-content mt-0">{{detail.styleName}}</p>
+                            <p class="p-link mt-0">{{detail.units >= 0 ? (detail.units + ' units') : ''}}</p>
+                            <p class="p-link" *ngIf="detail.licensorName">({{detail.licensorName}})</p>
+                          </ng-container>
+                        </div>
+                      </ng-container>
+                      <ng-template #noStyleBlock>
+                        <div class="row center p-link" *ngIf="isShowStatusDate">
+                          <p class="col-sm-12" (click)="goToStyleSetup(row.orderId)">No Styles Setup</p>
+                        </div>
+                      </ng-template>
+                    </td>
+                  </ng-template>
+
+                  <ng-template #poIssueOwsTechPackReady let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ImportPOIssueDate)"
+                        [style.border-bottom]="(!isShowLeadTime && !isShowStatusDate) ? 'none': '1px solid #999'"
+                        [attr.rowSpan]="(!isShowLeadTime && !isShowStatusDate) ? 1 : (row.isCollapse ? 1 : detail.printLocations.length)"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].poIssueDueDate.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].poIssueDueDate.width">
+                      <ng-container *ngIf="detail.isCancelled">
+                        <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                      </ng-container>
+                      <div *ngIf="!detail.poIssueDueDate || detail.poIssueDueDate.isDisabled; then blackBgBlock3 else infoBgBlock3"></div>
+                      <ng-template #blackBgBlock3>
+                        <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                      </ng-template>
+                      <ng-template #infoBgBlock3>
+                        <div class="seperate-child"
+                             [id]="row.orderId + '-' + detail.orderDetailId + '-' + 'poIssueDueDate'"
+                             [ngClass]="{'col-readonly': !canModifyCols('PO Issue Date') || row.isCancelled || detail.isCancelled, 'unread': !row.isReaded,
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate,
+                                         'only-eta-field': !isShowStatus && !isShowStatusDate}"
+                             (click)="onChangePoIssueDate(row, detail, detail.poIssueDueDate)">
+                          <column-info [columnInfoObj]="getObjectDetail(detail.poIssueDueDate, detail.poIssueDueOwsTechPackReadyEta)"
+                                       [isShowStatus]="isShowStatus"
+                                       [isShowLeadTime]="isShowLeadTime"
+                                       [isShowStatusDate]="isShowStatusDate">
+                            <ng-container *ngIf="isShowStatusDate">
+                              <p *ngIf="detail.poIssueDueDate.isUploaded">
+                                <i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"
+                                   (click)="openStyleUploader(detail.orderDetailId, styleUploadedType.ProductionPO, 'Production PO - Cut Ticket')"></i>
+                              </p>
+                            </ng-container>
+                          </column-info>
+                        </div>
+                      </ng-template>
+                    </td>
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ImportOWSTechPackReady)"
+                        [style.border-bottom]="(!isShowLeadTime && !isShowStatusDate) ? 'none': '1px solid #999'"
+                        [attr.rowSpan]="(!isShowLeadTime && !isShowStatusDate) ? 1 : (row.isCollapse ? 1 : detail.printLocations.length)"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].owsTechPackReady.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].owsTechPackReady.width">
+                      <ng-container *ngIf="detail.isCancelled">
+                        <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                      </ng-container>
+                      <div *ngIf="!detail.owsTechPackReady || detail.owsTechPackReady.isDisabled; then blackBgBlock4 else infoBgBlock4"></div>
+                      <ng-template #blackBgBlock4>
+                        <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                      </ng-template>
+                      <ng-template #infoBgBlock4>
+                        <div class="seperate-child"
+                             [id]="row.orderId + '-' + detail.orderDetailId + '-' + 'owsTechPackReady'"
+                             [ngClass]="{'col-readonly': !canModifyCols('OWS / Tech Pack Ready') || row.isCancelled || detail.isCancelled, 'unread': !row.isReaded,
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate,
+                                         'only-eta-field': !isShowStatus && !isShowStatusDate}"
+                             (click)="onChangeOwsTechPackReady(row, detail, detail.owsTechPackReady)">
+                          <column-info [columnInfoObj]="getObjectDetail(detail.owsTechPackReady, detail.poIssueDueOwsTechPackReadyEta)"
+                                       [isShowStatus]="isShowStatus"
+                                       [isShowLeadTime]="isShowLeadTime"
+                                       [isShowStatusDate]="isShowStatusDate">
+                            <ng-container *ngIf="isShowStatusDate">
+                              <p *ngIf="detail.owsTechPackReady.isUploaded">
+                                <i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"
+                                   (click)="openOWSTeckPackUploader(detail.orderDetailId, 'Tech Pack(s)')"></i>
+                              </p>
+                            </ng-container>
+                          </column-info>
+                        </div>
+                      </ng-template>
+                    </td>
+                  </ng-template>
+
+                  <ng-template #artRequested let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ImportArtRequested)"
+                        [style.border-bottom]="(isShowStatus && !isShowLeadTime && !isShowStatusDate) ? 'none' : ((!isShowStatus && isShowLeadTime && !isShowStatusDate) ? '1px solid #fff': '1px solid #999')"
+                        [attr.rowSpan]="(!isShowStatusDate) ? 1 : (row.isCollapse ? 1 : detail.printLocations.length)"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].artRequested.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].artRequested.width">
+                      <ng-container *ngIf="detail.isCancelled">
+                        <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                      </ng-container>
+                      <div *ngIf="!detail.artRequested; then blackBgBlock5 else infoBgBlock5"></div>
+                      <ng-template #blackBgBlock5>
+                        <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                      </ng-template>
+                      <ng-template #infoBgBlock5>
+                        <div class="seperate-child-custom"
+                             [id]="'artRequested-' + row.orderId + '-' + detail.orderDetailId"
+                             [ngClass]="{'col-readonly': !canModifyCols('Art Requested') || row.isCancelled || detail.isCancelled, 'unread': !row.isReaded,
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate,
+                                         'only-eta-field': !isShowStatus && !isShowStatusDate}"
+                             (mouseenter)="onHover($event, true, true, 'artRequested', row.orderId, detail.orderDetailId)"
+                             (mouseleave)="onHover($event, false, true, 'artRequested', row.orderId, detail.orderDetailId)"
+                             (click)="onChangeArtRequested(row, detail, detail.artRequested)">
+                          <div *ngIf="!detail.artRequested.isSetup; then infoBlock1 else setupBlock1"></div>
+                          <ng-template #infoBlock1>
+                            <column-info [columnInfoObj]="detail.artRequested"
+                                         [isShowStatus]="isShowStatus"
+                                         [isShowLeadTime]="isShowLeadTime"
+                                         [isShowStatusDate]="isShowStatusDate"></column-info>
+                          </ng-template>
+                          <ng-template #setupBlock1>
+                            <ng-container *ngIf="isShowStatusDate">
+                              <p class="p-link" (click)="goToSampleSetup(row, detail)">No Sample Setup</p>
+                            </ng-container>
+                          </ng-template>
+                        </div>
+                      </ng-template>
+                    </td>
+                  </ng-template>
+
+                  <ng-template #artReceived let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="isShowAllColumns || columns.ImportArtReceived"
+                        [style.border-bottom]="(isShowStatus && !isShowLeadTime && !isShowStatusDate) ? 'none' : ((!isShowStatus && isShowLeadTime && !isShowStatusDate) ? '1px solid #fff': '1px solid #999')"
+                        [attr.rowspan]="1"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].artReceived.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].artReceived.width">
+                      <div *ngIf="!detail || detail.isCancelled; then noPrintBlock2 else printBlock2"></div>
+                      <ng-template #noPrintBlock2>
+                        <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                      </ng-template>
+                      <ng-template #printBlock2>
+                        <div *ngIf="!item || !item.artReceived; then blackBgBlock6 else infoBgBlock6"></div>
+                        <ng-template #blackBgBlock6>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock6>
+                          <div class="seperate-child-custom"
+                               [ngStyle]="item.style"
+                               [id]="(!isShowStatus || !isShowLeadTime) && !isShowStatusDate && firstPrint ? ('artReceived-' + row.orderId + '-' + detail.orderDetailId) : ('artReceived-' + row.orderId + '-' + detail.orderDetailId + '-' + iii)"
+                               [ngClass]="{'col-readonly': !canModifyCols('Art Received') || row.isCancelled || detail.isCancelled, 'unread': !row.isReaded,
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate && firstPrint,
+                                         'only-eta-field': !isShowStatus && !isShowStatusDate && firstPrint}"
+                               (mouseenter)="onHover($event, true, firstPrint, 'artReceived', row.orderId, detail.orderDetailId)"
+                               (mouseleave)="onHover($event, false, firstPrint, 'artReceived', row.orderId, detail.orderDetailId)"
+                               (click)="onChangeArtReceived(row, detail, item, item.artReceived)">
+                            <div *ngIf="!item.artReceived.isSetup; then infoBlock2 else setupBlock2"></div>
+                            <ng-template #infoBlock2>
+                              <column-info [columnInfoObj]="item.artReceived"
+                                           [isShowStatus]="!firstPrint || isShowStatus"
+                                           [isShowLeadTime]="!firstPrint || isShowLeadTime"
+                                           [isShowStatusDate]="isShowStatusDate"></column-info>
+                            </ng-template>
+                            <ng-template #setupBlock2>
+                              <ng-container *ngIf="isShowStatusDate">
+                                <p class="p-link" (click)="goToPrintLocationSetup(row, detail)">No Print Location
+                                  Setup</p>
+                              </ng-container>
+                            </ng-template>
+                          </div>
+                        </ng-template>
+                      </ng-template>
+                    </td>
+                  </ng-template>
+
+                  <ng-template #artReleased let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="isShowAllColumns || columns.ImportArtReleased"
+                        [style.border-bottom]="(isShowStatus && !isShowLeadTime && !isShowStatusDate) ? 'none' : ((!isShowStatus && isShowLeadTime && !isShowStatusDate) ? '1px solid #fff': '1px solid #999')"
+                        [attr.rowspan]="1"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].artReleased.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].artReleased.width">
+                      <div *ngIf="!detail || detail.isCancelled; then noPrintBlock3 else printBlock3"></div>
+                      <ng-template #noPrintBlock3>
+                        <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                      </ng-template>
+                      <ng-template #printBlock3>
+                        <div *ngIf="!item || !item.artReleased; then blackBgBlock7 else infoBgBlock7"></div>
+                        <ng-template #blackBgBlock7>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock7>
+                          <div class="seperate-child-custom"
+                               [ngStyle]="item.style"
+                               [id]="(!isShowStatus || !isShowLeadTime) && !isShowStatusDate && firstPrint ? ('artReleased-' + row.orderId + '-' + detail.orderDetailId) : ('artReleased-' + row.orderId + '-' + detail.orderDetailId + '-' + iii)"
+                               [ngClass]="{'col-readonly': !canModifyCols('Art Released') || row.isCancelled || detail.isCancelled, 'unread': !row.isReaded,
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate && firstPrint,
+                                         'only-eta-field': !isShowStatus && !isShowStatusDate && firstPrint}"
+                               (mouseenter)="onHover($event, true, firstPrint, 'artReleased', row.orderId, detail.orderDetailId)"
+                               (mouseleave)="onHover($event, false, firstPrint, 'artReleased', row.orderId, detail.orderDetailId)"
+                               (click)="onChangeArtReleased(row, detail, item, item.artReleased)">
+                            <div *ngIf="!item.artReleased.isSetup; then infoBlock3 else setupBlock3"></div>
+                            <ng-template #infoBlock3>
+                              <column-info [columnInfoObj]="item.artReleased"
+                                           [isShowStatus]="!firstPrint || isShowStatus"
+                                           [isShowLeadTime]="!firstPrint || isShowLeadTime"
+                                           [isShowStatusDate]="isShowStatusDate"></column-info>
+                            </ng-template>
+                            <ng-template #setupBlock3>
+                              <ng-container *ngIf="isShowStatusDate">
+                                <p class="p-link" (click)="goToPrintLocationSetup(row, detail)">No Print Location
+                                  Setup</p>
+                              </ng-container>
+                            </ng-template>
+                          </div>
+                        </ng-template>
+                      </ng-template>
+                    </td>
+                  </ng-template>
+
+                  <ng-template #fabricQualityDue let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ImportFabricQualityDue)"
+                        [style.border-bottom]="((!isShowStatus || !isShowLeadTime) && !isShowStatusDate) ? 'none': '1px solid #999'"
+                        [attr.rowSpan]="((!isShowStatus || !isShowLeadTime) && !isShowStatusDate) ? (row.isCollapse ? 1 : 1) : (row.isCollapse ? 1 : detail.printLocations.length)"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].fabricQualityDue.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].fabricQualityDue.width">
+                      <div *ngIf="row.isCollapse; then disabledCol2 else infoCol2"></div>
+                      <ng-template #disabledCol2>
+                        <ng-container *ngTemplateOutlet="disabledCol"></ng-container>
+                      </ng-template>
+                      <ng-template #infoCol2>
+                        <ng-container *ngIf="detail.isCancelled">
+                          <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                        </ng-container>
+                        <div *ngIf="!detail.fabricQualityDues || !detail.fabricQualityDues.length; then blackBgBlock8 else infoBgBlock8"></div>
+                        <ng-template #blackBgBlock8>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock8>
+                          <ng-container *ngFor="let fab of detail.fabricQualityDues; let fabIndex = index; let fabFirst = first; let fabLast = last">
+                            <ng-container *ngIf="(!isShowStatus || !isShowLeadTime) && !isShowStatusDate; else fabricQualityDueDetail">
+                              <ng-container *ngIf="fabFirst">
+                                <ng-container *ngTemplateOutlet="fabricQualityDueDetail"></ng-container>
+                              </ng-container>
+                            </ng-container>
+
+                            <ng-template #fabricQualityDueDetail>
+                              <ng-container *ngIf="fab.fabricQualityDue && !fab.fabricQualityDue.isDisabled; else blackBgBlock8b">
+                                <div class="seperate-child-custom fabric-quality"
+                                     [id]="(!isShowStatus || !isShowLeadTime) && !isShowStatusDate ? ('fabricQualityDue-' + row.orderId + '-' + detail.orderDetailId) : ('fabricQualityDue-' + row.orderId + '-' + detail.orderDetailId + '-' + fabIndex)"
+                                     [ngClass]="{'col-readonly': !canModifyCols('Fabric Quality Due') || row.isCancelled || detail.isCancelled, 'unread': !row.isReaded,
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate,
+                                         'only-eta-field': !isShowStatus && !isShowStatusDate}"
+                                     (mouseenter)="onHover($event, true, ((!isShowStatus || !isShowLeadTime) && !isShowStatusDate) || fabFirst, 'fabricQualityDue', row.orderId, detail.orderDetailId)"
+                                     (mouseleave)="onHover($event, false, ((!isShowStatus || !isShowLeadTime) && !isShowStatusDate) || fabFirst, 'fabricQualityDue', row.orderId, detail.orderDetailId)"
+                                     (click)="onChangeFabricQualityDue(row, detail, fab)">
+                                  <column-info [columnInfoObj]="fab.fabricQualityDue"
+                                               [isShowStatus]="!fabFirst || isShowStatus"
+                                               [isShowLeadTime]="!fabFirst || isShowLeadTime"
+                                               [isShowStatusDate]="isShowStatusDate">
+                                    <ng-container *ngIf="isShowStatusDate">
+                                      <p *ngIf="fab.fabricQualityDue.isUploaded">
+                                        <i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"
+                                           (click)="openOwsTechPackReady(detail.orderDetailId, fab.fabricQualityDue.id, 'Fabric Quality', techPackFileTypes.FabricQualityDetail)"></i>
+                                      </p>
+                                      <p class="p-link"
+                                         [ngClass]="{'completed-date': !isShowStatus && !isShowLeadTime}"
+                                         (click)="goToFabricPage(row.orderId, detail.orderDetailId, fab.fabricQualityId)">{{fab.fabric}}</p>
+                                    </ng-container>
+                                  </column-info>
+                                </div>
+                              </ng-container>
+                              <ng-template #blackBgBlock8b>
+                                <div class="fabric-quality"
+                                     [ngClass]="{'border-bottom-999': isShowStatusDate,
+                                                 'full-height': (!isShowStatus || !isShowLeadTime) && !isShowStatusDate,
+                                                 'fabric-quality-date': isShowStatusDate}"
+                                     [id]="(!isShowStatus || !isShowLeadTime) && !isShowStatusDate ? ('fabricQualityDue-' + row.orderId + '-' + detail.orderDetailId) : ('fabricQualityDue-' + row.orderId + '-' + detail.orderDetailId + '-' + fabIndex)">
+                                  <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                                </div>
+                              </ng-template>
+                            </ng-template>
+                          </ng-container>
+                        </ng-template>
+                      </ng-template>
+                    </td>
+                  </ng-template>
+
+                  <ng-template #labDipsDue let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ImportLabDipsDue)"
+                        [style.border-bottom]="((!isShowStatus || !isShowLeadTime) && !isShowStatusDate) ? 'none': '1px solid #999'"
+                        [attr.rowSpan]="((!isShowStatus || !isShowLeadTime) && !isShowStatusDate) ? (row.isCollapse ? 1 : 1) : (row.isCollapse ? 1 : detail.printLocations.length)"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].labDipsDue.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].labDipsDue.width">
+                      <div *ngIf="row.isCollapse; then disabledCol3 else infoCol3"></div>
+                      <ng-template #disabledCol3>
+                        <ng-container *ngTemplateOutlet="disabledCol"></ng-container>
+                      </ng-template>
+                      <ng-template #infoCol3>
+                        <ng-container *ngIf="detail.isCancelled">
+                          <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                        </ng-container>
+                        <div *ngIf="!detail.fabricQualityDues || !detail.fabricQualityDues.length; then blackBgBlock9 else infoBgBlock9"></div>
+                        <ng-template #blackBgBlock9>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock9>
+                          <ng-container *ngFor="let fab of detail.fabricQualityDues; let fabIndex = index; let fabFirst = first; let fabLast = last">
+                            <ng-container *ngIf="(!isShowStatus || !isShowLeadTime) && !isShowStatusDate; else labDipsDueParentDetail">
+                              <ng-container *ngIf="fabFirst">
+                                <ng-container *ngTemplateOutlet="labDipsDueParentDetail"></ng-container>
+                              </ng-container>
+                            </ng-container>
+                            <ng-template #labDipsDueParentDetail>
+                              <ng-container *ngIf="fab.fabricQualityDue; else blackBgBlock9">
+                                <ng-container *ngIf="fab.lapDipsDues && fab.lapDipsDues.length; else labDipsBlockBg">
+                                  <ng-container *ngFor="let lab of fab.lapDipsDues; let labIndex = index; let labFirst = first; let labLast = last">
+                                    <ng-container *ngIf="lab.lapDipDue && !lab.lapDipDue.isDisabled; else blackBgBlock9b">
+                                      <ng-container *ngIf="(!isShowStatus || !isShowLeadTime) && !isShowStatusDate; else labDipsDueDetail">
+                                        <ng-container *ngIf="labFirst">
+                                          <ng-container *ngTemplateOutlet="labDipsDueDetail"></ng-container>
+                                        </ng-container>
+                                      </ng-container>
+                                      <ng-template #labDipsDueDetail>
+                                        <div class="seperate-child-custom lab-dips"
+                                             [id]="(!isShowStatus || !isShowLeadTime) && !isShowStatusDate ? ('labDipsDue-' + row.orderId + '-' + detail.orderDetailId) : ('labDipsDue-' + row.orderId + '-' + detail.orderDetailId + '-' + fabIndex)"
+                                             [ngClass]="{'col-readonly': !canModifyCols('Lab Dips Due') || row.isCancelled || detail.isCancelled, 'unread': !row.isReaded,
+                                                       'only-status-field': !isShowLeadTime && !isShowStatusDate,
+                                                       'only-eta-field': !isShowStatus && !isShowStatusDate}"
+                                             (mouseenter)="onHover($event, true, ((!isShowStatus || !isShowLeadTime) && !isShowStatusDate) || (fabFirst && labFirst), 'labDipsDue', row.orderId, detail.orderDetailId)"
+                                             (mouseleave)="onHover($event, false, ((!isShowStatus || !isShowLeadTime) && !isShowStatusDate) || (fabFirst && labFirst), 'labDipsDue', row.orderId, detail.orderDetailId)"
+                                             (click)="onChangeLabDipsDue(row, detail, fab, lab)">
+                                          <column-info [columnInfoObj]="lab.lapDipDue"
+                                                       [isShowStatus]="!fabFirst || !labFirst || isShowStatus"
+                                                       [isShowLeadTime]="!fabFirst || !labFirst || isShowLeadTime"
+                                                       [isShowStatusDate]="isShowStatusDate">
+                                            <ng-container *ngIf="isShowStatusDate">
+                                              <p *ngIf="lab.lapDipDue.isUploaded">
+                                                <i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"
+                                                   (click)="openOwsTechPackReady(detail.orderDetailId, lab.lapDipDue.id, 'Lab Dips', techPackFileTypes.LabDipDetail)"></i>
+                                              </p>
+                                              <p class="p-link"
+                                                 [ngClass]="{'completed-date': !isShowStatus && !isShowLeadTime}"
+                                                 (click)="goToLabPage(row.orderId, detail.orderDetailId, lab.labDipId)">{{lab.color}}</p>
+                                            </ng-container>
+                                          </column-info>
+                                        </div>
+                                      </ng-template>
+                                    </ng-container>
+                                    <ng-template #blackBgBlock9b>
+                                      <ng-container *ngIf="(!isShowStatus || !isShowLeadTime) && !isShowStatusDate; else labDipsBlockBg">
+                                        <ng-container *ngIf="labFirst">
+                                          <ng-container *ngTemplateOutlet="labDipsBlockBg"></ng-container>
+                                        </ng-container>
+                                      </ng-container>
+                                    </ng-template>
+                                  </ng-container>
+                                </ng-container>
+                              </ng-container>
+                            </ng-template>
+                            <ng-template #labDipsBlockBg>
+                              <div class="lab-dips"
+                                   [ngClass]="{'border-bottom-999': isShowStatusDate,
+                                               'full-height': (!isShowStatus || !isShowLeadTime) && !isShowStatusDate,
+                                               'lab-dips-date': isShowStatusDate}"
+                                   [id]="(!isShowStatus || !isShowLeadTime) && !isShowStatusDate ? ('labDipsDue-' + row.orderId + '-' + detail.orderDetailId) : ('labDipsDue-' + row.orderId + '-' + detail.orderDetailId + '-' + fabIndex)">
+                                <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                              </div>
+                            </ng-template>
+                          </ng-container>
+                        </ng-template>
+                      </ng-template>
+                    </td>
+                  </ng-template>
+
+                  <ng-template #physSampleExFactoryDatePp let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ImportPhysSampleExFactoryDatePP)"
+                        [attr.rowSpan]="(!isShowLeadTime && !isShowStatusDate) ? 1 : (row.isCollapse ? 1 : detail.printLocations.length)"
+                        [style.border-bottom]="(!isShowLeadTime && !isShowStatusDate) ? 'none': '1px solid #999'"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDatePp.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDatePp.width">
+                      <div *ngIf="row.isCollapse; then disabledCol9 else infoCol9"></div>
+                      <ng-template #disabledCol9>
+                        <ng-container *ngTemplateOutlet="disabledCol"></ng-container>
+                      </ng-template>
+                      <ng-template #infoCol9>
+                        <ng-container *ngIf="detail.isCancelled">
+                          <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                        </ng-container>
+                        <div *ngIf="!detail.physSampleExFactoryDatePp || detail.physSampleExFactoryDatePp.isDisabled; then blackBgBlock16 else infoBgBlock16"></div>
+                        <ng-template #blackBgBlock16>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock16>
+                          <div class="seperate-child"
+                               [id]="row.orderId + '-' + detail.orderDetailId + '-' + 'physSampleExFactoryDatePp'"
+                               [ngClass]="{'col-readonly': !canModifyCols('Phys. Sample Ex-Factory Date (PP)') || row.isCancelled || detail.isCancelled, 'unread': !row.isReaded,
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate}"
+                               (click)="onChangePhysSampleExFactoryPp(row, detail, detail.physSampleExFactoryDatePp)">
+                            <div
+                              *ngIf="!detail.physSampleExFactoryDatePp.isSetup; then infoBlock5 else setupBlock5"></div>
+                            <ng-template #infoBlock5>
+                              <column-info [columnInfoObj]="getObjectDetail(detail.physSampleExFactoryDatePp, detail.physSampleExFactoryDatePpEta)"
+                                           [isShowStatus]="isShowStatus"
+                                           [isShowLeadTime]="isShowLeadTime"
+                                           [isShowStatusDate]="isShowStatusDate"></column-info>
+                            </ng-template>
+                            <ng-template #setupBlock5>
+                              <p class="p-link" (click)="goToSampleSetup(row, detail)">No Sample Setup</p>
+                            </ng-template>
+                          </div>
+                        </ng-template>
+                      </ng-template>
+                    </td>
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ImportPhysSampleExFactoryDatePPToTestingFacility)"
+                      [attr.rowSpan]="(!isShowLeadTime && !isShowStatusDate) ? 1 : (row.isCollapse ? 1 : detail.printLocations.length)"
+                        [style.border-bottom]="(!isShowLeadTime && !isShowStatusDate) ? 'none': '1px solid #999'"
+                      [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDatePpToTestingFacility.width"
+                      [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDatePpToTestingFacility.width">
+                      <div *ngIf="row.isCollapse; then disabledCol10 else infoCol10"></div>
+                      <ng-template #disabledCol10>
+                        <ng-container *ngTemplateOutlet="disabledCol"></ng-container>
+                      </ng-template>
+                      <ng-template #infoCol10>
+                        <ng-container *ngIf="detail.isCancelled">
+                          <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                        </ng-container>
+                        <div
+                          *ngIf="!detail.physSampleExFactoryDatePpToTestingFacility || detail.physSampleExFactoryDatePpToTestingFacility.isDisabled; then blackBgBlock17 else infoBgBlock17"></div>
+                        <ng-template #blackBgBlock17>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock17>
+                          <div class="seperate-child"
+                               [id]="row.orderId + '-' + detail.orderDetailId + '-' + 'physSampleExFactoryDatePpToTestingFacility'"
+                               [ngClass]="{'col-readonly': !canModifyCols('Phys. Sample Ex-Factory Date (PP To Testing Facility)') || row.isCancelled || detail.isCancelled, 'unread': !row.isReaded,
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate}"
+                               (click)="onChangePPToTestingFacility(row, detail, detail.physSampleExFactoryDatePpToTestingFacility)">
+                            <div
+                              *ngIf="!detail.physSampleExFactoryDatePpToTestingFacility.isSetup; then infoBlock6 else setupBlock6"></div>
+                            <ng-template #infoBlock6>
+                              <column-info
+                                [columnInfoObj]="getObjectDetail(detail.physSampleExFactoryDatePpToTestingFacility, detail.physSampleExFactoryDatePpEta)"
+                                [isShowStatus]="isShowStatus"
+                                [isShowLeadTime]="isShowLeadTime"
+                                [isShowStatusDate]="isShowStatusDate"></column-info>
+                            </ng-template>
+                            <ng-template #setupBlock6>
+                              <p class="p-link" (click)="goToSampleSetup(row, detail)">No Sample Setup</p>
+                            </ng-template>
+                          </div>
+                        </ng-template>
+                      </ng-template>
+                    </td>
+                  </ng-template>
+
+                  <ng-template #fitSampleDue let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ImportFitSampleDue)"
+                        [style.border-bottom]="(isShowStatus && !isShowLeadTime && !isShowStatusDate) ? 'none' : ((!isShowStatus && isShowLeadTime && !isShowStatusDate) ? '1px solid #fff': '1px solid #999')"
+                        [attr.rowSpan]="(!isShowStatusDate) ? 1 : (row.isCollapse ? 1 : detail.printLocations.length)"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].fitSampleDue.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].fitSampleDue.width">
+                      <div *ngIf="row.isCollapse; then disabledCol4 else infoCol4"></div>
+                      <ng-template #disabledCol4>
+                        <ng-container *ngTemplateOutlet="disabledCol"></ng-container>
+                      </ng-template>
+                      <ng-template #infoCol4>
+                        <ng-container *ngIf="detail.isCancelled">
+                          <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                        </ng-container>
+                        <div *ngIf="!detail.fitSampleDue || detail.fitSampleDue.isDisabled || !detail.fitSampleDue.submitRequired; then blackBgBlock10 else infoBgBlock10"></div>
+                        <ng-template #blackBgBlock10>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock10>
+                          <div class="seperate-child-custom"
+                               [id]="'fitSampleDue-' + row.orderId + '-' + detail.orderDetailId"
+                               [ngClass]="{'col-readonly': !canModifyCols('Fit Sample Due') || row.isCancelled || detail.isCancelled, 'unread': !row.isReaded,
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate,
+                                         'only-eta-field': !isShowStatus && !isShowStatusDate}"
+                               (mouseenter)="onHover($event, true, true, 'fitSampleDue', row.orderId, detail.orderDetailId)"
+                               (mouseleave)="onHover($event, false, true, 'fitSampleDue', row.orderId, detail.orderDetailId)"
+                               (click)="onChangeFitSampleDue(row, detail, detail.fitSampleDue)">
+                            <column-info [columnInfoObj]="detail.fitSampleDue"
+                                         [isShowStatus]="isShowStatus"
+                                         [isShowLeadTime]="isShowLeadTime"
+                                         [isShowStatusDate]="isShowStatusDate">
+                              <ng-container *ngIf="isShowStatusDate">
+                                <p *ngIf="detail.fitSampleDue.isUploaded">
+                                  <i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"
+                                     (click)="openOwsTechPackReady(detail.orderDetailId, detail.fitSampleDue.id, 'Fit Sample', techPackFileTypes.FitSampleDetail)"></i>
+                                </p>
+                              </ng-container>
+                            </column-info>
+                          </div>
+                        </ng-template>
+                      </ng-template>
+                    </td>
+                  </ng-template>
+
+                  <ng-template #trimSubmitsDue let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ImportTrimSubmitsDue)"
+                        [style.border-bottom]="(isShowStatus && !isShowLeadTime && !isShowStatusDate) ? 'none' : ((!isShowStatus && isShowLeadTime && !isShowStatusDate) ? '1px solid #fff': '1px solid #999')"
+                        [attr.rowSpan]="(!isShowStatusDate) ? 1 : (row.isCollapse ? 1 : detail.printLocations.length)"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].trimSubmitsDue.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].trimSubmitsDue.width">
+                      <div *ngIf="row.isCollapse; then disabledCol5 else infoCol5"></div>
+                      <ng-template #disabledCol5>
+                        <ng-container *ngTemplateOutlet="disabledCol"></ng-container>
+                      </ng-template>
+                      <ng-template #infoCol5>
+                        <ng-container *ngIf="detail.isCancelled">
+                          <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                        </ng-container>
+                        <div *ngIf="!detail.trimSubmitsDue || detail.trimSubmitsDue.isDisabled; then blackBgBlock11 else infoBgBlock11"></div>
+                        <ng-template #blackBgBlock11>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock11>
+                          <div class="seperate-child-custom"
+                               [id]="'trimSubmitsDue-' + row.orderId + '-' + detail.orderDetailId"
+                               [ngClass]="{'col-readonly': !canModifyCols('Trim Submits Due') || row.isCancelled || detail.isCancelled, 'unread': !row.isReaded,
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate,
+                                         'only-eta-field': !isShowStatus && !isShowStatusDate}"
+                               (mouseenter)="onHover($event, true, true, 'trimSubmitsDue', row.orderId, detail.orderDetailId)"
+                               (mouseleave)="onHover($event, false, true, 'trimSubmitsDue', row.orderId, detail.orderDetailId)"
+                               (click)="onChangeTrimSubmitsDue(row, detail, detail.trimSubmitsDue)">
+                            <div *ngIf="!detail.trimSubmitsDue.isSetup; then infoBlock4 else setupBlock4"></div>
+                            <ng-template #infoBlock4>
+                              <column-info [columnInfoObj]="detail.trimSubmitsDue"
+                                           [isShowStatus]="isShowStatus"
+                                           [isShowLeadTime]="isShowLeadTime"
+                                           [isShowStatusDate]="isShowStatusDate">
+                                <ng-container *ngIf="isShowStatusDate">
+                                  <p *ngIf="detail.trimSubmitsDue.isUploaded">
+                                    <i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"
+                                       (click)="openTrimUploader(detail.orderDetailId)"></i>
+                                  </p>
+                                </ng-container>
+                              </column-info>
+                            </ng-template>
+                            <ng-template #setupBlock4>
+                              <ng-container *ngIf="isShowStatusDate">
+                                <p class="p-link" (click)="goToTrimSetup(row, detail)">No Trims Setup</p>
+                              </ng-container>
+                            </ng-template>
+                          </div>
+                        </ng-template>
+                      </ng-template>
+                    </td>
+                  </ng-template>
+
+                  <ng-template #bulkFabric let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ImportBulkFabric)"
+                        [style.border-bottom]="(isShowStatus && !isShowLeadTime && !isShowStatusDate) ? 'none' : ((!isShowStatus && isShowLeadTime && !isShowStatusDate) ? '1px solid #fff': '1px solid #999')"
+                        [attr.rowSpan]="(!isShowStatusDate) ? 1 : (row.isCollapse ? 1 : detail.printLocations.length)"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].bulkFabric.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].bulkFabric.width">
+                      <div *ngIf="row.isCollapse; then disabledCol6 else infoCol6"></div>
+                      <ng-template #disabledCol6>
+                        <ng-container *ngTemplateOutlet="disabledCol"></ng-container>
+                      </ng-template>
+                      <ng-template #infoCol6>
+                        <ng-container *ngIf="detail.isCancelled">
+                          <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                        </ng-container>
+                        <div *ngIf="!detail.bulkFabric || detail.bulkFabric.isDisabled; then blackBgBlock12 else infoBgBlock12"></div>
+                        <ng-template #blackBgBlock12>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock12>
+                          <div class="seperate-child-custom"
+                               [id]="'bulkFabric-' + row.orderId + '-' + detail.orderDetailId"
+                               [ngClass]="{'col-readonly': !canModifyCols('Bulk Fabric') || row.isCancelled || detail.isCancelled, 'unread': !row.isReaded,
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate,
+                                         'only-eta-field': !isShowStatus && !isShowStatusDate}"
+                               (mouseenter)="onHover($event, true, true, 'bulkFabric', row.orderId, detail.orderDetailId)"
+                               (mouseleave)="onHover($event, false, true, 'bulkFabric', row.orderId, detail.orderDetailId)"
+                               (click)="onChangeBulkFabric(row, detail, detail.bulkFabric)">
+                            <column-info [columnInfoObj]="detail.bulkFabric"
+                                         [isShowStatus]="isShowStatus"
+                                         [isShowLeadTime]="isShowLeadTime"
+                                         [isShowStatusDate]="isShowStatusDate"></column-info>
+                          </div>
+                        </ng-template>
+                      </ng-template>
+                    </td>
+                  </ng-template>
+
+                  <ng-template #strikeOffKnitDownDue let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ImportStrikeOffKnitDownDue)"
+                        [style.border-bottom]="(isShowStatus && !isShowLeadTime && !isShowStatusDate) ? 'none' : ((!isShowStatus && isShowLeadTime && !isShowStatusDate) ? '1px solid #fff': '1px solid #999')"
+                        [attr.rowSpan]="(!isShowStatusDate) ? 1 : (row.isCollapse ? 1 : detail.printLocations.length)"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].strikeOffKnitDownDue.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].strikeOffKnitDownDue.width">
+                      <div *ngIf="row.isCollapse; then disabledCol7 else infoCol7"></div>
+                      <ng-template #disabledCol7>
+                        <ng-container *ngTemplateOutlet="disabledCol"></ng-container>
+                      </ng-template>
+                      <ng-template #infoCol7>
+                        <ng-container *ngIf="detail.isCancelled">
+                          <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                        </ng-container>
+                        <div *ngIf="!detail.strikeOffKnitDownDue || detail.strikeOffKnitDownDue.isDisabled; then blackBgBlock13 else infoBgBlock13"></div>
+                        <ng-template #blackBgBlock13>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock13>
+                          <div class="seperate-child-custom"
+                               [id]="'strikeOffKnitDownDue-' + row.orderId + '-' + detail.orderDetailId"
+                               [ngClass]="{'col-readonly': !canModifyCols('Strike Off / Knit Down Due') || row.isCancelled || detail.isCancelled, 'unread': !row.isReaded,
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate,
+                                         'only-eta-field': !isShowStatus && !isShowStatusDate}"
+                               (mouseenter)="onHover($event, true, true, 'strikeOffKnitDownDue', row.orderId, detail.orderDetailId)"
+                               (mouseleave)="onHover($event, false, true, 'strikeOffKnitDownDue', row.orderId, detail.orderDetailId)"
+                               (click)="onChangeStrikeOffKnitDownDue(row, detail, detail.strikeOffKnitDownDue)">
+                            <column-info [columnInfoObj]="detail.strikeOffKnitDownDue"
+                                         [isShowStatus]="isShowStatus"
+                                         [isShowLeadTime]="isShowLeadTime"
+                                         [isShowStatusDate]="isShowStatusDate"></column-info>
+                          </div>
+                        </ng-template>
+                      </ng-template>
+                    </td>
+                  </ng-template>
+
+                  <ng-template #ppSampleDate let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ImportPpSampleDue)"
+                        [style.border-bottom]="(isShowStatus && !isShowLeadTime && !isShowStatusDate) ? 'none' : ((!isShowStatus && isShowLeadTime && !isShowStatusDate) ? '1px solid #fff': '1px solid #999')"
+                        [attr.rowSpan]="(!isShowStatusDate) ? 1 : (row.isCollapse ? 1 : detail.printLocations.length)"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].ppSampleDue.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].ppSampleDue.width">
+                      <div *ngIf="row.isCollapse; then disabledCol8 else infoCol8"></div>
+                      <ng-template #disabledCol8>
+                        <ng-container *ngTemplateOutlet="disabledCol"></ng-container>
+                      </ng-template>
+                      <ng-template #infoCol8>
+                        <ng-container *ngIf="detail.isCancelled">
+                          <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                        </ng-container>
+                        <div *ngIf="!detail.ppSampleDue || detail.ppSampleDue.isDisabled; then blackBgBlock14 else infoBgBlock14"></div>
+                        <ng-template #blackBgBlock14>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock14>
+                          <div class="seperate-child-custom"
+                               [id]="'ppSampleDue-' + row.orderId + '-' + detail.orderDetailId"
+                               [ngClass]="{'col-readonly': !canModifyCols('PP Sample Due') || row.isCancelled || detail.isCancelled, 'unread': !row.isReaded,
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate,
+                                         'only-eta-field': !isShowStatus && !isShowStatusDate}"
+                               (mouseenter)="onHover($event, true, true, 'ppSampleDue', row.orderId, detail.orderDetailId)"
+                               (mouseleave)="onHover($event, false, true, 'ppSampleDue', row.orderId, detail.orderDetailId)"
+                               (click)="onChangePpSampleDue(row, detail, detail.ppSampleDue)">
+                            <column-info [columnInfoObj]="detail.ppSampleDue"
+                                         [isShowStatus]="isShowStatus"
+                                         [isShowLeadTime]="isShowLeadTime"
+                                         [isShowStatusDate]="isShowStatusDate">
+                              <ng-container *ngIf="detail.ppSampleDue.isUploaded">
+                                <p *ngIf="detail.ppSampleDue.isUploaded">
+                                  <i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"
+                                     (click)="openOwsTechPackReady(detail.orderDetailId, detail.ppSampleDue.id, 'PP Sample', techPackFileTypes.PpSample)"></i>
+                                </p>
+                              </ng-container>
+                            </column-info>
+                          </div>
+                        </ng-template>
+                      </ng-template>
+                    </td>
+                  </ng-template>
+
+                  <ng-template #physSampleDeliveredActual let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ImportPhysSampleDeliveredtoTestingFacilityPP)"
+                      [attr.rowSpan]="(!isShowLeadTime && !isShowStatusDate) ? 1 : (row.isCollapse ? 1 : detail.printLocations.length)"
+                        [style.border-bottom]="(!isShowLeadTime && !isShowStatusDate) ? 'none': '1px solid #999'"
+                      [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleDeliveredToTestingFacilityPp.width"
+                      [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleDeliveredToTestingFacilityPp.width">
+                      <div *ngIf="row.isCollapse; then disabledCol11 else infoCol11"></div>
+                      <ng-template #disabledCol11>
+                        <ng-container *ngTemplateOutlet="disabledCol"></ng-container>
+                      </ng-template>
+                      <ng-template #infoCol11>
+                        <ng-container *ngIf="detail.isCancelled">
+                          <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                        </ng-container>
+                        <div
+                          *ngIf="!detail.physSampleDeliveredToTestingFacilityPp || detail.physSampleDeliveredToTestingFacilityPp.isDisabled; then blackBgBlock19 else infoBgBlock19"></div>
+                        <ng-template #blackBgBlock19>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock19>
+                          <div class="seperate-child"
+                               [id]="row.orderId + '-' + detail.orderDetailId + '-' + 'physSampleDeliveredToTestingFacilityPp'"
+                               [ngClass]="{'col-readonly': !canModifyCols('Phys. Sample Delivered to Testing Facility (PP)') || row.isCancelled || detail.isCancelled, 'unread': !row.isReaded,
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate}"
+                               (click)="onChangePhysSampleDelivered(row, detail, detail.physSampleDeliveredToTestingFacilityPp)">
+                            <div
+                              *ngIf="!detail.physSampleDeliveredToTestingFacilityPp.isSetup; then infoBlock7 else setupBlock7"></div>
+                            <ng-template #infoBlock7>
+                              <column-info
+                                [columnInfoObj]="getObjectDetail(detail.physSampleDeliveredToTestingFacilityPp, detail.physSampleDeliveredPpEta)"
+                                [isShowStatus]="isShowStatus"
+                                [isShowLeadTime]="isShowLeadTime"
+                                [isShowStatusDate]="isShowStatusDate"></column-info>
+                            </ng-template>
+                            <ng-template #setupBlock7>
+                              <p class="p-link" (click)="goToSampleSetup(row, detail)">No Sample Setup</p>
+                            </ng-template>
+                          </div>
+                        </ng-template>
+                      </ng-template>
+                    </td>
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ImportPhysSampleActualDateDeliveredPP)"
+                        [attr.rowSpan]="(!isShowLeadTime && !isShowStatusDate) ? 1 : (row.isCollapse ? 1 : detail.printLocations.length)"
+                        [style.border-bottom]="(!isShowLeadTime && !isShowStatusDate) ? 'none': '1px solid #999'"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleActualDateDeliveredPp.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleActualDateDeliveredPp.width">
+                      <div *ngIf="row.isCollapse; then disabledCol12 else infoCol12"></div>
+                      <ng-template #disabledCol12>
+                        <ng-container *ngTemplateOutlet="disabledCol"></ng-container>
+                      </ng-template>
+                      <ng-template #infoCol12>
+                        <ng-container *ngIf="detail.isCancelled">
+                          <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                        </ng-container>
+                        <div
+                          *ngIf="!detail.physSampleActualDateDeliveredPp || detail.physSampleActualDateDeliveredPp.isDisabled; then blackBgBlock20 else infoBgBlock20"></div>
+                        <ng-template #blackBgBlock20>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock20>
+                          <div class="seperate-child"
+                               [id]="row.orderId + '-' + detail.orderDetailId + '-' + 'physSampleActualDateDeliveredPp'"
+                               [ngClass]="{'col-readonly': !canModifyCols('Phys. Sample Actual Date Delivered') || row.isCancelled || detail.isCancelled, 'unread': !row.isReaded,
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate}"
+                               (click)="onChangePhysSampleActual(row, detail, detail.physSampleActualDateDeliveredPp)">
+                            <div
+                              *ngIf="!detail.physSampleActualDateDeliveredPp.isSetup; then infoBlock8 else setupBlock8"></div>
+                            <ng-template #infoBlock8>
+                              <column-info [columnInfoObj]="getObjectDetail(detail.physSampleActualDateDeliveredPp, detail.physSampleDeliveredPpEta)"
+                                           [isShowStatus]="isShowStatus"
+                                           [isShowLeadTime]="isShowLeadTime"
+                                           [isShowStatusDate]="isShowStatusDate"></column-info>
+                            </ng-template>
+                            <ng-template #setupBlock8>
+                              <p class="p-link" (click)="goToSampleSetup(row, detail)">No Sample Setup</p>
+                            </ng-template>
+                          </div>
+                        </ng-template>
+                      </ng-template>
+                    </td>
+                  </ng-template>
+
+                  <ng-template #techDesignReviewDate let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ImportTechDesignReviewDatePp)"
+                        [style.border-bottom]="(isShowStatus && !isShowLeadTime && !isShowStatusDate) ? 'none' : ((!isShowStatus && isShowLeadTime && !isShowStatusDate) ? '1px solid #fff': '1px solid #999')"
+                        [attr.rowSpan]="(!isShowStatusDate) ? 1 : (row.isCollapse ? 1 : detail.printLocations.length)"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].techDesignReviewDate.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].techDesignReviewDate.width">
+                      <div *ngIf="row.isCollapse; then disabledCol27 else infoCol27"></div>
+                      <ng-template #disabledCol27>
+                        <ng-container *ngTemplateOutlet="disabledCol"></ng-container>
+                      </ng-template>
+                      <ng-template #infoCol27>
+                        <ng-container *ngIf="detail.isCancelled">
+                          <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                        </ng-container>
+                        <div *ngIf="!detail.techDesignReviewDatePp || detail.techDesignReviewDatePp.isDisabled; then blackBgBlock38 else infoBgBlock38"></div>
+                        <ng-template #blackBgBlock38>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock38>
+                          <div class="seperate-child-custom"
+                               [id]="'techDesignReviewDate-' + row.orderId + '-' + detail.orderDetailId"
+                               [ngClass]="{'col-readonly': !canModifyCols('QC Sample / Ship Date (PP)') || row.isCancelled || detail.isCancelled, 'unread': !row.isReaded,
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate,
+                                         'only-eta-field': !isShowStatus && !isShowStatusDate}"
+                               (mouseenter)="onHover($event, true, true, 'techDesignReviewDate', row.orderId, detail.orderDetailId)"
+                               (mouseleave)="onHover($event, false, true, 'techDesignReviewDate', row.orderId, detail.orderDetailId)"
+                               (click)="onChangeTechDesignReviewDate(row, detail, detail.techDesignReviewDatePp)">
+                            <div *ngIf="!detail.techDesignReviewDatePp.isSetup; then infoBlock16 else setupBlock16"></div>
+                            <ng-template #infoBlock16>
+                              <column-info [columnInfoObj]="detail.techDesignReviewDatePp"
+                                           [isShowStatus]="isShowStatus"
+                                           [isShowLeadTime]="isShowLeadTime"
+                                           [isShowStatusDate]="isShowStatusDate"></column-info>
+                            </ng-template>
+                            <ng-template #setupBlock16>
+                              <ng-container *ngIf="isShowStatusDate">
+                                <p class="p-link" (click)="goToSampleSetup(row, detail)">No Sample Setup</p>
+                              </ng-container>
+                            </ng-template>
+                          </div>
+                        </ng-template>
+                      </ng-template>
+                    </td>
+                  </ng-template>
+
+                  <ng-template #qcSampleShipDate let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ImportQCSampleShipDatePP)"
+                        [style.border-bottom]="(isShowStatus && !isShowLeadTime && !isShowStatusDate) ? 'none' : ((!isShowStatus && isShowLeadTime && !isShowStatusDate) ? '1px solid #fff': '1px solid #999')"
+                        [attr.rowSpan]="(!isShowStatusDate) ? 1 : (row.isCollapse ? 1 : detail.printLocations.length)"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].qcSampleShipDate.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].qcSampleShipDate.width">
+                      <div *ngIf="row.isCollapse; then disabledCol13 else infoCol13"></div>
+                      <ng-template #disabledCol13>
+                        <ng-container *ngTemplateOutlet="disabledCol"></ng-container>
+                      </ng-template>
+                      <ng-template #infoCol13>
+                        <ng-container *ngIf="detail.isCancelled">
+                          <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                        </ng-container>
+                        <div *ngIf="!detail.qcSampleShipDate || detail.qcSampleShipDate.isDisabled; then blackBgBlock21 else infoBgBlock21"></div>
+                        <ng-template #blackBgBlock21>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock21>
+                          <div class="seperate-child-custom"
+                               [id]="'qcSampleShipDate-' + row.orderId + '-' + detail.orderDetailId"
+                               [ngClass]="{'col-readonly': !canModifyCols('QC Sample / Ship Date (PP)') || row.isCancelled || detail.isCancelled, 'unread': !row.isReaded,
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate,
+                                         'only-eta-field': !isShowStatus && !isShowStatusDate}"
+                               (mouseenter)="onHover($event, true, true, 'qcSampleShipDate', row.orderId, detail.orderDetailId)"
+                               (mouseleave)="onHover($event, false, true, 'qcSampleShipDate', row.orderId, detail.orderDetailId)"
+                               (click)="onChangeQcSampleShipDate(row, detail, detail.qcSampleShipDate)">
+                            <div *ngIf="!detail.qcSampleShipDate.isSetup; then infoBlock9 else setupBlock9"></div>
+                            <ng-template #infoBlock9>
+                              <column-info [columnInfoObj]="detail.qcSampleShipDate"
+                                           [isShowStatus]="isShowStatus"
+                                           [isShowLeadTime]="isShowLeadTime"
+                                           [isShowStatusDate]="isShowStatusDate"></column-info>
+                            </ng-template>
+                            <ng-template #setupBlock9>
+                              <ng-container *ngIf="isShowStatusDate">
+                                <p class="p-link" (click)="goToSampleSetup(row, detail)">No Sample Setup</p>
+                              </ng-container>
+                            </ng-template>
+                          </div>
+                        </ng-template>
+                      </ng-template>
+                    </td>
+                  </ng-template>
+
+                  <ng-template #finalApproval let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <ng-container *ngIf="!isShowLeadTime && !isShowStatusDate; else finalApprovalBlock">
+                      <ng-container *ngIf="firstPrint">
+                        <ng-container *ngTemplateOutlet="finalApprovalBlock"></ng-container>
+                      </ng-container>
+                    </ng-container>
+                    <ng-template #finalApprovalBlock>
+                      <ng-container *ngTemplateOutlet="finalApprovalDetail"></ng-container>
+                    </ng-template>
+
+                    <ng-template #finalApprovalDetail>
+                      <td *ngIf="isShowAllColumns || columns.ImportFinalApprovalPP"
+                          [style.border-bottom]="(!isShowLeadTime && !isShowStatusDate) ? 'none': '1px solid #999'"
+                          [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].finalApproval.width"
+                          [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].finalApproval.width">
+                        <div *ngIf="row.isCollapse; then disabledCol15 else infoCol15"></div>
+                        <ng-template #disabledCol15>
+                          <ng-container *ngTemplateOutlet="disabledCol"></ng-container>
+                        </ng-template>
+                        <ng-template #infoCol15>
+                          <div *ngIf="!detail || detail.isCancelled; then noPrintBlock4 else printBlock4"></div>
+                          <ng-template #noPrintBlock4>
+                            <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                          </ng-template>
+                          <ng-template #printBlock4>
+                            <div *ngIf="!item || !item.finalApproval || item.finalApproval.isDisabled; then blackBgBlock24 else infoBgBlock24"></div>
+                            <ng-template #blackBgBlock24>
+                              <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                            </ng-template>
+                            <ng-template #infoBgBlock24>
+                              <div class="seperate-child"
+                                   [id]="row.orderId + '-' + detail.orderDetailId + '-' + item.printLocationId + '-' + 'finalApproval'"
+                                   [ngClass]="{'col-readonly': !canModifyCols('Final Approval') || row.isCancelled || detail.isCancelled, 'unread': !row.isReaded,
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate}"
+                                   (click)="onChangeFinalApproval(row, detail, item, item.finalApproval)">
+                                <div *ngIf="!item.finalApproval.isSetup; then infoBlock11 else setupBlock11"></div>
+                                <ng-template #infoBlock11>
+                                  <column-info [columnInfoObj]="getObjectDetail(item.finalApproval, detail.physSampleApprovedPpEta)"
+                                               [isShowStatus]="!firstPrint || isShowStatus"
+                                               [isShowLeadTime]="isShowLeadTime"
+                                               [isShowStatusDate]="isShowStatusDate"></column-info>
+                                </ng-template>
+                                <ng-template #setupBlock11>
+                                  <p class="p-link" (click)="goToPrintLocationSetup(row, detail)">No Print Location
+                                    Setup</p>
+                                </ng-template>
+                              </div>
+                            </ng-template>
+                          </ng-template>
+                        </ng-template>
+                      </td>
+                    </ng-template>
+                  </ng-template>
+
+                  <ng-template #physSampleFinalApproval let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ImportPhysSampleApprovedByTestingFacilityPP)"
+                        [attr.rowSpan]="(!isShowLeadTime && !isShowStatusDate) ? 1 : (row.isCollapse ? 1 : detail.printLocations.length)"
+                        [style.border-bottom]="(!isShowLeadTime && !isShowStatusDate) ? 'none': '1px solid #999'"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleApprovedByTestingFacilityPp.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleApprovedByTestingFacilityPp.width">
+                      <div *ngIf="row.isCollapse; then disabledCol14 else infoCol14"></div>
+                      <ng-template #disabledCol14>
+                        <ng-container *ngTemplateOutlet="disabledCol"></ng-container>
+                      </ng-template>
+                      <ng-template #infoCol14>
+                        <ng-container *ngIf="detail.isCancelled">
+                          <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                        </ng-container>
+                        <div
+                          *ngIf="!detail.physSampleApprovedByTestingFacilityPp || detail.physSampleApprovedByTestingFacilityPp.isDisabled; then blackBgBlock23 else infoBgBlock23"></div>
+                        <ng-template #blackBgBlock23>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock23>
+                          <div class="seperate-child"
+                               [id]="row.orderId + '-' + detail.orderDetailId + '-' + 'physSampleApprovedByTestingFacilityPp'"
+                               [ngClass]="{'col-readonly': !canModifyCols('Phys. Sample Approved By Testing Facility (PP)') || row.isCancelled || detail.isCancelled, 'unread': !row.isReaded,
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate}"
+                               (click)="onChangePhysSampleApproved(row, detail, detail.physSampleApprovedByTestingFacilityPp)">
+                            <div
+                              *ngIf="!detail.physSampleApprovedByTestingFacilityPp.isSetup; then infoBlock10 else setupBlock10"></div>
+                            <ng-template #infoBlock10>
+                              <column-info [columnInfoObj]="getObjectDetail(detail.physSampleApprovedByTestingFacilityPp, detail.physSampleApprovedPpEta)"
+                                           [isShowStatus]="isShowStatus"
+                                           [isShowLeadTime]="isShowLeadTime"
+                                           [isShowStatusDate]="isShowStatusDate"></column-info>
+                            </ng-template>
+                            <ng-template #setupBlock10>
+                              <p class="p-link" (click)="goToSampleSetup(row, detail)">No Sample Setup</p>
+                            </ng-template>
+                          </div>
+                        </ng-template>
+                      </ng-template>
+                    </td>
+                    <ng-container *ngTemplateOutlet="finalApproval; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                  </ng-template>
+
+                  <ng-template #productionLeadTime let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ImportProductionDue)"
+                        [attr.rowSpan]="(!isShowLeadTime && !isShowStatusDate) ? 1 : (row.isCollapse ? 1 : detail.printLocations.length)"
+                        [style.border-bottom]="(!isShowLeadTime && !isShowStatusDate) ? 'none': '1px solid #999'"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].productionDue.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].productionDue.width">
+                      <div *ngIf="row.isCollapse; then disabledCol16 else infoCol16"></div>
+                      <ng-template #disabledCol16>
+                        <ng-container *ngTemplateOutlet="disabledCol"></ng-container>
+                      </ng-template>
+                      <ng-template #infoCol16>
+                        <ng-container *ngIf="detail.isCancelled">
+                          <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                        </ng-container>
+                        <div *ngIf="!detail.productionDue || detail.productionDue.isDisabled; then blackBgBlock26 else infoBgBlock26"></div>
+                        <ng-template #blackBgBlock26>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock26>
+                          <div class="seperate-child"
+                               [id]="row.orderId + '-' + detail.orderDetailId + '-' + 'productionDue'"
+                               [ngClass]="{'col-readonly': !canModifyCols('Production Due') || row.isCancelled || detail.isCancelled, 'unread': !row.isReaded,
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate}"
+                               (click)="onChangeProductionDue(row, detail, detail.productionDue)">
+                              <column-info [columnInfoObj]="getObjectDetail(detail.productionDue, detail.productionLeadTimeEta)"
+                                           [isShowStatus]="isShowStatus"
+                                           [isShowLeadTime]="isShowLeadTime"
+                                           [isShowStatusDate]="isShowStatusDate"></column-info>
+                          </div>
+                        </ng-template>
+                      </ng-template>
+                    </td>
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ImportPackingValidationDue)"
+                        [attr.rowSpan]="(!isShowLeadTime && !isShowStatusDate) ? 1 : (row.isCollapse ? 1 : detail.printLocations.length)"
+                        [style.border-bottom]="(!isShowLeadTime && !isShowStatusDate) ? 'none': '1px solid #999'"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].packingValidationDue.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].packingValidationDue.width">
+                      <div *ngIf="row.isCollapse; then disabledCol17 else infoCol17"></div>
+                      <ng-template #disabledCol17>
+                        <ng-container *ngTemplateOutlet="disabledCol"></ng-container>
+                      </ng-template>
+                      <ng-template #infoCol17>
+                        <ng-container *ngIf="detail.isCancelled">
+                          <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                        </ng-container>
+                        <div *ngIf="!detail.packingValidationDue || detail.packingValidationDue.isDisabled; then blackBgBlock27 else infoBgBlock27"></div>
+                        <ng-template #blackBgBlock27>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock27>
+                          <div class="seperate-child"
+                               [id]="row.orderId + '-' + detail.orderDetailId + '-' + 'packingValidationDue'"
+                               [ngClass]="{'col-readonly': !canModifyCols('Packing Validation Due') || row.isCancelled || detail.isCancelled, 'unread': !row.isReaded,
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate}"
+                               (click)="onChangePackingValidationDue(row, detail, detail.packingValidationDue)">
+                              <column-info [columnInfoObj]="getObjectDetail(detail.packingValidationDue, detail.productionLeadTimeEta)"
+                                           [isShowStatus]="isShowStatus"
+                                           [isShowLeadTime]="isShowLeadTime"
+                                           [isShowStatusDate]="isShowStatusDate">
+                                <ng-container *ngIf="detail.packingValidationDue.isUploaded">
+                                  <p *ngIf="detail.packingValidationDue.isUploaded">
+                                    <i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"
+                                       (click)="openOwsTechPackReady(detail.orderDetailId, detail.packingValidationDue.id, 'Packing Validation', techPackFileTypes.PackingValidate)"></i>
+                                  </p>
+                                </ng-container>
+                              </column-info>
+                          </div>
+                        </ng-template>
+                      </ng-template>
+                    </td>
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ImportTopDue)"
+                        [attr.rowSpan]="(!isShowLeadTime && !isShowStatusDate) ? 1 : (row.isCollapse ? 1 : detail.printLocations.length)"
+                        [style.border-bottom]="(!isShowLeadTime && !isShowStatusDate) ? 'none': '1px solid #999'"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].topDue.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].topDue.width">
+                      <div *ngIf="row.isCollapse; then disabledCol18 else infoCol18"></div>
+                      <ng-template #disabledCol18>
+                        <ng-container *ngTemplateOutlet="disabledCol"></ng-container>
+                      </ng-template>
+                      <ng-template #infoCol18>
+                        <ng-container *ngIf="detail.isCancelled">
+                          <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                        </ng-container>
+                        <div *ngIf="!detail.topDue || detail.topDue.isDisabled; then blackBgBlock28 else infoBgBlock28"></div>
+                        <ng-template #blackBgBlock28>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock28>
+                          <div class="seperate-child"
+                               [id]="row.orderId + '-' + detail.orderDetailId + '-' + 'topDue'"
+                               [ngClass]="{'col-readonly': !canModifyCols('TOP Due') || row.isCancelled || detail.isCancelled, 'unread': !row.isReaded,
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate}"
+                               (click)="onChangeTopDue(row, detail, detail.topDue)">
+                            <div *ngIf="detail.topQty === 0; then styleBlock1 else topBlock1"></div>
+                            <ng-template #styleBlock1>
+                              <p class="p-link" (click)="goToTopsTabSetup(row, detail)">No TOPs Specified</p>
+                            </ng-template>
+                            <ng-template #topBlock1>
+                              <div *ngIf="!detail.topDue.isSetup; then infoBlock12 else setupBlock12"></div>
+                              <ng-template #infoBlock12>
+                                <column-info [columnInfoObj]="getObjectDetail(detail.topDue, detail.productionLeadTimeEta)"
+                                             [isShowStatus]="isShowStatus"
+                                             [isShowLeadTime]="isShowLeadTime"
+                                             [isShowStatusDate]="isShowStatusDate"></column-info>
+                              </ng-template>
+                              <ng-template #setupBlock12>
+                                <p class="p-link" (click)="goToTopsTabSetup(row, detail)">No TOPs Specified</p>
+                              </ng-template>
+                            </ng-template>
+                          </div>
+                        </ng-template>
+                      </ng-template>
+                    </td>
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ImportPhysSampleExFactoryDateTOP)"
+                        [attr.rowSpan]="(!isShowLeadTime && !isShowStatusDate) ? 1 : (row.isCollapse ? 1 : detail.printLocations.length)"
+                        [style.border-bottom]="(!isShowLeadTime && !isShowStatusDate) ? 'none': '1px solid #999'"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDateTop.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleExFactoryDateTop.width">
+                      <div *ngIf="row.isCollapse; then disabledCol19 else infoCol19"></div>
+                      <ng-template #disabledCol19>
+                        <ng-container *ngTemplateOutlet="disabledCol"></ng-container>
+                      </ng-template>
+                      <ng-template #infoCol19>
+                        <ng-container *ngIf="detail.isCancelled">
+                          <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                        </ng-container>
+                        <div *ngIf="!detail.physSampleExFactoryDateTop || detail.physSampleExFactoryDateTop.isDisabled; then blackBgBlock29 else infoBgBlock29"></div>
+                        <ng-template #blackBgBlock29>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock29>
+                          <div class="seperate-child"
+                               [id]="row.orderId + '-' + detail.orderDetailId + '-' + 'physSampleExFactoryDateTop'"
+                               [ngClass]="{'col-readonly': !canModifyCols('Phys. Sample Ex-Factory Date (TOP)') || row.isCancelled || detail.isCancelled, 'unread': !row.isReaded,
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate}"
+                               (click)="onChangePhysSampleExFactoryTop(row, detail, detail.physSampleExFactoryDateTop)">
+                            <div *ngIf="detail.topQty === 0; then styleBlock2 else topBlock2"></div>
+                            <ng-template #styleBlock2>
+                              <p class="p-link" (click)="goToTopsTabSetup(row, detail)">No TOPs Specified</p>
+                            </ng-template>
+                            <ng-template #topBlock2>
+                              <div *ngIf="!detail.physSampleExFactoryDateTop.isSetup; then infoBlock13 else setupBlock13"></div>
+                              <ng-template #infoBlock13>
+                                <column-info [columnInfoObj]="getObjectDetail(detail.physSampleExFactoryDateTop, detail.productionLeadTimeEta)"
+                                             [isShowStatus]="isShowStatus"
+                                             [isShowLeadTime]="isShowLeadTime"
+                                             [isShowStatusDate]="isShowStatusDate"></column-info>
+                              </ng-template>
+                              <ng-template #setupBlock13>
+                                <p class="p-link" (click)="goToTopsTabSetup(row, detail)">No TOPs Specified</p>
+                              </ng-template>
+                            </ng-template>
+                          </div>
+                        </ng-template>
+                      </ng-template>
+                    </td>
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ImportPhysSampleActualDateDeliveredTOP)"
+                        [attr.rowSpan]="(!isShowLeadTime && !isShowStatusDate) ? 1 : (row.isCollapse ? 1 : detail.printLocations.length)"
+                        [style.border-bottom]="(!isShowLeadTime && !isShowStatusDate) ? 'none': '1px solid #999'"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleActualDateDeliveredTop.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].physSampleActualDateDeliveredTop.width">
+                      <div *ngIf="row.isCollapse; then disabledCol20 else infoCol20"></div>
+                      <ng-template #disabledCol20>
+                        <ng-container *ngTemplateOutlet="disabledCol"></ng-container>
+                      </ng-template>
+                      <ng-template #infoCol20>
+                        <ng-container *ngIf="detail.isCancelled">
+                          <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                        </ng-container>
+                        <div
+                          *ngIf="!detail.physSampleActualDateDeliveredTop || detail.physSampleActualDateDeliveredTop.isDisabled; then blackBgBlock30 else infoBgBlock30"></div>
+                        <ng-template #blackBgBlock30>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock30>
+                          <div class="seperate-child"
+                               [id]="row.orderId + '-' + detail.orderDetailId + '-' + 'physSampleActualDateDeliveredTop'"
+                               [ngClass]="{'col-readonly': !canModifyCols('Phys. Sample Actual Date Delivered (TOP)') || row.isCancelled || detail.isCancelled, 'unread': !row.isReaded,
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate}"
+                               (click)="onChangePhysSampleActualTop(row, detail, detail.physSampleActualDateDeliveredTop)">
+                            <div *ngIf="detail.topQty === 0; then styleBlock3 else topBlock3"></div>
+                            <ng-template #styleBlock3>
+                              <p class="p-link" (click)="goToTopsTabSetup(row, detail)">No TOPs Specified</p>
+                            </ng-template>
+                            <ng-template #topBlock3>
+                              <div
+                                *ngIf="!detail.physSampleActualDateDeliveredTop.isSetup; then infoBlock14 else setupBlock14"></div>
+                              <ng-template #infoBlock14>
+                                <column-info [columnInfoObj]="getObjectDetail(detail.physSampleActualDateDeliveredTop, detail.productionLeadTimeEta)"
+                                             [isShowStatus]="isShowStatus"
+                                             [isShowLeadTime]="isShowLeadTime"
+                                             [isShowStatusDate]="isShowStatusDate"></column-info>
+                              </ng-template>
+                              <ng-template #setupBlock14>
+                                <p class="p-link" (click)="goToTopsTabSetup(row, detail)">No TOPs Specified</p>
+                              </ng-template>
+                            </ng-template>
+                          </div>
+                        </ng-template>
+                      </ng-template>
+                    </td>
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ImportQCSampleShipDateTOP)"
+                        [attr.rowSpan]="(!isShowLeadTime && !isShowStatusDate) ? 1 : (row.isCollapse ? 1 : detail.printLocations.length)"
+                        [style.border-bottom]="(!isShowLeadTime && !isShowStatusDate) ? 'none': '1px solid #999'"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].qcSampleShipDateTop.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].qcSampleShipDateTop.width">
+                      <div *ngIf="row.isCollapse; then disabledCol21 else infoCol21"></div>
+                      <ng-template #disabledCol21>
+                        <ng-container *ngTemplateOutlet="disabledCol"></ng-container>
+                      </ng-template>
+                      <ng-template #infoCol21>
+                        <ng-container *ngIf="detail.isCancelled">
+                          <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                        </ng-container>
+                        <div *ngIf="!detail.qcSampleShipDateTop || detail.qcSampleShipDateTop.isDisabled; then blackBgBlock31 else infoBgBlock31"></div>
+                        <ng-template #blackBgBlock31>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock31>
+                          <div class="seperate-child"
+                               [id]="row.orderId + '-' + detail.orderDetailId + '-' + 'qcSampleShipDateTop'"
+                               [ngClass]="{'col-readonly': !canModifyCols('QC Sample / Ship Date (TOP)') || row.isCancelled || detail.isCancelled, 'unread': !row.isReaded,
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate}"
+                               (click)="onChangeQcSampleShipTop(row, detail, detail.qcSampleShipDateTop)">
+                            <div *ngIf="detail.topQty === 0; then styleBlock4 else topBlock4"></div>
+                            <ng-template #styleBlock4>
+                              <p class="p-link" (click)="goToTopsTabSetup(row, detail)">No TOPs Specified</p>
+                            </ng-template>
+                            <ng-template #topBlock4>
+                              <div
+                                *ngIf="(!detail.qcSampleShipDateTop.isSetup && !detail.qcSampleShipDateTop.isShippingSetup); then infoBlock15 else setupBlock15"></div>
+                              <ng-template #infoBlock15>
+                                <column-info [columnInfoObj]="getObjectDetail(detail.qcSampleShipDateTop, detail.productionLeadTimeEta)"
+                                             [isShowStatus]="isShowStatus"
+                                             [isShowLeadTime]="isShowLeadTime"
+                                             [isShowStatusDate]="isShowStatusDate"></column-info>
+                              </ng-template>
+                              <ng-template #setupBlock15>
+                                <p class="p-link"
+                                   (click)="goToTopsTabSetup(row, detail, detail.qcSampleShipDateTop.isShippingSetup)">
+                                  No TOPs Specified</p>
+                              </ng-template>
+                            </ng-template>
+                          </div>
+                        </ng-template>
+                      </ng-template>
+                    </td>
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ImportFinalApprovalTOP)"
+                        [attr.rowSpan]="(!isShowLeadTime && !isShowStatusDate) ? 1 : (row.isCollapse ? 1 : detail.printLocations.length)"
+                        [style.border-bottom]="(!isShowLeadTime && !isShowStatusDate) ? 'none': '1px solid #999'"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].finalApprovalTop.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].finalApprovalTop.width">
+                      <div *ngIf="row.isCollapse; then disabledCol17 else infoCol17"></div>
+                      <ng-template #disabledCol17>
+                        <ng-container *ngTemplateOutlet="disabledCol"></ng-container>
+                      </ng-template>
+                      <ng-template #infoCol17>
+                        <ng-container *ngIf="detail.isCancelled">
+                          <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                        </ng-container>
+                        <div *ngIf="!detail.finalApprovalTop || detail.finalApprovalTop.isDisabled; then blackBgBlock27 else infoBgBlock27"></div>
+                        <ng-template #blackBgBlock27>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock27>
+                          <div class="seperate-child"
+                               [id]="row.orderId + '-' + detail.orderDetailId + '-' + 'finalApprovalTop'"
+                               [ngClass]="{'col-readonly': !canModifyCols('Final Approval (TOP)') || row.isCancelled || detail.isCancelled, 'unread': !row.isReaded,
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate}"
+                               (click)="onChangeFinalApprovalTop(row, detail, detail.finalApprovalTop)">
+                            <column-info [columnInfoObj]="getObjectDetail(detail.finalApprovalTop, detail.productionLeadTimeEta)"
+                                         [isShowStatus]="isShowStatus"
+                                         [isShowLeadTime]="isShowLeadTime"
+                                         [isShowStatusDate]="isShowStatusDate"></column-info>
+                          </div>
+                        </ng-template>
+                      </ng-template>
+                    </td>
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ImportShippingLabelsTSCPackingList)"
+                        [attr.rowSpan]="(!isShowLeadTime && !isShowStatusDate) ? 1 : (row.isCollapse ? 1 : detail.printLocations.length)"
+                        [style.border-bottom]="(!isShowLeadTime && !isShowStatusDate) ? 'none': '1px solid #999'"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].shippingLabelsTscPackingList.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].shippingLabelsTscPackingList.width">
+                      <div *ngIf="row.isCollapse; then disabledCol22 else infoCol22"></div>
+                      <ng-template #disabledCol22>
+                        <ng-container *ngTemplateOutlet="disabledCol"></ng-container>
+                      </ng-template>
+                      <ng-template #infoCol22>
+                        <ng-container *ngIf="detail.isCancelled">
+                          <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                        </ng-container>
+                        <div *ngIf="!detail.shippingLabelsTscPackingList || detail.shippingLabelsTscPackingList.isDisabled; then blackBgBlock32 else infoBgBlock32"></div>
+                        <ng-template #blackBgBlock32>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock32>
+                          <div class="seperate-child"
+                               [id]="row.orderId + '-' + detail.orderDetailId + '-' + 'shippingLabelsTscPackingList'"
+                               [ngClass]="{'col-readonly': !canModifyCols('Shipping Labels / TSC Packing List') || row.isCancelled || detail.isCancelled, 'unread': !row.isReaded,
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate}"
+                               (click)="onChangeShippingLabelsTsc(row, detail, detail.shippingLabelsTscPackingList)">
+                            <column-info [columnInfoObj]="detail.shippingLabelsTscPackingList"
+                                         [isShowStatus]="isShowStatus"
+                                         [isShowLeadTime]="isShowLeadTime"
+                                         [isShowStatusDate]="isShowStatusDate">
+                              <ng-container *ngIf="isShowStatusDate">
+                                <p *ngIf="detail.shippingLabelsTscPackingList.isUploaded">
+                                  <i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"
+                                     (click)="openShippingTscUploader(detail.orderDetailId)"></i>
+                                </p>
+                              </ng-container>
+                            </column-info>
+                          </div>
+                        </ng-template>
+                      </ng-template>
+                    </td>
+                  </ng-template>
+
+                  <ng-template #factoryPackingListXFactory let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ImportFactoryPackingListCI)"
+                        [attr.rowSpan]="(!isShowLeadTime && !isShowStatusDate) ? 1 : (row.isCollapse ? 1 : detail.printLocations.length)"
+                        [style.border-bottom]="(!isShowLeadTime && !isShowStatusDate) ? 'none': '1px solid #999'"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].factoryPackingListCi.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].factoryPackingListCi.width">
+                      <div *ngIf="row.isCollapse; then disabledCol23 else infoCol23"></div>
+                      <ng-template #disabledCol23>
+                        <ng-container *ngTemplateOutlet="disabledCol"></ng-container>
+                      </ng-template>
+                      <ng-template #infoCol23>
+                        <ng-container *ngIf="detail.isCancelled">
+                          <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                        </ng-container>
+                        <div *ngIf="!detail.factoryPackingListCi || detail.factoryPackingListCi.isDisabled; then blackBgBlock34 else infoBgBlock34"></div>
+                        <ng-template #blackBgBlock34>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock34>
+                          <div class="seperate-child"
+                               [id]="row.orderId + '-' + detail.orderDetailId + '-' + 'factoryPackingListCi'"
+                               [ngClass]="{'col-readonly': !canModifyCols('Factory Packing List / CI') || row.isCancelled || detail.isCancelled, 'unread': !row.isReaded,
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate}"
+                               (click)="onChangeFactoryPackingList(row, detail, detail.factoryPackingListCi)">
+                            <column-info [columnInfoObj]="getObjectDetail(detail.factoryPackingListCi, detail.factoryPackingListCiXFactoryDateEta)"
+                                         [isShowStatus]="isShowStatus"
+                                         [isShowLeadTime]="isShowLeadTime"
+                                         [isShowStatusDate]="isShowStatusDate">
+                              <ng-container *ngIf="isShowStatusDate">
+                                <p *ngIf="detail.factoryPackingListCi.isUploaded">
+                                  <i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"
+                                     (click)="openFactoryCIUploader(detail.orderDetailId)"></i>
+                                </p>
+                              </ng-container>
+                            </column-info>
+                          </div>
+                        </ng-template>
+                      </ng-template>
+                    </td>
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ImportXFactoryDate)"
+                        [attr.rowSpan]="(!isShowLeadTime && !isShowStatusDate) ? 1 : (row.isCollapse ? 1 : detail.printLocations.length)"
+                        [style.border-bottom]="(!isShowLeadTime && !isShowStatusDate) ? 'none': '1px solid #999'"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].xFactoryDate.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].xFactoryDate.width">
+                      <div *ngIf="row.isCollapse; then disabledCol24 else infoCol24"></div>
+                      <ng-template #disabledCol24>
+                        <ng-container *ngTemplateOutlet="disabledCol"></ng-container>
+                      </ng-template>
+                      <ng-template #infoCol24>
+                        <ng-container *ngIf="detail.isCancelled">
+                          <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                        </ng-container>
+                        <div *ngIf="!detail.xFactoryDate || detail.xFactoryDate.isDisabled; then blackBgBlock35 else infoBgBlock35"></div>
+                        <ng-template #blackBgBlock35>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock35>
+                          <div class="seperate-child"
+                               [id]="row.orderId + '-' + detail.orderDetailId + '-' + 'xFactoryDate'"
+                               [ngClass]="{'col-readonly': !canModifyCols('x-Factory Date') || row.isCancelled || detail.isCancelled, 'unread': !row.isReaded,
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate}"
+                               (click)="onChangeXFactoryDate(row, detail, detail.xFactoryDate)">
+                            <column-info [columnInfoObj]="getObjectDetail(detail.xFactoryDate, detail.factoryPackingListCiXFactoryDateEta)"
+                                         [isShowStatus]="isShowStatus"
+                                         [isShowLeadTime]="isShowLeadTime"
+                                         [isShowStatusDate]="isShowStatusDate"></column-info>
+                          </div>
+                        </ng-template>
+                      </ng-template>
+                    </td>
+                  </ng-template>
+
+                  <ng-template #readyToShip3Pl let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ImportReadyToShip3PL)"
+                        [style.border-bottom]="(isShowStatus && !isShowLeadTime && !isShowStatusDate) ? 'none' : ((!isShowStatus && isShowLeadTime && !isShowStatusDate) ? '1px solid #fff': '1px solid #999')"
+                        [attr.rowSpan]="(!isShowStatusDate) ? 1 : (row.isCollapse ? 1 : detail.printLocations.length)"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].readyToShip3Pl.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].readyToShip3Pl.width">
+                      <div *ngIf="row.isCollapse; then disabledCol25 else infoCol25"></div>
+                      <ng-template #disabledCol25>
+                        <ng-container *ngTemplateOutlet="disabledCol"></ng-container>
+                      </ng-template>
+                      <ng-template #infoCol25>
+                        <ng-container *ngIf="detail.isCancelled">
+                          <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                        </ng-container>
+                        <div *ngIf="!detail.readyToShip3Pl || detail.readyToShip3Pl.isDisabled; then blackBgBlock36 else infoBgBlock36"></div>
+                        <ng-template #blackBgBlock36>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock36>
+                          <div class="seperate-child-custom"
+                               [id]="'readyToShip3Pl-' + row.orderId + '-' + detail.orderDetailId"
+                               [ngClass]="{'col-readonly': !canModifyCols('Ready To Ship @ 3PL') || row.isCancelled || detail.isCancelled, 'unread': !row.isReaded,
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate,
+                                         'only-eta-field': !isShowStatus && !isShowStatusDate}"
+                               (mouseenter)="onHover($event, true, true, 'readyToShip3Pl', row.orderId, detail.orderDetailId)"
+                               (mouseleave)="onHover($event, false, true, 'readyToShip3Pl', row.orderId, detail.orderDetailId)"
+                               (click)="onChangeReadyToShip3Pl(row, detail, detail.readyToShip3Pl)">
+                            <column-info [columnInfoObj]="detail.readyToShip3Pl"
+                                         [isShowStatus]="isShowStatus"
+                                         [isShowLeadTime]="isShowLeadTime"
+                                         [isShowStatusDate]="isShowStatusDate"></column-info>
+                          </div>
+                        </ng-template>
+                      </ng-template>
+                    </td>
+                  </ng-template>
+
+                  <ng-template #etaTsc let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+                    <td *ngIf="firstPrint && (isShowAllColumns || columns.ImportEtaTsc)"
+                        [style.border-bottom]="(isShowStatus && !isShowLeadTime && !isShowStatusDate) ? 'none' : ((!isShowStatus && isShowLeadTime && !isShowStatusDate) ? '1px solid #fff': '1px solid #999')"
+                        [attr.rowSpan]="(!isShowStatusDate) ? 1 : (row.isCollapse ? 1 : detail.printLocations.length)"
+                        [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].etatsc.width"
+                        [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].etatsc.width">
+                      <div *ngIf="row.isCollapse; then disabledCol26 else infoCol26"></div>
+                      <ng-template #disabledCol26>
+                        <ng-container *ngTemplateOutlet="disabledCol"></ng-container>
+                      </ng-template>
+                      <ng-template #infoCol26>
+                        <ng-container *ngIf="detail.isCancelled">
+                          <ng-container *ngTemplateOutlet="cancelledCol"></ng-container>
+                        </ng-container>
+                        <div *ngIf="!detail.etaTsc || detail.etaTsc.isDisabled; then blackBgBlock37 else infoBgBlock37"></div>
+                        <ng-template #blackBgBlock37>
+                          <ng-container *ngTemplateOutlet="blackCol; context: {isShowStatus: isShowStatus, isShowLeadTime: isShowLeadTime, isShowStatusDate: isShowStatusDate}"></ng-container>
+                        </ng-template>
+                        <ng-template #infoBgBlock37>
+                          <div class="seperate-child-custom"
+                               [id]="'etaTsc-' + row.orderId + '-' + detail.orderDetailId"
+                               [ngClass]="{'col-readonly': !canModifyCols('ETA @ TSC') || row.isCancelled || detail.isCancelled, 'unread': !row.isReaded,
+                                         'only-status-field': !isShowLeadTime && !isShowStatusDate,
+                                         'only-eta-field': !isShowStatus && !isShowStatusDate}"
+                               (mouseenter)="onHover($event, true, true, 'etaTsc', row.orderId, detail.orderDetailId)"
+                               (mouseleave)="onHover($event, false, true, 'etaTsc', row.orderId, detail.orderDetailId)"
+                               (click)="onChangeEtaTsc(row, detail, detail.etaTsc)">
+                            <column-info [columnInfoObj]="detail.etaTsc"
+                                         [isShowStatus]="isShowStatus"
+                                         [isShowLeadTime]="isShowLeadTime"
+                                         [isShowStatusDate]="isShowStatusDate"></column-info>
+                          </div>
+                        </ng-template>
+                      </ng-template>
+                    </td>
+                  </ng-template>
+                </ng-template>
+              </ng-template>
+            </ng-template>
+            </tbody>
+          </table>
+        </div>
+      </perfect-scrollbar>
+    </div>
+    <ng-container *ngTemplateOutlet="paginationTop"></ng-container>
+  </div>
+  <ng-template #pagination>
+    <pagination-control [totalRecord]="importsData.totalRecord"
+                        *ngIf="importsData.data && importsData.data.length"
+                        [pageName]="'orderMain'"
+                        [pageSize]="tableConfig.pageSize"
+                        [pageSizeList]="[10, 25, 50]"
+                        [currentPage]="tableConfig.currentPage"
+                        (onSelectedPageSize)="onSelectedPageSize($event)"
+                        (onPageChange)="onPageChange($event)">
+      <ng-container center>
+        <div ngbDropdown class="select-column-dropdown m-l-35" #myDrop2="ngbDropdown"
+             placement="bottom-right"
+             (openChange)="onChangeShowHideColumn($event)"
+             (clickOutside)="myDrop2.close()"
+             [attachOutsideOnClick]="true">
+          <i class="fa fa-sliders fa-2x cursor" id="dropdown5" ngbDropdownToggle></i>
+          <div ngbDropdownMenu aria-labelledby="dropdown5">
+            <div class="col-12 px-1">
+              <div class="checkbox">
+                <input type="checkbox" id="all-options5" [checked]="isCheckedAll"
+                       (change)="onCheckedColsAll($event)">
+                <label [style.margin-bottom]="'.2rem'" for="all-options5">All</label>
+              </div>
+            </div>
+            <div class="divider"></div>
+            <div class="">
+              <div class="col-12 px-1" *ngFor="let col of showHideColumns; trackBy: trackByFn; let i = index">
+                <div class="checkbox">
+                  <input type="checkbox"
+                         [id]="'col-' + i"
+                         [name]="'col-' + i"
+                         [(ngModel)]="col.isView"
+                         (change)="changeCheckedCol($event)">
+                  <label [for]="'col-' + i">{{col.description}}</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <ng-container *ngIf="!isShowAllColumns; else showMyCols">
+          <a href="javascript:void(0)" class="show-cols"
+             (click)="showAllColumns(true)">Show All Columns</a>
+        </ng-container>
+        <ng-template #showMyCols>
+          <a href="javascript:void(0)" class="show-cols"
+             (click)="showAllColumns(false)">Show My Columns</a>
+        </ng-template>
+      </ng-container>
+    </pagination-control>
+  </ng-template>
+  <ng-template #paginationTop>
+    <pagination-control [totalRecord]="importsData.totalRecord"
+                        *ngIf="importsData.data && importsData.data.length"
+                        [pageName]="'orderMain'"
+                        [pageSize]="tableConfig.pageSize"
+                        [currentPage]="tableConfig.currentPage"
+                        [pageSizeList]="[10, 25, 50]"
+                        [dropdownPosition]="'top-left'"
+                        (onSelectedPageSize)="onSelectedPageSize($event)"
+                        (onPageChange)="onPageChange($event)"></pagination-control>
+  </ng-template>
+</div>
+
+<context-menu #markAsReadMenu>
+  <ng-template contextMenuItem (execute)="markAsRead($event.item, true)">
+    Mark as Read
+  </ng-template>
+</context-menu>
+
+<context-menu #markAsUnreadMenu>
+  <ng-template contextMenuItem (execute)="markAsRead($event.item, false)">
+    Mark as Unread
+  </ng-template>
+</context-menu>
+
+<ng-template #disabledCol>
+  <div class="col-disabled"></div>
+</ng-template>
+<ng-template #cancelledCol>
+  <div class="overlay-cancelled"></div>
+</ng-template>
+<ng-template #blackCol let-isShowStatus="isShowStatus" let-isShowLeadTime="isShowLeadTime" let-isShowStatusDate="isShowStatusDate">
+  <div class="full-black-bg"
+       [ngClass]="{'only-status-field': !isShowLeadTime && !isShowStatusDate,
+                   'only-eta-field': !isShowStatus && !isShowStatusDate}"></div>
+</ng-template>
+<ng-template #blackColNotFull>
+  <div class="full-black-bg full-black-bg-custom"></div>
+</ng-template>
+
+<ng-template #leadTimeRevise let-detail="detail">
+  <column-info [columnInfoObj]="detail" [isShowStatus]="false" [isShowStatusDate]="false"></column-info>
+</ng-template>

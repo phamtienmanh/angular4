@@ -1,0 +1,53 @@
+billing {
+  .checkbox {
+    margin-bottom: 0 !important;
+    margin-top: -3px !important;
+  }
+  .ps__rail-x {
+    display: none !important;
+  }
+  .datatable-body-cell-label {
+    white-space: nowrap !important;
+  }
+  #selectSize {
+    .ui-select-choices {
+      display: block !important;
+    }
+    .ui-select-container {
+      height: 30px !important;
+      input {
+        padding-left: 9px;
+        padding-bottom: 9px;
+      }
+    }
+    &.form-control-selected {
+      .ui-select-container {
+        height: auto !important;
+      }
+      input {
+        padding-left: 0;
+      }
+      .ui-select-match-item {
+        -webkit-appearance: unset !important;
+      }
+    }
+  }
+  .statusHeight {
+    textarea {
+      min-height: 80px !important;
+    }
+  }
+  .ngx-datatable .datatable-body-row .datatable-body-cell-label {
+    width: 100% !important;
+  }
+  .general-title {
+    border-bottom: 1px solid #626262;
+    span {
+      font-size: 14px;
+    }
+  }
+
+  .margin-3-col {
+    margin-top: 39px;
+  }
+}

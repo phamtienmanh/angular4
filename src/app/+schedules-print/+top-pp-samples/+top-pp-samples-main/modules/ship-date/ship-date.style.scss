@@ -1,0 +1,62 @@
+ship-date {
+  .checkbox {
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
+    label {
+      margin-right: 0 !important;
+      margin-bottom: 0 !important;
+      white-space: normal;
+    }
+  }
+  .shipment-info {
+    p {
+      margin-bottom: 5px;
+    }
+  }
+
+  .size-table {
+    margin-top: 0;
+    input {
+      height: 18px !important;
+      border: none !important;
+      width: 30px !important;
+      font-size: 12px;
+      &:focus{
+        border-bottom: 1px solid #80bdff !important;
+      }
+      &:disabled {
+        background-color: inherit;
+        color: #000;
+        &:hover {
+          text-decoration: none;
+          cursor: text;
+        }
+      }
+    }
+    td, th {
+      background: #fff!important;
+      padding: .5em 0.4em !important;
+      color: #2c2c2c !important;
+      text-align: center !important;
+      font-size: 12px !important;
+      border: 1px solid hsla(0,0%,90%,.8);
+      white-space: nowrap !important;
+      min-width: 40px;
+    }
+    th {
+      font-weight: 300 !important;
+      background-color: #f1f1f1 !important;
+    }
+    tr:last-child {
+      td {
+        // border-bottom: 0;
+      }
+    }
+    tr th {
+      white-space: nowrap;
+      &:last-child {
+        min-width: 60px !important;
+      }
+    }
+  }
+}

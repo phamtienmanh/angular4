@@ -1,0 +1,227 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0">Account Manager Approval - Change Status</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.close()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <div class="row">
+    <div [ngClass]="{'col-sm-2': topPps.controls.length >= 3,
+                     'col-sm-3': topPps.controls.length === 2,
+                     'col-sm-4': topPps.controls.length === 1}">
+      <div class="row flex py-1 required" style="height: 38px">
+        <div class="col-sm-12 control-label text-right">
+          <label>Status</label>
+        </div>
+      </div>
+      <ng-container *ngIf="statusDoneOrHold">
+        <!--form prop-->
+        <ng-container *ngFor="let prop of formProp; let index = index">
+          <div *ngIf="prop.type !== fieldType.HIDE"
+               class="row flex py-1" style="height: 38px"
+               [ngClass]="{'required': prop.isRequired, 'm-b-10': prop.name === 'shipToRef3'}">
+            <div class="col-sm-12 control-label text-right">
+              <label>{{prop.label}}</label>
+            </div>
+          </div>
+        </ng-container>
+        <!--size table-->
+        <div style="height: 110px">
+          <div class="row flex py-1" style="height: 34px">
+            <div class="col-sm-12 control-label text-right">
+              <label></label>
+            </div>
+          </div>
+          <div class="row flex py-1" style="height: 34px">
+            <div class="col-sm-12 control-label text-right">
+              <label>TOP Sample Qty Requested</label>
+            </div>
+          </div>
+          <div class="row flex py-1" style="height: 34px">
+            <div class="col-sm-12 control-label text-right">
+              <label>TOP Sample Qty Pulled</label>
+            </div>
+          </div>
+        </div>
+        <!--apply to style arr-->
+        <div class="row flex py-1" style="height: 38px"
+             *ngIf="allApplicableStyles && allApplicableStyles.length">
+          <div class="col-sm-12 control-label text-right">
+            <label class="nowrap bold">Apply to these styles</label>
+          </div>
+        </div>
+        <div class="row flex border-top" #labelList
+             *ngFor="let applicableStyle of allApplicableStyles">
+          <div class="col-sm-12 control-label text-right">
+            <label class="wrap style-name m-b-0">{{getLabelString(applicableStyle)}}</label>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+    <div [ngClass]="{'col-sm-10': topPps.controls.length >= 3,
+                     'col-sm-9': topPps.controls.length === 2,
+                     'col-sm-8': topPps.controls.length === 1}">
+      <ng-container *ngTemplateOutlet="formArrTemplate"></ng-container>
+    </div>
+  </div>
+</div>
+<div class="modal-footer" *ngIf="topPps && topPps.controls && topPps.controls.length">
+  <button class="btn btn-complete" *ngIf="!isPageReadOnly"
+          (click)="onSubmitForm()">
+    Save
+  </button>
+  <button class="btn btn-default"
+          (click)="activeModal.close()">
+    Cancel
+  </button>
+</div>
+<ng-template #formArrTemplate>
+  <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()" (click)="formClick($event)"
+        class="full-height-trim">
+    <div class="row flex-nowrap full-width py-1">
+      <div class="col-sm-12 p-l-0"
+           [ngClass]="{'has-error':!frm.get('status').valid, 'disabled': isPageReadOnly}">
+        <ng-select [items]="statusSelectData"
+                   [placeholder]="!isPageReadOnly ? 'Status' : ''"
+                   [searchable]="false" #statusNgSelect
+                   (focus)="onSelectFocused(statusNgSelect)"
+                   bindLabel="name"
+                   bindValue="id"
+                   formControlName="status"></ng-select>
+        <label class="error"
+               *ngIf="frm.get('status').hasError('required') && !frm.get('status').pristine">
+          {{validationMessages['status'].required}}</label>
+      </div>
+    </div>
+    <div class="row flex-nowrap full-width p-b-5" formArrayName="topPps">
+      <ng-container *ngFor="let topPp of topPps.controls; let frmIndex = index" [formGroupName]="frmIndex">
+        <div [ngClass]="{'col-sm-3': topPps.controls.length === 4,
+                         'col-sm-4': topPps.controls.length === 3,
+                         'col-sm-6': topPps.controls.length === 2,
+                         'col-sm-12': topPps.controls.length === 1}"
+             class="p-l-0">
+          <ng-container *ngIf="statusDoneOrHold">
+            <!--form prop-->
+            <ng-container *ngFor="let prop of formProp; let index = index">
+              <div *ngIf="prop.type !== fieldType.HIDE"
+                   class="row flex py-1" style="height: 38px"
+                   [ngClass]="{'m-b-10': prop.name === 'shipToRef3'}">
+                <div class="col-sm-12"
+                     [ngPlural]="prop.type"
+                     [ngClass]="{'has-error':!topPp.get(prop.name).valid,
+                                 'disabled': isPageReadOnly || prop.name === 'shipToMethodId' && !topPp.get('shippingCarrierId').value}">
+                    <!--Label-->
+                    <ng-template ngPluralCase="=1">
+                      <p class="p-readonly center bold">{{topPpsName[topPp.get(prop.name).value]}}</p>
+                    </ng-template>
+                    <!--Input-->
+                    <ng-template ngPluralCase="=2">
+                      <input [formControlName]="prop.name"
+                             (keyup)="onNameChange($event, prop.name, frmIndex)"
+                             type="text"
+                             [placeholder]="!isPageReadOnly ? prop.label : ''"
+                             [attr.disabled]="isPageReadOnly ? true : null"
+                             class="form-control">
+                    </ng-template>
+                    <!--NgSelect-->
+                    <ng-template ngPluralCase="=3">
+                      <ng-select [items]="ngSelectData[frmIndex][prop.name]"
+                                 [placeholder]="!isPageReadOnly ? prop.label : ''"
+                                 [searchable]="false" #myNgSelect
+                                 (focus)="onSelectFocused(myNgSelect)"
+                                 (open)="onSelectOpen(myNgSelect)"
+                                 (add)="onSelectItem($event, topPp, frmIndex, prop.name)"
+                                 bindLabel="name"
+                                 bindValue="id"
+                                 [formControlName]="prop.name"></ng-select>
+                    </ng-template>
+                  <label class="error"
+                         *ngIf="topPp.get(prop.name).hasError('required') && !topPp.get(prop.name).pristine">
+                    {{validationMessages[prop.name].required}}</label>
+                </div>
+              </div>
+            </ng-container>
+            <!--size table-->
+            <div class="row py-1" style="height: 110px">
+              <div class="col-sm-12">
+                <perfect-scrollbar [config]="{suppressScrollX: false, suppressScrollY: true, scrollXMarginOffset: 10}"
+                                   id="perfect-scrollbar">
+                  <div class="table-wrapper" #tableWrapper>
+                    <table class="table table-sm size-table"
+                           *ngIf="topPp.get('topPulleds').controls && topPp.get('topPulleds').controls.length">
+                      <thead>
+                      <tr>
+                        <th *ngFor="let size of topPp.get('topPulleds').controls">
+                          {{size.get('size').value}}
+                        </th>
+                        <th>
+                          Total
+                        </th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr formArrayName="tops">
+                        <td *ngFor="let size of topPp.get('tops').controls">
+                          {{size.get('qty').value}}
+                        </td>
+                        <td>
+                          {{calTotal(topPp.get('tops'))}}
+                        </td>
+                      </tr>
+                      <tr formArrayName="topPulleds">
+                        <td *ngFor="let size of topPp.get('topPulleds').controls; let sizeIndex = index">
+                          <ng-container [formGroupName]="sizeIndex">
+                            <input *ngIf="statusDoneOrHold"
+                                   formControlName="qty"
+                                   (focus)="onFocus($event)"
+                                   (keyup)="onKeyUp($event, topPp)"
+                                   (blur)="onBlur($event, size)"
+                                   IntegerNumber
+                                   type="text"
+                                   class="text-center p-link"
+                                   [style.color]="topPp.get('topPulleds')['required']
+                                      || topPp.get('topPulleds')['invalidValue'] ? 'red' : ''"/>
+                            <span *ngIf="!statusDoneOrHold">
+                              {{size.get('qty').value}}
+                            </span>
+                          </ng-container>
+                        </td>
+                        <td>
+                          {{calTotal(topPp.get('topPulleds'))}}
+                        </td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </perfect-scrollbar>
+                <label class="error"
+                       *ngIf="topPp.get('topPulleds')['required'] && !topPp.get('topPulleds').pristine">
+                  {{validationMessages['topPulleds'].required}}</label>
+                <label class="error"
+                       *ngIf="topPp.get('topPulleds')['invalidValue'] && !topPp.get('topPulleds').pristine">
+                  {{validationMessages['topPulleds'].invalidValue}}</label>
+              </div>
+            </div>
+            <!--apply to style arr-->
+            <div class="row flex py-1" style="height: 38px"></div>
+            <div formArrayName="applicableStyles">
+              <div class="row flex py-1 border-top" [ngStyle]="{'height': labelHeights[ii]}"
+                   *ngFor="let style of topPp.get('applicableStyles').controls; let ii = index;" [formGroupName]="ii">
+                <div class="col-sm-12 center" *ngIf="style.get('isShow').value">
+                  <div class="checkbox">
+                    <input type="checkbox" [id]="frmIndex + '-style-' + ii"
+                           formControlName='isSelected'
+                           [attr.disabled]="isPageReadOnly ? true : null">
+                    <label [for]="frmIndex + '-style-' + ii">
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </ng-container>
+    </div>
+  </form>
+</ng-template>
+

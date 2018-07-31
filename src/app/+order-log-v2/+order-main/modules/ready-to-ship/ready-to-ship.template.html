@@ -1,0 +1,227 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0">Ready To Ship Date - Change Status</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()">
+    <div class="row">
+      <div class="col-sm-6">
+        <div class="row flex py-1"
+             [ngClass]="{'required': true}">
+          <div class="col-sm-4 control-label text-right">
+            <label>Status</label>
+          </div>
+          <div class="col-sm-8"
+               [ngClass]="{'has-error':!frm.get('status').valid, 'disabled': isPageReadOnly}">
+            <ng-select [items]="statusData"
+                       [placeholder]="!isPageReadOnly ? 'Status' : ''"
+                       [searchable]="false" #statusSelect
+                       (focus)="onSelectFocused(statusSelect)"
+                       (add)="onSelectItem($event, frm, 'id', 'status')"
+                       bindLabel="name"
+                       bindValue="id"
+                       formControlName="status"></ng-select>
+            <label class="error"
+                   *ngIf="frm.get('status').hasError('required') && !frm.get('status').pristine">
+              {{validationMessages['default'].required}}</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row flex border-bottom-ccc mx-1 my-2"></div>
+    <ng-container *ngIf="+frm.get('status').value === taskStatus.BLANK">
+      <div class="row flex" *ngIf="styleList && styleList.length">
+        <div class="col-sm-1"></div>
+        <div class="col-sm-10">
+          <p class="mb-0 bold">Apply to these styles:</p>
+        </div>
+      </div>
+      <div class="row flex py-1" *ngFor="let style of styleList; let i = index">
+        <div class="col-sm-1"></div>
+        <div class="col-sm-10">
+          <div class="checkbox">
+            <input type="checkbox" [id]="i + '-style'"
+                   [disabled]="style.orderDetailId === orderDetailId"
+                   [checked]="activeStylesChanges(frm, style.orderDetailId, 'readyToShipApplyToStyles')"
+                   (change)="onSelectStyle(frm, style.orderDetailId, 'readyToShipApplyToStyles')">
+            <label [for]="i + '-style'">
+              {{getLabelString(style.styleInfo)}}
+            </label>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+    <ng-container formArrayName="listUpdateReadyToShip" *ngIf="frm.get('status').value !== null && frm.get('status').value !== undefined
+        && +frm.get('status').value !== taskStatus.BLANK">
+      <div *ngFor="let ship of listUpdateReadyToShip.controls; index as i; first as first; last as last" [formGroupName]="i">
+        <div class="row">
+          <div class="col-sm-6">
+            <div *ngIf="+frm.get('status').value === taskStatus.SCHEDULED || +frm.get('status').value === taskStatus.PARTIAL
+        || +frm.get('status').value === taskStatus.DONE">
+              <div class="row flex py-1"
+                   [ngClass]="{'required': ship.get('formRequires').value['vendorId'].required}">
+                <div class="col-sm-4 control-label text-right">
+                  <label>Vendor</label>
+                </div>
+                <div class="col-sm-8"
+                     [ngClass]="{'has-error':!ship.get('vendorId').valid, 'disabled': isPageReadOnly}">
+                  <ng-select [items]="vendorData" #vendorSelect
+                             [placeholder]="!isPageReadOnly ? 'Vendor' : ''"
+                             [virtualScroll]="true"
+                             (focus)="onSelectFocused(vendorSelect)"
+                             (open)="vendorSelect.filterValue = !!ship.get('vendorId').value ? ship.get('vendorName').value : ''"
+                             (add)="onSelectItem($event, ship, 'name', 'vendorName')"
+                             (clear)="ship.get('vendorName').patchValue('')"
+                             bindLabel="name"
+                             bindValue="id"
+                             formControlName="vendorId"></ng-select>
+                  <label class="error"
+                         *ngIf="ship.get('vendorId').hasError('required') && !ship.get('vendorId').pristine">
+                    {{validationMessages['vendorId'].required}}</label>
+                </div>
+              </div>
+              <ng-container *ngIf="+frm.get('status').value === taskStatus.SCHEDULED">
+                <div class="row flex py-1"
+                     [ngClass]="{'required': ship.get('formRequires').value['schedReadyToShipStartDateOnUtc'].required}">
+                  <div class="col-sm-4 control-label text-right">
+                    <label class="nowrap">Ready To Ship Start Date</label>
+                  </div>
+                  <div class="col-sm-8"
+                       [ngClass]="{'has-error':!ship.get('schedReadyToShipStartDateOnUtc').valid}">
+                    <my-date-picker class="flex" [options]="ship.get('schedReadyToShipStartDateOptions').value"
+                                    #schedReadyToShipStartDatePicker
+                                    formControlName='schedReadyToShipStartDate'
+                                    (dateChanged)="onDateChangedBy($event, ship, 'schedReadyToShipStartDateOnUtc')"
+                                    (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, schedReadyToShipStartDatePicker)"
+                                    (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, schedReadyToShipStartDatePicker, ship.get('schedReadyToShipStartDateOnUtc'))"></my-date-picker>
+                    <label class="error"
+                           *ngIf="ship.get('schedReadyToShipStartDateOnUtc').hasError('required') && !ship.get('schedReadyToShipStartDateOnUtc').pristine">
+                      {{validationMessages['default'].required}}</label>
+                    <label class="error"
+                           *ngIf="ship.get('schedReadyToShipStartDateOnUtc').hasError('maxDate') && !ship.get('schedReadyToShipStartDateOnUtc').pristine">
+                      {{validationMessages['schedReadyToShipStartDateOnUtc'].maxLength}}</label>
+                  </div>
+                </div>
+                <div class="row flex py-1"
+                     [ngClass]="{'required': ship.get('formRequires').value['schedReadyToShipEndDateOnUtc'].required}">
+                  <div class="col-sm-4 control-label text-right">
+                    <label class="nowrap">Ready To Ship End Date</label>
+                  </div>
+                  <div class="col-sm-8"
+                       [ngClass]="{'has-error':!ship.get('schedReadyToShipEndDateOnUtc').valid}">
+                    <my-date-picker class="flex" [options]="ship.get('schedReadyToShipEndDateOptions').value"
+                                    #schedReadyToShipEndDatePicker
+                                    [defaultMonth]="myDatePickerService.configDefaultMonth(ship.get('schedReadyToShipStartDate').value)"
+                                    formControlName='schedReadyToShipEndDate'
+                                    (dateChanged)="onDateChangedBy($event, ship, 'schedReadyToShipEndDateOnUtc')"
+                                    (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, schedReadyToShipEndDatePicker)"
+                                    (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, schedReadyToShipEndDatePicker, ship.get('schedReadyToShipEndDateOnUtc'))"></my-date-picker>
+                    <label class="error"
+                           *ngIf="ship.get('schedReadyToShipEndDateOnUtc').hasError('required') && !ship.get('schedReadyToShipEndDateOnUtc').pristine">
+                      {{validationMessages['default'].required}}</label>
+                    <label class="error"
+                           *ngIf="ship.get('schedReadyToShipEndDateOnUtc').hasError('minDate') && !ship.get('schedReadyToShipEndDateOnUtc').pristine">
+                      {{validationMessages['schedReadyToShipEndDateOnUtc'].maxLength}}</label>
+                  </div>
+                </div>
+              </ng-container>
+              <ng-container *ngIf="+frm.get('status').value === taskStatus.PARTIAL || +frm.get('status').value === taskStatus.DONE">
+                <div class="row flex py-1"
+                     [ngClass]="{'required': ship.get('formRequires').value['readyToShipStartDateOnUtc'].required}">
+                  <div class="col-sm-4 control-label text-right">
+                    <label class="nowrap">Ready To Ship Start Date</label>
+                  </div>
+                  <div class="col-sm-8"
+                       [ngClass]="{'has-error':!ship.get('readyToShipStartDateOnUtc').valid}">
+                    <my-date-picker class="flex" [options]="ship.get('readyToShipStartDateOptions').value"
+                                    #readyToShipStartPicker
+                                    formControlName='readyToShipStartDate'
+                                    (dateChanged)="onDateChangedBy($event, ship, 'readyToShipStartDateOnUtc')"
+                                    (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, readyToShipStartPicker)"
+                                    (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, readyToShipStartPicker, ship.get('readyToShipStartDateOnUtc'))"></my-date-picker>
+                    <label class="error"
+                           *ngIf="ship.get('readyToShipStartDateOnUtc').hasError('required') && !ship.get('readyToShipStartDateOnUtc').pristine">
+                      {{validationMessages['default'].required}}</label>
+                    <label class="error"
+                           *ngIf="ship.get('readyToShipStartDateOnUtc').hasError('maxDate') && !ship.get('readyToShipStartDateOnUtc').pristine">
+                      {{validationMessages['readyToShipStartDateOnUtc'].maxLength}}
+                    </label>
+                    <label class="error"
+                           *ngIf="ship.get('readyToShipStartDateOnUtc').hasError('maxToday') && !ship.get('readyToShipStartDateOnUtc').hasError('maxDate') && !ship.get('readyToShipStartDateOnUtc').pristine">
+                      {{validationMessages['default'].maxLength}}</label>
+                  </div>
+                </div>
+                <div class="row flex py-1"
+                     [ngClass]="{'required': ship.get('formRequires').value['readyToShipEndDateOnUtc'].required}">
+                  <div class="col-sm-4 control-label text-right">
+                    <label class="nowrap">Ready To Ship End Date</label>
+                  </div>
+                  <div class="col-sm-8"
+                       [ngClass]="{'has-error':!ship.get('readyToShipEndDateOnUtc').valid}">
+                    <my-date-picker class="flex" [options]="ship.get('readyToShipEndDateOptions').value"
+                                    #readyToShipEndDatePicker
+                                    [defaultMonth]="myDatePickerService.configDefaultMonth(ship.get('readyToShipStartDate').value)"
+                                    formControlName='readyToShipEndDate'
+                                    (dateChanged)="onDateChangedBy($event, ship, 'readyToShipEndDateOnUtc')"
+                                    (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, readyToShipEndDatePicker)"
+                                    (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, readyToShipEndDatePicker, ship.get('readyToShipEndDateOnUtc'))"></my-date-picker>
+                    <label class="error"
+                           *ngIf="ship.get('readyToShipEndDateOnUtc').hasError('required') && !ship.get('readyToShipEndDateOnUtc').pristine">
+                      {{validationMessages['default'].required}}</label>
+                    <label class="error"
+                           *ngIf="ship.get('readyToShipEndDateOnUtc').hasError('minDate') && !ship.get('readyToShipEndDateOnUtc').pristine">
+                      {{validationMessages['readyToShipEndDateOnUtc'].maxLength}}
+                    </label>
+                    <label class="error"
+                           *ngIf="ship.get('readyToShipEndDateOnUtc').hasError('maxToday') && !ship.get('readyToShipEndDateOnUtc').pristine">
+                      {{validationMessages['default'].maxLength}}</label>
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="row flex py-1" *ngIf="styleList && styleList.length">
+              <p class="mb-0 bold">Apply to these styles:</p>
+            </div>
+            <div class="row flex py-1" *ngFor="let style of styleList; index as ii">
+              <div class="checkbox">
+                <input type="checkbox" [id]="i + '-' + ii + '-style'"
+                       [disabled]="style.orderDetailId === orderDetailId"
+                       [checked]="activeStylesChanges(ship, style.orderDetailId, 'applyToStyles')"
+                       (change)="onSelectStyle(ship, style.orderDetailId, 'applyToStyles')">
+                <label [for]="i + '-' + ii + '-style'">
+                  {{getLabelString(style.styleInfo)}}
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row flex justify-content-end pb-2 border-bottom-ccc mx-1 my-2">
+          <button type="button" class="btn btn-danger" (click)="deleteShipment(i)"
+                  *ngIf="listUpdateReadyToShip.controls.length > 1">
+            Delete This Shipment
+          </button>
+        </div>
+      </div>
+      <div class="row flex justify-content-end mx-1">
+        <button class="btn btn-complete" type="button" (click)="checkStatus()">
+          + Add a Shipment
+        </button>
+      </div>
+    </ng-container>
+  </form>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-complete"
+          (click)="onSubmitForm()">
+    Save
+  </button>
+  <button class="btn btn-default"
+          (click)="activeModal.dismiss()">
+    Cancel
+  </button>
+</div>
+

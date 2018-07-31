@@ -1,0 +1,20 @@
+<ng-sidebar-container>
+  <img-zoom-click></img-zoom-click>
+  <sidebar></sidebar>
+  <div class="page-container" [ngStyle]="{'padding-bottom': pageHeight}">
+    <page-header></page-header>
+    <div class="page-content-wrapper" #pageContainer>
+      <div class="content sm-gutter">
+        <div class="container-fluid padding-15 sm-padding-10">
+          <router-outlet></router-outlet>
+        </div>
+      </div>
+    </div>
+  </div>
+  <ng-sidebar #sidenav
+              [(opened)]="_opened"
+              mode="over"
+              position="end">
+    <!--<quickview></quickview>-->
+  </ng-sidebar>
+</ng-sidebar-container>

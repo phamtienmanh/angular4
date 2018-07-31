@@ -1,0 +1,89 @@
+<div class="row">
+  <div class="col-sm-12 col-md-8 col-lg-6">
+    <div class="input-icon">
+      <input-debounce placeholder="Search by name, company, email, # orders"
+                      title=" Search by name, company, email, # orders"
+                      (value)="onSearchChanged($event)" [inputValue]="searchText"></input-debounce>
+    </div>
+  </div>
+</div>
+<hr>
+<div class="row" *ngIf="!isPageReadOnly">
+  <div class="col-sm-12 col-md-4 col-lg-6 m-b-10">
+    <button type="button" class="btn btn-complete btn-cons" (click)="addNewCustomer()">New
+      Customer
+    </button>
+  </div>
+</div>
+<div class="py-2" [hidden]="customerData.data && customerData.data.length">
+  <span class="font-size-16">No customers match your search criteria.</span>
+</div>
+<div class="py-2" [hidden]="!customerData.data || !customerData.data.length">
+  <ng-container *ngTemplateOutlet="pagination"></ng-container>
+  <perfect-scrollbar [config]="{suppressScrollX: false}">
+    <div class="table-wrapper" #tableWrapper>
+      <ngx-datatable #table
+                     class="material striped ngx-table-hover"
+                     [rows]="customerData.data"
+                     [columnMode]="'force'"
+                     [footerHeight]="0"
+                     [headerHeight]="'auto'"
+                     [rowHeight]="'auto'"
+                     [externalSorting]="true"
+                     [loadingIndicator]="tableConfig.loading"
+                     (activate)="onActivate($event)"
+                     [sorts]="[{prop: 'company', dir: 'asc'}]"
+                     (sort)="onSort($event)">
+        <ngx-datatable-column
+          [name]="'Company'"
+          [width]="300"
+          [minWidth]="300"
+          [draggable]="false"
+          [resizeable]="false">
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'Name'"
+          [width]="400"
+          [minWidth]="400"
+          [draggable]="false"
+          [resizeable]="false">
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'Email'"
+          [width]="349"
+          [minWidth]="349"
+          [draggable]="false"
+          [resizeable]="false">
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'# Orders'"
+          [prop]="'placedQty'"
+          [width]="200"
+          [minWidth]="200"
+          [draggable]="false"
+          [resizeable]="false">
+        </ngx-datatable-column>
+      </ngx-datatable>
+    </div>
+  </perfect-scrollbar>
+  <ng-container *ngTemplateOutlet="paginationTop"></ng-container>
+</div>
+<ng-template #pagination>
+  <pagination-control [totalRecord]="customerData.totalRecord"
+                      *ngIf="customerData.data && customerData.data.length"
+                      [pageName]="'customerMain'"
+                      [pageSize]="tableConfig.pageSize"
+                      [currentPage]="tableConfig.currentPage"
+                      (onSelectedPageSize)="onSelectedPageSize($event)"
+                      (onPageChange)="onPageChange($event)"></pagination-control>
+</ng-template>
+<ng-template #paginationTop>
+  <pagination-control [totalRecord]="customerData.totalRecord"
+                      *ngIf="customerData.data && customerData.data.length"
+                      [pageName]="'customerMain'"
+                      [pageSize]="tableConfig.pageSize"
+                      [currentPage]="tableConfig.currentPage"
+                      [dropdownPosition]="'top-left'"
+                      (onSelectedPageSize)="onSelectedPageSize($event)"
+                      (onPageChange)="onPageChange($event)"></pagination-control>
+</ng-template>

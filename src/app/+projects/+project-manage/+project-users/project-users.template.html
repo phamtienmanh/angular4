@@ -1,0 +1,75 @@
+<form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()" (click)="formClick($event)">
+  <div class="row">
+    <div class="pt-2 col-lg-12 col-xl-6">
+      <div class="row flex py-1"
+           [ngClass]="{'required': false}">
+        <div class="col-4 col-sm-3 col-lg-3 col-xl-4 control-label text-right">
+          <label>Project Managers</label>
+        </div>
+        <div class="col-8"
+             [ngClass]="{'has-error':!frm.get('projectManagerUserIds').valid}">
+          <ng-select [items]="customersManagerData" #projectManagerUserIdsSelect
+                     *ngIf="!isPageReadOnly"
+                     [multiple]="true"
+                     [closeOnSelect]="false"
+                     [hideSelected]="true"
+                     [placeholder]="!isPageReadOnly ? 'Project Managers' : ''"
+                     (focus)="onSelectFocused(projectManagerUserIdsSelect)"
+                     bindLabel="fullName"
+                     bindValue="id"
+                     formControlName="projectManagerUserIds"></ng-select>
+          <p class="p-readonly" *ngIf="isPageReadOnly">{{getFactoryNamesString(frm, customersManagerData, 'projectManagerUserIds')}}</p>
+        </div>
+      </div>
+      <div class="row flex py-1"
+           [ngClass]="{'required': false}">
+        <div class="col-4 col-sm-3 col-lg-3 col-xl-4 control-label text-right">
+          <label>Project Editors</label>
+        </div>
+        <div class="col-8"
+             [ngClass]="{'has-error':!frm.get('projectEditorUserIds').valid}">
+          <ng-select [items]="customersNotManagerData" #projectEditorUserIdsSelect
+                     *ngIf="!isPageReadOnly"
+                     [multiple]="true"
+                     [closeOnSelect]="false"
+                     [hideSelected]="true"
+                     [placeholder]="!isPageReadOnly ? 'Project Editors' : ''"
+                     (focus)="onSelectFocused(projectEditorUserIdsSelect)"
+                     bindLabel="fullName"
+                     bindValue="id"
+                     formControlName="projectEditorUserIds"></ng-select>
+          <p class="p-readonly" *ngIf="isPageReadOnly">{{getFactoryNamesString(frm, customersNotManagerData, 'projectEditorUserIds')}}</p>
+        </div>
+      </div>
+      <div class="row flex py-1"
+           [ngClass]="{'required': false}">
+        <div class="col-4 col-sm-3 col-lg-3 col-xl-4 control-label text-right">
+          <label>Project Viewers</label>
+        </div>
+        <div class="col-8"
+             [ngClass]="{'has-error':!frm.get('projectViewerUserIds').valid}">
+          <ng-select [items]="customersNotManagerData" #projectViewerUserIdsSelect
+                     *ngIf="!isPageReadOnly"
+                     [multiple]="true"
+                     [closeOnSelect]="false"
+                     [hideSelected]="true"
+                     [placeholder]="!isPageReadOnly ? 'Project Views' : ''"
+                     (focus)="onSelectFocused(projectViewerUserIdsSelect)"
+                     bindLabel="fullName"
+                     bindValue="id"
+                     formControlName="projectViewerUserIds"></ng-select>
+          <p class="p-readonly" *ngIf="isPageReadOnly">{{getFactoryNamesString(frm, customersNotManagerData, 'projectViewerUserIds')}}</p>
+        </div>
+      </div>
+      <div class="row flex py-1 mb-3" *ngIf="!isPageReadOnly">
+        <div class="col-4 col-sm-3 col-lg-3 col-xl-4"></div>
+        <div class="col-8">
+          <button class="btn btn-complete" type="submit">Save</button>
+          <!--<button class="btn btn-default" (click)="onCancel()">-->
+          <!--Cancel-->
+          <!--</button>-->
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

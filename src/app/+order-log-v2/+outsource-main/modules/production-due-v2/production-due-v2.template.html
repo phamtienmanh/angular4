@@ -1,0 +1,199 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0 nowrap">Production Due - Change Status</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()">
+    <lead-eta [rowDetail]="rowDetail" [isPageReadOnly]="isPageReadOnly || isLeadTimeReadOnly"></lead-eta>
+    <hr/>
+    <div class="row" *ngIf="productionDues && productionDues.value && productionDues.value.length">
+      <div class="p-l-f-0">
+        <div class="row flex py-1" style="height: 38px" [ngClass]="{'required': true}">
+          <div class="col-sm-12 control-label text-center">
+            <label>Status</label>
+          </div>
+        </div>
+        <div class="row flex py-1" style="height: 38px" [ngClass]="{'required': false}">
+          <div class="col-sm-12 control-label text-center">
+            <label>Vendor</label>
+          </div>
+        </div>
+        <div class="row flex py-1" style="height: 38px">
+          <div class="col-sm-12 control-label text-center">
+            <label class="nowrap">Scheduled Start Date</label>
+          </div>
+        </div>
+        <div class="row flex py-1" style="height: 38px">
+          <div class="col-sm-12 control-label text-center">
+            <label class="nowrap">Scheduled End Date</label>
+          </div>
+        </div>
+        <div class="row flex py-1" style="height: 38px">
+          <div class="col-sm-12 control-label text-center">
+            <label class="nowrap">Neck Label Start Date</label>
+          </div>
+        </div>
+        <div class="row flex py-1" style="height: 38px">
+          <div class="col-sm-12 control-label text-center">
+            <label class="nowrap">Neck Label End Date</label>
+          </div>
+        </div>
+      </div>
+      <div
+        [ngClass]="{'col-sm-9': productionDues.controls.length >= 3, 'col-sm-8': productionDues.controls.length === 2, 'col-sm-7': productionDues.controls.length === 1}">
+        <ng-template [ngIf]="productionDues.controls.length > 3">
+          <perfect-scrollbar [config]="{suppressScrollX: false, suppressScrollY: false}">
+            <ng-container *ngTemplateOutlet="formBody"></ng-container>
+          </perfect-scrollbar>
+        </ng-template>
+        <ng-template [ngIf]="productionDues.controls.length <= 3">
+          <ng-container *ngTemplateOutlet="formBody"></ng-container>
+        </ng-template>
+      </div>
+    </div>
+    <ng-template #formBody>
+      <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()" (click)="formClick($event)">
+        <div class="row flex-nowrap full-width p-b-5" formArrayName="productionDues">
+          <ng-container *ngFor="let production of productionDues.controls; let i=index; let last=last">
+            <div class="p-l-f-0" [formGroupName]="i"
+                 [ngClass]="{'col-sm-4': productionDues.controls.length >= 3, 'col-sm-6': productionDues.controls.length == 2,
+          'col-sm-12': productionDues.controls.length === 1, 'border-right': !last}">
+              <div class="row flex py-1">
+                <div class="col-sm-12"
+                     [ngClass]="{'has-error':!production.get('productionDueStatus').valid, 'disabled': isPageReadOnly}">
+                  <ng-select [items]="statusData"
+                             [placeholder]="!isPageReadOnly ? 'Status' : ''"
+                             [searchable]="false" #statusSelect
+                             (focus)="onSelectFocused(statusSelect)"
+                             bindLabel="name"
+                             bindValue="id"
+                             formControlName="productionDueStatus"></ng-select>
+                  <label class="error"
+                         *ngIf="production.get('productionDueStatus').hasError('required') && !production.get('productionDueStatus').pristine">
+                    {{validationMessages['default'].required}}</label>
+                </div>
+              </div>
+              <div class="row flex py-1"
+                   [ngClass]="{'disappear': +production.get('productionDueStatus').value !== taskStatus.SCHEDULED  && +production.get('productionDueStatus').value !== taskStatus.DONE}">
+                <div class="col-sm-12"
+                     [ngClass]="{'has-error':!production.get('productionDueVendorId').valid, 'disabled': isPageReadOnly}">
+                  <ng-select [items]="vendorData" #vendorSelect
+                             [placeholder]="!isPageReadOnly ? 'Vendor' : ''"
+                             [virtualScroll]="true"
+                             [searchable]="false"
+                             (focus)="onSelectFocused(vendorSelect)"
+                             (add)="onSelectItem($event, production, 'name', 'productionDueVendorName')"
+                             (clear)="production.get('productionDueVendorName').patchValue('')"
+                             bindLabel="name"
+                             bindValue="id"
+                             formControlName="productionDueVendorId"></ng-select>
+                  <label class="error"
+                         *ngIf="production.get('productionDueVendorId').hasError('required') && !production.get('productionDueVendorId').pristine">
+                    {{validationMessages['default'].required}}</label>
+                </div>
+              </div>
+
+              <div [ngClass]="{'disappear': +production.get('productionDueStatus').value !== taskStatus.SCHEDULED  && +production.get('productionDueStatus').value !== taskStatus.DONE,
+                 'topright': (last || (i === productionDues.value.length - 2 && productionDues.value.length > 2)) && productionDues.value.length > 1}">
+                <div class="row flex py-1" style="height: 38px">
+                  <div class="col-sm-12" *ngIf="+production.get('productionDueStatus').value === taskStatus.SCHEDULED"
+                       [ngClass]="{'has-error':!production.get('productionDueDateScheduledOnUtc').valid}">
+                    <my-date-picker class="flex" [options]="production.get('productionDueDateScheduledOptions').value"
+                                    formControlName='productionDueDateScheduled' #neckLabelDatePicker
+                                    (dateChanged)="onDateChangedBy($event, production, 'productionDueDateScheduledOnUtc')"
+                                    (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, neckLabelDatePicker)"
+                                    (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, neckLabelDatePicker, production.get('productionDueDateScheduledOnUtc'))"></my-date-picker>
+                    <label class="error"
+                           *ngIf="production.get('productionDueDateScheduledOnUtc').hasError('required') && !production.get('productionDueDateScheduledOnUtc').pristine">
+                      {{validationMessages['default'].required}}</label>
+                    <label class="error nowrap"
+                           *ngIf="production.get('productionDueDateScheduledOnUtc').hasError('maxDate') && !production.get('productionDueDateScheduledOnUtc').pristine">
+                      {{validationMessages['productionDueDateScheduledOnUtc'].maxLength}}</label>
+                  </div>
+                  <div class="col-sm-12 span-date" *ngIf="+production.get('productionDueStatus').value === taskStatus.DONE">
+                    <span *ngIf="production.get('previousProductionDueDateScheduledOnUtc').value">
+                      {{production.get('previousProductionDueDateScheduledOnUtc').value | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+                  </div>
+                </div>
+                <div class="row flex py-1" style="height: 38px">
+                  <!--<div class="col-sm-12" *ngIf="+production.get('productionDueStatus').value === taskStatus.SCHEDULED"-->
+                  <!--[ngClass]="{'has-error':!production.get('estDeliveryDateToOnUtc').valid}">-->
+                  <!--<my-date-picker class="flex" [options]="production.get('estDeliveryDateToOptions').value"-->
+                  <!--formControlName='estDeliveryDateTo' #estDeliveryDateToPicker-->
+                  <!--[defaultMonth]="myDatePickerService.configDefaultMonth(production.get('estDeliveryDateFrom').value)"-->
+                  <!--(dateChanged)="onDateChangedBy($event, production, 'estDeliveryDateToOnUtc')"-->
+                  <!--(inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, estDeliveryDateToPicker)"-->
+                  <!--(inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, estDeliveryDateToPicker, production.get('estDeliveryDateToOnUtc'))"></my-date-picker>-->
+                  <!--<label class="error"-->
+                  <!--*ngIf="(production.get('formRequires').value['estDeliveryDateToOnUtc'].required && !production.get('estDeliveryDateToOnUtc').value)">-->
+                  <!--{{validationMessages['estDeliveryDateToOnUtc'].required}}</label>-->
+                  <!--<label class="error nowrap"-->
+                  <!--*ngIf="production.get('estDeliveryDateToOnUtc').hasError('minDate') && !production.get('estDeliveryDateToOnUtc').pristine">-->
+                  <!--{{validationMessages['estDeliveryDateToOnUtc'].maxLength}}</label>-->
+                  <!--</div>-->
+                  <!--<div class="col-sm-12 span-date" *ngIf="+production.get('productionDueStatus').value === taskStatus.DONE">-->
+                  <!--<span *ngIf="production.get('previousEstDeliveryDateToOnUtc').value">-->
+                  <!--{{production.get('previousEstDeliveryDateToOnUtc').value | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>-->
+                  <!--</div>-->
+                </div>
+              </div>
+
+              <div [ngClass]="{'disappear': +production.get('productionDueStatus').value !== taskStatus.DONE,
+                  'topleft': !last || productionDues.value.length === 1,
+                  'topright': (last && productionDues.value.length > 1) || (i === productionDues.value.length - 2 && productionDues.value.length > 2)}">
+                <div class="row flex py-1">
+                  <div class="col-sm-12"
+                       [ngClass]="{'has-error':!production.get('productionDueDateDoneFromOnUtc').valid}">
+                    <my-date-picker class="flex" [options]="production.get('productionDueDateDoneFromOptions').value"
+                                    formControlName='productionDueDateDoneFrom' #productionDueDateDoneFromPicker
+                                    (dateChanged)="onDateChangedBy($event, production, 'productionDueDateDoneFromOnUtc')"
+                                    (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, productionDueDateDoneFromPicker)"
+                                    (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, productionDueDateDoneFromPicker, production.get('productionDueDateDoneFromOnUtc'))"></my-date-picker>
+                    <label class="error"
+                           *ngIf="production.get('productionDueDateDoneFromOnUtc').hasError('required') && !production.get('productionDueDateDoneFromOnUtc').pristine">
+                      {{validationMessages['default'].required}}</label>
+                    <label class="error nowrap"
+                           *ngIf="production.get('productionDueDateDoneFromOnUtc').hasError('maxDate') && !production.get('productionDueDateDoneFromOnUtc').pristine">
+                      {{validationMessages['productionDueDateDoneFromOnUtc'].maxLength}}</label>
+                  </div>
+                </div>
+                <div class="row flex py-1">
+                  <div class="col-sm-12"
+                       [ngClass]="{'has-error':!production.get('productionDueDateDoneToOnUtc').valid}">
+                    <my-date-picker class="flex" [options]="production.get('productionDueDateDoneToOptions').value"
+                                    formControlName='productionDueDateDoneTo' #productionDueDateDoneToPicker
+                                    [defaultMonth]="myDatePickerService.configDefaultMonth(production.get('productionDueDateDoneFrom').value)"
+                                    (dateChanged)="onDateChangedBy($event, production, 'productionDueDateDoneToOnUtc')"
+                                    (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, productionDueDateDoneToPicker)"
+                                    (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, productionDueDateDoneToPicker, production.get('productionDueDateDoneToOnUtc'))"></my-date-picker>
+                    <label class="error"
+                           *ngIf="production.get('productionDueDateDoneToOnUtc').hasError('required') && !production.get('productionDueDateDoneToOnUtc').pristine">
+                      {{validationMessages['default'].required}}</label>
+                    <label class="error nowrap"
+                           *ngIf="production.get('productionDueDateDoneToOnUtc').hasError('minDate') && !production.get('productionDueDateDoneToOnUtc').pristine">
+                      {{validationMessages['productionDueDateDoneToOnUtc'].maxLength}}</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </form>
+    </ng-template>
+  </form>
+</div>
+<div class="modal-footer" *ngIf="productionDues && productionDues.value && productionDues.value.length">
+  <ng-container *ngIf="!isPageReadOnly">
+    <button class="btn btn-complete"
+            (click)="onSubmitForm()">
+      Save
+    </button>
+  </ng-container>
+  <button class="btn btn-default"
+          (click)="activeModal.dismiss()">
+    Cancel
+  </button>
+</div>
+

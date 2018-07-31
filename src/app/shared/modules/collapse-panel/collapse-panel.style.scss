@@ -1,0 +1,30 @@
+collapse-panel {
+  .collapse-toggle {
+    z-index: 99;
+    position: absolute;
+    right: 0;
+    top: 4px;
+    transition: .3s transform ease-in-out;
+    background-image: url(./up.png);
+    background-position: center center;
+    background-size: cover;
+    width: 20px;
+    height: 20px;
+    &:hover {
+      background-size: cover;
+      + .collapse-content {
+        background-color: #f3f3f3;
+      }
+    }
+  }
+  .collapsed {
+    transform: rotate(-180deg);
+  }
+  .collapse-content {
+    background-color: #eee;
+    cursor: pointer;
+    &:hover {
+      background-color: #f3f3f3;
+    }
+  }
+}

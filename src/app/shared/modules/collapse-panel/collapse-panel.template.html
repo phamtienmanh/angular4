@@ -1,0 +1,16 @@
+<div class="relative">
+  <div class="collapse-toggle cursor"
+     [ngClass]="{'collapsed': isCollapse}"
+     (click)="isCollapse = !isCollapse; onCollapse.emit()"></div>
+  <div class="row py-1 p-l-25 p-r-25 collapse-content"
+       (click)="expand()"
+       *ngIf="isCollapse"
+       [@collapse] = 'isCollapse'>
+    <div class="col-12 center">
+      <p class="bold large-text m-b-0">Search filters {{summaryContent}}</p>
+    </div>
+  </div>
+  <div *ngIf="!isCollapse" [@collapse] = 'isCollapse'>
+    <ng-content></ng-content>
+  </div>
+</div>

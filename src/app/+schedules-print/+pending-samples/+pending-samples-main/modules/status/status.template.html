@@ -1,0 +1,82 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0">{{title}} - Change Status</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()">
+    <div class="row flex py-1"
+         [ngClass]="{'required': true}">
+      <div class="col-sm-4 control-label text-right">
+        <label>Status</label>
+      </div>
+      <div class="col-sm-6"
+           [ngClass]="{'has-error':!frm.get('status').valid}">
+        <ng-select [items]="statusData" #statusSelect
+                   [placeholder]="'Status'"
+                   [searchable]="false"
+                   (focus)="onSelectFocused(statusSelect)"
+                   bindLabel="name"
+                   bindValue="id"
+                   formControlName="status"></ng-select>
+        <label class="error"
+               *ngIf="frm.get('status').hasError('required') && !frm.get('status').pristine">
+          {{validationMessages['default'].required}}</label>
+      </div>
+    </div>
+    <div *ngIf="+frm.get('status').value === taskStatus.DONE && title === 'Art Released'">
+      <div class="row flex py-1"
+           [ngClass]="{'required': frm.get('formRequires').value['releaseArtByUserId'].required}">
+        <div class="col-sm-4 control-label text-right">
+          <label>Release Art</label>
+        </div>
+        <div class="col-sm-6"
+             [ngClass]="{'has-error':!frm.get('releaseArtByUserId').valid}">
+          <ng-select [items]="artManagerAndArtists" #artManagerAndArtistsSelect
+                     [placeholder]="'Release Art'"
+                     [searchable]="false"
+                     (focus)="onSelectFocused(artManagerAndArtistsSelect)"
+                     bindLabel="fullName"
+                     bindValue="id"
+                     formControlName="releaseArtByUserId"></ng-select>
+          <label class="error"
+                 *ngIf="frm.get('releaseArtByUserId').hasError('required') && !frm.get('releaseArtByUserId').pristine">
+            {{validationMessages['releaseArtByUserId'].required}}</label>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="+frm.get('status').value === taskStatus.DONE">
+      <div class="row flex py-1"
+           [ngClass]="{'required': frm.get('formRequires').value['dateDoneOnUtc'].required}">
+        <div class="col-sm-4 control-label text-right">
+          <label>{{title}} Date</label>
+        </div>
+        <div class="col-sm-6"
+             [ngClass]="{'has-error':!frm.get('dateDoneOnUtc').valid}">
+          <my-date-picker [options]="myDatePickerOptions"
+                          #invoicedPicker
+                          formControlName="dateDone"
+                          (dateChanged)="onDateChangedBy($event, 'dateDoneOnUtc')"
+                          (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, invoicedPicker, frm.get('dateDoneOnUtc'))"></my-date-picker>
+          <label class="error"
+                 *ngIf="frm.get('dateDoneOnUtc').hasError('required') && !frm.get('dateDoneOnUtc').pristine">
+            {{validationMessages['default'].required}}</label>
+          <label class="error"
+                 *ngIf="frm.get('dateDoneOnUtc').hasError('maxToday') && !frm.get('dateDoneOnUtc').pristine">
+            {{validationMessages['dateDoneOnUtc'].maxLength}}</label>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-complete"
+          (click)="onSubmitForm()">
+    Save
+  </button>
+  <button class="btn btn-default"
+          (click)="activeModal.dismiss()">
+    Cancel
+  </button>
+</div>

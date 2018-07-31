@@ -1,0 +1,256 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0">
+    <span>Jobs History</span>
+  </h4>
+  <button type="button" class="close cursor" aria-label="Close"
+          (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <!-- NAV TAB -->
+  <ul class="nav nav-tabs">
+    <li class="text-center nav-item" *ngFor="let tab of tabs; let i=index"
+        [ngClass]="{'active': tab.isActive}"
+        (click)="switchTab(i)">
+      <a class="justify-center nav-link" href="javascript:void(0)" aria-expanded="true">
+        <span>{{tab.name}}</span>
+      </a>
+    </li>
+  </ul>
+  <!-- JOB DETAIL -->
+  <div class="mt-2" *ngIf="tabs[0].isActive">
+    <table
+      *ngIf="jobsHistory && jobsHistory.salesOrderDetail && jobsHistory.salesOrderDetail.totalProductionQtys && jobsHistory.salesOrderDetail.totalProductionQtys.length"
+      class="table table-sm history-table">
+      <thead>
+      <tr>
+        <th>Sales Order Detail</th>
+        <th *ngFor="let size of jobsHistory.salesOrderDetail.totalProductionQtys">{{size.name}}</th>
+        <th>Total</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr
+        *ngIf="jobsHistory.salesOrderDetail.totalProductionQtys && jobsHistory.salesOrderDetail.totalProductionQtys.length">
+        <td>{{isFinishing ? 'Total Finished Qty' : 'Total Production Qtys'}}</td>
+        <td *ngFor="let cell of jobsHistory.salesOrderDetail.totalProductionQtys">{{cell.qty}}</td>
+        <td>{{calculateTotal(jobsHistory.salesOrderDetail.totalProductionQtys)}}</td>
+      </tr>
+      <tr
+        *ngIf="jobsHistory.salesOrderDetail.overageQtys && jobsHistory.salesOrderDetail.overageQtys.length">
+        <td>Overage Qtys</td>
+        <td *ngFor="let cell of jobsHistory.salesOrderDetail.overageQtys">{{cell.qty}}</td>
+        <td>{{calculateTotal(jobsHistory.salesOrderDetail.overageQtys)}}</td>
+      </tr>
+      </tbody>
+    </table>
+    <br>
+    <div *ngIf="jobsHistory && jobsHistory.jobs && jobsHistory.jobs.length">
+      <div *ngFor="let job of jobsHistory.jobs; let index = index">
+        <table
+          class="table table-sm history-table">
+          <thead>
+          <tr>
+            <th colspan="2">Job {{index + 1}}</th>
+            <ng-template ngFor [ngForOf]="jobsHistory.salesOrderDetail.totalProductionQtys" let-size let-i="index">
+              <th [ngClass]="{'incompleted': job.scheduledQtys &&
+                                            job.scheduledQtys[i] &&
+                                            job.scheduledQtys[i].isIncommpleted}">{{size.name}}</th>
+            </ng-template>
+            <th>Total</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td rowspan="5" class="align-middle job-info">
+              <p class="center" *ngIf="!job.isNotScheduled && job.scheduledDateOnUtc"><span class="bold">Sched Date:</span> {{job.scheduledDateOnUtc |
+                amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</p>
+              <p class="center" *ngIf="!job.isNotScheduled && job.machineName"><span class="bold">Machine:</span><br/> {{job.machineName}}</p>
+              <p class="center" *ngIf="!job.isNotScheduled && job.runTime"><span class="bold">Run time:</span> {{job.runTime}}</p>
+              <p class="center" *ngIf="!job.isNotScheduled && job.confirmedBy"><span class="bold">Confirmed By:</span> {{job.confirmedBy}}</p>
+              <p class="center" *ngIf="job.isNotScheduled || !job.scheduledDateOnUtc"><span class="bold">TO BE SCHEDULED</span></p>
+            </td>
+          </tr>
+          <tr *ngIf="job.unScheduledQtys && job.unScheduledQtys.length">
+            <td class="size-type">Unscheduled Qtys</td>
+            <td *ngFor="let cell of job.unScheduledQtys">
+              {{cell.qty > 0 ? cell.qty : ''}}
+            </td>
+            <td>{{calculateTotal(job.unScheduledQtys)}}</td>
+          </tr>
+          <tr *ngIf="job.scheduledQtys && job.scheduledQtys.length">
+            <td class="size-type">Scheduled Qtys</td>
+            <ng-container *ngFor="let cell of job.scheduledQtys; let i = index">
+              <td [ngClass]="{'b-grey': job.scheduledQtys[i].qty === 0}">
+                <ng-container *ngIf="job.scheduledQtys[i].qty > 0">
+                  {{cell.qty}}
+                </ng-container>
+              </td>
+            </ng-container>
+            <td>{{calculateTotal(job.scheduledQtys)}}</td>
+          </tr>
+          <tr *ngIf="job.damagedQtys && job.damagedQtys.length">
+            <td>Damage Qtys</td>
+            <ng-container *ngFor="let cell of job.scheduledQtys; let i = index">
+              <td [ngClass]="{'b-grey': cell.qty === 0}">
+                <ng-container *ngIf="cell.qty > 0">
+                  {{getQtyByName(job.damagedQtys, cell.name)}}
+                </ng-container>
+              </td>
+            </ng-container>
+            <td>{{calculateTotal(job.damagedQtys)}}</td>
+          </tr>
+          <tr *ngIf="job.firstQualityPrintQtys && job.firstQualityPrintQtys.length">
+            <td>1st Quality Print Qtys</td>
+            <ng-container *ngFor="let cell of job.scheduledQtys; let i = index">
+              <td [ngClass]="{'b-grey': cell.qty === 0}">
+                <ng-container *ngIf="cell.qty > 0">
+                  {{getQtyByName(job.firstQualityPrintQtys, cell.name)}}
+                </ng-container>
+              </td>
+            </ng-container>
+            <td>{{calculateTotal(job.firstQualityPrintQtys)}}</td>
+          </tr>
+          <tr *ngIf="job.totalPrintQty && job.totalPrintQty.length">
+            <td>Total Print Qty</td>
+            <ng-container *ngFor="let cell of job.scheduledQtys; let i = index">
+              <td [ngClass]="{'b-grey': cell.qty === 0}">
+                <ng-container *ngIf="cell.qty > 0">
+                  {{getQtyByName(job.totalPrintQty, cell.name)}}
+                </ng-container>
+              </td>
+            </ng-container>
+            <td>{{calculateTotal(job.totalPrintQty)}}</td>
+          </tr>
+          <tr *ngIf="job.scheduledQtys && job.scheduledQtys.length && (!job.damagedQtys || !job.damagedQtys.length)"
+              class="job-pending">
+            <td class="align-middle" [attr.colspan]="jobsHistory.salesOrderDetail.totalProductionQtys.length + 2">
+              <p class="center">Job is Pending</p>
+            </td>
+          </tr>
+          <tr *ngIf="job.isNotScheduled"
+              class="job-pending">
+            <td class="align-middle" [attr.colspan]="jobsHistory.salesOrderDetail.totalProductionQtys.length + 2">
+              <p class="center">Job is not scheduled</p>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <br>
+      <table *ngIf="jobsHistory.jobsTotal"
+        class="table table-sm history-table">
+        <thead>
+        <tr>
+          <th [attr.colspan]="isPendingJob() ? 1 : 2">All Jobs - Totals</th>
+          <th *ngFor="let size of jobsHistory.salesOrderDetail.totalProductionQtys">{{size.name}}</th>
+          <th>Total</th>
+        </tr>
+        </thead>
+        <tbody>
+        <ng-template [ngIf]="!isPendingJob()">
+          <tr>
+            <td rowspan="7" class="align-middle job-info">
+              <p class="center jobs-total">Totals</p>
+            </td>
+          </tr>
+          <tr
+            *ngIf="jobsHistory.jobsTotal.scheduledQtys && jobsHistory.jobsTotal.scheduledQtys.length">
+            <td class="size-type">Scheduled Qtys
+            </td>
+            <td *ngFor="let cell of jobsHistory.jobsTotal.scheduledQtys">{{cell.qty}}</td>
+            <td>{{calculateTotal(jobsHistory.jobsTotal.scheduledQtys)}}</td>
+          </tr>
+          <tr *ngIf="jobsHistory.jobsTotal.damagedQtys && jobsHistory.jobsTotal.damagedQtys.length">
+            <td>Damage Qtys</td>
+            <td *ngFor="let cell of jobsHistory.jobsTotal.damagedQtys">{{cell.qty}}</td>
+            <td>{{calculateTotal(jobsHistory.jobsTotal.damagedQtys)}}</td>
+          </tr>
+          <tr
+            *ngIf="jobsHistory.jobsTotal.firstQualityPrintQtys && jobsHistory.jobsTotal.firstQualityPrintQtys.length">
+            <td>1st Quality Print Qtys</td>
+            <td *ngFor="let cell of jobsHistory.jobsTotal.firstQualityPrintQtys">{{cell.qty}}</td>
+            <td>{{calculateTotal(jobsHistory.jobsTotal.firstQualityPrintQtys)}}</td>
+          </tr>
+          <tr
+            *ngIf="jobsHistory.jobsTotal.totalPrintQty && jobsHistory.jobsTotal.totalPrintQty.length">
+            <td>Total Print Qty</td>
+            <td *ngFor="let cell of jobsHistory.jobsTotal.totalPrintQty">{{cell.qty}}</td>
+            <td>{{calculateTotal(jobsHistory.jobsTotal.totalPrintQty)}}</td>
+          </tr>
+          <tr *ngIf="jobsHistory.jobsTotal.shrinkageQty && jobsHistory.jobsTotal.shrinkageQty.length">
+            <td>Shrinkage Qty</td>
+            <td *ngFor="let cell of jobsHistory.jobsTotal.shrinkageQty"
+                [ngClass]="{'td-danger': cell.qty > 0}">{{cell.qty}}
+            </td>
+            <td [ngClass]="{'td-danger': calculateTotal(jobsHistory.jobsTotal.shrinkageQty) > 0}">
+              {{calculateTotal(jobsHistory.jobsTotal.shrinkageQty)}}
+            </td>
+          </tr>
+          <tr *ngIf="jobsHistory.jobsTotal.overUnderQty && jobsHistory.jobsTotal.overUnderQty.length">
+            <td>Over/Under Qty</td>
+            <td *ngFor="let cell of jobsHistory.jobsTotal.overUnderQty"
+                [ngClass]="{'td-success': cell.qty >= 0, 'td-danger': cell.qty < 0}"><span *ngIf="cell.qty > 0">+</span>{{cell.qty}}
+            </td>
+            <td>
+            </td>
+          </tr>
+        </ng-template>
+        <tr
+          *ngIf="isPendingJob()"
+          class="job-pending">
+          <td [attr.colspan]="isPendingJob() ? 1 : 2" class="align-middle job-info">
+            <p class="center jobs-total">Totals</p>
+          </td>
+          <td [attr.colspan]="jobsHistory.salesOrderDetail.totalProductionQtys.length + 1"
+              class="align-middle">
+            <p class="center">Job(s) are Pending</p>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- ISSUES -->
+  <div class="mt-2" *ngIf="tabs[1].isActive">
+    <div *ngIf="!issueList || !issueList.length">
+      <p>No issues have been reported for this job.</p>
+    </div>
+    <div *ngIf="issueList && issueList.length">
+      <perfect-scrollbar [config]="{suppressScrollX: false, suppressScrollY: true}" id="">
+        <table class="table table-sm style-table" style="width: 900px">
+          <thead>
+          <tr>
+            <th [ngStyle]="{'min-width': '140px', 'width': '140px'}">Date</th>
+            <th [ngStyle]="{'min-width': '140px', 'width': '140px'}">Created By</th>
+            <th [ngStyle]="{'min-width': '140px', 'width': '140px'}">Issue</th>
+            <th [ngStyle]="{'min-width': '200px', 'width': '300px'}">Comments</th>
+            <th [ngStyle]="{'min-width': '100px', 'width': '100px'}">Time Spent (min)</th>
+            <th [ngStyle]="{'min-width': '50px', 'width': '50px'}" *ngIf="isAdmin"></th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let p of issueList; let i = index;">
+            <td>{{p.createdOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}</td>
+            <td>{{p.createByUser}}</td>
+            <td>{{p.issueName}}</td>
+            <td>{{p.comments}}</td>
+            <td>{{p.timeSpent}}</td>
+            <td *ngIf="isAdmin">
+              <button class="btn btn-danger btn-small"
+                      (click)="onDeleteIssue(p, i)"><i class="fa fa-trash"></i></button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </perfect-scrollbar>
+    </div>
+  </div>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-default"
+          (click)="activeModal.dismiss()">
+    Close
+  </button>
+</div>

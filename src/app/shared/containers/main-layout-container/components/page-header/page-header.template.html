@@ -1,0 +1,241 @@
+<div class="row header">
+  <!-- START MOBILE CONTROLS -->
+  <div class="container-fluid relative">
+    <!-- LEFT SIDE -->
+    <div class="pull-left full-height visible-sm visible-xs m-l-15">
+      <!-- START ACTION BAR -->
+      <div class="header-inner">
+        <a href="javascript:void(0)"
+           class="btn-link toggle-sidebar visible-sm-inline-block visible-xs-inline-block padding-5"
+           (click)="openLeftSideNav()">
+          <span class="icon-set menu-hambuger"></span>
+        </a>
+      </div>
+      <!-- END ACTION BAR -->
+    </div>
+    <div class="pull-center hidden-md hidden-lg">
+      <div class="header-inner">
+        <div class="brand inline cursor" (click)="goToHome()">
+          <img src="../../../../../../assets/icon/android-icon-192x192.png" alt="logo"
+               data-src="assets/icon/android-icon-192x192.png"
+               data-src-retina="assets/icon/android-icon-192x192.png" width="auto" height="30">
+          <div class="font-weight">TSC Order Tracking System</div>
+        </div>
+      </div>
+    </div>
+    <!-- RIGHT SIDE -->
+    <div class="pull-right full-height visible-sm visible-xs align-avatar">
+      <!-- START ACTION BAR -->
+      <div class="header-inner">
+        <a href="javascript:void(0)" class="btn-link visible-xs-inline-block visible-sm-inline-block m-r-10"
+           ngbDropdown placement="bottom-right">
+          <button class="profile-dropdown-toggle cursor" type="button" ngbDropdownToggle aria-haspopup="true"
+                  aria-expanded="false" id="dropdown">
+                    <span class="thumbnail-wrapper d32 circular inline m-t-5">
+                <img [src]="userInfo && userInfo.avatarUrl || '../../../../../assets/img/no-avatar.png'" alt=""
+                     data-src="assets/img/profiles/avatar.jpg" data-ui-jq="unveil"
+                     data-src-retina="assets/img/profiles/avatar_small2x.jpg" width="32" height="32"/>
+                </span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-right profile-dropdown" ngbDropdownMenu aria-labelledby="dropdown" role="menu">
+            <li class="dropdown-item p-r-0">
+              <a href="javascript:void(0);" class="d-flex flex-row text-black bold">
+                <span><i class="fa fa-bell-o globe-fill"></i></span>
+                <span class="bold m-l-10">Notifications</span>
+                <ng-container *ngIf="userInfo && userInfo.reminders.length">
+                  <span class="bubble bubble-responsive"></span>
+                  <span class="messgae-count-responsive">{{userInfo.reminders.length}}</span>
+                </ng-container>
+              </a>
+            </li>
+            <!--<li class="dropdown-item"><a href=""><i class="pg-signals"></i> Help</a>-->
+            <!--</li>-->
+            <li class="dropdown-item" [permission]="[]">
+              <a href="javascript:void(0)" (click)="newCustomer()" class="d-flex flex-row text-black bold hover-underline">
+                <span><i class="pg-plus_circle bold"></i></span>
+                <span class="bold m-l-10">Customer</span>
+              </a>
+            </li>
+            <li class="dropdown-item" [permission]="[]">
+              <a href="javascript:void(0)" (click)="newSalesOrder()" class="d-flex flex-row text-black bold hover-underline">
+                <span><i class="pg-contact_book bold"></i></span>
+                <span class="bold m-l-10">Sales Order</span>
+              </a>
+            </li>
+            <li class="dropdown-item">
+              <a href="javascript:void(0)" (click)="viewProfile()" class="d-flex flex-row text-black bold">
+                <span><i class="pg-settings_small bold"></i></span>
+                <span class="bold m-l-10">Profile</span>
+              </a>
+            </li>
+            <li class="dropdown-item">
+              <a href="javascript:void(0)" (click)="requestFeedback()" class="d-flex flex-row text-black bold">
+                <span><i class="fa fa-pencil-square-o bold" aria-hidden="true"></i></span>
+                <span class="bold m-l-10">Feedback Request</span>
+              </a>
+            </li>
+            <li class="dropdown-item bg-master-lighter">
+              <a href="javascript:void(0)" (click)="logout()" class="d-flex flex-row text-black">
+                <span><i class="pg-power bold"></i></span>
+                <span class="bold m-l-10">Logout</span>
+              </a>
+            </li>
+          </ul>
+        </a>
+        <!--<a href="javascript:void(0)" class="btn-link visible-xs-inline-block visible-sm-inline-block m-r-10">-->
+        <!--<span class="pg pg-arrow_minimize"></span>-->
+        <!--</a>-->
+        <!--<a href="javascript:void(0)" class="btn-link visible-sm-inline-block visible-xs-inline-block" (click)="openRightSideBar()">-->
+        <!--<span class="icon-set menu-hambuger-plus"></span>-->
+        <!--</a>-->
+      </div>
+      <!-- END ACTION BAR -->
+    </div>
+  </div>
+  <!-- END MOBILE CONTROLS -->
+  <div class="col-sm-7 pull-left sm-table hidden-xs hidden-sm brand-width">
+    <div class="header-inner">
+      <div class="brand inline cursor" (click)="goToHome()">
+        <img src="../../../../../../assets/icon/android-icon-192x192.png" alt="logo"
+             data-src="assets/icon/android-icon-192x192.png" data-ui-jq="unveil"
+             data-src-retina="assets/icon/android-icon-192x192.png" width="auto" height="50">
+        <span class="font-size-15 font-weight">TSC Order Tracking System</span>
+      </div>
+
+      <a class="search-link">
+        <i class="pg-search"></i>
+        <!--<span *ngIf="showSearchInput === 'none'">Search sales orders</span>-->
+        <input-debounce #searchInput
+                        [autoClear]="true"
+                        placeholder="Search sales orders"
+                        class="input-search"
+                        data-toggle="tooltip" data-placement="top"
+                        (value)="onSearchChanged($event, searchInput)"></input-debounce>
+      </a>
+    </div>
+  </div>
+  <div class="col-sm-5 ava" id="user-info-container">
+    <!-- START User Info-->
+    <div class="visible-lg visible-md m-t-10">
+      <!--<div class="pull-left p-r-20 p-t-10 hover-underline" *ngIf="isModifyCustomer">-->
+        <!--<a class="" href="javascript:void(0)" (click)="newCustomer()">+ Customer</a>-->
+      <!--</div>-->
+      <div class="pull-left p-r-20 p-t-10" *ngIf="isModifyOrderLog">
+        <a class="p-link" href="javascript:void(0)" (click)="newSalesOrder()">+ Sales Order</a>
+      </div>
+      <div class="pull-left p-l-10 p-r-10 m-t-10 b-grey b-l">
+        <button type="button" class="btn btn-feedback px-1" (click)="requestFeedback()">Feedback Request</button>
+      </div>
+      <!-- START NOTIFICATION LIST -->
+      <div class="pull-left p-r-20 p-t-10">
+        <ul class="notification-list no-margin hidden-sm hidden-xs b-grey b-l b-r no-style p-l-20 p-r-10">
+          <li class="p-r-15 inline">
+            <div class="dropdown" ngbDropdown placement="bottom-right">
+              <a href="javascript:void(0);" id="notification-center" class="fa fa-bell-o fa-2x globe-fill" ngbDropdownToggle>
+                <ng-container *ngIf="userInfo && userInfo.reminders.length">
+                  <span class="bubble"></span>
+                  <span class="messgae-count">{{userInfo.reminders.length}}</span>
+                </ng-container>
+              </a>
+              <!-- START Notification Dropdown -->
+              <div class="dropdown-menu notification-toggle" role="menu" aria-labelledby="notification-center" ngbDropdownMenu
+                   pg-notification-center *ngIf="userInfo && userInfo.reminders.length">
+                <!-- START Notification -->
+                <div class="notification-panel">
+                  <div class="modal-header">
+                    <h3>Notifications</h3>
+                    <button aria-label="Close" class="close" type="button">
+                      <span aria-hidden="true">×</span>
+                    </button>
+                  </div>
+                  <!-- START Notification Body-->
+                  <div class="notification-body scrollable">
+                    <!-- START Notification Item-->
+                    <div class="notification-item unread clearfix" *ngFor="let item of userInfo.reminders;" (click)="goToReminderDetail(item)">
+                      <div class="heading">
+                        <div class="thumbnail-wrapper d24 circular b-white m-r-5 b-a b-white m-t-10 m-r-10">
+                          <img width="30" height="30"  [src]="item.avatarUrl || '../../../../../assets/img/no-avatar.png'" alt=""
+                               data-src="assets/img/profiles/avatar.jpg" data-ui-jq="unveil"
+                               data-src-retina="assets/img/profiles/avatar_small2x.jpg">
+                        </div>
+                        <div href="#" class="text-complete">
+                          <span class="bold">{{item.fullName}}</span>
+                          <span class="fs-12">sent you a reminder</span>
+                        </div>
+                        <div class="reminder-content line-height-20">{{item.content}}</div>
+                        <span class="pull-right time line-height-20">{{item.createdOnUtc | amAdd: offsetTime : 'hours' | amTimeAgo:true}} ago</span>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- END Notification Body-->
+                </div>
+                <!-- END Notification -->
+              </div>
+              <!-- END Notification Dropdown -->
+            </div>
+          </li>
+        </ul>
+      </div>
+      <!-- END NOTIFICATIONS LIST -->
+      <div class="pull-left p-r-10 fs-16 font-heading">
+        <ng-container *ngIf="userInfo">
+          <span class="semi-bold" id="user-info" name="user-info">{{userInfo.firstName}}</span>
+          <span class="text-master">&nbsp;{{userInfo.lastName}}</span>
+        </ng-container>
+      </div>
+      <div class="dropdown pull-right" ngbDropdown placement="bottom-right">
+        <button class="profile-dropdown-toggle cursor" type="button" ngbDropdownToggle id="dropdown2" aria-haspopup="true"
+                aria-expanded="false">
+                    <span class="thumbnail-wrapper d32 circular inline m-t-5">
+                <img [src]="userInfo && userInfo.avatarUrl || '../../../../../assets/img/no-avatar.png'" alt=""
+                     data-src="assets/img/profiles/avatar.jpg" data-ui-jq="unveil"
+                     data-src-retina="assets/img/profiles/avatar_small2x.jpg" width="32" height="32"/>
+                </span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-right profile-dropdown" role="menu" ngbDropdownMenu aria-labelledby="dropdown2">
+          <li class="dropdown-item">
+            <a href="javascript:void(0)" (click)="viewProfile()" class="d-flex flex-row text-black bold">
+              <span><i class="pg-settings_small bold"></i></span>
+              <span class="bold m-l-10">Profile</span>
+            </a>
+          </li>
+          <!--<li class="dropdown-item"><a href=""><i class="pg-outdent"></i> Feedback</a>-->
+          <!--</li>-->
+          <!--<li class="dropdown-item"><a href=""><i class="pg-signals"></i> Help</a>-->
+          <!--</li>-->
+          <li class="dropdown-item bg-master-lighter">
+            <a href="javascript:void(0)" (click)="logout()" class="d-flex flex-row text-black">
+              <span><i class="pg-power bold"></i></span>
+              <span class="bold m-l-10">Logout</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+      <div class="select-machine">
+        <ng-select [items]="machineList"
+                    bindLabel="name"
+                    bindValue="id"
+                    [(ngModel)]="machineSelected"
+                    (change)="onSelectMachine($event)"
+                    [searchable]="false"
+                    [clearable]="false"></ng-select>
+      </div>
+      <!--<div class="dropdown pull-right" ngbDropdown>-->
+      <!--<button class="profile-dropdown-toggle" type="button" ngbDropdownToggle aria-haspopup="true" aria-expanded="false">-->
+      <!--<span class="thumbnail-wrapper d32 inline m-t-5">-->
+      <!--<img src="{{currentTranslation.iconUrl}}" width="32" height="32" />-->
+      <!--</span>-->
+      <!--</button>-->
+      <!--<ul class="dropdown-menu dropdown-menu-right language-dropdown" role="language">-->
+      <!--<li class="dropdown-item" *ngFor="let trans of translations" [ngClass]="{'active': currentTranslation.code === trans.code}">-->
+      <!--<a href="javascript:void(0)" (click)="changeTranslation(trans)" class="d-flex flex-row justify-content-between">-->
+      <!--<span>{{trans.name}}</span>-->
+      <!--<span><img src="{{trans.iconUrl}}"></span>-->
+      <!--</a>-->
+      <!--</li>-->
+      <!--</ul>-->
+      <!--</div>-->
+    </div>
+    <!-- END User Info-->
+  </div>
+</div>

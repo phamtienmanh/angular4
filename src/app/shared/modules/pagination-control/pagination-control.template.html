@@ -1,0 +1,54 @@
+<div class="row align-items-center relative py-lg-3 dataTables_wrapper paddingTop-0">
+  <div class="col-4 col-sm-3 col-md-4">
+    <div class="row">
+      <div class="col-6 flex align-items-end">
+        <span>{{getPaginationString()}}</span>
+        <ng-content select="[rightTotalRecord]"></ng-content>
+      </div>
+      <div class="col-6 relative">
+        <ng-content select="[left]"></ng-content>
+      </div>
+    </div>
+  </div>
+  <div class="" [ngClass]="{'col-2': !smallRow, 'col-3': smallRow}">
+    <div class="row page-size" *ngIf="isShowPageSize">
+      <label>Show
+        <div ngbDropdown [placement]="dropdownPosition"
+             [autoClose]="true"
+             class="d-inline-block">
+          <button class="btn paginationDropdown text-left" id="pageSize" ngbDropdownToggle
+                  [disabled]="disablePageSize">{{pageSize}}
+          </button>
+          <div ngbDropdownMenu aria-labelledby="pageSize">
+            <button class="dropdown-item"
+                    *ngFor="let ps of pageSizeList"
+                    (click)="selectedPageSizeEvent(ps)">{{ps}}
+            </button>
+          </div>
+        </div>
+        items
+      </label>
+    </div>
+  </div>
+  <div class="" [ngClass]="{'col-3 col-sm-4 col-md-3': !smallRow, 'col-2 col-sm-3 col-md-2': smallRow}">
+    <div class="row relative">
+      <ng-content select="[center]"></ng-content>
+    </div>
+  </div>
+
+  <div class="col-3 dataTables_paginate" [style.height]="'35px'">
+    <ng-content select="[right]"></ng-content>
+    <pagination size="sm" *ngIf="isShowPagination"
+                [ellipses]="true"
+                [directionLinks]="true"
+                [directionLinksPrev]="'Previous'"
+                [directionLinksNext]="'Next'"
+                [autoHide]="true"
+                [collectionSize]="totalRecord"
+                [page]="currentPage"
+                [pageSize]="pageSize"
+                [maxSize]="3"
+                [rotate]="true"
+                (pageChange)="pageChangeEvent($event)"></pagination>
+  </div>
+</div>

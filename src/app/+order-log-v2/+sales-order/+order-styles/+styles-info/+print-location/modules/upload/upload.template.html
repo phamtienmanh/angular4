@@ -1,0 +1,204 @@
+<div class="modal-header m-b-10">
+  <h4 class="modal-title m-0">
+    <span *ngIf="!isReadOnly">Upload</span>{{' ' + title + ' files'}}
+  </h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.close(false)" [disabled]="!enableCancel">
+    <span aria-hidden="true">×</span>
+  </button>
+</div>
+<div class="modal-body">
+  <div class="row">
+    <div class="col-sm-12">
+      <div *ngIf="!isReadOnly" [ngClass]="{
+                        'upload-box': !uploader.queue.length && !fileExist.length,
+                        'mini-upload-box py-2': uploader.queue.length || fileExist.length
+                      }"
+           ng2FileDrop
+           [uploader]="uploader">
+        <div class="contain text-center">
+          <div class="icon">
+            <i class="fa fa-cloud-upload" aria-hidden="true"></i>
+          </div>
+          <div class="text">Drop files to upload</div>
+          <div class="button">
+            <label class="btn  mt-4">
+              Or Click Here <input type="file" (change)="onImageChange($event)" #imageUpload [style.display]="'none'"
+                                  ng2FileSelect style="opacity: 0"
+                                  [uploader]="uploader" multiple/><br/>
+            </label>
+          </div>
+        </div>
+      </div>
+      <perfect-scrollbar [config]="{suppressScrollX: false}">
+      <table class="table" *ngIf="uploader.queue.length || fileExist.length">
+        <thead>
+        <tr>
+          <th style="min-width: 70px"></th>
+          <th style="min-width: 180px">Name / Description</th>
+          <th style="min-width: 180px">Uploaded By</th>
+          <th *ngIf="locationType >= 3" style="min-width: 210px">Type</th>
+          <th *ngIf="locationType < 3" style="min-width: 120px">Type</th>
+          <th>Size</th>
+          <th class="text-center">Status</th>
+          <th *ngIf="!isReadOnly" class="text-center">Remove</th>
+        </tr>
+        </thead>
+        <!-- BODY WHEN UPDATE FILE -->
+        <tbody *ngIf="fileExist.length">
+          <tr *ngFor="let item of fileExist">
+            <!-- <td class="media-left">
+                <div class="thumbnails">
+                  <div class="thumb">
+                    <img src="" width="100" height="100" imgPreview [image]="item?._file"
+                        class="media-object img-thumbnail-none-wh" imgZoomClick/>
+                  </div>
+                  <div class="popup" [ngClass]="{'custom-assign': item === uploader.queue[uploader.queue.length - 1]}">
+                    <img src="" width="300" height="auto" imgPreview [image]="item?._file"
+                        class="media-object img-thumbnail-none-wh" imgZoomClick/>
+                  </div>
+                </div>
+              </td> -->
+            <td class="p-l-size">
+              <img [src]="item.absoluteUrl" height="50" width="50" *ngIf="getExtension(item.fileUrl) === 'image'" imgZoomClick/>
+              <a [href]="item.absoluteUrl" target="_blank" *ngIf="getExtension(item.fileUrl) === 'pdf'">
+                <i class="fa fa-file-pdf-o fa-4x text-danger" aria-hidden="true"></i>
+              </a>
+              <a [href]="item.absoluteUrl" target="_blank" *ngIf="getExtension(item.fileUrl) === 'file'">
+                <i class="fa fa-file-o fa-4x" aria-hidden="true"></i>
+              </a>
+            </td>
+            <td class="p-l-size" style="max-width: 300px; word-break: break-all">
+              <strong>{{ item?.fileName }}</strong>
+              <br>
+              <label *ngIf="isReadOnly">{{item?.description}}</label>
+              <input class="description-input" *ngIf="!isReadOnly" [value]="item?.description || ''" type="text" (blur)="updateDescription($event, item?.fileName)"/>
+            </td>
+            <td class="p-l-size">
+              {{item.uploadedBy || userInfo.firstName + ' ' + userInfo.lastName}}
+              <br>
+              {{item.uploadedOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YYYY hh:mm A'}}
+            </td>
+            <td class="p-l-size">
+              <ng-select [allowClear]="true"
+                         [items]="typeData"
+                         [active]="[{'id': item?.type, 'text': item?.artFileTypeName}]"
+                         *ngIf="locationType >= 3"
+                         (data)="updateType($event, item?.fileName)"
+                         [placeholder]="!isPageReadOnly ? 'Type' : ''"></ng-select>
+              <span *ngIf="locationType < 3">{{item?.artFileTypeName}}</span>
+            </td>
+            <td nowrap class="p-l-size">{{item?.size}}</td>
+
+            <td *ngIf="uploader.options.isHTML5">
+              <div class="text-center">
+                <span><i class="fa fa-check-circle-o text-success"></i></span>
+              </div>
+            </td>
+            <td *ngIf="!isReadOnly">
+              <div class="rowt">
+                <div class="col-sm-12 center">
+                  <i class="fa fa-times text-danger" (click)="removeExistItem(item)" [style.cursor]="'pointer'"></i>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+        <!-- BODY WHEN UPLOAD NEW -->
+        <tbody *ngIf="uploader.queue.length">
+        <tr *ngFor="let item of uploader.queue">
+          <!-- <td *ngIf="fileExist.length"></td> -->
+          <td class="p-l-size">
+            <img src="" imgPreview [image]="item?._file" height="50" width="50" *ngIf="getType(item) === 'image'" imgZoomClick/>
+            <!--<a [href]="item?._file.name" target="_blank" *ngIf="getType(item) === 'pdf'">-->
+              <!--<i class="fa fa-file-pdf-o fa-4x text-danger" aria-hidden="true"></i>-->
+            <!--</a>-->
+            <!--<a [href]="item?._file.name" target="_blank" *ngIf="getType(item) === 'file'">-->
+              <!--<i class="fa fa-file-o fa-4x" aria-hidden="true"></i>-->
+            <!--</a>-->
+          </td>
+          <td class="p-l-size" style="max-width: 300px; word-break: break-all">
+            <strong>{{ item?.file?.name }}</strong>
+            <br>
+            <input class="description-input" *ngIf="!isReadOnly" [value]="item?.description || ''" type="text" (blur)="updateDescription($event, item?.file?.name)"/>
+          </td>
+          <td class="p-l-size">
+            {{item.uploadedByUser || userInfo.firstName + ' ' + userInfo.lastName}}
+            <br>
+            {{item.uploadedOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YYYY hh:mm A'}}
+          </td>
+          <td class="p-l-size">
+            <ng-select [allowClear]="true"
+                       [items]="typeData"
+                       [active]="typeActive"
+                       *ngIf="locationType >= 3"
+                       (data)="updateType($event, item?.file?.name)"
+                       [placeholder]="!isPageReadOnly ? 'Type' : ''"></ng-select>
+            <span *ngIf="locationType < 3">{{typeActive[0].text}}</span>
+          </td>
+          <!--<td *ngIf="uploader.isHTML5" nowrap class="p-l-size">{{ item.isSuccess ? item?.file?.size : ''}}</td>-->
+          <!--<td *ngIf="uploader.options.isHTML5" nowrap class="p-l-size">{{ item.isSuccess ? item?.file?.size : '' }}</td>-->
+          <td *ngIf="uploader.isHTML5" nowrap class="p-l-size"></td>
+          <td *ngIf="uploader.options.isHTML5" nowrap class="p-l-size">
+            <span *ngIf="item.imageSrc">{{item.imageSrc.width}} x {{item.imageSrc.height}}</span>
+            <span *ngIf="!item.imageSrc">{{MathRound(item?._file?.size / 1024)}} KB</span>
+          </td>
+          <td *ngIf="uploader.options.isHTML5">
+            <div class="progress" *ngIf="item.isUploading">
+              <div class="progress-bar progress-bar-success" role="progressbar"
+                  [ngStyle]="{ 'width': item.progress + '%' }"></div>
+            </div>
+            <div class="text-center">
+              <span *ngIf="item.isSuccess"><i class="fa fa-check-circle-o text-success"></i></span>
+              <span *ngIf="item.isCancel"><i class="fa fa-ban text-warning"></i></span>
+              <span *ngIf="item.isError"><i class="fa fa-minus-circle text-danger"></i></span>
+            </div>
+          </td>
+          <td *ngIf="!isReadOnly">
+            <div class="text-center">
+              <span>
+                <!-- <button type="button" class="btn btn-primary btn-xs m-r-5"
+                        (click)="item.upload()"
+                        [disabled]="item.isReady || item.isUploading || item.isSuccess"
+                        [hidden]="item.isUploaded || item.errorMsg">
+                  Start
+                </button> -->
+                <!--<button type="button" class="btn btn-warning btn-xs m-r-5"-->
+                <!--(click)="item.onCancel()" [disabled]="!item.isUploading"-->
+                <!--[hidden]="item.isUploaded || item.errorMsg">-->
+                <!--Cancel-->
+                <!--</button>-->
+                <!-- <button type="button" class="btn btn-danger btn-xs m-r-5"
+                        (click)="removeItem(item)" [disabled]="item.isUploading"
+                        [hidden]="item.isUploaded && !item.errorMsg">
+                  Remove
+                </button> -->
+                <i class="fa fa-times text-danger" (click)="removeItem(item)" [style.cursor]="'pointer'"
+                [ngStyle]="{'display': item.isUploading || item.errorMsg ? 'none' : ''}"></i>
+              </span>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+      </perfect-scrollbar>
+    </div>
+  </div>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-complete"
+          [disabled]="uploader.isUploading || !isReady"
+          (click)="onSubmit()"
+          *ngIf="(!uploader.queue.length || isReady) && !isReadOnly">
+    Save
+  </button>
+  <button class="btn btn-primary"
+          (click)="startUpload()"
+          *ngIf="(uploader.queue.length && !isReady) && !isReadOnly">
+    Start Upload
+  </button>
+  <button class="btn btn-default"
+          [disabled]="!enableCancel"
+          (click)="activeModal.close(false)">
+    Cancel
+  </button>
+</div>

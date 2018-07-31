@@ -1,0 +1,81 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0 nowrap">Art Released - Change Status</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()">
+    <lead-eta [rowDetail]="rowDetail" [isPageReadOnly]="isPageReadOnly"></lead-eta>
+    <div class="row flex py-1"
+         [ngClass]="{'required': frm.get('formRequires').value['artReleasedStatus'].required}">
+      <div class="col-7">
+        <div class="row">
+          <div class="col-6 control-label text-right">
+            <label>Status</label>
+          </div>
+          <div class="col-6"
+               [ngClass]="{'has-error': !frm.get('artReleasedStatus').valid,
+                    'disabled': isPageReadOnly}">
+            <ng-select [items]="statusData"
+                       [placeholder]="!isPageReadOnly ? 'Status' : ''"
+                       [searchable]="false" #statusSelect
+                       (focus)="onSelectFocused(statusSelect)"
+                       bindLabel="name"
+                       bindValue="id"
+                       formControlName="artReleasedStatus">
+            </ng-select>
+            <label class="error"
+                   *ngIf="frm.get('artReleasedStatus').hasError('required') && !frm.get('artReleasedStatus').pristine">
+              {{validationMessages['default'].required}}</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ng-container *ngIf="frm.get('artReleasedStatus').value && frm.get('artReleasedStatus').value !== taskStatus.BLANK">
+      <div class="row py-1">
+        <div class="col-7">
+          <ng-container *ngIf="frm.get('artReleasedStatus').value === taskStatus.DONE">
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['artReleasedDateOnUtc'].required}">
+              <div class="col-6 control-label text-right">
+                <label class="nowrap">Art Released Date</label>
+              </div>
+              <div class="col-6"
+                   [ngClass]="{'has-error':!frm.get('artReleasedDateOnUtc').valid}">
+                <my-date-picker class="flex" [options]="myTodayPickerOptions"
+                                #artReleasedDatePicker
+                                formControlName='artReleasedDate'
+                                [ngClass]="{'disabled': isPageReadOnly}"
+                                [disabled]="isPageReadOnly"
+                                (dateChanged)="onDateChangedBy($event, 'artReleasedDateOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, artReleasedDatePicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, artReleasedDatePicker, frm.get('artReleasedDateOnUtc'))"></my-date-picker>
+                <label class="error"
+                       *ngIf="frm.get('artReleasedDateOnUtc').hasError('required') && !frm.get('artReleasedDateOnUtc').pristine">
+                  {{validationMessages['default'].required}}</label>
+                <label class="error"
+                       *ngIf="frm.get('artReleasedDateOnUtc').hasError('maxDate') && !frm.get('artReleasedDateOnUtc').pristine">
+                  {{validationMessages['default'].maxLength}}
+                </label>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </ng-container>
+  </form>
+</div>
+<div class="modal-footer">
+  <ng-container *ngIf="!isPageReadOnly">
+    <button class="btn btn-complete"
+            (click)="onSubmitForm()">
+      Save
+    </button>
+  </ng-container>
+  <button class="btn btn-default"
+          (click)="activeModal.dismiss()">
+    Cancel
+  </button>
+</div>
+

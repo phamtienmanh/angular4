@@ -1,0 +1,176 @@
+<form id="form-new-user"
+      [formGroup]="frm"
+      name="newUser" role="form"
+      novalidate="">
+  <div class="row">
+    <div class="col-12 col-xl-8 form-container">
+      <div class="row">
+        <div class="col-sm-2 col-xl-3">
+        </div>
+        <div class="col-sm-9">
+          <div class="checkbox">
+            <input type="checkbox" id="isActive"
+                   formControlName='isActive'>
+            <label for="isActive">Active</label>
+          </div>
+        </div>
+      </div>
+      <div class="row flex py-1"
+           [ngClass]="{'required': true}">
+        <div class="col-sm-2 col-xl-3 control-label text-right">
+          <label>Role Name</label>
+        </div>
+        <div class="col-sm-9"
+             [ngClass]="{'has-error':!frm.get('roleName').valid}">
+          <ng-template [ngIf]="frm.get('roleName').value !== 'Staff Administrator'">
+            <input formControlName='roleName'
+                   type="text"
+                   [placeholder]="!isPageReadOnly ? 'Role Name' : ''"
+                   class="form-control">
+            <label class="error"
+                   *ngIf="frm.get('roleName').hasError('required') && !frm.get('roleName').pristine">
+              {{validationMessages['roleName'].required}}</label>
+          </ng-template>
+          <ng-template [ngIf]="frm.get('roleName').value === 'Staff Administrator'">
+            <p class="p-readonly mb-0">{{frm.get('roleName').value}}</p>
+          </ng-template>
+        </div>
+      </div>
+      <div class="row flex py-1"
+           [ngClass]="{'required': false}">
+        <div class="col-sm-2 col-xl-3 control-label text-right">
+          <label>Description</label>
+        </div>
+        <div class="col-sm-9"
+             [ngClass]="{'has-error':!frm.get('description').valid}">
+          <input formControlName='description'
+                 type="text"
+                 [placeholder]="!isPageReadOnly ? 'Description' : ''"
+                 class="form-control">
+          <label class="error"
+                 *ngIf="frm.get('description').hasError('required') && !frm.get('description').pristine">
+            {{validationMessages['description'].required}}</label>
+        </div>
+      </div>
+      <div class="row flex py-1"
+           [ngClass]="{'required': false}">
+        <div class="col-sm-2 col-xl-3 control-label text-right">
+          <label>Users</label>
+        </div>
+        <div class="col-sm-9"
+             [ngClass]="{'has-error':!frm.get('users').valid}">
+          <ng-select [items]="userListData" *ngIf="!isPageReadOnly"
+                     [multiple]="true" #usersSelect
+                     [closeOnSelect]="false"
+                     [hideSelected]="true"
+                     [placeholder]="!isPageReadOnly ? 'Users' : ''"
+                     (focus)="onSelectFocused(usersSelect)"
+                     bindLabel="fullName"
+                     formControlName="users"></ng-select>
+          <p class="p-readonly" *ngIf="isPageReadOnly">{{getListUserString()}}</p>
+          <label class="error"
+                 *ngIf="frm.get('users').hasError('required') && !frm.get('users').pristine">
+            {{validationMessages['users'].required}}</label>
+        </div>
+      </div>
+      <div class="row flex py-1"
+           [ngClass]="{'required': true}">
+        <div class="col-sm-2 col-xl-3 control-label text-right">
+          <label>Automatically Log Off (mins)</label>
+        </div>
+        <div class="col-sm-9"
+             [ngClass]="{'has-error':!frm.get('automaticallyLogOff').valid}">
+          <input formControlName='automaticallyLogOff'
+                 type="text"
+                 IntegerNumber
+                 [placeholder]="!isPageReadOnly ? 'Automatically Log Off (mins)' : ''"
+                 class="form-control">
+          <label class="error"
+                 *ngIf="frm.get('automaticallyLogOff').hasError('required') && !frm.get('automaticallyLogOff').pristine">
+            {{validationMessages['automaticallyLogOff'].required}}</label>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+<div class="row px-2" *ngIf="!!frm.get('id').value">
+  <div class="col-12 col-xl-10">
+    <div class="row border-bottom-ccc">
+      <label class="bold">Access Control</label>
+    </div>
+    <div class="pt-2">
+      <perfect-scrollbar class="scroll-sm" [config]="{suppressScrollX: false}">
+        <ul class="nav nav-tabs" fitcontent>
+          <li class="text-center nav-item" *ngFor="let tab of tabs; let i=index"
+              [ngClass]="{'active': tab.isActive, 'disabled': tab.isDisabled}"
+              (click)="switchTab(tab)">
+            <a class="justify-center nav-link"
+               href="javascript:void(0)" aria-expanded="true">
+              <span class="nowrap">{{tab.name}}</span>
+            </a>
+          </li>
+        </ul>
+      </perfect-scrollbar>
+    </div>
+    <div class="row pt-2">
+      <table class="table table-sm role-table">
+        <thead>
+        <tr>
+          <th>Page</th>
+          <th class="check-header">
+            <span>Can View</span>
+            <div class="checkbox">
+              <input type="checkbox" id="check-view-all" [checked]="isCheckedViewAll"
+                     [disabled]="isPageReadOnly"
+                     (change)="onCheckedViewAll($event, activatedTab.prop)">
+              <label for="check-view-all"></label>
+            </div>
+          </th>
+          <th class="check-header">
+            <span>Can Modify</span>
+            <div class="checkbox">
+              <input type="checkbox" id="check-modify-all" [checked]="isCheckedModifyAll"
+                     [disabled]="isPageReadOnly || isDisabedCheckAllModify"
+                     (change)="onCheckedModifyAll($event, activatedTab.prop)">
+              <label for="check-modify-all"></label>
+            </div>
+          </th>
+          <th *ngIf="activatedTab.id === 0">Functions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let page of getAccessControlPermissions(activatedTab.prop); let i = index">
+          <td>{{page.name}}</td>
+          <td>
+            <div class="checkbox">
+              <input type="checkbox" [id]="'pageCanView-' + i" [(ngModel)]="page.isView"
+                     (change)="onChangeViewPage($event, page)"
+                     [disabled]="isPageReadOnly">
+              <label [for]="'pageCanView-' + i"></label>
+            </div>
+          </td>
+          <td>
+            <div class="checkbox">
+              <input type="checkbox" [id]="'pageCanModify-' + i" [(ngModel)]="page.isModify"
+                     (change)="initCheckAllValue()"
+                     [disabled]="isPageReadOnly || !page.isView">
+              <label [for]="'pageCanModify-' + i"></label>
+            </div>
+          </td>
+          <td *ngIf="activatedTab.id === 0">
+            <button class="btn btn-complete btn-xs" [disabled]="isPageReadOnly || !page.isModify"
+                    (click)="openChangeFunction(page)" *ngIf="isHaveChildrenFunctions(page)">Edit
+            </button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<div class="row mt-2 button-group-large">
+  <div class="col-sm-2"></div>
+  <div class="col-sm-9">
+    <ng-content></ng-content>
+  </div>
+</div>

@@ -1,0 +1,117 @@
+﻿<div class="modal-header m-b-10">
+  <h4 class="modal-title">{{title}}</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.close(false)">
+    <span aria-hidden="true">×</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form id="form-new-user"
+        [formGroup]="frm"
+        name="newUser" role="form"
+        novalidate="">
+    <div class="row">
+      <div class="col-lg-12 form-container">
+        <div class="row flex py-1">
+          <div class="col-sm-4 control-label text-right"></div>
+          <div class="col-sm-7">
+            <div class="checkbox m-0">
+              <input type="checkbox" id="isEnabled"
+                     [attr.disabled]="isPageReadOnly ? true : null"
+                     formControlName="isEnabled">
+              <label for="isEnabled">Enabled</label>
+            </div>
+          </div>
+        </div>
+        <div class="row flex py-1"
+             [ngClass]="{'required': frm.get('formRequires').value['name'].required}">
+          <div class="col-sm-4 control-label text-right">
+            <label>Name</label>
+          </div>
+          <div class="col-sm-7"
+               [ngClass]="{'has-error':!frm.get('name').valid}">
+            <input formControlName='name' [focusOnInit]="!isEdit"
+                   type="text"
+                   [placeholder]="!isPageReadOnly ? 'Name' : ''"
+                   class="form-control">
+            <label class="error"
+                   *ngIf="frm.get('name').hasError('required') && !frm.get('name').pristine">
+              {{validationMessages['name'].required}}</label>
+          </div>
+        </div>
+        <div class="row flex py-1"
+             [ngClass]="{'required': frm.get('formRequires').value['processNumber'].required}">
+          <div class="col-sm-4 control-label text-right">
+            <label>Process #</label>
+          </div>
+          <div class="col-sm-7"
+               [ngClass]="{'has-error':!frm.get('processNumber').valid}">
+            <input formControlName='processNumber'
+                   IntegerNumber
+                   type="text"
+                   [placeholder]="!isPageReadOnly ? 'Process #' : ''"
+                   [attr.disabled]="isPageReadOnly ? true : null"
+                   class="form-control">
+            <label class="error"
+                   *ngIf="frm.get('processNumber').hasError('required') && !frm.get('processNumber').pristine">
+              {{validationMessages['processNumber'].required}}</label>
+            <label class="error"
+                   *ngIf="frm.get('processNumber').hasError('invalidValue') && !frm.get('processNumber').pristine">
+              {{validationMessages['processNumber'].invalidValue}}</label>
+          </div>
+        </div>
+        <div class="row flex py-1"
+             [ngClass]="{'required': frm.get('formRequires').value['peopleRequired'].required}">
+          <div class="col-sm-4 control-label text-right">
+            <label># People Required</label>
+          </div>
+          <div class="col-sm-7"
+               [ngClass]="{'has-error':!frm.get('peopleRequired').valid}">
+            <input formControlName='peopleRequired'
+                   IntegerNumber
+                   type="text"
+                   [placeholder]="!isPageReadOnly ? '# People Required' : ''"
+                   [attr.disabled]="isPageReadOnly ? true : null"
+                   class="form-control">
+            <label class="error"
+                   *ngIf="frm.get('peopleRequired').hasError('required') && !frm.get('peopleRequired').pristine">
+              {{validationMessages['peopleRequired'].required}}</label>
+            <label class="error"
+                   *ngIf="frm.get('peopleRequired').hasError('invalidValue') && !frm.get('peopleRequired').pristine">
+              {{validationMessages['peopleRequired'].invalidValue}}</label>
+          </div>
+        </div>
+        <div class="row flex py-1"
+             [ngClass]="{'required': frm.get('formRequires').value['staffAvgPcsPerHr'].required}">
+          <div class="col-sm-4 control-label text-right">
+            <label>Staff Avg Pcs/Hr</label>
+          </div>
+          <div class="col-sm-7"
+               [ngClass]="{'has-error':!frm.get('staffAvgPcsPerHr').valid}">
+            <input formControlName='staffAvgPcsPerHr'
+                   IntegerNumber
+                   type="text"
+                   [placeholder]="!isPageReadOnly ? 'Staff Avg Pcs/Hr' : ''"
+                   [attr.disabled]="isPageReadOnly ? true : null"
+                   class="form-control">
+            <label class="error"
+                   *ngIf="frm.get('staffAvgPcsPerHr').hasError('required') && !frm.get('staffAvgPcsPerHr').pristine">
+              {{validationMessages['staffAvgPcsPerHr'].required}}</label>
+            <label class="error"
+                   *ngIf="frm.get('staffAvgPcsPerHr').hasError('invalidValue') && !frm.get('staffAvgPcsPerHr').pristine">
+              {{validationMessages['staffAvgPcsPerHr'].invalidValue}}</label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+<div class="modal-footer" *ngIf="!isPageReadOnly">
+  <button class="btn btn-complete"
+          (click)="onSubmit()">
+    Save
+  </button>
+  <button class="btn btn-default m-r-30"
+          (click)="activeModal.close(false)">
+    Cancel
+  </button>
+</div>

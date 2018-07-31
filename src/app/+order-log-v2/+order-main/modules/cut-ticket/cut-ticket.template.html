@@ -1,0 +1,131 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0">Cut Ticket Created - Change Status</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()">
+    <div class="row flex py-1"
+         [ngClass]="{'required': true}">
+      <div class="col-sm-4 control-label text-right">
+        <label>Status</label>
+      </div>
+      <div class="col-sm-6"
+           [ngClass]="{'has-error':!frm.get('status').valid, 'disabled': isPageReadOnly}">
+        <ng-select [items]="statusData"
+                   [placeholder]="!isPageReadOnly ? 'Status' : ''"
+                   [searchable]="false" #statusSelect
+                   (focus)="onSelectFocused(statusSelect)"
+                   bindLabel="name"
+                   bindValue="id"
+                   formControlName="status"></ng-select>
+        <label class="error"
+               *ngIf="frm.get('status').hasError('required') && !frm.get('status').pristine">
+          {{validationMessages['default'].required}}</label>
+      </div>
+    </div>
+    <div>
+      <div class="row flex py-1"
+           [ngClass]="{'required': frm.get('formRequires').value['cutTicketNumber'].required}">
+        <div class="col-sm-4 control-label text-right">
+          <label>Cut Ticket #</label>
+        </div>
+        <div class="col-sm-6"
+             [ngClass]="{'has-error':!frm.get('cutTicketNumber').valid}">
+          <div class="input-group">
+            <input formControlName='cutTicketNumber'
+                   type="text"
+                   [placeholder]="!isPageReadOnly ? 'Cut Ticket #' : ''"
+                   class="form-control">
+            <span class="input-group-addon cursor"
+                  (click)="openUploader(styleUploadedType.ProductionPO, 'cutTicketNumber')"
+                  *ngIf="!!frm.get('cutTicketNumber').value && !checkLengthUploaderByType(styleUploadedType.ProductionPO)">
+            <i class="fa fa-upload" aria-hidden="true"></i>
+            </span>
+            <span class="input-group-addon cursor"
+                  (click)="openUploader(styleUploadedType.ProductionPO, 'cutTicketNumber')"
+                  *ngIf="!!frm.get('cutTicketNumber').value && checkLengthUploaderByType(styleUploadedType.ProductionPO)">
+            <i class="fa fa-eye" [ngStyle]="{'top': '-1px'}" aria-hidden="true"></i>
+            </span>
+          </div>
+          <label class="error"
+                 *ngIf="frm.get('cutTicketNumber').hasError('required') && !frm.get('cutTicketNumber').pristine">
+            {{validationMessages['cutTicketNumber'].required}}</label>
+          <label class="error"
+                 *ngIf="+frm.get('status').value === taskStatus.APPROVED && isMissingImage">
+            You must upload a cut ticket before you can Approve.</label>
+        </div>
+      </div>
+      <div class="row flex py-1"
+           [ngClass]="{'required': frm.get('formRequires').value['cutTicketCreatedOnUtc'].required}">
+        <div class="col-sm-4 control-label text-right">
+          <label>Cut Ticket Created Date</label>
+        </div>
+        <div class="col-sm-6"
+             [ngClass]="{'has-error':!frm.get('cutTicketCreatedOnUtc').valid}">
+          <my-date-picker [options]="cutTicketPickerOptions"
+                          #cutTicketDatePicker
+                          formControlName='cutTicketCreated'
+                          (dateChanged)="onDateChangedBy($event, 'cutTicketCreatedOnUtc')"
+                          (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, cutTicketDatePicker, frm.get('cutTicketCreatedOnUtc'))"></my-date-picker>
+          <label class="error"
+                 *ngIf="frm.get('cutTicketCreatedOnUtc').hasError('required') && !frm.get('cutTicketCreatedOnUtc').pristine">
+            {{validationMessages['default'].required}}</label>
+          <label class="error"
+                 *ngIf="frm.get('cutTicketCreatedOnUtc').hasError('maxToday') && !frm.get('cutTicketCreatedOnUtc').pristine">
+            {{validationMessages['default'].maxLength}}</label>
+        </div>
+      </div>
+    </div>
+    <div class="row flex py-1" *ngIf="+frm.get('status').value === taskStatus.REJECTED"
+         [ngClass]="{'required': frm.get('formRequires').value['cutTicketComment'].required}">
+      <div class="col-sm-4 control-label text-right">
+        <label>Comment</label>
+      </div>
+      <div class="col-sm-6"
+           [ngClass]="{'has-error':!frm.get('cutTicketComment').valid}">
+        <textarea type="text"
+                  formControlName='cutTicketComment'
+                  [placeholder]="'Comment'"
+                  style="min-height: 80px !important;"
+                  class="form-control"></textarea>
+        <label class="error"
+               *ngIf="frm.get('cutTicketComment').hasError('required') && !frm.get('cutTicketComment').pristine">
+          {{validationMessages['cutTicketComment'].required}}</label>
+      </div>
+    </div>
+    <br>
+    <div class="row flex" *ngIf="styleList && styleList.length">
+      <div class="col-sm-1"></div>
+      <div class="col-sm-10">
+        <p class="mb-0">Select Styles to associate with this Cut Ticket:</p>
+      </div>
+    </div>
+    <div class="row flex py-1" *ngFor="let style of styleList; let i = index">
+      <div class="col-sm-1"></div>
+      <div class="col-sm-10">
+        <div class="checkbox">
+          <input type="checkbox" [id]="i + '-style'"
+                 [disabled]="style.orderDetailId === orderDetailId"
+                 [checked]="activeStylesChanges(style.orderDetailId)"
+                 (change)="onSelectStyle(style.orderDetailId)">
+          <label [for]="i + '-style'">
+            {{getLabelString(style.styleInfo)}}
+          </label>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-complete"
+          (click)="onSubmitForm()">
+    Save
+  </button>
+  <button class="btn btn-default"
+          (click)="activeModal.dismiss()">
+    Cancel
+  </button>
+</div>
+

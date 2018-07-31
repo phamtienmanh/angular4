@@ -1,0 +1,200 @@
+blank {
+  @media (max-width: 1400px){
+    .custom-radio {
+      padding-top: 0 !important;
+    }
+  }
+  .radio {
+    margin-top: -3px !important;
+    label {
+      margin-bottom: .5rem !important;
+    }
+  }
+  .datatable-header-cell div {
+    text-align:center!important;
+  }
+  #selectSize {
+    .ui-select-choices {
+      display: block !important;
+    }
+    .ui-select-container {
+      height: 30px !important;
+      input {
+        padding-left: 9px;
+        padding-bottom: 9px;
+      }
+    }
+    &.form-control-selected {
+      .ui-select-container {
+        height: auto !important;
+      }
+      input {
+        padding-left: 0;
+      }
+      .ui-select-match-item {
+        -webkit-appearance: unset !important;
+      }
+    }
+  }
+  .py-1 {
+    padding-top: 0.15rem !important;
+    padding-bottom: 0.15rem !important;
+  }
+  .statusHeight {
+    textarea {
+      min-height: 70px !important;
+    }
+  }
+  .ngx-datatable .datatable-body-row .datatable-body-cell-label {
+    width: 100% !important;
+    white-space: nowrap !important;
+    text-align: center!important;
+  }
+  .border-blue {
+    border-color: #80bdff !important;
+  }
+  .white-bg{
+    background:#ffffff !important;
+    border-color: #ccc;
+    color: #2c2c2c !important;
+  }
+  .style-table:not(.readonly) {
+    td, th {
+      padding: .5em 0.4em !important;
+    }
+  }
+  .style-table {
+    margin-top: 0;
+    input {
+      height: 18px !important;
+      border: none !important;
+      width: 30px !important;
+      border-bottom: 1px solid #80bdff !important;
+    }
+    td, th {
+      background: #fff!important;
+      color: #2c2c2c !important;
+      text-align: center;
+      font-size: 12px !important;
+      border: 1px solid hsla(0,0%,90%,.8);
+      white-space: nowrap !important;
+      min-width: 40px;
+    }
+    td.red {
+      span, input {
+        color: red !important;
+      }
+    }
+    th {
+      font-weight: 300 !important;
+      background-color: #f1f1f1 !important;
+    }
+    tr th,td {
+      &:first-child {
+        text-align: left;
+      }
+    }
+    tr:last-child {
+      td {
+        // border-bottom: 0;
+      }
+    }
+    tr th {
+      white-space: nowrap;
+      &:first-child {
+        width: 120px !important;
+      }
+      &:last-child {
+        min-width: 60px !important;
+      }
+    }
+  }
+  .disable-row td {
+    background-color: #ccc !important;
+  }
+  @media (min-width: 1366px){
+    perfect-scrollbar .ps__rail-x {
+      display: flex !important;
+    }
+  }
+  .ps-content {
+    padding-top: 0;
+  }
+  perfect-scrollbar .ps__rail-x {
+    background-color: transparent !important;
+  }
+  .ps__rail-x {
+    opacity: 0.6 !important;
+    height: 13px !important;
+  }
+  .ps__thumb-x {
+    height: 12px !important;
+  }
+  .general-title {
+    border-bottom: 1px solid #626262;
+    span {
+      font-size: 14px;
+    }
+  }
+  .overages-width {
+    width: 50px;
+  }
+  .btn-reset-qty {
+    position: absolute;
+    top: -15px;
+    right: 5px;
+    text-decoration: underline !important;
+    color: #48b0f7 !important;
+    cursor: pointer;
+  }
+  .btn-height {
+    height: 26px;
+  }
+
+  .input-group .form-control:not(:last-child), .input-group-addon:not(:last-child), .input-group-btn:not(:last-child) > .btn, .input-group-btn:not(:last-child) > .btn-group > .btn, .input-group-btn:not(:last-child) > .dropdown-toggle, .input-group-btn:not(:first-child) > .btn:not(:last-child):not(.dropdown-toggle), .input-group-btn:not(:first-child) > .btn-group:not(:last-child) > .btn {
+    border-right: 0 !important;
+  }
+  .input-group .input-group-addon {
+    background: white !important;
+    border-color: #ccc;
+    color: #626262 !important;
+  }
+
+  .custom-radio-label {
+    padding-top: 3px;
+    text-align: right;
+    label {
+      margin-bottom: 0 !important;
+    }
+  }
+
+  .custom-radio {
+    width: 25px;
+    height: 25px;
+    padding-left: 5px;
+    padding-top: 3px;
+  }
+
+  .not-required::after {
+    content: '' !important;
+  }
+
+  .btn-upload {
+    position: relative;
+    top: 5px;
+    padding-left: 0 !important;
+  }
+
+  .style-label {
+    white-space: normal;
+    margin-bottom: 0 !important;
+  }
+
+  .checkbox input[type=checkbox] {
+    display: none;
+  }
+
+  .upload-box {
+    border-color: red;
+  }
+}

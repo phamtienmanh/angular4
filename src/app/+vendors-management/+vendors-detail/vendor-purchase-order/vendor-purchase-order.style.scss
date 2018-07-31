@@ -1,0 +1,19 @@
+vendor-purchase-order {
+  .table-box {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+  }
+  .datatable-body-cell-label {
+    &:last-child {
+      width: 100% !important;
+    }
+    a {
+      &:hover {
+        text-decoration: underline !important;
+      }
+    }
+  }
+  .wrap-row {
+    word-break: break-all;
+  }
+}

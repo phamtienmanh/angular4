@@ -1,0 +1,60 @@
+<div class="modal-header">
+  <h4 *ngIf="!isView" class="modal-title m-0">Add Comment</h4>
+  <h4 *ngIf="isView" class="modal-title m-0">Comments</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()" *ngIf="!isView">
+    <div class="row flex py-1"
+         [ngClass]="{'required': false}">
+      <div class="col-sm-4 control-label text-right">
+        <label>Comment</label>
+      </div>
+      <div class="col-sm-8 my-textarea">
+        <textarea formControlName='comment'
+                  type="text"
+                  [placeholder]="!isPageReadOnly ? 'Comment' : ''"
+                  class="form-control"></textarea>
+        <!-- <label class="error"
+               *ngIf="frm.get('machine').hasError('required') && !frm.get('machine').pristine">
+          {{validationMessages['default'].required}}</label> -->
+      </div>
+    </div>
+  </form>
+  <table class="table style-table" *ngIf="isView">
+    <thead>
+      <th>Date</th>
+      <th>User</th>
+      <th>Type</th>
+      <th style="min-width: 150px">Comment</th>
+    </thead>
+    <tbody>
+      <tr *ngFor="let cmt of commentsData">
+        <td>{{cmt.createdOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YYYY hh:mm A'}}</td>
+        <td>{{cmt.createdByUser}}</td>
+        <td>{{cmt.type === 0 ? 'Print' :
+          cmt.type === 1 ? 'Neck Label' :
+          cmt.type === 2 ? 'Finishing' : ''}}</td>
+        <td>{{cmt.comments}}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-complete" *ngIf="!isView"
+          [disabled]="!frm.get('comment').value"
+          (click)="onSubmitForm()">
+    Save
+  </button>
+  <button class="btn btn-default" *ngIf="!isView"
+          (click)="activeModal.dismiss()">
+    Cancel
+  </button>
+  <button class="btn btn-complete" *ngIf="isView"
+          (click)="activeModal.dismiss()">
+    OK
+  </button>
+</div>
+

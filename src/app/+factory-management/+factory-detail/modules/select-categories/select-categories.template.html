@@ -1,0 +1,26 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0">Select Category(s)</h4>
+  <button type="button" class="close" aria-label="Close" (click)="onClose()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <div class="row">
+    <div class="col-sm-6 pl-5" *ngFor="let category of categoriesListData; let i = index">
+      <div class="row">
+        <div class="checkbox" [ngStyle]="{'margin-top': '-2px', 'margin-bottom': '0'}">
+          <input type="checkbox" [id]="category.name" #multiCb
+                 (change)="onChange($event, category)">
+          <label [for]="category.name"></label>
+        </div>
+        <div class="control-label">
+          <label>{{category.name}}</label>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-danger btn-cons" (click)="onSubmit()">OK</button>
+  <button type="button" class="btn btn-default btn-cons" (click)="onClose()">Cancel</button>
+</div>

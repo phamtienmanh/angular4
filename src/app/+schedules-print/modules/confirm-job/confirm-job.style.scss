@@ -1,0 +1,74 @@
+confirm-job {
+  .style-table {
+    table-layout: fixed;
+    margin-top: 0;
+    input {
+      height: 18px !important;
+      border: none !important;
+      width: 30px !important;
+      border-bottom: 1px solid #80bdff !important;
+    }
+    td, th {
+      background: #fff!important;
+      padding: .5em 0.4em !important;
+      color: #2c2c2c !important;
+      font-size: 12px !important;
+      border: 1px solid hsla(0,0%,90%,.8);
+      white-space: nowrap !important;
+      min-width: 40px;
+      &.center {
+        text-align: center;
+        vertical-align: middle;
+      }
+      &.incompleted, &.overShrinkage, &.underQty {
+        background: red !important;
+        color: white !important;
+      }
+      &.overQty {
+        background: lightgreen !important;
+      }
+      &.job-pending {
+        height: 66px;
+        font-size: 16px !important;
+      }
+      &.all-job-pending {
+        height: 132px;
+        font-size: 16px !important;
+      }
+      &.total-job {
+        font-weight: bold;
+        font-size: 24px !important;
+      }
+      &.grey-bg {
+        background: #ccc !important;
+      }
+    }
+    th {
+      text-align: center !important;
+      font-weight: 300 !important;
+      background-color: #f1f1f1 !important;
+    }
+    tr th {
+      white-space: nowrap;
+      &:first-child {
+        width: 270px !important;
+        text-align: left !important;
+        text-transform: none;
+      }
+      &:last-child {
+        min-width: 60px !important;
+      }
+    }
+  }
+
+  .flex-space-between {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+  }
+  .flex-space-center {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+}

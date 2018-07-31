@@ -1,0 +1,246 @@
+<div class="row pb-2 separate-border">
+  <div class="col-lg-12 col-xl-12">
+    <collapse-panel [formValue]="searchedObj">
+      <div class="row">
+        <form class="full-width" [formGroup]="frm" role="form" novalidate="" (ngSubmit)="filter()"
+              (keyup.enter)="filter()">
+          <div class="col-lg-6 col-xl-6 left px-1">
+            <div class="row">
+              <div class="col-sm-6 col-lg-6 col-xl-6 m-b-5">
+                <div class="row align-items-center">
+                  <div class="col-4 col-sm-4 col-lg-5">
+                    <span class="right">Customer:</span>
+                  </div>
+                  <div class="col-8 col-sm-8 col-lg-7">
+                    <input type="text"
+                           name="customer"
+                           placeholder="Customer Name"
+                           formControlName='customer'
+                           class="form-control">
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-lg-6 col-xl-6 m-b-5">
+                <div class="row align-items-center">
+                  <div class="col-4 col-sm-4 col-lg-5">
+                    <span class="right">Style Name:</span>
+                  </div>
+                  <div class="col-8 col-sm-8 col-lg-7">
+                    <input type="text"
+                           name="styleName"
+                           placeholder="Style Name"
+                           formControlName='styleName'
+                           class="form-control">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6 col-lg-6 col-xl-6 m-b-5">
+                <div class="row align-items-center">
+                  <div class="col-4 col-sm-4 col-lg-5">
+                    <span class="right nowrap">PO #:</span>
+                  </div>
+                  <div class="col-8 col-sm-8 col-lg-7">
+                    <input type="text"
+                           name="poId"
+                           placeholder="PO #"
+                           formControlName='poId'
+                           class="form-control">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!--<div formArrayName="colsName">-->
+              <!--<div class="row" *ngFor="let colName of colsName.controls; let i = index; let last = last"-->
+                   <!--[formGroupName]="i">-->
+                <!--<div class="col-sm-6 col-lg-6 col-xl-6 m-b-5" *ngIf="last">-->
+                  <!--<div class="row align-items-center">-->
+                    <!--<div class="col-4 col-sm-4 col-lg-5">-->
+                      <!--<span class="right nowrap">Status:</span>-->
+                    <!--</div>-->
+                    <!--<div class="col-8 col-sm-8 col-lg-7">-->
+                      <!--<ng-select [items]="listColumnName" #multistatus-->
+                                 <!--[placeholder]="'Column Name'"-->
+                                 <!--(focus)="onSelectFocused(multistatus)"-->
+                                 <!--(add)="onSelectItem($event, colName, 'id', 'id', true);-->
+                                        <!--onSelectItem($event, colName, 'name', 'name')"-->
+                                 <!--bindLabel="name"-->
+                                 <!--bindValue="id"-->
+                                 <!--formControlName="id"></ng-select>-->
+                    <!--</div>-->
+                  <!--</div>-->
+                <!--</div>-->
+                <!--<div class="col-sm-6 col-lg-6 col-xl-6 m-b-5 flex" *ngIf="last"-->
+                     <!--[ngClass]="{'none': !colName.get('id').value,-->
+                    <!--'has-error': colName.get('status').invalid}">-->
+                  <!--<div class="full-width">-->
+                    <!--<ng-select [items]="listColumnStatus" #columnStatusSelect-->
+                               <!--[multiple]="true"-->
+                               <!--[searchable]="false"-->
+                               <!--[closeOnSelect]="false"-->
+                               <!--[hideSelected]="true"-->
+                               <!--[placeholder]="'Status'"-->
+                               <!--(focus)="onSelectFocused(columnStatusSelect)"-->
+                               <!--bindLabel="name"-->
+                               <!--formControlName="status"></ng-select>-->
+                    <!--<label class="error"-->
+                           <!--*ngIf="colName.get('status').hasError('required') && !colName.get('status').pristine">-->
+                      <!--{{validationMessages['default'].required}}</label>-->
+                  <!--</div>-->
+                  <!--<button class="btn btn-default m-l-10 btn-filter" style="height: 26px"-->
+                          <!--(click)="addColName()">Add Filter-->
+                  <!--</button>-->
+                <!--</div>-->
+              <!--</div>-->
+            <!--</div>-->
+          </div>
+          <div class="col-lg-6 col-xl-6 right px-1">
+            <div class="row m-b-5">
+              <div class="col-sm-6 col-lg-6 col-xl-6">
+                <div class="row align-items-center">
+                  <div class="col-4 col-sm-4">
+                    <span class="right nowrap">Schedule:</span>
+                  </div>
+                  <div class="col-8 col-sm-8">
+                    <ng-select [items]="scheduleTypeData" #scheduleSelect
+                               [clearable]="false"
+                               [placeholder]="'Schedule Date'"
+                               [searchable]="false"
+                               (focus)="onSelectFocused(scheduleSelect)"
+                               (change)="onSelectChanged($event, 'sampleDate')"
+                               bindLabel="text"
+                               bindValue="text"
+                               formControlName="sampleDate"></ng-select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row m-b-5" *ngIf="frm.get('sampleDate').value === 'Custom'">
+              <div class="col-2 col-sm-2 m-t-5">
+                <span class="right nowrap">From:</span>
+              </div>
+              <div class="p-l-5"
+                   [ngClass]="{'has-error':!frm.get('topPpCancelDateFromOnUtc').valid}">
+                <my-date-picker [options]="topPpCancelDateFromOptions"
+                                #dateBeginPicker
+                                formControlName='topPpCancelDateFrom'
+                                [defaultMonth]="myDatePickerService.configDefaultMonth(frm.get('topPpCancelDateTo').value, true)"
+                                (dateChanged)="onDateChanged($event, 'topPpCancelDateFromOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, dateBeginPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, dateBeginPicker, frm.get('topPpCancelDateFromOnUtc'))"></my-date-picker>
+                <label class="error nowrap"
+                       *ngIf="frm.get('topPpCancelDateFromOnUtc').hasError('required') && !frm.get('topPpCancelDateFromOnUtc').pristine">
+                  {{validationMessages['default'].required}}</label>
+                <label class="error nowrap"
+                       *ngIf="frm.get('topPpCancelDateFromOnUtc').hasError('maxDate') && !frm.get('topPpCancelDateFromOnUtc').pristine">
+                  {{validationMessages['topPpCancelDateFromOnUtc'].maxLength}}</label>
+              </div>
+              <div class="px-2 flex center">
+                <span class="m-t-4">to</span>
+              </div>
+              <div class=""
+                   [ngClass]="{'has-error':!frm.get('topPpCancelDateToOnUtc').valid}">
+                <my-date-picker [options]="topPpCancelDateToOptions"
+                                #dateEndPicker
+                                formControlName='topPpCancelDateTo'
+                                [defaultMonth]="myDatePickerService.configDefaultMonth(frm.get('topPpCancelDateFrom').value)"
+                                (dateChanged)="onDateChanged($event, 'topPpCancelDateToOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, dateEndPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, dateEndPicker, frm.get('topPpCancelDateToOnUtc'))"></my-date-picker>
+                <!--<label class="error nowrap"-->
+                <!--*ngIf="frm.get('topPpCancelDateToOnUtc').hasError('pattern') && !frm.get('topPpCancelDateToOnUtc').pristine">-->
+                <!--{{validationMessages['default'].pattern}}</label>-->
+                <label class="error nowrap"
+                       *ngIf="frm.get('topPpCancelDateToOnUtc').hasError('required') && !frm.get('topPpCancelDateToOnUtc').pristine">
+                  {{validationMessages['default'].required}}</label>
+                <label class="error nowrap"
+                       *ngIf="frm.get('topPpCancelDateToOnUtc').hasError('minDate') && !frm.get('topPpCancelDateToOnUtc').pristine">
+                  {{validationMessages['topPpCancelDateToOnUtc'].maxLength}}</label>
+              </div>
+            </div>
+          </div>
+          <!--<div class="col-lg-12 col-xl-12 left px-1">-->
+            <!--<ng-container *ngFor="let colName of colsName.controls; let index = index; let last = last">-->
+              <!--<span *ngIf="!last && colName.get('name').value"-->
+                    <!--class="status-tags btn btn-defalt m-r-10 m-b-5">-->
+                <!--<span>-->
+                  <!--{{colName.get('name').value}}: {{toStatusString(colName.get('status').value)}}&nbsp;&nbsp;-->
+                <!--</span>-->
+                <!--<a class="close" (click)="removeStatus(index)">×</a>-->
+              <!--</span>-->
+            <!--</ng-container>-->
+          <!--</div>-->
+          <div class="col-lg-12 col-xl-12 left px-1">
+            <div class="row">
+              <div class="col-lg-12 center m-t-10">
+                <button class="btn btn-primary center" type="submit">Search</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </collapse-panel>
+    <div class="row">
+      <div class="col-lg-12 m-t-10 min-h-25">
+        <p class="total-sched">{{topPpSamplesData.totalRecord}} items</p>
+        <a class="pull-left m-l-200" href="javascript:void(0)" (click)="exportOrder('pdf')">
+          <i class="fa fa-file-pdf-o fa-2x text-danger" aria-hidden="true"></i>
+        </a>
+        <div class="mx-1 pull-left">
+          <div ngbDropdown class="d-inline-block" #myFontDrop="ngbDropdown"
+               class="select-size-dropdown"
+               placement="bottom-right"
+               (clickOutside)="myFontDrop.close();"
+               [attachOutsideOnClick]="true">
+            <i class="fa fa-font fa-2x cursor" id="dropdown5" ngbDropdownToggle></i>
+            <div ngbDropdownMenu aria-labelledby="dropdown5">
+              <button class="dropdown-item" *ngFor="let item of fontSizeData"
+                      [ngClass]="{'active': item === fontSize}"
+                      (click)="changeFontSize(item);myFontDrop.close();" type="button">{{item}}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="!isShowAllColumns" ngbDropdown class="select-column-dropdown select-columns pull-left m-l-40 m-r-10"
+             #myDrop="ngbDropdown"
+             autoClose="false"
+             placement="bottom-left"
+             (openChange)="onChangeShowHideColumn($event)"
+             (clickOutside)="myDrop.close()"
+             [attachOutsideOnClick]="true">
+          <i class="fa fa-sliders fa-2x cursor" id="dropdown4" ngbDropdownToggle></i>
+          <div ngbDropdownMenu aria-labelledby="dropdown4">
+            <div class="col-12 px-1">
+              <div class="checkbox">
+                <input type="checkbox" id="all-options4" [checked]="isCheckedAll"
+                       (change)="onCheckedColsAll($event)">
+                <label [style.margin-bottom]="'.2rem'" for="all-options4">All</label>
+              </div>
+            </div>
+            <div class="divider"></div>
+            <div class="">
+              <div class="col-12 px-1" *ngFor="let col of showHideColumns; let i = index">
+                <div class="checkbox">
+                  <input type="checkbox"
+                         [id]="'col-' + i"
+                         [name]="'col-' + i"
+                         [(ngModel)]="col.isView"
+                         (change)="changeCheckedCol($event)">
+                  <label [for]="'col-' + i">{{col.description}}</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="pull-left m-t-5">
+          <a href="javascript:void(0)" *ngIf="!isShowAllColumns"
+             (click)="showAllColumns(true)">Show All Columns</a>
+          <a href="javascript:void(0)" *ngIf="isShowAllColumns"
+             (click)="showAllColumns(false)">Show My Columns</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,182 @@
+﻿schedules-print {
+  .nav {
+    li {
+      min-width: 70px;
+    }
+    li, li > a {
+      position: relative;
+      display: flex;
+    }
+  }
+  .nav-tabs {
+    li {
+      a {
+        font-size: 12px !important;
+      }
+    }
+    .nav-item {
+
+      &.active {
+        a {
+          padding-top: 5px !important;
+          border-color: #ccc !important;
+          border-top: 3px solid #3c8dbc !important;
+          border-bottom: 1px solid #fff !important;
+        }
+        span {
+          font-weight: bold;
+        }
+      }
+    }
+    .nav-link:hover {
+      border-color: #f3f3f3;
+      border-bottom-color: #ccc;
+      font-weight: bold;
+    }
+  }
+  .nav-tabs > li > a {
+    color: #626262;
+    text-transform: none;
+    font-weight: inherit;
+    font-family: "Segoe UI", Arial, sans-serif;
+    padding: 7px 10px !important;
+    font-size: 14px;
+    span {
+      font-weight: 400;
+    }
+  }
+  .nav-tabs > li > a:hover {
+    span {
+      font-weight: 600;
+    }
+  }
+  @media (max-width: 768px) {
+    .nav-tabs {
+      width: 720px;
+    }
+  }
+  .align-right {
+    text-align: right;
+  }
+  .table {
+    border: 1px solid #ccc;
+    text-align: center;
+    thead {
+      th {
+        color: #000;
+        font-weight: 500;
+        font-size: 11px;
+        padding-top: 9px;
+        padding-bottom: 9px;
+      }
+    }
+    tbody {
+      td {
+        padding: 5px;
+        font-size: 11px;
+        height: 20px;
+      }
+    }
+    button {
+      font-size: 11px;
+    }
+  }
+  .print-date-style {
+    font-size: 14px !important;
+    font-weight: bold;
+  }
+  .total-machine {
+    td:not(.red-background) {
+      font-weight: bold;
+      color: white;
+      background-color: #2b3a82 !important;
+    }
+  }
+  .total-pieces {
+    td:not(.red-background) {
+      font-weight: bold;
+      background-color: #c5d9f1 !important;
+    }
+  }
+  .btn-red {
+    color: #fff;
+    background-color:red;
+    border-color: red;
+    &:hover {
+      background-color: #cd0000;
+      border-color: #cd0000;
+    }
+  }
+  .btn-yellow {
+    background-color:yellow;
+    border-color: yellow;
+    &:hover {
+      background-color: #eeee00;
+      border-color: #eeee00;
+    }
+  }
+  .btn-orange {
+    background-color:orange;
+    border-color: orange;
+    color: #fff;
+    &:hover {
+      background-color: #ff7f00;
+      border-color: #ff7f00;
+      color: #fff;
+    }
+  }
+  .btn-green {
+    background-color: green;
+    border-color: green;
+    color: #fff;
+    &:hover {
+      background-color: #00cd00;
+      border-color: #00cd00;
+      color: #fff;
+    }
+  }
+  .maintenance-job {
+    font-size: 16px !important;
+    background-color: #DC3333 !important;
+    color: #FFF;
+    span {
+      font-size: 16px !important;
+      color: #FFF;
+    }
+  }
+  .total-sched {
+    display: inline-block;
+    margin-bottom: 0;
+    position: absolute;
+    top: 10px;
+  }
+  .select-column-dropdown {
+    .dropdown-menu {
+      width: 300px;
+      .checkbox {
+        margin-bottom: 0 !important;
+        margin-top: 0 !important;
+
+        &:after {
+          top: 0.5px;
+        }
+      }
+    }
+  }
+  .m-l-200 {
+    margin-left: 200px;
+  }
+  .min-h-25 {
+    min-height: 25px;
+  }
+  .green-days-tab {
+    border: 2px dashed green;
+  }
+  .archived-cell {
+    // background-color: #eee !important;
+    td:not(.anti-archived-cell):not(.red-cell):not(.resched-cell) {
+      background-color: #eee !important;
+    }
+  }
+}
+

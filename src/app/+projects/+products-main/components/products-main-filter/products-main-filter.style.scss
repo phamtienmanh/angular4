@@ -1,0 +1,46 @@
+products-main-filter {
+  my-date-picker {
+    width: 135px;
+  }
+
+  .export-filter {
+    bottom: -35px;
+    left: 150px;
+    z-index: 99;
+  }
+
+  .status-tags {
+    padding-left: 5px;
+    border-radius: 5px;
+    background-color: #eee;
+    &:hover {
+      background-color: #eee;
+      border: 1px solid #f0f0f0;
+      cursor: text;
+    }
+    .close {
+      position: absolute;
+      top: 1px;
+      height: 0;
+      cursor: pointer;
+      &:hover {
+        color: red;
+      }
+    }
+  }
+  .btn-filter {
+    background-color: #6dc0f9;
+    color: #fff;
+    &:hover {
+      background-color: #3a8fc8;
+      color: #fff;
+    }
+  }
+
+  .checkbox {
+    margin-top: 5px !important;
+    label {
+      margin-right: 0 !important;
+    }
+  }
+}

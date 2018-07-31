@@ -1,0 +1,102 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0 nowrap">Photo Approval @ TSC - Change Status</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()">
+    <lead-eta [rowDetail]="rowDetail" [isPageReadOnly]="isPageReadOnly || isLeadTimeReadOnly"
+              [labelClass]="'col-5'" [controlClass]="'col-7'"></lead-eta>
+    <div class="row flex py-1"
+         [ngClass]="{'required': frm.get('formRequires').value['approvedToSampleStatus'].required}">
+      <div class="col-7">
+        <div class="row">
+          <div class="col-5 col-sm-5 control-label text-right">
+            <label>Status</label>
+          </div>
+          <div class="col-7 col-sm-7"
+               [ngClass]="{'has-error': !frm.get('approvedToSampleStatus').valid,
+                    'disabled': isPageReadOnly}">
+            <ng-select [items]="statusData"
+                       [placeholder]="!isPageReadOnly ? 'Status' : ''"
+                       [searchable]="false" #statusSelect
+                       (focus)="onSelectFocused(statusSelect)"
+                       bindLabel="name"
+                       bindValue="id"
+                       formControlName="approvedToSampleStatus">
+            </ng-select>
+            <label class="error"
+                   *ngIf="frm.get('approvedToSampleStatus').hasError('required') && !frm.get('approvedToSampleStatus').pristine">
+              {{validationMessages['default'].required}}</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ng-container *ngIf="frm.get('approvedToSampleStatus').value && frm.get('approvedToSampleStatus').value !== taskStatus.BLANK">
+      <div class="row py-1">
+        <div class="col-7">
+          <ng-container *ngIf="frm.get('approvedToSampleStatus').value === taskStatus.WAITINGCUSTOMER
+                        || frm.get('approvedToSampleStatus').value === taskStatus.WAITINGINTERNAL">
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['approvedToSampleComment'].required}">
+              <div class="col-5 col-sm-5 control-label text-right">
+                <label class="nowrap">Comments</label>
+              </div>
+              <div class="col-7 col-sm-7 my-textarea"
+                   [ngClass]="{'has-error':!frm.get('approvedToSampleComment').valid}">
+                <textarea formControlName='approvedToSampleComment'
+                          type="text"
+                          [attr.disabled]="isPageReadOnly ? true : null"
+                          [placeholder]="!isPageReadOnly ? 'Comments' : ''"
+                          class="form-control"></textarea>
+                <label class="error"
+                       *ngIf="frm.get('approvedToSampleComment').hasError('required') && !frm.get('approvedToSampleComment').pristine">
+                  {{validationMessages['default'].required}}</label>
+              </div>
+            </div>
+          </ng-container>
+          <ng-container *ngIf="frm.get('approvedToSampleStatus').value === taskStatus.APPROVED">
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['approvedToSampleDateOnUtc'].required}">
+              <div class="col-5 col-sm-5 control-label text-right">
+                <label class="nowrap">Approved Date</label>
+              </div>
+              <div class="col-7 col-sm-7"
+                   [ngClass]="{'has-error':!frm.get('approvedToSampleDateOnUtc').valid}">
+                <my-date-picker class="flex" [options]="myTodayPickerOptions"
+                                #approvedToSampleDatePicker
+                                formControlName='approvedToSampleDate'
+                                [ngClass]="{'disabled': isPageReadOnly}"
+                                [disabled]="isPageReadOnly"
+                                (dateChanged)="onDateChangedBy($event, 'approvedToSampleDateOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, approvedToSampleDatePicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, approvedToSampleDatePicker, frm.get('approvedToSampleDateOnUtc'))"></my-date-picker>
+                <label class="error"
+                       *ngIf="frm.get('approvedToSampleDateOnUtc').hasError('required') && !frm.get('approvedToSampleDateOnUtc').pristine">
+                  {{validationMessages['default'].required}}</label>
+                <label class="error"
+                       *ngIf="frm.get('approvedToSampleDateOnUtc').hasError('maxDate') && !frm.get('approvedToSampleDateOnUtc').pristine">
+                  {{validationMessages['default'].maxLength}}
+                </label>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </ng-container>
+  </form>
+</div>
+<div class="modal-footer">
+  <ng-container *ngIf="!isPageReadOnly">
+    <button class="btn btn-complete"
+            (click)="onSubmitForm()">
+      Save
+    </button>
+  </ng-container>
+  <button class="btn btn-default"
+          (click)="activeModal.dismiss()">
+    Cancel
+  </button>
+</div>
+

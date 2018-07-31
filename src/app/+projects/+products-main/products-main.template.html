@@ -1,0 +1,225 @@
+<!--<div class="row">-->
+<!--<div class="col-sm-12 col-md-8 col-lg-6">-->
+<!--<div class="input-icon">-->
+<!--<input-debounce placeholder="Search by name, category, or project"-->
+<!--title="Search by name, category, or project"-->
+<!--(value)="onSearchChanged($event)" [inputValue]="searchText"></input-debounce>-->
+<!--</div>-->
+<!--</div>-->
+<!--</div>-->
+<!--<hr>-->
+<ul class="nav nav-tabs mb-2">
+  <li class="text-center nav-item" *ngFor="let tab of tabs; let i=index"
+      [ngClass]="{'active': tab.isActive, 'disappear': tab.isDisabled}"
+      (click)="switchTab($event, i)">
+    <a class="justify-center nav-link"
+       href="javascript:void(0)" aria-expanded="true">
+      <span>{{tab.name}}</span>
+    </a>
+  </li>
+</ul>
+<products-main-filter (onUpdateFilter)="onUpdateFilter($event)"
+                      (onFilter)="onFilter($event)"></products-main-filter>
+<!--<div class="row" *ngIf="!isPageReadOnly">-->
+<!--<div class="col-sm-12 col-md-4 col-lg-6 m-b-10">-->
+<!--<button type="button" class="btn btn-complete btn-cons" (click)="addNewProduct()">New Product</button>-->
+<!--</div>-->
+<!--</div>-->
+<div class="py-2" [hidden]="productData.data && productData.data.length">
+  <span class="font-size-16" [ngPlural]="getCurrentTab ? getCurrentTab.id : 0">
+    <ng-template ngPluralCase="1">No products exist in any projects.</ng-template>
+    <ng-template ngPluralCase="2">No products exist in any projects.</ng-template>
+    <ng-template ngPluralCase="3">No priority products exist in any projects.</ng-template>
+    <ng-template ngPluralCase="4">No secondary products exist in any projects.</ng-template>
+    <ng-template ngPluralCase="5">No products have been archived.</ng-template>
+    <ng-template ngPluralCase="other"></ng-template>
+  </span>
+</div>
+<div class="py-2" [hidden]="!productData.data || !productData.data.length" id="productMainTable">
+  <ng-container *ngTemplateOutlet="pagination"></ng-container>
+  <perfect-scrollbar [config]="{suppressScrollX: false}">
+    <div class="table-wrapper" #tableWrapper>
+      <ngx-datatable #productMainTable
+                     class="material striped ngx-table-hover"
+                     [rows]="productData.data"
+                     [columnMode]="'force'"
+                     [footerHeight]="0"
+                     [headerHeight]="'auto'"
+                     [rowHeight]="'auto'"
+                     [externalSorting]="true"
+                     [loadingIndicator]="tableConfig.loading"
+                     [sorts]="[{prop: 'company', dir: 'asc'}]"
+                     (activate)="onActivate($event)"
+                     (sort)="onSort($event)">
+        <ngx-datatable-column
+          [name]="'Visual'"
+          [prop]="'absoluteUrl'"
+          [width]="70"
+          [minWidth]="70"
+          [draggable]="false"
+          [resizeable]="false">
+          <ng-template let-value="value" ngx-datatable-cell-template>
+            <div class="flex justify-content-center">
+              <img class="img-thumbnail-none-wh" [src]="value" height="50" width="50" imgZoomClick/>
+            </div>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'Product Name'"
+          [prop]="'description'"
+          [width]="125"
+          [minWidth]="125"
+          [draggable]="false"
+          [resizeable]="false">
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'Style # / Color'"
+          [prop]="'styleColor'"
+          [width]="125"
+          [minWidth]="125"
+          [draggable]="false"
+          [resizeable]="false">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <p class="my-0">{{row.a2000StyleName}}</p>
+            <p class="my-0">{{row.partnerStyleName}}</p>
+            <p class="my-0">{{row.colorName}}</p>
+          </ng-template>
+        </ngx-datatable-column>
+        <!--<ngx-datatable-column-->
+        <!--[name]="'UPC #'"-->
+        <!--[prop]="'upcNumber'"-->
+        <!--[width]="150"-->
+        <!--[minWidth]="150"-->
+        <!--[draggable]="false"-->
+        <!--[resizeable]="false">-->
+        <!--</ngx-datatable-column>-->
+        <ngx-datatable-column
+          [name]="'Category'"
+          [prop]="'categoryName'"
+          [width]="100"
+          [minWidth]="100"
+          [draggable]="false"
+          [resizeable]="false">
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'Project'"
+          [prop]="'projectName'"
+          [width]="125"
+          [minWidth]="125"
+          [draggable]="false"
+          [resizeable]="false">
+          <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+            <p class="p-link mb-0" (click)="goToProjectDetail(row.projectId, row.type)">{{value}}</p>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'Retailer'"
+          [prop]="'retailerName'"
+          [width]="100"
+          [minWidth]="100"
+          [draggable]="false"
+          [resizeable]="false">
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'Customer'"
+          [prop]="'customerName'"
+          [width]="100"
+          [minWidth]="100"
+          [draggable]="false"
+          [resizeable]="false">
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'Licensor'"
+          [prop]="'licensorName'"
+          [width]="100"
+          [minWidth]="100"
+          [draggable]="false"
+          [resizeable]="false">
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'Licensee'"
+          [prop]="'licenseeName'"
+          [width]="100"
+          [minWidth]="100"
+          [draggable]="false"
+          [resizeable]="false">
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'Type'"
+          [prop]="'type'"
+          [width]="90"
+          [minWidth]="90"
+          [draggable]="false"
+          [resizeable]="false">
+          <ng-template let-value="value" ngx-datatable-cell-template>
+            <span>{{value === 1 ? 'Primary' : value === 2 ? 'Secondary' : ''}}</span>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'Factory'"
+          [prop]="'factoryName'"
+          [width]="100"
+          [minWidth]="100"
+          [draggable]="false"
+          [resizeable]="false">
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="'Regions'"
+          [prop]="'regions'"
+          [width]="100"
+          [minWidth]="100"
+          [draggable]="false"
+          [resizeable]="false">
+          <ng-template let-value="value" ngx-datatable-cell-template>
+            <span>{{value ? value.join(', ') : ''}}</span>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column
+          [name]="''"
+          [width]="110"
+          [minWidth]="110"
+          [maxWidth]="110"
+          [draggable]="false"
+          [resizeable]="false">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <ng-container *ngIf="row.isEdit && !isPageReadOnly">
+              <button class="btn btn-complete btn-small px-2" title="Edit"
+                      (click)="openEditProductPopup(row)"><i class="fa fa-pencil"></i></button>
+              <button class="btn btn-danger btn-small px-2" title="Delete"
+                      (click)="deleteProduct(row)"><i class="fa fa-trash"></i></button>
+              <img class="cursor ml-1" src="../../../assets/img/icons/btn-archive.png" width="26" height="26" title="Archive"
+                   *ngIf="row.status !== productStatus.Archive"
+                   (click)="onArchive(row)"/>
+            </ng-container>
+          </ng-template>
+        </ngx-datatable-column>
+      </ngx-datatable>
+    </div>
+  </perfect-scrollbar>
+  <ng-container *ngTemplateOutlet="paginationTop"></ng-container>
+</div>
+<ng-template #pagination>
+  <pagination-control [totalRecord]="productData.totalRecord"
+                      *ngIf="productData.data && productData.data.length"
+                      [pageName]="'productMain'"
+                      [pageSize]="tableConfig.pageSize"
+                      [currentPage]="tableConfig.currentPage"
+                      (onSelectedPageSize)="onSelectedPageSize($event)"
+                      (onPageChange)="onPageChange($event)">
+    <ng-container left>
+      <a class="mx-1" href="javascript:void(0)" (click)="onExportProducts('xlsx')">
+        <i class="fa fa-file-excel-o fa-2x text-success" aria-hidden="true"></i>
+      </a>
+    </ng-container>
+  </pagination-control>
+</ng-template>
+<ng-template #paginationTop>
+  <pagination-control [totalRecord]="productData.totalRecord"
+                      *ngIf="productData.data && productData.data.length"
+                      [pageName]="'productMain'"
+                      [pageSize]="tableConfig.pageSize"
+                      [currentPage]="tableConfig.currentPage"
+                      [dropdownPosition]="'top-left'"
+                      (onSelectedPageSize)="onSelectedPageSize($event)"
+                      (onPageChange)="onPageChange($event)"></pagination-control>
+</ng-template>

@@ -1,0 +1,17 @@
+<div class="panel panel-transparent">
+  <!--<perfect-scrollbar class="scroll-nav" [config]="{suppressScrollX: false}">-->
+  <ul class="nav nav-tabs">
+    <li class="text-center nav-item" *ngFor="let tab of tabs; let i=index"
+        [ngClass]="{'active': tab.isActive, 'disappear': tab.isDisabled}"
+        (click)="switchTab($event, i)">
+      <a class="justify-center nav-link"
+         href="javascript:void(0)" aria-expanded="true">
+        <span>{{tab.name}}</span>
+      </a>
+    </li>
+  </ul>
+  <!--</perfect-scrollbar>-->
+  <div [ngClass]="{'project-general': currentActivatedTab && [1,2].indexOf(currentActivatedTab.id) === -1}">
+    <router-outlet></router-outlet>
+  </div>
+</div>

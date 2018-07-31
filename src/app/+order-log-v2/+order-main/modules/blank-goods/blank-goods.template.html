@@ -1,0 +1,335 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0">Blank ETA / Rcvd – Change Status</h4>
+  <button type="button" class="close" aria-label="Close" (click)="onClosePopup()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <div class="row" *ngIf="blankGoods && blankGoods.value && blankGoods.value.length">
+    <div class="p-l-f-0"
+         [ngClass]="{'col-sm-3': blankGoods.controls.length >= 3, 'col-sm-4': blankGoods.controls.length === 2, 'col-sm-6': blankGoods.controls.length === 1}">
+      <div class="row flex py-1" style="height: 38px" [ngClass]="{'required': true}">
+        <div class="col-sm-12 control-label text-center">
+          <label>Status</label>
+        </div>
+      </div>
+      <div class="row flex py-1" style="height: 38px" [ngClass]="{'required': true}">
+        <div class="col-sm-12 control-label text-center">
+          <label>Vendor</label>
+        </div>
+      </div>
+      <div class="row flex py-1" style="height: 38px" [ngClass]="{'required': false}">
+        <div class="col-sm-12 control-label text-center">
+          <label>PO #</label>
+        </div>
+      </div>
+      <div class="row flex py-1" style="height: 88px" [ngClass]="{'required': false}">
+        <div class="col-sm-12 control-label text-center">
+          <label>Comments</label>
+        </div>
+      </div>
+      <!--<div class="row flex py-1" style="height: 38px" [ngClass]="{'required': false}">-->
+      <!--<div class="col-sm-12 control-label text-center">-->
+      <!--<label class="nowrap flex justify-content-end">Blank Submission Form(s)</label>-->
+      <!--</div>-->
+      <!--</div>-->
+      <div class="row flex py-1" style="height: 38px">
+        <div class="col-sm-12 control-label text-center">
+          <label class="nowrap">Blank ETA Start Date</label>
+        </div>
+      </div>
+      <div class="row flex py-1" style="height: 38px">
+        <div class="col-sm-12 control-label text-center">
+          <label class="nowrap">Blank ETA End Date</label>
+        </div>
+      </div>
+      <div class="row flex py-1" style="height: 38px">
+        <div class="col-sm-12 control-label text-center">
+          <label class="nowrap">Blank Received Start Date</label>
+        </div>
+      </div>
+      <div class="row flex py-1" style="height: 38px">
+        <div class="col-sm-12 control-label text-center">
+          <label class="nowrap">Blank Received End Date</label>
+        </div>
+      </div>
+      <div class="row flex py-1" style="height: 38px"
+           *ngIf="styleList && styleList.length">
+        <div class="col-sm-12 control-label text-center">
+          <label class="nowrap bold">Apply to these styles</label>
+        </div>
+      </div>
+      <div class="row flex border-top" #labelList
+           *ngFor="let style of styleList; let i = index">
+        <div class="col-sm-12 control-label text-center">
+          <label class="wrap style-name m-b-0">{{getLabelString(style.styleInfo)}}</label>
+        </div>
+      </div>
+    </div>
+    <div
+      [ngClass]="{'col-sm-9': blankGoods.controls.length >= 3, 'col-sm-8': blankGoods.controls.length === 2, 'col-sm-6': blankGoods.controls.length === 1}"
+      style="padding-left: 0">
+      <ng-template [ngIf]="blankGoods.controls.length > 3">
+        <perfect-scrollbar [config]="{suppressScrollX: false}">
+          <ng-container *ngTemplateOutlet="blankGoodsForm"></ng-container>
+        </perfect-scrollbar>
+      </ng-template>
+      <ng-template [ngIf]="blankGoods.controls.length <= 3">
+        <ng-container *ngTemplateOutlet="blankGoodsForm"></ng-container>
+      </ng-template>
+      <ng-template #blankGoodsForm>
+        <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()" (click)="formClick($event)">
+          <div class="row flex-nowrap full-width p-b-5" formArrayName="blankGoods">
+            <div [ngClass]="{'col-sm-4': blankGoods.controls.length >= 3, 'col-sm-6': blankGoods.controls.length === 2,
+                  'col-sm-12': blankGoods.controls.length === 1, 'px-0': blankGoods.controls.length === 1,
+                     'p-l-f-0': blankGoods.controls.length > 1, 'border-right': !last}"
+                 *ngFor="let blankGood of blankGoods.controls; let i = index; let last = last" [formGroupName]="i">
+              <div class="row flex py-1">
+                <div class="col-sm-12"
+                     [ngClass]="{'has-error':!blankGood.get('status').valid, 'disabled': isPageReadOnly}">
+                  <ng-select [items]="statusData"
+                             [placeholder]="!isPageReadOnly ? 'Status' : ''"
+                             [searchable]="false" #statusSelect
+                             (focus)="onSelectFocused(statusSelect)"
+                             (add)="onSelectItem($event, blankGood, 'id', 'status')"
+                             bindLabel="name"
+                             bindValue="id"
+                             formControlName="status"></ng-select>
+                  <label class="error"
+                         *ngIf="blankGood.get('status').hasError('required') && !blankGood.get('status').pristine">
+                    {{validationMessages['default'].required}}</label>
+                </div>
+              </div>
+              <div [ngClass]="{'disappear': +blankGood.get('status').value === taskStatus.BLANK}">
+                <div class="row flex py-1">
+                  <div class="col-sm-12"
+                       [ngClass]="{'has-error':!blankGood.get('vendorId').valid, 'disabled': isPageReadOnly}">
+                    <ng-select [items]="vendorData" #vendorSelect
+                               [placeholder]="!isPageReadOnly ? 'Vendor' : ''"
+                               [virtualScroll]="true"
+                               (focus)="onSelectFocused(vendorSelect)"
+                               (open)="vendorSelect.filterValue = !!blankGood.get('vendorId').value ? blankGood.get('vendorName').value : ''"
+                               (add)="onSelectItem($event, blankGood, 'name', 'vendorName')"
+                               (clear)="blankGood.get('vendorName').patchValue('')"
+                               bindLabel="name"
+                               bindValue="id"
+                               formControlName="vendorId"></ng-select>
+                    <label class="error"
+                           *ngIf="blankGood.get('vendorId').hasError('required') && !blankGood.get('vendorId').pristine">
+                      {{validationMessages['default'].required}}</label>
+                  </div>
+                </div>
+                <div class="row flex py-1"
+                     [ngClass]="{'disappear': blankGood.get('vendorName').value !== null && blankGood.get('vendorName').value !== undefined
+                      && ([
+                          'tee shirt central',
+                          'customer supplies trims',
+                          'tsc',
+                          'tsc warehouse',
+                          'factory 1',
+                          'factory supplies blanks',
+                          'factory 1 warehouse',
+                          'tsc - whs'
+                        ].indexOf(blankGood.get('vendorName').value.toLowerCase()) > -1)}">
+                  <div class="col-sm-12"
+                       [ngClass]="{'has-error':!blankGood.get('poNumber').valid,
+                       'disappear': blankGood.get('status').value === taskStatus.COMPLETED}">
+                    <div class="input-group">
+                      <input formControlName='poNumber'
+                             type="text"
+                             [placeholder]="!isPageReadOnly ? 'PO #' : ''"
+                             [attr.disabled]="isPageReadOnly ? true : null"
+                             class="form-control">
+                      <span class="input-group-addon cursor"
+                            (click)="openUploader(blankGood, styleUploadedType.QA)"
+                            *ngIf="!isPageReadOnly && !checkLengthUploaderByType(blankGood)">
+                          <i class="fa fa-upload" aria-hidden="true"></i>
+                        </span>
+                      <span class="input-group-addon cursor" [ngClass]="{'disabled': isPageReadOnly}"
+                            (click)="openUploader(blankGood, styleUploadedType.QA)"
+                            *ngIf="checkLengthUploaderByType(blankGood)">
+                          <i class="fa fa-eye" [ngStyle]="{'top': '-1px'}" aria-hidden="true"></i>
+                        </span>
+                    </div>
+                    <label class="error"
+                           *ngIf="blankGood.get('poNumber').hasError('required') && !blankGood.get('poNumber').pristine">
+                      {{validationMessages['default'].required}}</label>
+                  </div>
+                </div>
+                <div class="row flex py-1">
+                  <div class="col-sm-12 my-textarea"
+                       [ngClass]="{'has-error':!blankGood.get('comments').valid,
+                       'disappear': blankGood.get('status').value === taskStatus.COMPLETED}">
+                    <textarea formControlName='comments'
+                              type="text"
+                              [placeholder]="!isPageReadOnly ? 'Comments' : ''"
+                              [attr.disabled]="isPageReadOnly ? true : null"
+                              class="form-control"></textarea>
+                    <label class="error"
+                           *ngIf="blankGood.get('comments').hasError('required') && !blankGood.get('comments').pristine">
+                      {{validationMessages['default'].required}}</label>
+                  </div>
+                </div>
+
+                <ng-container
+                  *ngIf="blankGood.get('vendorName').value !== null && blankGood.get('vendorName').value !== undefined
+                      && ([
+                          'tee shirt central',
+                          'customer supplies trims',
+                          'tsc',
+                          'tsc warehouse',
+                          'factory 1',
+                          'factory supplies blanks',
+                          'factory 1 warehouse',
+                          'tsc - whs'
+                        ].indexOf(blankGood.get('vendorName').value.toLowerCase()) === -1); then thenBlock else elseBlock"></ng-container>
+                <ng-template #thenBlock>
+                  <div class="pos-mid"
+                       [ngClass]="{'disappear': +blankGood.get('status').value !== taskStatus.SCHEDULED && +blankGood.get('status').value !== taskStatus.RECEIVED && +blankGood.get('status').value !== taskStatus.PARTIALLYRECEIVED,
+                   'topright': (last && blankGoods.controls.length > 1) || (i === blankGoods.controls.length - 2 && blankGoods.controls.length > 2)}">
+                    <div class="row flex py-1" [style.height]="'38px'">
+                      <div class="col-sm-12"
+                           *ngIf="+blankGood.get('status').value !== taskStatus.RECEIVED
+                               && +blankGood.get('status').value !== taskStatus.PARTIALLYRECEIVED"
+                           [ngClass]="{'has-error':!blankGood.get('estDeliveryDateFromOnUtc').valid}">
+                        <my-date-picker class="flex" [options]="blankGood.get('estDeliveryDateFromOptions').value"
+                                        #estDeliveryDateFromPicker
+                                        formControlName='estDeliveryDateFrom'
+                                        [ngClass]="{'disabled': isPageReadOnly}"
+                                        [disabled]="isPageReadOnly"
+                                        (dateChanged)="onDateChangedBy($event, blankGood, 'estDeliveryDateFromOnUtc')"
+                                        (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, estDeliveryDateFromPicker)"
+                                        (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, estDeliveryDateFromPicker, blankGood.get('estDeliveryDateFromOnUtc'))"></my-date-picker>
+                        <label class="error"
+                               *ngIf="blankGood.get('estDeliveryDateFromOnUtc').hasError('required') && !blankGood.get('estDeliveryDateFromOnUtc').pristine">
+                          {{validationMessages['default'].required}}</label>
+                        <label class="error nowrap"
+                               *ngIf="blankGood.get('estDeliveryDateFromOnUtc').hasError('maxDate') && !blankGood.get('estDeliveryDateFromOnUtc').pristine">
+                          {{validationMessages['estDeliveryDateFromOnUtc'].maxLength}}</label>
+                      </div>
+                      <div class="col-sm-12 span-date" *ngIf="+blankGood.get('status').value === taskStatus.RECEIVED
+                                                          || +blankGood.get('status').value === taskStatus.PARTIALLYRECEIVED">
+                      <span *ngIf="blankGood.get('previousEstDeliveryDateFromOnUtc').value">
+                        {{blankGood.get('previousEstDeliveryDateFromOnUtc').value | amFromUtc | amLocal | amDateFormat: 'MM/DD/YYYY'}}</span>
+                      </div>
+                    </div>
+                    <div class="row flex py-1" [style.height]="'38px'">
+                      <div class="col-sm-12"
+                           *ngIf="+blankGood.get('status').value !== taskStatus.RECEIVED
+                                && +blankGood.get('status').value !== taskStatus.PARTIALLYRECEIVED"
+                           [ngClass]="{'has-error':!blankGood.get('estDeliveryDateToOnUtc').valid}">
+                        <my-date-picker class="flex" [options]="blankGood.get('estDeliveryDateToOptions').value"
+                                        #estDeliveryDateToPicker
+                                        [defaultMonth]="myDatePickerService.configDefaultMonth(blankGood.get('estDeliveryDateFrom').value)"
+                                        formControlName='estDeliveryDateTo'
+                                        [ngClass]="{'disabled': isPageReadOnly}"
+                                        [disabled]="isPageReadOnly"
+                                        (dateChanged)="onDateChangedBy($event, blankGood, 'estDeliveryDateToOnUtc')"
+                                        (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, estDeliveryDateToPicker)"
+                                        (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, estDeliveryDateToPicker, blankGood.get('estDeliveryDateToOnUtc'))"></my-date-picker>
+                        <!--<label class="error"-->
+                        <!--*ngIf="(blankGood.get('formRequires').value['estDeliveryDateToOnUtc'].required && !blankGood.get('estDeliveryDateToOnUtc').value)">-->
+                        <!--{{validationMessages['estDeliveryDateToOnUtc'].required}}</label>-->
+                        <label class="error nowrap"
+                               *ngIf="blankGood.get('estDeliveryDateToOnUtc').hasError('minDate') && !blankGood.get('estDeliveryDateToOnUtc').pristine">
+                          {{validationMessages['estDeliveryDateToOnUtc'].maxLength}}</label>
+                      </div>
+                      <div class="col-sm-12 span-date" *ngIf="+blankGood.get('status').value === taskStatus.RECEIVED
+                                                          || +blankGood.get('status').value === taskStatus.PARTIALLYRECEIVED">
+                      <span *ngIf="blankGood.get('previousEstDeliveryDateToOnUtc').value">
+                        {{blankGood.get('previousEstDeliveryDateToOnUtc').value | amFromUtc | amLocal | amDateFormat: 'MM/DD/YYYY'}}</span>
+                      </div>
+                    </div>
+                  </div>
+                </ng-template>
+                <ng-template #elseBlock>
+                  <div class="warehouse"
+                       [ngClass]="{'disappear': !blankGood.get('vendorName').value
+                        || blankGood.get('vendorName').value === null
+                        || blankGood.get('vendorName').value === undefined
+                        || !blankGood.get('status').value
+                        || +blankGood.get('status').value === taskStatus.COMPLETED
+                        || +blankGood.get('status').value === taskStatus.TBD}">
+                    <span>{{blankGood.get('vendorName').value && ['factory supplies blanks']
+                      .indexOf(blankGood.get('vendorName').value.toLowerCase()) > -1 ? 'Factory' : 'Warehouse'}}</span>
+                  </div>
+                </ng-template>
+
+                <div class="pos-top"
+                     [ngClass]="{'disappear': +blankGood.get('status').value !== taskStatus.RECEIVED && +blankGood.get('status').value !== taskStatus.PARTIALLYRECEIVED,
+                 'topright': (last && blankGoods.controls.length > 1) || (i === blankGoods.controls.length - 2 && blankGoods.controls.length > 2)}">
+                  <div class="row flex py-1" [style.height]="'38px'">
+                    <div class="col-sm-12"
+                         [ngClass]="{'has-error':!blankGood.get('receivedDateFromOnUtc').valid}">
+                      <my-date-picker class="flex" [options]="blankGood.get('receivedDateFromOptions').value"
+                                      #receivedDateFromPicker
+                                      formControlName='receivedDateFrom'
+                                      [ngClass]="{'disabled': isPageReadOnly}"
+                                      [disabled]="isPageReadOnly"
+                                      (dateChanged)="onDateChangedBy($event, blankGood, 'receivedDateFromOnUtc')"
+                                      (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, receivedDateFromPicker)"
+                                      (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, receivedDateFromPicker, blankGood.get('receivedDateFromOnUtc'))"></my-date-picker>
+                      <label class="error"
+                             *ngIf="blankGood.get('receivedDateFromOnUtc').hasError('required') && !blankGood.get('receivedDateFromOnUtc').pristine">
+                        {{validationMessages['default'].required}}</label>
+                      <label class="error nowrap"
+                             *ngIf="blankGood.get('receivedDateFromOnUtc').hasError('maxDate') && !blankGood.get('receivedDateFromOnUtc').pristine">
+                        {{validationMessages['receivedDateFromOnUtc'].maxLength}}</label>
+                    </div>
+                  </div>
+                  <div class="row flex py-1" [style.height]="'38px'">
+                    <div class="col-sm-12"
+                         [ngClass]="{'has-error':!blankGood.get('receivedDateToOnUtc').valid}">
+                      <my-date-picker class="flex" [options]="blankGood.get('receivedDateToOptions').value"
+                                      #receivedDateToPicker
+                                      [defaultMonth]="myDatePickerService.configDefaultMonth(blankGood.get('receivedDateFrom').value)"
+                                      formControlName='receivedDateTo'
+                                      [ngClass]="{'disabled': isPageReadOnly}"
+                                      [disabled]="isPageReadOnly"
+                                      (dateChanged)="onDateChangedBy($event, blankGood, 'receivedDateToOnUtc')"
+                                      (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, receivedDateToPicker)"
+                                      (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, receivedDateToPicker, blankGood.get('receivedDateToOnUtc'))"></my-date-picker>
+                      <!--<label class="error"-->
+                      <!--*ngIf="(blankGood.get('formRequires').value['receivedDateToOnUtc'].required && !blankGood.get('receivedDateToOnUtc').value)">-->
+                      <!--{{validationMessages['receivedDateToOnUtc'].required}}</label>-->
+                      <label class="error nowrap"
+                             *ngIf="blankGood.get('receivedDateToOnUtc').hasError('minDate') && !blankGood.get('receivedDateToOnUtc').pristine">
+                        {{validationMessages['receivedDateToOnUtc'].maxLength}}</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row flex py-1" style="height: 38px"></div>
+              <div formArrayName="styleList">
+                <div class="row flex py-1 border-top" [ngStyle]="{'height': labelHeights[ii]}"
+                     *ngFor="let style of blankGood.get('styleList').controls; let ii = index;" [formGroupName]="ii">
+                  <div class="col-sm-12 center">
+                    <div class="checkbox">
+                      <input type="checkbox" [id]="i + '-style-' + ii"
+                             formControlName='isSelected'
+                             [attr.disabled]="style.get('styleId').value === styleId || isPageReadOnly
+                              || [taskStatus.RECEIVED, taskStatus.PARTIALLYRECEIVED].indexOf(blankGood.get('status').value) > -1 ? true : null">
+                      <label [for]="i + '-style-' + ii">
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </ng-template>
+    </div>
+  </div>
+</div>
+<div class="modal-footer" *ngIf="blankGoods && blankGoods.value && blankGoods.value.length">
+  <button class="btn btn-complete" *ngIf="!isPageReadOnly"
+          (click)="onSubmitForm()">
+    Save
+  </button>
+  <button class="btn btn-default"
+          (click)="onClosePopup()">
+    Cancel
+  </button>
+</div>
+

@@ -1,0 +1,252 @@
+<form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()">
+  <div class="row">
+    <div class="col-lg-6">
+      <div class="row general">
+        <div class="col-lg-12 general-title border-bottom-ccc">
+          <span class="bold">General</span>
+        </div>
+        <div class="col-lg-12 general-body py-2">
+          <div class="row flex general-info m-b-5"
+               [ngClass]="{'required': true}">
+            <div class="col-sm-2 control-label text-right">
+              <label>Company</label>
+            </div>
+            <div class="col-sm-4"
+                 [ngClass]="{'has-error':!frm.get('company').valid}">
+              <input formControlName='company'
+                     type="text"
+                     [placeholder]="!isPageReadOnly ? 'Company' : ''"
+                     class="form-control">
+              <label class="error"
+                     *ngIf="frm.get('company').hasError('required') && !frm.get('company').pristine">
+                {{validationMessages['company'].required}}</label>
+            </div>
+          </div>
+          <div class="row flex general-info m-b-5 name-info"
+               [ngClass]="{'required': true}">
+            <div class="col-sm-2 control-label text-right">
+              <label>Name</label>
+            </div>
+            <div class="col-sm-4"
+                 [ngClass]="{'has-error':!frm.get('firstName').valid}">
+              <input formControlName='firstName'
+                     type="text"
+                     [placeholder]="!isPageReadOnly ? 'First Name' : ''"
+                     class="form-control">
+              <label class="error"
+                     *ngIf="frm.get('firstName').hasError('required') && !frm.get('firstName').pristine">
+                {{validationMessages['firstName'].required}}</label>
+            </div>
+            <div class="col-sm-4"
+                 [ngClass]="{'has-error':!frm.get('lastName').valid}">
+              <input formControlName='lastName'
+                     type="text"
+                     [placeholder]="!isPageReadOnly ? 'Last Name' : ''"
+                     class="form-control">
+              <label class="error"
+                     *ngIf="frm.get('lastName').hasError('required') && !frm.get('lastName').pristine">
+                {{validationMessages['lastName'].required}}</label>
+            </div>
+          </div>
+          <div class="row flex general-info m-b-5"
+               [ngClass]="{'required': false}">
+            <div class="col-sm-2 control-label text-right">
+              <label>Email</label>
+            </div>
+            <div class="col-sm-4"
+                 [ngClass]="{'has-error':!frm.get('email').valid}">
+              <input formControlName='email'
+                     type="text"
+                     [placeholder]="!isPageReadOnly ? 'Email' : ''"
+                     class="form-control">
+              <label class="error"
+                     *ngIf="frm.get('email').hasError('required') && !frm.get('email').pristine">
+                {{validationMessages['email'].required}}</label>
+              <label class="error"
+                     *ngIf="frm.get('email').hasError('pattern') && !frm.get('email').pristine">
+                {{validationMessages['email'].pattern}}</label>
+            </div>
+          </div>
+          <div class="row flex general-info m-b-5"
+               [ngClass]="{'required': false}">
+            <div class="col-sm-2 control-label text-right">
+              <label>Phone</label>
+            </div>
+            <div class="col-sm-4"
+                 [ngClass]="{'has-error':!frm.get('phone').valid}">
+              <input formControlName='phone'
+                     type="text"
+                     [placeholder]="!isPageReadOnly ? 'Phone' : ''"
+                     class="form-control">
+              <label class="error"
+                     *ngIf="frm.get('phone').hasError('required') && !frm.get('phone').pristine">
+                {{validationMessages['phone'].required}}</label>
+            </div>
+          </div>
+          <div class="row flex general-info">
+            <div class="col-sm-2 control-label text-right">
+              <label>Fax</label>
+            </div>
+            <div class="col-sm-4"
+                 [ngClass]="{'has-error':!frm.get('fax').valid}">
+              <input formControlName='fax'
+                     type="text"
+                     [placeholder]="!isPageReadOnly ? 'Fax' : ''"
+                     class="form-control">
+              <label class="error"
+                     *ngIf="frm.get('fax').hasError('required') && !frm.get('fax').pristine">
+                {{validationMessages['fax'].required}}</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row general">
+        <div class="col-lg-12 general-title border-bottom-ccc">
+          <span class="bold">Contact</span>
+        </div>
+        <div class="col-lg-12 general-body">
+          <div formArrayName="contacts">
+            <div class="py-2" *ngFor="let contact of contacts.controls; let i=index; let last=last" [formGroupName]="i" >
+              <div class="row flex general-info name-info m-b-5"
+                   [ngClass]="{'required': false}">
+                <div class="col-sm-2 control-label text-right">
+                  <label>Name</label>
+                </div>
+                <div class="col-sm-4"
+                     [ngClass]="{'has-error':!contact.get('firstName').valid}">
+                  <input formControlName='firstName'
+                         type="text"
+                         [placeholder]="!isPageReadOnly ? 'First Name' : ''"
+                         class="form-control">
+                  <label class="error"
+                         *ngIf="contact.get('firstName').hasError('required') && !contact.get('firstName').pristine">
+                    {{validationMessages['firstName'].required}}</label>
+                </div>
+                <div class="col-sm-4"
+                     [ngClass]="{'has-error':!contact.get('lastName').valid}">
+                  <input formControlName='lastName'
+                         type="text"
+                         [placeholder]="!isPageReadOnly ? 'Last Name' : ''"
+                         class="form-control">
+                  <label class="error"
+                         *ngIf="contact.get('lastName').hasError('required') && !contact.get('lastName').pristine">
+                    {{validationMessages['lastName'].required}}</label>
+                </div>
+              </div>
+              <div class="row flex general-info m-b-5"
+                   [ngClass]="{'required': false}">
+                <div class="col-sm-2 control-label text-right">
+                  <label>Email</label>
+                </div>
+                <div class="col-sm-4"
+                     [ngClass]="{'has-error':!contact.get('email').valid}">
+                  <input formControlName='email'
+                         type="text"
+                         [placeholder]="!isPageReadOnly ? 'Email' : ''"
+                         class="form-control">
+                  <label class="error"
+                         *ngIf="contact.get('email').hasError('required') && !contact.get('email').pristine">
+                    {{validationMessages['email'].required}}</label>
+                  <label class="error"
+                         *ngIf="contact.get('email').hasError('pattern') && !contact.get('email').pristine">
+                    {{validationMessages['email'].pattern}}</label>
+                </div>
+              </div>
+              <div class="row flex general-info m-b-5"
+                   [ngClass]="{'required': false}">
+                <div class="col-sm-2 control-label text-right">
+                  <label>Phone</label>
+                </div>
+                <div class="col-sm-4"
+                     [ngClass]="{'has-error':!contact.get('phone').valid}">
+                  <input formControlName='phone'
+                         type="text"
+                         [placeholder]="!isPageReadOnly ? 'Phone' : ''"
+                         class="form-control">
+                  <label class="error"
+                         *ngIf="contact.get('phone').hasError('required') && !contact.get('phone').pristine">
+                    {{validationMessages['phone'].required}}</label>
+                </div>
+              </div>
+              <div class="row flex general-info">
+                <div class="col-sm-2 control-label text-right">
+                  <label>Fax</label>
+                </div>
+                <div class="col-sm-4"
+                     [ngClass]="{'has-error':!contact.get('fax').valid}">
+                  <input formControlName='fax'
+                         type="text"
+                         [placeholder]="!isPageReadOnly ? 'Fax' : ''"
+                         class="form-control">
+                  <label class="error"
+                         *ngIf="contact.get('fax').hasError('required') && !contact.get('fax').pristine">
+                    {{validationMessages['fax'].required}}</label>
+                </div>
+              </div>
+              <div class="row flex general-info">
+                <div class="col-sm-6">
+                  <button class="btn btn-complete pull-left" type="button" (click)="addContact()" *ngIf="last">+ Add a Contact</button>
+                </div>
+                <div class="col-sm-6">
+                  <button type="button" class="btn btn-danger pull-right" (click)="deleteContact(i)">
+                    Delete This Contact
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="py-2" *ngIf="!contacts.value.length">
+              <button class="btn btn-complete" type="button" (click)="addContact()">+ Add a Contact</button>
+            </div>
+            <hr class="m-t-5 m-b-20">
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button class="btn btn-complete" *ngIf="customerInfo?.id"
+                  type="submit">
+            Save
+          </button>
+          <button class="btn btn-complete" *ngIf="!customerInfo?.id"
+                  type="submit">
+            Save
+          </button>
+          <!--<button class="btn btn-default" (click)="cancel()">-->
+          <!--Cancel-->
+          <!--</button>-->
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6 flex justify-content-center">
+      <div class="my-avatar" [ngClass]="{'show-upload': !isPageReadOnly}">
+        <img [src]="frm.get('absoluteLogoUrl').value || '../../../assets/img/customicon.ico'"
+             class="show-avatar"/>
+        <span *ngIf="frm.get('absoluteLogoUrl').value && !isPageReadOnly"
+              class="remove-avatar" (click)="removeAvatar()">
+              <i aria-hidden="true" class="fa fa-times"></i>
+            </span>
+
+        <label class="pick-avatar" for="avatarPicker">
+          <div>
+            <i class="fa fa-camera fa-5x"></i>
+          </div>
+        </label>
+        <input id="avatarPicker"
+               type="file" ng2FileSelect
+               [uploader]="uploader"
+               (change)="uploadAvatar()"/>
+      </div>
+    </div>
+  </div>
+
+  <div class="sticky-btn" *ngIf="isShowStickyBtn">
+      <button class="btn btn-complete" *ngIf="customerInfo?.id"
+              type="submit">
+        Save
+      </button>
+      <button class="btn btn-complete" *ngIf="!customerInfo?.id"
+              type="submit">
+        Save
+      </button>
+  </div>
+</form>

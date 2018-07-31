@@ -1,0 +1,105 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0">QA - Change Status</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()">
+    <div class="row flex py-1"
+         [ngClass]="{'required': true}">
+      <div class="col-sm-2 control-label text-right">
+        <label>Status</label>
+      </div>
+      <div class="col-sm-9"
+           [ngClass]="{'has-error':!frm.get('status').valid}">
+        <ng-select [items]="statusData" #statusSelect
+                   [placeholder]="'Status'"
+                   [searchable]="false"
+                   (focus)="onSelectFocused(statusSelect)"
+                   bindLabel="name"
+                   bindValue="id"
+                   formControlName="status"></ng-select>
+        <label class="error"
+               *ngIf="frm.get('status').hasError('required') && !frm.get('status').pristine">
+          {{validationMessages['default'].required}}</label>
+      </div>
+    </div>
+    <div class="row py-1">
+      <div class="col-sm-2 control-label text-right">
+        <label></label>
+      </div>
+      <div class="col-sm-9">
+        <perfect-scrollbar [config]="{suppressScrollX: false}" id="perfect-scrollbar">
+          <div class="table-wrapper" #tableWrapper>
+            <table class="table table-sm size-table"
+                   *ngIf="topPulleds.controls && topPulleds.controls.length">
+              <thead>
+              <tr>
+                <th>Qty Type</th>
+                <th *ngFor="let size of topPulleds.controls">
+                  {{size.get('size').value}}
+                </th>
+                <th>
+                  Total
+                </th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr formArrayName="tops">
+                <td>{{qtyLabel}} Qty Requested</td>
+                <td *ngFor="let size of tops.controls; let index = index">
+                  {{size.get('qty').value}}
+                </td>
+                <td>
+                  {{calTotal(tops)}}
+                </td>
+              </tr>
+              <tr formArrayName="topPulleds">
+                <td>{{qtyLabel}} Qty Pulled</td>
+                <td *ngFor="let size of topPulleds.controls; let index = index">
+                  <ng-container [formGroupName]="index">
+                    <input *ngIf="frm.get('status').value === taskStatus.PASS"
+                           formControlName="qty"
+                           (focus)="onFocus($event)"
+                           (keyup)="onKeyUp($event)"
+                           (blur)="onBlur($event, size)"
+                           IntegerNumber
+                           type="text"
+                           class="text-center p-link"
+                           [style.color]="topPulleds['required']
+                              || topPulleds['invalidValue'] ? 'red' : ''"/>
+                    <span *ngIf="frm.get('status').value !== taskStatus.PASS">
+                      {{size.get('qty').value}}
+                    </span>
+                  </ng-container>
+                </td>
+                <td>
+                  {{calTotal(topPulleds)}}
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </perfect-scrollbar>
+        <label class="error"
+               *ngIf="topPulleds['required'] && !frm.get('topPulleds').pristine">
+          {{validationMessages['topPulleds'].required}}</label>
+        <label class="error"
+               *ngIf="topPulleds['invalidValue'] && !frm.get('topPulleds').pristine">
+          {{validationMessages['topPulleds'].invalidValue}}</label>
+      </div>
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-complete"
+          (click)="onSubmitForm()">
+    Save
+  </button>
+  <button class="btn btn-default"
+          (click)="activeModal.dismiss()">
+    Cancel
+  </button>
+</div>
+

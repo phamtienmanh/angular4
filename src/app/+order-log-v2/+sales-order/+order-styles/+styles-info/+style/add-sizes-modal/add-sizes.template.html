@@ -1,0 +1,28 @@
+<div class="modal-header m-b-10">
+  <h4 class="modal-title">Select Sizes(s)</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.close(false)">
+    <span aria-hidden="true">×</span>
+  </button>
+</div>
+<div class="modal-body">
+  <div class="table">
+    <ng-container *ngFor="let size of sizeSelectionsOrdered; let i = index">
+      <button class="btn mx-1 m-b-5"
+              [ngClass]="{'btn-success': size.isSelected, 'btn-default': !size.isSelected}"
+              (click)="size.isSelected = !size.isSelected">
+        {{size.name}}
+      </button>
+      <p *ngIf="sizeSelectionsOrdered[i + 1] && size.type !== sizeSelectionsOrdered[i + 1].type"></p>
+    </ng-container>
+  </div>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-complete"
+          (click)="onSubmit()">
+    OK
+  </button>
+  <button class="btn btn-default"
+          (click)="activeModal.close(false)">
+    Cancel
+  </button>
+</div>

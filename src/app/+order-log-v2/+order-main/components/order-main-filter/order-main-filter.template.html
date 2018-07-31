@@ -1,0 +1,365 @@
+<div class="row pb-2 separate-border relative">
+  <div class="col-sm-12">
+    <collapse-panel [formValue]="searchedObj">
+      <form class="full-width" [formGroup]="frm" role="form" novalidate="" (ngSubmit)="filter()">
+        <div class="row">
+          <div class="col-lg-6 col-xl-6">
+            <div class="row">
+              <div class="col-sm-6 col-lg-6 col-xl-6">
+                <div class="row align-items-center m-b-5">
+                  <div class="col-4 col-sm-4 col-lg-4">
+                    <span class="right nowrap">Account Manager:</span>
+                  </div>
+                  <div class="col-8 col-sm-8 col-lg-8">
+                    <ng-select [items]="csrsData"
+                               [placeholder]="'Account Manager'"
+                               [searchable]="false" #csrsSelect
+                               (focus)="onSelectFocused(csrsSelect)"
+                               bindLabel="fullName"
+                               bindValue="fullName"
+                               formControlName="csr"></ng-select>
+                  </div>
+                </div>
+                <div class="row align-items-center m-b-5">
+                  <div class="col-4 col-sm-4 col-lg-4">
+                    <span class="right nowrap">PO #:</span>
+                  </div>
+                  <div class="col-8 col-sm-8 col-lg-8">
+                    <input type="text" (keyup)="onKeyup($event)"
+                           name="poId"
+                           [placeholder]="'PO #'"
+                           formControlName='poId'
+                           class="form-control">
+                  </div>
+                </div>
+                <div class="row align-items-center m-b-5">
+                  <div class="col-4 col-sm-4 col-lg-4">
+                    <span class="right nowrap">Order Type:</span>
+                  </div>
+                  <div class="col-8 col-sm-8 col-lg-8">
+                    <ng-select [items]="orderTypeData"
+                               [placeholder]="'Order Type'"
+                               [searchable]="false" #orderTypeSelect
+                               (focus)="onSelectFocused(orderTypeSelect)"
+                               bindLabel="name"
+                               bindValue="id"
+                               formControlName="fulfillmentType"></ng-select>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-lg-6 col-xl-6">
+                <div class="row align-items-center m-b-5">
+                  <div class="col-4 col-sm-4 col-lg-4">
+                    <span class="right">Customer:</span>
+                  </div>
+                  <div class="col-8 col-sm-8 col-lg-8">
+                    <input type="text" (keyup)="onKeyup($event)"
+                           name="customer"
+                           [placeholder]="'Customer Name'"
+                           formControlName='customer'
+                           class="form-control">
+                  </div>
+                </div>
+                <div class="row align-items-center m-b-5">
+                  <div class="col-4 col-sm-4 col-lg-4">
+                    <span class="right">Style Name:</span>
+                  </div>
+                  <div class="col-8 col-sm-8 col-lg-8">
+                    <input type="text" (keyup)="onKeyup($event)"
+                           name="designName"
+                           [placeholder]="'Style Name'"
+                           formControlName='designName'
+                           class="form-control">
+                  </div>
+                </div>
+                <div class="row align-items-center m-b-5">
+                  <div class="col-4 col-sm-4 col-lg-4">
+                    <span class="right nowrap">Item Type:</span>
+                  </div>
+                  <div class="col-8 col-sm-8 col-lg-8">
+                    <ng-select [items]="itemTypeData"
+                               [multiple]="true"
+                               [closeOnSelect]="false"
+                               [hideSelected]="true"
+                               [placeholder]="'Item Type'"
+                               [searchable]="false" #itemTypeSelect
+                               (focus)="onSelectFocused(itemTypeSelect)"
+                               bindLabel="name"
+                               formControlName="itemType"></ng-select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row" formArrayName="colsName">
+              <ng-container
+                *ngFor="let colName of colsName.controls; trackBy: trackByFn; let index = index; let last = last"
+                [formGroupName]="index">
+                <div class="col-lg-12 col-sm-12 m-b-5" *ngIf="last">
+                  <div class="row">
+                    <div class="col-4 col-sm-2 col-lg-2">
+                      <span class="right nowrap m-t-5">Status:</span>
+                    </div>
+                    <div class="col-8 col-sm-5 col-lg-5">
+                      <ng-select [items]="colNameData"
+                                 [placeholder]="'Column Name'" #colNameSelect
+                                 (focus)="onSelectFocused(colNameSelect)"
+                                 bindLabel="name"
+                                 bindValue="id"
+                                 formControlName="id"
+                                 (change)="onChangeColName($event, colName)"></ng-select>
+                    </div>
+                    <div class="col-12 col-sm-5 col-lg-5" *ngIf="last"
+                         [ngClass]="{'none': !colName.get('id').value,
+                    'has-error': colName.get('status').invalid}">
+                      <div class="row">
+                        <div class="col-4 hidden-sm hidden-lg hidden-xl"></div>
+                        <div class="col-8 col-sm-9 col-lg-9">
+                          <ng-select [items]="listColumnStatus"
+                                     [multiple]="true"
+                                     [closeOnSelect]="false"
+                                     [hideSelected]="true"
+                                     [placeholder]="'Status'"
+                                     [searchable]="false" #listColumnSelect
+                                     (focus)="onSelectFocused(listColumnSelect)"
+                                     bindLabel="name"
+                                     formControlName="status">
+                          </ng-select>
+                          <label class="error"
+                                 *ngIf="colName.get('status').hasError('required') && !colName.get('status').pristine">
+                            {{validationMessages['default'].required}}</label>
+                        </div>
+                        <button class="btn btn-default btn-filter col-12 col-sm-3" style="height: 26px"
+                                (click)="addColName()">Add Filter
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+          <div class="col-lg-6 col-xl-6">
+            <div class="row m-b-5">
+              <div class="col-2">
+                <span class="right nowrap m-t-5">Order Date:</span>
+              </div>
+              <div class="p-l-5"
+                   [ngClass]="{'has-error':!frm.get('orderDateBeginOnUtc').valid}">
+                <my-date-picker class="flex" [options]="orderDateBeginOptions"
+                                #orderDateBeginPicker
+                                [defaultMonth]="myDatePickerService.configDefaultMonth(frm.get('orderDateEnd').value, true)"
+                                formControlName='orderDateBegin'
+                                (dateChanged)="onDateChanged($event, 'orderDateBeginOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, orderDateBeginPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, orderDateBeginPicker, frm.get('orderDateBeginOnUtc'))"></my-date-picker>
+                <!--<label class="error nowrap"-->
+                <!--*ngIf="frm.get('orderDateBeginOnUtc').hasError('pattern') && !frm.get('orderDateBeginOnUtc').pristine">-->
+                <!--{{validationMessages['default'].pattern}}</label>-->
+                <label class="error nowrap"
+                       *ngIf="frm.get('orderDateBeginOnUtc').hasError('maxDate') && !frm.get('orderDateBeginOnUtc').pristine">
+                  {{validationMessages['orderDateBeginOnUtc'].maxLength}}</label>
+              </div>
+              <div class="flex center">
+                <span class="px-2 m-t-4">to</span>
+              </div>
+              <div class=""
+                   [ngClass]="{'has-error':!frm.get('orderDateEndOnUtc').valid}">
+                <my-date-picker class="flex" [options]="orderDateEndOptions"
+                                #orderDateEndPicker
+                                [defaultMonth]="myDatePickerService.configDefaultMonth(frm.get('orderDateBegin').value)"
+                                formControlName='orderDateEnd'
+                                (dateChanged)="onDateChanged($event, 'orderDateEndOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, orderDateEndPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, orderDateEndPicker, frm.get('orderDateEndOnUtc'))"></my-date-picker>
+                <!--<label class="error nowrap"-->
+                <!--*ngIf="frm.get('orderDateEndOnUtc').hasError('pattern') && !frm.get('orderDateEndOnUtc').pristine">-->
+                <!--{{validationMessages['default'].pattern}}</label>-->
+                <label class="error nowrap"
+                       *ngIf="frm.get('orderDateEndOnUtc').hasError('minDate') && !frm.get('orderDateEndOnUtc').pristine">
+                  {{validationMessages['orderDateEndOnUtc'].maxLength}}</label>
+              </div>
+              <div class="checkbox my-0 ml-3">
+                <input type="checkbox" id="isExcludeSmpl"
+                       formControlName='isExcludeSmpl'>
+                <label class="my-0" for="isExcludeSmpl">Exclude SMPL Orders</label>
+              </div>
+            </div>
+            <div class="row m-b-5">
+              <div class="col-2">
+                <span class="right nowrap m-t-5">Start Date:</span>
+              </div>
+              <div class="p-l-5"
+                   [ngClass]="{'has-error':!frm.get('startDateBeginOnUtc').valid}">
+                <my-date-picker class="flex" [options]="startDateBeginOptions"
+                                #startDateBeginPicker
+                                [defaultMonth]="myDatePickerService.configDefaultMonth(frm.get('startDateEnd').value, true)"
+                                formControlName='startDateBegin'
+                                (dateChanged)="onDateChanged($event, 'startDateBeginOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, startDateBeginPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, startDateBeginPicker, frm.get('startDateBeginOnUtc'))"></my-date-picker>
+                <!--<label class="error nowrap"-->
+                <!--*ngIf="frm.get('startDateBeginOnUtc').hasError('pattern') && !frm.get('startDateBeginOnUtc').pristine">-->
+                <!--{{validationMessages['default'].pattern}}</label>-->
+                <label class="error nowrap"
+                       *ngIf="frm.get('startDateBeginOnUtc').hasError('maxDate') && !frm.get('startDateBeginOnUtc').pristine">
+                  {{validationMessages['startDateBeginOnUtc'].maxLength}}</label>
+              </div>
+              <div class="px-2 flex center">
+                <span class="m-t-4">to</span>
+              </div>
+              <div class=""
+                   [ngClass]="{'has-error':!frm.get('startDateEndOnUtc').valid}">
+                <my-date-picker class="flex" [options]="startDateEndOptions"
+                                #startDateEndPicker
+                                [defaultMonth]="myDatePickerService.configDefaultMonth(frm.get('startDateBegin').value)"
+                                formControlName='startDateEnd'
+                                (dateChanged)="onDateChanged($event, 'startDateEndOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, startDateEndPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, startDateEndPicker, frm.get('startDateEndOnUtc'))"></my-date-picker>
+                <!--<label class="error nowrap"-->
+                <!--*ngIf="frm.get('startDateEndOnUtc').hasError('pattern') && !frm.get('startDateEndOnUtc').pristine">-->
+                <!--{{validationMessages['default'].pattern}}</label>-->
+                <label class="error nowrap"
+                       *ngIf="frm.get('startDateEndOnUtc').hasError('minDate') && !frm.get('startDateEndOnUtc').pristine">
+                  {{validationMessages['startDateEndOnUtc'].maxLength}}</label>
+              </div>
+            </div>
+            <div class="row m-b-5">
+              <div class="col-2">
+                <span class="right nowrap m-t-5">Cancel Date:</span>
+              </div>
+              <div class="p-l-5"
+                   [ngClass]="{'has-error':!frm.get('cancelDateBeginOnUtc').valid}">
+                <my-date-picker class="flex" [options]="cancelDateBeginOptions"
+                                #cancelDateBeginPicker
+                                [defaultMonth]="myDatePickerService.configDefaultMonth(frm.get('cancelDateEnd').value, true)"
+                                formControlName='cancelDateBegin'
+                                (dateChanged)="onDateChanged($event, 'cancelDateBeginOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, cancelDateBeginPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, cancelDateBeginPicker, frm.get('cancelDateBeginOnUtc'))"></my-date-picker>
+                <!--<label class="error nowrap"-->
+                <!--*ngIf="frm.get('cancelDateBeginOnUtc').hasError('pattern') && !frm.get('cancelDateBeginOnUtc').pristine">-->
+                <!--{{validationMessages['default'].pattern}}</label>-->
+                <label class="error nowrap"
+                       *ngIf="frm.get('cancelDateBeginOnUtc').hasError('maxDate') && !frm.get('cancelDateBeginOnUtc').pristine">
+                  {{validationMessages['cancelDateBeginOnUtc'].maxLength}}</label>
+              </div>
+              <div class="px-2 flex center">
+                <span class="m-t-4">to</span>
+              </div>
+              <div class=""
+                   [ngClass]="{'has-error':!frm.get('cancelDateEndOnUtc').valid}">
+                <my-date-picker class="flex" [options]="cancelDateEndOptions"
+                                #cancelDateEndPicker
+                                [defaultMonth]="myDatePickerService.configDefaultMonth(frm.get('cancelDateBegin').value)"
+                                formControlName='cancelDateEnd'
+                                (dateChanged)="onDateChanged($event, 'cancelDateEndOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, cancelDateEndPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, cancelDateEndPicker, frm.get('cancelDateEndOnUtc'))"></my-date-picker>
+                <!--<label class="error nowrap"-->
+                <!--*ngIf="frm.get('cancelDateEndOnUtc').hasError('pattern') && !frm.get('cancelDateEndOnUtc').pristine">-->
+                <!--{{validationMessages['default'].pattern}}</label>-->
+                <label class="error nowrap"
+                       *ngIf="frm.get('cancelDateEndOnUtc').hasError('minDate') && !frm.get('cancelDateEndOnUtc').pristine">
+                  {{validationMessages['cancelDateEndOnUtc'].maxLength}}</label>
+              </div>
+            </div>
+            <div class="row m-b-5">
+              <div class="col-2">
+                <span class="right nowrap m-t-5">Ship Date:</span>
+              </div>
+              <div class="p-l-5"
+                   [ngClass]="{'has-error':!frm.get('shipDateBeginOnUtc').valid}">
+                <my-date-picker class="flex" [options]="shipDateBeginOptions"
+                                #shipDateBeginPicker
+                                [defaultMonth]="myDatePickerService.configDefaultMonth(frm.get('shipDateEnd').value, true)"
+                                formControlName='shipDateBegin'
+                                (dateChanged)="onDateChanged($event, 'shipDateBeginOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, shipDateBeginPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, shipDateBeginPicker, frm.get('shipDateBeginOnUtc'))"></my-date-picker>
+                <!--<label class="error nowrap"-->
+                <!--*ngIf="frm.get('shipDateBeginOnUtc').hasError('pattern') && !frm.get('shipDateBeginOnUtc').pristine">-->
+                <!--{{validationMessages['default'].pattern}}</label>-->
+                <label class="error nowrap"
+                       *ngIf="frm.get('shipDateBeginOnUtc').hasError('maxDate') && !frm.get('shipDateBeginOnUtc').pristine">
+                  {{validationMessages['shipDateBeginOnUtc'].maxLength}}</label>
+              </div>
+              <div class="px-2 flex center">
+                <span class="m-t-4">to</span>
+              </div>
+              <div class=""
+                   [ngClass]="{'has-error':!frm.get('shipDateEndOnUtc').valid}">
+                <my-date-picker class="flex" [options]="shipDateEndOptions"
+                                #shipDateEndPicker
+                                [defaultMonth]="myDatePickerService.configDefaultMonth(frm.get('shipDateBegin').value)"
+                                formControlName='shipDateEnd'
+                                (dateChanged)="onDateChanged($event, 'shipDateEndOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, shipDateEndPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, shipDateEndPicker, frm.get('shipDateEndOnUtc'))"></my-date-picker>
+                <!--<label class="error nowrap"-->
+                <!--*ngIf="frm.get('shipDateEndOnUtc').hasError('pattern') && !frm.get('shipDateEndOnUtc').pristine">-->
+                <!--{{validationMessages['default'].pattern}}</label>-->
+                <label class="error nowrap"
+                       *ngIf="frm.get('shipDateEndOnUtc').hasError('minDate') && !frm.get('shipDateEndOnUtc').pristine">
+                  {{validationMessages['shipDateEndOnUtc'].maxLength}}</label>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-12 col-xl-12 left px-1">
+            <ng-container
+              *ngFor="let colName of colsName.controls; trackBy: trackByFn; let index = index; let last = last">
+              <span *ngIf="!last && colName.get('name').value"
+                    class="status-tags btn m-r-10 m-b-5">
+                <span>
+                  {{colName.get('name').value}}: {{toStatusString(colName.get('status').value)}}&nbsp;&nbsp;
+                </span>
+                <a class="close" (click)="removeStatus(index)">×</a>
+              </span>
+            </ng-container>
+          </div>
+          <div class="col-lg-12 col-xl-12 left px-1">
+            <div class="row">
+              <div class="col-lg-12 center ">
+                <button class="btn btn-primary center" type="submit">Search</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </collapse-panel>
+  </div>
+  <div class="absolute export-filter" *ngIf="isHaveData">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="flex justify-content-end">
+          <a class="mx-1" href="javascript:void(0)" (click)="exportBulkPo('xlsx')" *ngIf="isShowExportBulkPo">
+            <i class="fa fa-newspaper-o fa-2x text-success" aria-hidden="true"></i>
+          </a>
+          <!-- <a class="mx-1" href="javascript:void(0)" (click)="exportOrder('pdf')">
+            <i class="fa fa-file-pdf-o fa-2x text-danger" aria-hidden="true"></i>
+          </a> -->
+          <a class="mx-1" href="javascript:void(0)" (click)="exportOrder('xlsx')">
+            <i class="fa fa-file-excel-o fa-2x text-success" aria-hidden="true"></i>
+          </a>
+          <div class="mx-1">
+            <div ngbDropdown class="d-inline-block" #myFontDrop="ngbDropdown"
+                 class="select-size-dropdown"
+                 placement="bottom-right"
+                 (clickOutside)="myFontDrop.close();"
+                 [attachOutsideOnClick]="true">
+              <i class="fa fa-font fa-2x cursor" id="dropdown5" ngbDropdownToggle></i>
+              <div ngbDropdownMenu aria-labelledby="dropdown5">
+                <button class="dropdown-item" *ngFor="let item of fontSizeData"
+                        [ngClass]="{'active': item === fontSize}"
+                        (click)="changeFontSize(item);myFontDrop.close();">{{item}}
+                </button>
+              </div>
+            </div>
+          </div>
+          <img class="cursor mx-1" width="25" height="25" (click)="exportLayout('pdf')" *ngIf="canExportLayout"
+               src="../../../../../assets/img/icons/grid-3x3.png" title="Layout Report">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

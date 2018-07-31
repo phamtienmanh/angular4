@@ -1,0 +1,138 @@
+packaging-approved {
+  .border-btm {
+    border-bottom: 1px solid #ddd;
+  }
+  .m-l--10 {
+    margin-left: -10px;
+  }
+  .hr-space {
+    position: absolute;
+    margin: 0 0 0 -10px;
+  }
+
+  .p-l-f-0 {
+    padding-right: 25px !important;
+
+    div.row > div {
+      padding-right: 0 !important;
+    }
+  }
+  .none-left {
+    .selector {
+      left: 0 !important;
+    }
+  }
+
+  my-date-picker .mydp {
+    //.btnpicker {
+    //  visibility: hidden;
+    //}
+    //.btnclear {
+    //  position: absolute;
+    //}
+    .selector.selectorarrow.selectorarrowleft {
+      left: 0 !important;
+      bottom: -60px !important;
+    }
+  }
+
+  .error {
+    position: absolute;
+    z-index: 9;
+  }
+
+  .border-right {
+    border-right: 1px solid #ddd;
+  }
+
+  .span-date {
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .full-height-trim {
+    height: 100%;
+    perfect-scrollbar {
+      height: 100%;
+      .ps-content {
+        height: 100%;
+        & > div:nth-of-type(2) {
+          height: 93%;
+        }
+      }
+    }
+  }
+
+  label.error {
+    height: 10px !important;
+    line-height: 8.5px !important;
+    font-size: 10px !important;
+  }
+
+  .my-textarea {
+    textarea {
+      min-height: 60px !important;
+    }
+  }
+
+  .btn-upload {
+    position: relative;
+    top: 5px;
+    padding-left: 0 !important;
+  }
+
+  .upload-box {
+    width: 100%;
+    height: 120px;
+    border: 2px dashed #e8e8e8;
+    display: table;
+    &.nv-file-over {
+      border-color: #5cb85c !important;
+    }
+    .contain {
+      vertical-align: middle;
+      display: table-cell;
+      .icon {
+        .fa {
+          font-size: 30px;
+          color: #5cb85c;
+        }
+      }
+      .text {
+        color: #000000;
+      }
+      .button {
+        .btn {
+          width: 110px;
+          font-size: 20px;
+          background: transparent;
+          border-color: #5cb85c;
+          color: #5cb85c;
+          padding: 12px 0;
+        }
+      }
+    }
+  }
+  .showImage {
+    &:hover {
+      .remove-image {
+        display: block;
+      }
+    }
+    .remove-image {
+      display: none;
+      position: absolute;
+      cursor: pointer;
+      z-index: 1;
+      font-size: 20px;
+      line-height: 20px;
+      background-color: red;
+      color: #fff;
+      padding: 0 2px;
+      top: 0;
+      right: 0;
+    }
+  }
+}

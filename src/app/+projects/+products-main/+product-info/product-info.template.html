@@ -1,0 +1,357 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0 nowrap">{{!productId ? 'New ' : 'Edit '}} Product</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()">
+    <div class="row flex py-1">
+      <div class="col-7">
+        <div class="row py-1"
+             [ngClass]="{'required': frm.get('formRequires').value['description'].required}">
+          <div class="col-4 control-label text-right">
+            <label>Description</label>
+          </div>
+          <div class="col-8"
+               [ngClass]="{'has-error': !frm.get('description').valid}">
+            <input formControlName='description'
+                   type="text"
+                   [placeholder]="!isPageReadOnly ? 'Description' : ''"
+                   [attr.disabled]="isPageReadOnly ? true : null"
+                   class="form-control">
+            <label class="error"
+                   *ngIf="frm.get('description').hasError('required') && !frm.get('description').pristine">
+              {{validationMessages['default'].required}}</label>
+          </div>
+        </div>
+        <div class="row flex py-1"
+             [ngClass]="{'required': frm.get('formRequires').value['projectId'].required}">
+          <div class="col-4 control-label text-right">
+            <label>Project</label>
+          </div>
+          <div class="col-8"
+               [ngClass]="{'has-error':!frm.get('projectId').valid, 'disabled': isPageReadOnly}">
+            <ng-select [items]="projectList" #projectSelect
+                       [virtualScroll]="true"
+                       (focus)="onSelectFocused(projectSelect)"
+                       (open)="onSelectOpen(projectSelect)"
+                       [placeholder]="!isPageReadOnly ? 'Project' : ''"
+                       bindLabel="name"
+                       bindValue="id"
+                       formControlName="projectId"></ng-select>
+            <label class="error"
+                   *ngIf="frm.get('projectId').hasError('required') && !frm.get('projectId').pristine">
+              {{validationMessages['projectId'].required}}</label>
+          </div>
+        </div>
+        <div class="row py-1"
+             [ngClass]="{'required': frm.get('formRequires').value['categoryId'].required}">
+          <div class="col-4 control-label text-right">
+            <label>Category</label>
+          </div>
+          <div class="col-8"
+               [ngClass]="{'has-error': !frm.get('categoryId').valid,
+                    'disabled': isPageReadOnly}">
+            <ng-select [items]="categoryData"
+                       [placeholder]="!isPageReadOnly ? 'Category' : ''"
+                       [searchable]="false" #categorySelect
+                       (focus)="onSelectFocused(categorySelect)"
+                       bindLabel="name"
+                       bindValue="id"
+                       formControlName="categoryId"></ng-select>
+            <label class="error"
+                   *ngIf="frm.get('categoryId').hasError('required') && !frm.get('categoryId').pristine">
+              {{validationMessages['default'].required}}</label>
+          </div>
+        </div>
+        <div class="row py-1"
+             [ngClass]="{'required': frm.get('formRequires').value['type'].required}">
+          <div class="col-4 control-label text-right">
+            <label>Type</label>
+          </div>
+          <div class="col-8"
+               [ngClass]="{'has-error': !frm.get('type').valid,
+                    'disabled': isPageReadOnly}">
+            <ng-select [items]="typeData"
+                       [placeholder]="!isPageReadOnly ? 'Type' : ''"
+                       [searchable]="false" #typeSelect
+                       (focus)="onSelectFocused(typeSelect)"
+                       bindLabel="name"
+                       bindValue="id"
+                       formControlName="type"></ng-select>
+            <label class="error"
+                   *ngIf="frm.get('type').hasError('required') && !frm.get('type').pristine">
+              {{validationMessages['default'].required}}</label>
+          </div>
+        </div>
+        <!--<div class="row py-1"-->
+        <!--[ngClass]="{'required': frm.get('formRequires').value['factoryIds'].required}">-->
+        <!--<div class="col-4 control-label text-right">-->
+        <!--<label>Factory Name</label>-->
+        <!--</div>-->
+        <!--<div class="col-8"-->
+        <!--[ngClass]="{'has-error': !frm.get('factoryIds').valid}">-->
+        <!--<ng-select [items]="factoryData" #factorySelect-->
+        <!--*ngIf="!isPageReadOnly"-->
+        <!--[placeholder]="!isPageReadOnly ? 'Type' : ''"-->
+        <!--[virtualScroll]="true"-->
+        <!--[multiple]="true"-->
+        <!--[closeOnSelect]="false"-->
+        <!--[hideSelected]="true"-->
+        <!--(focus)="onSelectFocused(factorySelect)"-->
+        <!--bindLabel="name"-->
+        <!--bindValue="id"-->
+        <!--formControlName="factoryIds"></ng-select>-->
+        <!--<label class="error"-->
+        <!--*ngIf="frm.get('factoryIds').hasError('required') && !frm.get('factoryIds').pristine">-->
+        <!--{{validationMessages['default'].required}}</label>-->
+        <!--<p class="p-readonly" *ngIf="isPageReadOnly">{{getFactoryNamesString(frm)}}</p>-->
+        <!--</div>-->
+        <!--</div>-->
+        <div class="row py-1"
+             [ngClass]="{'required': frm.get('formRequires').value['factoryId'].required}">
+          <div class="col-4 control-label text-right">
+            <label>Factory Name</label>
+          </div>
+          <div class="col-8"
+               [ngClass]="{'has-error': !frm.get('factoryId').valid,
+                    'disabled': isPageReadOnly}">
+            <ng-select [items]="factoryData" #factorySelect
+                       [placeholder]="!isPageReadOnly ? 'Type' : ''"
+                       [virtualScroll]="true"
+                       (focus)="onSelectFocused(factorySelect)"
+                       (open)="factorySelect.filterValue = !!frm.get('factoryId').value ? frm.get('factoryName').value : ''"
+                       (add)="onSelectItem($event, 'name', 'factoryName')"
+                       (clear)="frm.get('factoryName').patchValue('')"
+                       bindLabel="name"
+                       bindValue="id"
+                       formControlName="factoryId"></ng-select>
+            <label class="error"
+                   *ngIf="frm.get('factoryId').hasError('required') && !frm.get('factoryId').pristine">
+              {{validationMessages['default'].required}}</label>
+          </div>
+        </div>
+        <div class="row flex py-1"
+             [ngClass]="{'required': frm.get('formRequires').value['customerId'].required}">
+          <div class="col-4 control-label text-right">
+            <label>Customer Name</label>
+          </div>
+          <div class="col-8"
+               [ngClass]="{'has-error':!frm.get('customerId').valid, 'disabled': isPageReadOnly}">
+            <ng-select [items]="customersData" #customerSelect
+                       [virtualScroll]="true"
+                       (focus)="onSelectFocused(customerSelect)"
+                       (open)="onSelectOpen(customerSelect)"
+                       [placeholder]="!isPageReadOnly ? 'Customer Name' : ''"
+                       bindLabel="name"
+                       bindValue="id"
+                       formControlName="customerId"></ng-select>
+            <label class="error"
+                   *ngIf="frm.get('customerId').hasError('required') && !frm.get('customerId').pristine">
+              {{validationMessages['customerId'].required}}</label>
+          </div>
+        </div>
+        <div class="row flex py-1"
+             [ngClass]="{'required': frm.get('formRequires').value['licensorId'].required}">
+          <div class="col-4 control-label text-right">
+            <label>Licensor</label>
+          </div>
+          <div class="col-8"
+               [ngClass]="{'has-error':!frm.get('licensorId').valid, 'disabled': isPageReadOnly}">
+            <ng-select [items]="licensorData" #licensorSelect
+                       [virtualScroll]="true"
+                       (focus)="onSelectFocused(licensorSelect)"
+                       (open)="onSelectOpen(licensorSelect)"
+                       [placeholder]="!isPageReadOnly ? 'Licensor' : ''"
+                       bindLabel="name"
+                       bindValue="id"
+                       formControlName="licensorId"></ng-select>
+            <label class="error"
+                   *ngIf="frm.get('licensorId').hasError('required') && !frm.get('licensorId').pristine">
+              {{validationMessages['licensorId'].required}}</label>
+          </div>
+        </div>
+        <div class="row flex py-1"
+             [ngClass]="{'required': frm.get('formRequires').value['licenseeId'].required}">
+          <div class="col-4 control-label text-right">
+            <label>Licensee</label>
+          </div>
+          <div class="col-8"
+               [ngClass]="{'has-error':!frm.get('licenseeId').valid, 'disabled': isPageReadOnly}">
+            <ng-select [items]="licenseeData" #licenseeSelect
+                       [virtualScroll]="true"
+                       (focus)="onSelectFocused(licenseeSelect)"
+                       (open)="onSelectOpen(licenseeSelect)"
+                       [placeholder]="!isPageReadOnly ? 'Licensee' : ''"
+                       bindLabel="name"
+                       bindValue="id"
+                       formControlName="licenseeId"></ng-select>
+            <label class="error"
+                   *ngIf="frm.get('licenseeId').hasError('required') && !frm.get('licenseeId').pristine">
+              {{validationMessages['licenseeId'].required}}</label>
+          </div>
+        </div>
+        <div class="row flex py-1"
+             [ngClass]="{'required': false}">
+          <div class="col-4 control-label text-right">
+            <label>Regions</label>
+          </div>
+          <div class="col-8"
+               [ngClass]="{'has-error':!frm.get('regionIds').valid}">
+            <ng-select *ngIf="!isPageReadOnly"
+                       [items]="regionsData" #regionsSelect
+                       (focus)="onSelectFocused(regionsSelect)"
+                       [multiple]="true"
+                       [closeOnSelect]="false"
+                       [hideSelected]="true"
+                       [placeholder]="!isPageReadOnly ? 'Regions' : ''"
+                       bindLabel="name"
+                       bindValue="id"
+                       formControlName="regionIds"></ng-select>
+            <p *ngIf="isPageReadOnly"
+               class="p-readonly">{{regionsString}}</p>
+          </div>
+        </div>
+        <br/>
+        <div class="row py-1"
+             [ngClass]="{'required': frm.get('formRequires').value['a2000PoId'].required}">
+          <div class="col-4 control-label text-right">
+            <label>A2000 PO #</label>
+          </div>
+          <div class="col-8"
+               [ngClass]="{'has-error': !frm.get('a2000PoId').valid}">
+            <!-- <input formControlName='a2000PoId'
+                   type="text"
+                   [placeholder]="!isPageReadOnly ? 'A2000 PO #' : ''"
+                   [attr.disabled]="isPageReadOnly ? true : null"
+                   class="form-control"
+                   (keyup)="getStyleColor($event)"> -->
+            <ng-select [items]="serverSideA2000PoData" #a2000PoSelect
+                       [typeahead]="a2000StyleTypeahead"
+                       [placeholder]="!isPageReadOnly ? 'A2000 PO #' : ''"
+                       [virtualScroll]="true"
+                       (focus)="onSelectFocused(a2000PoSelect)"
+                       (open)="a2000PoSelect.filterValue = !!frm.get('a2000PoId').value ? frm.get('a2000PoId').value : ''"
+                       (add)="onSelectItem($event, 'customerPoId', 'a2000PoId')"
+                       (clear)="onClearItem(a2000StyleSelect, ['a2000PoId', 'a2000StyleId', 'a2000StyleName', 'colorId', 'colorName'])"
+                       bindLabel="description"
+                       bindValue="customerPoId"
+                       [attr.disabled]="isPageReadOnly ? true : null"
+                       formControlName="a2000PoId">
+            </ng-select>
+            <label class="error"
+                   *ngIf="frm.get('a2000PoId').hasError('required') && !frm.get('a2000PoId').pristine">
+              {{validationMessages['default'].required}}</label>
+          </div>
+        </div>
+        <div class="row py-1"
+             [ngClass]="{'required': frm.get('formRequires').value['a2000StyleId'].required}">
+          <div class="col-4 control-label text-right">
+            <label>A2000 Style #</label>
+          </div>
+          <div class="col-8"
+               [ngClass]="{'has-error': !frm.get('a2000StyleId').valid,
+                    'disabled': isPageReadOnly || !frm.get('a2000PoId').value}">
+            <ng-select [items]="a2000StyleData" #a2000StyleSelect
+                       [placeholder]="!(isPageReadOnly || !frm.get('a2000PoId').value) ? 'A2000 Style #' : ''"
+                       [virtualScroll]="true"
+                       (focus)="onSelectFocused(a2000StyleSelect)"
+                       (open)="a2000StyleSelect.filterValue = !!frm.get('a2000StyleId').value ? frm.get('a2000StyleName').value : ''"
+                       (add)="onSelectItem($event, 'a2000StyleName', 'a2000StyleName')"
+                       (clear)="onClearItem(a2000StyleSelect, ['a2000StyleName', 'colorId', 'colorName'])"
+                       bindLabel="a2000StyleName"
+                       bindValue="a2000StyleId"
+                       formControlName="a2000StyleId"></ng-select>
+            <label class="error"
+                   *ngIf="frm.get('a2000StyleId').hasError('required') && !frm.get('a2000StyleId').pristine">
+              {{validationMessages['default'].required}}</label>
+          </div>
+        </div>
+        <div class="row py-1"
+             [ngClass]="{'required': frm.get('formRequires').value['colorId'].required}">
+          <div class="col-4 control-label text-right">
+            <label>A2000 Color</label>
+          </div>
+          <div class="col-8"
+               [ngClass]="{'has-error': !frm.get('colorId').valid,
+                    'disabled': isPageReadOnly || (!frm.get('a2000PoId').value || !frm.get('a2000StyleId').value)}">
+            <ng-select [items]="a2000ColorData" #colorSelect
+                       [placeholder]="!(isPageReadOnly || (!frm.get('a2000PoId').value || !frm.get('a2000StyleId').value)) ? 'A2000 Color' : ''"
+                       [virtualScroll]="true"
+                       (focus)="onSelectFocused(colorSelect)"
+                       (open)="colorSelect.filterValue = !!frm.get('colorId').value ? frm.get('colorName').value : ''"
+                       (add)="onSelectItem($event, 'colorName', 'colorName')"
+                       (clear)="onClearItem(colorSelect, ['colorName', 'orderDetailId'])"
+                       bindLabel="colorName"
+                       bindValue="colorId"
+                       formControlName="colorId"></ng-select>
+            <label class="error"
+                   *ngIf="frm.get('colorId').hasError('required') && !frm.get('colorId').pristine">
+              {{validationMessages['default'].required}}</label>
+          </div>
+        </div>
+        <br/>
+        <div class="row py-1"
+             [ngClass]="{'required': frm.get('formRequires').value['comments'].required}">
+          <div class="col-4 control-label text-right">
+            <label>Comments</label>
+          </div>
+          <div class="col-8 my-textarea"
+               [ngClass]="{'has-error': !frm.get('comments').valid}">
+            <textarea formControlName='comments'
+                      type="text"
+                      [placeholder]="!isPageReadOnly ? 'Comments' : ''"
+                      [attr.disabled]="isPageReadOnly ? true : null"
+                      class="form-control"></textarea>
+            <label class="error"
+                   *ngIf="frm.get('comments').hasError('required') && !frm.get('comments').pristine">
+              {{validationMessages['default'].required}}</label>
+          </div>
+        </div>
+      </div>
+      <div class="col-5">
+        <div class="upload-box"
+             *ngIf="!frm.get('imageUrl').value && !isPageReadOnly">
+          <div class="contain text-center">
+            <div class="icon">
+              <i class="fa fa-upload" aria-hidden="true"></i>
+            </div>
+            <div class="text">Drop files to upload</div>
+            <div class="button">
+              <label class="btn mt-2">
+                Or Click Here <input type="file" (change)="uploadImage()"
+                                     id="styleInputFile"
+                                     [style.display]="'none'"
+                                     ng2FileSelect style="opacity: 0"
+                                     [uploader]="uploader" accept=".png, .jpg"/><br/>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="showImage text-center full-width relative"
+             *ngIf="frm.get('imageUrl').value">
+          <img [src]="frm.get('absoluteUrl').value" height="auto"
+               class="full-width img-thumbnail-none-wh width-responsive" imgZoomClick/>
+          <span class="remove-image" (click)="removeImage(frm)"
+                *ngIf="!isPageReadOnly">
+            <i aria-hidden="true" class="fa fa-times"></i>
+          </span>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <ng-container *ngIf="!isPageReadOnly">
+    <button class="btn btn-complete"
+            (click)="onSubmitForm()">
+      Save
+    </button>
+  </ng-container>
+  <button class="btn btn-default"
+          (click)="activeModal.dismiss()">
+    Cancel
+  </button>
+</div>
+

@@ -1,0 +1,94 @@
+<div class="order-cancelled" role="alert" *ngIf="orderInfo && orderInfo.isCancelled">
+  This order has been cancelled!
+</div>
+<div class="tag-order" *ngIf="!isNewOrder()">
+  <ul class="tags">
+    <li><a href="javascript:void(0)" class="tag tag-green" *ngIf="orderInfo && orderInfo.isA2000Order">A2000
+      Synched</a>
+    </li>
+    <li><a href="javascript:void(0)" class="tag" *ngIf="!isAssignedAM">Unassigned</a></li>
+    <li><a href="javascript:void(0)" class="tag" *ngIf="!isPublished">Unpublished</a></li>
+    <li><a href="javascript:void(0)" class="tag tag-green" *ngIf="isPublished">Published</a></li>
+    <li><a href="javascript:void(0)" class="tag tag-green" *ngIf="orderInfo && orderInfo.isArchived">Archived</a></li>
+  </ul>
+</div>
+
+<div class="delete-order">
+
+  <ng-container *ngIf="!isNewOrder() && !isPageReadOnly && isShowBtnACL">
+    <button class="btn btn-complete btn-cons mx-1" (click)="syncTractorSupply($event)" *ngIf="isAllowTractorSupplySync">
+      Sync Tractor Supply
+    </button>
+    <button class="btn btn-complete btn-cons mx-1" (click)="publishOrder($event)" *ngIf="!isPublished && isAssignedAM">
+      Publish Order
+    </button>
+    <button class="btn btn-complete btn-cons mx-1" (click)="confirmRevision($event, false)"
+            *ngIf="orderInfo && orderInfo.isRevised">Confirm Revision
+    </button>
+  </ng-container>
+
+  <ng-container *ngIf="!isNewOrder()">
+    <button class="btn btn-complete btn-cons mx-1" (click)="archiveOrder($event, true)"
+            *ngIf="orderInfo && !orderInfo.isArchived && isShowArchiveBtn()">Archive Order
+    </button>
+    <button class="btn btn-complete btn-cons mx-1" (click)="archiveOrder($event, false)"
+            *ngIf="orderInfo && orderInfo.isArchived && isShowArchiveBtn()">Unarchive Order
+    </button>
+  </ng-container>
+
+  <ng-container *ngIf="!isNewOrder() && !isPageReadOnly && isShowBtnACL">
+    <button class="btn btn-complete btn-cons mx-1"
+            *ngIf="orderId && orderInfo && !orderInfo.isCancelled && !orderInfo.isA2000Order"
+            (click)="cancelOrder()">Cancel Order
+    </button>
+    <button class="btn btn-danger btn-cons mx-1" (click)="deleteOrder()" *ngIf="isAdmin()">Delete Order</button>
+    <ng-container *ngIf="orderInfo && !orderInfo.isArchived && !orderInfo.isCancelled">
+      <div class="export-po" *ngIf="isStylesPage && isPublished && orderInfo.totalStyles">
+        <a href="javascript:void(0)" (click)="exportBulkPo('xlsx')">
+          <i class="fa fa-newspaper-o fa-2x text-success" aria-hidden="true"></i>
+        </a>
+      </div>
+
+      <div class="layout-report">
+        <img class="cursor mx-1" width="25" height="25" (click)="exportLayout('pdf')" *ngIf="canExportLayout"
+             src="../../../assets/img/icons/grid-3x3.png" title="Layout Report">
+      </div>
+    </ng-container>
+  </ng-container>
+
+</div>
+
+<hr [ngClass]="{'m-t-40': !isNewOrder()}">
+<div class="publish-error col-sm-12" *ngIf="!isNewOrder() && errorList.length > 0">
+  <p class="head-mess">
+    You must specify the following required fields before you can publish this order:
+  </p>
+  <ul>
+    <ng-template ngFor let-er [ngForOf]="errorList" let-i="index">
+      <li *ngIf="er.name" class="m-l-15"><span class="text-link" (click)="goToErPage(er.url)">{{er.description}}</span>
+      </li>
+      <p class="partner-stype-name" *ngIf="er.partnerStyleName && errorList[i+1] && errorList[i+1].url">
+        {{er.partnerStyleName}}
+      </p>
+      <li *ngIf="!er.partnerStyleName && !er.name" class="m-l-30"><span class="text-link" (click)="goToErPage(er.url)">{{er.description}}</span>
+      </li>
+    </ng-template>
+  </ul>
+</div>
+<div class="panel panel-transparent" [ngStyle]="{'margin-top': !isNewOrder() ? errorListHeight + 'px' : '0px'}">
+  <!--<perfect-scrollbar class="scroll-nav" [config]="{suppressScrollX: false}">-->
+  <ul class="nav nav-tabs" *ngIf="isShowNav">
+    <li class="text-center nav-item" *ngFor="let tab of tabs; let i=index"
+        [ngClass]="{'active': tab.isActive, 'disabled': tab.isDisabled}"
+        (click)="switchTab($event, i)">
+      <a class="justify-center nav-link"
+         href="javascript:void(0)" aria-expanded="true">
+        <span>{{tab.name}}</span>
+      </a>
+    </li>
+  </ul>
+  <!--</perfect-scrollbar>-->
+  <div [ngClass]="{'order-general': isShowNav}">
+    <router-outlet></router-outlet>
+  </div>
+</div>

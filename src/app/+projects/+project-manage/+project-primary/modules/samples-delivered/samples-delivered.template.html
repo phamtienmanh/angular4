@@ -1,0 +1,139 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0 nowrap">Samples delivered to Customer (PP) - Change Status</h4>
+  <button type="button" class="close" aria-label="Close" (click)="onClosePopup()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()">
+    <lead-eta [rowDetail]="rowDetail" [isPageReadOnly]="isPageReadOnly"></lead-eta>
+    <div class="row flex py-1"
+         [ngClass]="{'required': frm.get('formRequires').value['samplesDeliveredToCustomerPpStatus'].required}">
+      <div class="col-7">
+        <div class="row">
+          <div class="col-6 control-label text-right">
+            <label>Status</label>
+          </div>
+          <div class="col-6"
+               [ngClass]="{'has-error': !frm.get('samplesDeliveredToCustomerPpStatus').valid,
+                    'disabled': isPageReadOnly}">
+            <ng-select [items]="statusData"
+                       [placeholder]="!isPageReadOnly ? 'Status' : ''"
+                       [searchable]="false" #statusSelect
+                       (focus)="onSelectFocused(statusSelect)"
+                       bindLabel="name"
+                       bindValue="id"
+                       formControlName="samplesDeliveredToCustomerPpStatus">
+            </ng-select>
+            <label class="error"
+                   *ngIf="frm.get('samplesDeliveredToCustomerPpStatus').hasError('required') && !frm.get('samplesDeliveredToCustomerPpStatus').pristine">
+              {{validationMessages['default'].required}}</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ng-container *ngIf="frm.get('samplesDeliveredToCustomerPpStatus').value && frm.get('samplesDeliveredToCustomerPpStatus').value !== taskStatus.BLANK">
+      <div class="row py-1">
+        <div class="col-7">
+          <ng-container *ngIf="frm.get('samplesDeliveredToCustomerPpStatus').value === taskStatus.DONE">
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['samplesDeliveredToCustomerPpCarrierId'].required}">
+              <div class="col-6 control-label text-right">
+                <label class="nowrap">Carrier</label>
+              </div>
+              <div class="col-6"
+                   [ngClass]="{'has-error':!frm.get('samplesDeliveredToCustomerPpCarrierId').valid,
+                    'disabled': isPageReadOnly}">
+                <ng-select [items]="shippingCarrier"
+                           [placeholder]="!isPageReadOnly ? 'Carrier' : ''"
+                           [searchable]="false" #carrierSelect
+                           (focus)="onSelectFocused(carrierSelect)"
+                           bindLabel="name"
+                           bindValue="id"
+                           formControlName="samplesDeliveredToCustomerPpCarrierId"></ng-select>
+                <label class="error"
+                       *ngIf="frm.get('samplesDeliveredToCustomerPpCarrierId').hasError('required') && !frm.get('samplesDeliveredToCustomerPpCarrierId').pristine">
+                  {{validationMessages['default'].required}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['samplesDeliveredToCustomerPpTracking'].required}">
+              <div class="col-6 control-label text-right">
+                <label class="nowrap">Tracking #</label>
+              </div>
+              <div class="col-6"
+                   [ngClass]="{'has-error':!frm.get('samplesDeliveredToCustomerPpTracking').valid}">
+                <input formControlName='samplesDeliveredToCustomerPpTracking'
+                       type="text"
+                       [attr.disabled]="isPageReadOnly ? true : null"
+                       [placeholder]="!isPageReadOnly ? 'Tracking #' : ''"
+                       class="form-control">
+                <label class="error"
+                       *ngIf="frm.get('samplesDeliveredToCustomerPpTracking').hasError('required') && !frm.get('samplesDeliveredToCustomerPpTracking').pristine">
+                  {{validationMessages['default'].required}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['samplesDeliveredToCustomerPpDateDeliveredOnUtc'].required}">
+              <div class="col-6 control-label text-right">
+                <label class="nowrap">Date Delivered</label>
+              </div>
+              <div class="col-6"
+                   [ngClass]="{'has-error':!frm.get('samplesDeliveredToCustomerPpDateDeliveredOnUtc').valid}">
+                <my-date-picker class="flex" [options]="myTodayPickerOptions"
+                                #samplesDeliveredToCustomerPpDateDeliveredPicker
+                                formControlName='samplesDeliveredToCustomerPpDateDelivered'
+                                [ngClass]="{'disabled': isPageReadOnly}"
+                                [disabled]="isPageReadOnly"
+                                (dateChanged)="onDateChangedBy($event, 'samplesDeliveredToCustomerPpDateDeliveredOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, samplesDeliveredToCustomerPpDateDeliveredPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, samplesDeliveredToCustomerPpDateDeliveredPicker, frm.get('samplesDeliveredToCustomerPpDateDeliveredOnUtc'))"></my-date-picker>
+                <label class="error"
+                       *ngIf="frm.get('samplesDeliveredToCustomerPpDateDeliveredOnUtc').hasError('required') && !frm.get('samplesDeliveredToCustomerPpDateDeliveredOnUtc').pristine">
+                  {{validationMessages['default'].required}}</label>
+                <label class="error"
+                       *ngIf="frm.get('samplesDeliveredToCustomerPpDateDeliveredOnUtc').hasError('maxDate') && !frm.get('samplesDeliveredToCustomerPpDateDeliveredOnUtc').pristine">
+                  {{validationMessages['default'].maxLength}}
+                </label>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+        <div class="col-5">
+          <ng-container *ngIf="frm.get('samplesDeliveredToCustomerPpStatus').value === taskStatus.DONE">
+            <div class="row flex py-1" [style.height]="'39px'"></div>
+            <div class="row flex py-1" [style.height]="'39px'"></div>
+            <div class="row flex py-1">
+              <div class="col-1 btn-upload-behind">
+                <span class="cursor"
+                      (click)="openUploader(frm)"
+                      *ngIf="!isPageReadOnly && !checkLengthUploaderByType(frm)">
+                  <i class="fa fa-upload fa-lg" aria-hidden="true"></i>
+                </span>
+                <span class="cursor"
+                      [ngClass]="{'disabled': isPageReadOnly}"
+                      (click)="openUploader(frm)"
+                      *ngIf="checkLengthUploaderByType(frm)">
+                  <i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"></i>
+                </span>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </ng-container>
+  </form>
+</div>
+<div class="modal-footer">
+  <ng-container *ngIf="!isPageReadOnly">
+    <button class="btn btn-complete"
+            (click)="onSubmitForm()">
+      Save
+    </button>
+  </ng-container>
+  <button class="btn btn-default"
+          (click)="onClosePopup()">
+    Cancel
+  </button>
+</div>
+

@@ -1,0 +1,424 @@
+﻿outsource-print-main {
+  perfect-scrollbar {
+    @media (min-width: 992px) {
+      .ps__rail-x {
+        position: fixed !important;
+        left: 85px !important;
+      }
+    }
+    @media (max-width: 990px) {
+      .ps__rail-x {
+        position: fixed !important;
+        left: 15px !important;
+      }
+    }
+  }
+  .wrap-row {
+    word-break: break-all;
+  }
+  .filterBtn {
+    @media (min-width: 1200px) {
+      margin-left: 15px;
+    }
+    @media (max-width: 1199px) {
+      margin-left: 8px;
+    }
+  }
+  // .ui-select-toggle {
+  //   .ui-select-match-text {
+  //     max-width: 90%;
+  //     overflow: hidden;
+  //   }
+  //   a {
+  //     margin-right: -5px !important;
+  //   }
+  //   &.form-control {
+  //     padding: 8px 12px;
+  //   }
+  // }
+  .fixedHeader {
+    position: fixed;
+    top: 60px;
+    background-color: #fff;
+    z-index: 2;
+    // padding-right: 14px;
+    // margin-right: 18px;
+    // margin-left: -1px;
+  }
+
+  .table {
+    th {
+      background-color: #ccc;
+    }
+    th {
+      border-right: 1px solid #bbb;
+    }
+    td {
+      border-right: 1px solid #ccc;
+    }
+    p {
+      font-size: 11px;
+      margin-bottom: 0;
+    }
+    my-date-picker {
+      .selector{
+        border-color: skyblue;
+      }
+      table {
+        th, td {
+          border-right: none;
+        }
+        th:first-child {
+          padding-left: 4px !important;
+        }
+        th {
+          text-transform: unset !important;
+          font-family: inherit;
+        }
+        tbody {
+          td {
+            border-bottom: none;
+            font-size: 14px !important;
+          }
+        }
+        &.header {
+          td {
+            background-color: #FAFAFA;
+            padding: 4px;
+          }
+        }
+        &.caltable {
+          height: calc(100% - 31px);
+        }
+      }
+    }
+    .btn-small {
+      padding: 3px 2px;
+      font-size: inherit;
+    }
+  }
+
+  .set-time {
+    color: #48b0f7;
+  }
+  .runTimeInput {
+    min-width: 8px;
+    width: 100%;
+    border: none;
+    font-size: 11px;
+    color: #0066c0;
+    text-align: center;
+    border-bottom: 1px solid #dedddd;
+  }
+  .runTimeInput:hover {
+    color: #48b0f7;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  .runTimeInput:focus {
+    text-decoration: underline;
+  }
+  .vertical-middle {
+    vertical-align: middle;
+  }
+  .setTime-disabled {
+    background-color: inherit !important;
+    border-bottom: none !important;
+    color: inherit !important;
+    cursor: auto !important;
+    &:hover {
+      text-decoration: none !important;
+    }
+  }
+  table {
+    th {
+      text-transform: unset !important;
+    }
+  }
+  my-date-picker {
+    &.custom-date-picker {
+      width: 100%;
+      height: 100%;
+      display: inline-block;
+      .mydp {
+        border: none;
+        height: 100%;
+        .selectiongroup:only-child {
+          height: 100%;
+          input {
+            padding-left: 4px !important;
+            text-align: left;
+            border: none;
+            color: #0066c0;
+            font-size: 11px !important;
+            border-bottom: 1px solid #dedddd;
+            border-radius: 0;
+            outline: none !important;
+          }
+          input:hover {
+            color: #48b0f7;
+            cursor: pointer;
+            text-decoration: underline;
+          }
+          input:focus {
+            outline: none !important;
+            text-decoration: underline;
+          }
+          .selbtngroup {
+            .btnpicker.btnpickerenabled {
+              margin: -5px !important;
+            }
+          }
+        }
+        .selection {
+          padding-left: 4px !important;
+        }
+      }
+    }
+    &.disabled > div > div > input.selectiondisabled {
+      text-align: center !important;
+      padding-left: 0 !important;
+    }
+  }
+  .gu-transit {
+    opacity: 0.2;
+    -ms-filter: unset;
+    filter: unset;
+    td {
+      border-bottom: 2px dashed #ccc !important;
+      border-top: 2px dashed #ccc !important;
+    }
+    td:first-child {
+      border-left: 2px dashed #ccc !important;
+    }
+    td:last-child {
+      border-right: 2px dashed #ccc !important;
+    }
+  }
+  form {
+    width: 100%;
+  }
+  .un-p-link {
+    display: block;
+  }
+  .p-eyes {
+    cursor: pointer;
+    &:hover {
+      i {
+        color: #6dc0f9;
+      }
+    }
+  }
+  my-date-picker {
+    width: 135px;
+  }
+  .not-sched-date {
+    text-align: left;
+    font-size: 14px !important;
+    font-weight: bold;
+    vertical-align: middle;
+  }
+  .date-alert {
+    display: inline-block;
+    position: absolute;
+    bottom: 4px;
+    left: 0px;
+    right: 0px;
+  }
+  .font-size-8 {
+    .table {
+      th {
+        font-size: 8px;
+      }
+      td {
+        font-size: 8px;
+        p {
+          font-size: 8px;
+        }
+      }
+    }
+  }
+  .font-size-9 {
+    .table {
+      th {
+        font-size: 9px;
+      }
+      td {
+        font-size: 9px;
+        p {
+          font-size: 9px;
+        }
+      }
+    }
+  }
+  .font-size-10 {
+    .table {
+      th {
+        font-size: 10px;
+      }
+      td {
+        font-size: 10px;
+        p {
+          font-size: 10px;
+        }
+      }
+    }
+  }
+  .font-size-11 {
+    .table {
+      th {
+        font-size: 11px;
+      }
+      td {
+        font-size: 11px;
+        p {
+          font-size: 11px;
+        }
+      }
+    }
+  }
+  .font-size-12 {
+    .table {
+      th {
+        font-size: 12px;
+      }
+      td {
+        font-size: 12px;
+        p {
+          font-size: 12px;
+        }
+      }
+    }
+  }
+  .header-daytime {
+    td:not(.red-cell) {
+      font-size: 12px !important;
+      border-color: #2b3a82;
+      border-left: 1px solid #2b3a82;
+      text-align: left;
+      background-color: #2b3a82 !important;
+      color: #fff;
+      font-weight: 700;
+      font-family: Montserrat;
+    }
+    td.red-cell {
+      font-size: 12px !important;
+      border-color: red;
+      border-left: 1px solid red;
+      text-align: left;
+      background-color: red !important;
+      color: #fff;
+      font-weight: 700;
+      font-family: Montserrat;
+    }
+  }
+  .move-icon {
+    position: absolute;
+    bottom: 8px;
+    left: calc(50% - 7px);
+    i {
+      cursor: -webkit-grab;
+      cursor: -moz-grab;
+    }
+  }
+  .gu-transit {
+    opacity: 0.2;
+    -ms-filter: unset;
+    filter: unset;
+    td {
+      border-bottom: 2px dashed green !important;
+      border-top: 2px dashed green !important;
+    }
+    td:first-child {
+      border-left: 2px dashed green !important;
+    }
+    td:last-child {
+      border-right: 2px dashed green !important;
+    }
+  }
+  .invalid-area {
+    .gu-transit {
+      td {
+        border-bottom: 2px dashed red !important;
+        border-top: 2px dashed red !important;
+      }
+      td:first-child {
+        border-left: 2px dashed red !important;
+      }
+      td:last-child {
+        border-right: 2px dashed red !important;
+      }
+    }
+  }
+  .red-cell {
+    background-color: red !important;
+    color: white;
+  }
+  .resched-cell {
+    background-color: #FF9900 !important;
+    color: white;
+  }
+  .move-icon {
+    position: absolute;
+    bottom: 8px;
+    left: calc(50% - 7px);
+    i {
+      cursor: -webkit-grab;
+      cursor: -moz-grab;
+    }
+  }
+  .gu-transit {
+    opacity: 0.2;
+    -ms-filter: unset;
+    filter: unset;
+    td {
+      border-bottom: 2px dashed green !important;
+      border-top: 2px dashed green !important;
+    }
+    td:first-child {
+      border-left: 2px dashed green !important;
+    }
+    td:last-child {
+      border-right: 2px dashed green !important;
+    }
+  }
+  .invalid-area {
+    .gu-transit {
+      td {
+        border-bottom: 2px dashed red !important;
+        border-top: 2px dashed red !important;
+      }
+      td:first-child {
+        border-left: 2px dashed red !important;
+      }
+      td:last-child {
+        border-right: 2px dashed red !important;
+      }
+    }
+  }
+  .red-cell {
+    background-color: red !important;
+    color: white;
+  }
+  .resched-cell {
+    background-color: #FF9900 !important;
+    color: white;
+  }
+}
+.dragging-schedules-os.gu-mirror{
+  .btn {
+    display: none;
+  }
+  input {
+    display: none;
+  }
+  td {
+    border: 1px solid #ccc;
+    padding-left: 5px;
+    padding-right: 5px;
+    background-color: #fff;
+  }
+  i {
+    display: none;
+  }
+}

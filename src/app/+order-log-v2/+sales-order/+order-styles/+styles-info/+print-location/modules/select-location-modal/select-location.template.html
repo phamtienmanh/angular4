@@ -1,0 +1,31 @@
+<div class="modal-header m-b-10">
+    <h4 class="modal-title">Select Location(s)</h4>
+    <button type="button" class="close" aria-label="Close" (click)="activeModal.close(false)">
+      <span aria-hidden="true">×</span>
+    </button>
+  </div>
+  <div class="modal-body" [ngStyle]="{'display': isDelete ? 'none' : ''}">
+    <div class="row p-l-15 p-r-15">
+        <div class="col-sm-6" *ngFor="let loc of cloneLocations; let i = index">
+          <div class="row">
+            <div class="checkbox" [ngStyle]="{'margin-top': '-2px', 'margin-bottom': '0'}">
+              <input type="checkbox" [id]="'checkbox-'+i" #multiCb (change)="changeChecked(i, loc)">
+              <label [for]="'checkbox-'+i"></label>
+            </div>
+            <div class="control-label">
+              <label>{{locations[i].text}}</label>
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-complete"
+            (click)="onSubmit()">
+      OK
+    </button>
+    <button class="btn btn-default"
+    (click)="activeModal.close(false)">
+      Cancel
+    </button>
+  </div>

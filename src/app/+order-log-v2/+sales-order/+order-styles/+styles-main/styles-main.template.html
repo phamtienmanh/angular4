@@ -1,0 +1,271 @@
+<ul class="nav nav-tabs">
+  <ng-template ngFor [ngForOf]="tabs" let-tab let-i="index">
+    <li class="text-center nav-item" *ngIf="tab.isView"
+        [ngClass]="{'active': tab.isActive, 'disabled': tab.isDisabled}"
+        (click)="switchTab($event, tab)">
+      <a class="justify-center nav-link"
+         href="javascript:void(0)" aria-expanded="true">
+        <span>{{tab.name}}</span>
+      </a>
+    </li>
+  </ng-template>
+</ul>
+<div class="row px-3">
+  <!--<div class="col-md-12" *ngIf="!isPageReadOnly">-->
+  <!--<button class="btn btn-complete btn-small" type="button"-->
+  <!--(click)="addNewStyle()">-->
+  <!--<i class="fa fa-plus"></i> Add Style-->
+  <!--</button>-->
+  <!--</div>-->
+  <div class="col-md-12 py-2" [hidden]="!stylesData.data.length">
+    <div class="py-2 bold">{{stylesData.data.length}} style(s)</div>
+    <perfect-scrollbar [config]="{suppressScrollX: false, scrollXMarginOffset: 10}">
+      <div class="table-wrapper" #tableWrapper>
+        <ngx-datatable #stylesTable
+                       class="material"
+                       [rows]="stylesData.data"
+                       [columnMode]="'force'"
+                       [footerHeight]="0"
+                       [headerHeight]="'auto'"
+                       [rowHeight]="'auto'"
+                       [externalSorting]="true"
+                       [loadingIndicator]="tableConfig.loading"
+                       [sorts]="[{prop: 'styleName', dir: 'asc'}]"
+                       (sort)="onSort($event)">
+          <ngx-datatable-column [name]="' '"
+                                [prop]="'imageUrl'"
+                                [width]="75"
+                                [minWidth]="75"
+                                [maxWidth]="150"
+                                [cellClass]="'flex justify-center full-width-style'"
+                                [resizeable]="false"
+                                [draggable]="false">
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <div class="relative">
+                <div class="overlay-cancelled" *ngIf="row.isCancelled"></div>
+                <span *ngFor="let imgUrl of row.previewImages">
+                <img class="img-thumbnail-none-wh" imgZoomClick
+                     [src]="imgUrl" width="60"
+                     height="60">
+              </span>
+              </div>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column
+            [width]="90"
+            [minWidth]="90"
+            [maxWidth]="120"
+            [name]="'Partner Style # / Name / Color'"
+            [prop]="partnerStyleName"
+            [cellClass]="'flex justify-center text-center'"
+            [draggable]="false"
+            [resizeable]="false">
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <div class="relative">
+                <div class="overlay-cancelled" *ngIf="row.isCancelled"></div>
+                <a (click)="editStyle($event, row)" href="javascript:void(0)">
+                  <p>{{row.partnerStyleName}}</p>
+                  <p>{{row.styleName}}</p>
+                  <p *ngIf="row.colorName">{{row.colorName}}</p>
+                  <p *ngIf="row.licensorName">({{row.licensorName}})</p>
+                </a>
+              </div>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column
+            [name]="'Blank Style / Color'"
+            [prop]="'vendorStyleName'"
+            [width]="90"
+            [minWidth]="90"
+            [maxWidth]="120"
+            [draggable]="false"
+            [cellClass]="'flex justify-center text-center'"
+            [resizeable]="false">
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <div class="relative">
+                <div class="overlay-cancelled" *ngIf="row.isCancelled"></div>
+                <p>{{row.vendorStyleName}}</p>
+                <p>{{row.blankColorName}}</p>
+              </div>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column
+            [name]="'TSC Body Style / Color'"
+            [prop]="'tscBodyStyle'"
+            [width]="90"
+            [minWidth]="90"
+            [maxWidth]="120"
+            [draggable]="false"
+            [cellClass]="'flex justify-center text-center'"
+            [resizeable]="false">
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <div class="relative">
+                <div class="overlay-cancelled" *ngIf="row.isCancelled"></div>
+                <p>{{row.tscStyleId}}</p>
+                <p>{{row.tscBodyColor}}</p>
+              </div>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column
+            [width]="350"
+            [minWidth]="350"
+            [draggable]="false"
+            [cellClass]="'flex justify-center full-width-style'"
+            [resizeable]="false">
+            <ng-template ngx-datatable-header-template>
+              Quantity
+            </ng-template>
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <div class="relative">
+                <div class="overlay-cancelled" *ngIf="row.isCancelled"></div>
+                <perfect-scrollbar [config]="{suppressScrollX: false}">
+                  <table *ngIf="row.quantity[0]" class="table table-sm style-table">
+                    <thead>
+                    <tr>
+                      <th></th>
+                      <th *ngFor="let colName of row.quantity[0]">{{colName.size}}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr *ngFor="let rowData of row.quantity">
+                      <td>{{rowData[0].name}}</td>
+                      <td *ngFor="let cell of rowData">{{cell.qty}}</td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </perfect-scrollbar>
+              </div>
+            </ng-template>
+            <ng-template>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column
+            [sortable]="false"
+            [width]="120"
+            [minWidth]="120"
+            [maxWidth]="200"
+            [name]="'Print Locations'"
+            [prop]="'printLocations'"
+            [draggable]="false"
+            [cellClass]="'flex justify-center text-center'"
+            [resizeable]="false">
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <div class="relative">
+                <div class="overlay-cancelled" *ngIf="row.isCancelled"></div>
+                <p>
+                  <ng-container *ngFor="let p of row.printLocations; let isLast=last">
+                    <a class="p-link" href="javascript:void(0)"
+                       (click)="locationDetail(row, p.id)">{{p.locationName}}</a>{{!isLast ? ', ' : ''}}
+                  </ng-container>
+                </p>
+              </div>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column
+            [sortable]="false"
+            [width]="90"
+            [minWidth]="90"
+            [maxWidth]="120"
+            [name]="'Trims'"
+            [prop]="'trims'"
+            [draggable]="false"
+            [cellClass]="'flex justify-center text-center'"
+            [resizeable]="false">
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <div class="relative">
+                <div class="overlay-cancelled" *ngIf="row.isCancelled"></div>
+                <p>
+                  <ng-container *ngFor="let p of row.trims; let isLast=last">
+                    <a class="p-link" href="javascript:void(0)"
+                          (click)="trimDetail(row, p.id)">{{p.trimName}}</a>{{!isLast ? ', ' : ''}}
+                  </ng-container>
+                </p>
+              </div>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column
+            [width]="100"
+            [minWidth]="100"
+            [maxWidth]="160"
+            [name]="'Blank ETA'"
+            [prop]="'estDeliveryDateFromOnUtc'"
+            [draggable]="false"
+            [cellClass]="'flex justify-center text-center'"
+            [resizeable]="false">
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <div class="relative">
+                <div class="overlay-cancelled" *ngIf="row.isCancelled"></div>
+                <div class="seperate-child" *ngIf="row.blankGoodsEta">
+                  <p *ngIf="row.blankGoodsEta.poNumbers" class="m-b-0 p-pos">
+                  <span
+                    *ngIf="row.blankGoodsEta.poNumbers">POs: {{row.blankGoodsEta.poNumbers}}</span>
+                  </p>
+
+                  <p *ngIf="row.blankGoodsEta.estDeliveryDateFromOnUtc" class="m-b-0 ">Eta:
+                    <span class="m-l-1"
+                          *ngIf="row.blankGoodsEta.estDeliveryDateFromOnUtc && !row.blankGoodsEta.isTeeShirtCentral">{{row.blankGoodsEta.estDeliveryDateFromOnUtc | amDateFormat: 'MM/DD/YY'}}</span>
+                    <span class="m-l-1"
+                          *ngIf="!row.blankGoodsEta.estDeliveryDateFromOnUtc && !row.blankGoodsEta.isTeeShirtCentral">N/A</span>
+                    <span
+                      *ngIf="row.blankGoodsEta.estDeliveryDateToOnUtc && !row.blankGoodsEta.isTeeShirtCentral">- {{row.blankGoodsEta.estDeliveryDateToOnUtc | amDateFormat: 'MM/DD/YY'}}</span>
+                    <span class="m-l-1"
+                          *ngIf="row.blankGoodsEta.status === taskStatus.SCHEDULED && row.blankGoodsEta.isTeeShirtCentral">Warehouse</span>
+                  </p>
+                  <p *ngIf="row.blankGoodsEta.receivedDateFromOnUtc" class="m-b-0">Rcvd:
+                    <span class="m-l-1" *ngIf="row.blankGoodsEta.receivedDateFromOnUtc">{{row.blankGoodsEta.receivedDateFromOnUtc | amDateFormat: 'MM/DD/YY'}}</span>
+                    <span class="m-l-1" *ngIf="!row.blankGoodsEta.receivedDateFromOnUtc">N/A</span>
+                    <span *ngIf="row.blankGoodsEta.receivedDateToOnUtc">- {{row.blankGoodsEta.receivedDateToOnUtc | amDateFormat: 'MM/DD/YY'}}</span>
+                  </p>
+                </div>
+                <div class="seperate-child" *ngIf="!row.blankGoodsEta">
+                  <span class="m-l-1">N/A</span>
+                </div>
+              </div>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column
+            [name]="'Comments'"
+            [prop]="'comments'"
+            [width]="200"
+            [minWidth]="200"
+            [maxWidth]="300"
+            [draggable]="false"
+            [cellClass]="'flex justify-center text-center'"
+            [resizeable]="false">
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <div class="relative">
+                <div class="overlay-cancelled" *ngIf="row.isCancelled"></div>
+                <p>{{row.comments}}</p>
+              </div>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column
+            [name]="' '"
+            [width]="60"
+            [minWidth]="60"
+            [maxWidth]="80"
+            [draggable]="false"
+            [cellClass]="'flex justify-center'"
+            [resizeable]="false">
+            <ng-template ngx-datatable-cell-template let-row="row">
+              <div class="relative">
+                <div class="overlay-cancelled" *ngIf="row.isCancelled"></div>
+                <div class="text-center mt-1" *ngIf="!isPageReadOnly && !row.isCancelled
+                 && ((orderIndex && !orderIndex.isA2000Order) || isAdmin())">
+                  <!--<button class="btn btn-complete btn-small m-b-5"-->
+                  <!--(click)="editStyle(row)"><i class="fa fa-pencil"></i></button>-->
+                  <button class="btn btn-danger btn-small pl-2 pr-2"
+                          (click)="deleteStyle(row)"><i class="fa fa-trash"></i></button>
+                </div>
+              </div>
+            </ng-template>
+          </ngx-datatable-column>
+        </ngx-datatable>
+      </div>
+    </perfect-scrollbar>
+    <ng-container *ngTemplateOutlet="paginationTop"></ng-container>
+  </div>
+  <div class="col-md-12 py-2" [hidden]="stylesData.data && stylesData.data.length">
+    <span class="font-size-16">No styles have been created.</span>
+  </div>
+</div>

@@ -1,0 +1,92 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0">Team Config</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()">
+    <div class="row flex py-1"
+         [ngClass]="{'required': true}">
+      <div class="col-sm-4 control-label text-right">
+        <label>Team Color</label>
+      </div>
+      <div class="col-sm-6"
+          [ngClass]="{'has-error':!frm.get('teamColor').valid}">
+        <ng-select [items]="[{id: 1, name: 'Red'}, {id: 2, name: 'Black'}]" #teamColor
+                   bindLabel="name"
+                   bindValue="id"
+                   [placeholder]="!isPageReadOnly ? 'Team Color' : ''"
+                   (focus)="onSelectFocused(teamColor)"
+                   [searchable]="false"
+                   formControlName="teamColor"></ng-select>
+        <label class="error"
+               *ngIf="frm.get('teamColor').hasError('required') && !frm.get('teamColor').pristine">
+          {{validationMessages['teamColor'].required}}</label>
+      </div>
+    </div>
+    <div class="row flex py-1"
+         [ngClass]="{'required': false}">
+      <div class="col-sm-4 control-label text-right">
+        <label>Operator</label>
+      </div>
+      <div class="col-sm-6">
+        <ng-select [items]="staffData.operator" #operater
+                   [addTag]="true"
+                   bindLabel="fullName"
+                   bindValue="id"
+                   formControlName="operatorUserId"
+                   [placeholder]="!isPageReadOnly ? 'Operator' : ''"
+                   (focus)="onSelectFocused(operater)"
+                   (open)="operater.filterValue = !!frm.get('operatorUserId').value ? getUserById(staffData.operator, frm.get('operatorUserId').value) : ''"
+                   (change)="onSelectValueChange($event, 'newOperator', 'operator')"></ng-select>
+      </div>
+    </div>
+    <div class="row flex py-1"
+         [ngClass]="{'required': false}">
+      <div class="col-sm-4 control-label text-right">
+        <label>Loader</label>
+      </div>
+      <div class="col-sm-6">
+        <ng-select [items]="staffData.loader" #loader
+                   [addTag]="true"
+                   bindLabel="fullName"
+                   bindValue="id"
+                   formControlName="loaderUserId"
+                   [placeholder]="!isPageReadOnly ? 'Loader' : ''"
+                   (focus)="onSelectFocused(loader)"
+                   (open)="loader.filterValue = !!frm.get('loaderUserId').value ? getUserById(staffData.loader, frm.get('loaderUserId').value) : ''"
+                   (change)="onSelectValueChange($event, 'newLoader', 'loader')"></ng-select>
+      </div>
+    </div>
+    <div class="row flex py-1"
+         [ngClass]="{'required': false}">
+      <div class="col-sm-4 control-label text-right">
+        <label>Dryer / QA</label>
+      </div>
+      <div class="col-sm-6">
+        <ng-select [items]="staffData.dryer" #dryer
+                   [addTag]="true"
+                   bindLabel="fullName"
+                   bindValue="id"
+                   formControlName="dryerUserId"
+                   [placeholder]="!isPageReadOnly ? 'Dryer / QA' : ''"
+                   (focus)="onSelectFocused(dryer)"
+                   (open)="dryer.filterValue = !!frm.get('dryerUserId').value ? getUserById(staffData.dryer, frm.get('dryerUserId').value) : ''"
+                   (change)="onSelectValueChange($event, 'newDryer', 'dryer')"></ng-select>
+      </div>
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <button *ngIf="!isArchived"
+          class="btn btn-complete"
+          (click)="onSubmitForm()">
+    Save
+  </button>
+  <button class="btn btn-default"
+          (click)="activeModal.dismiss()">
+    Cancel
+  </button>
+</div>
+

@@ -1,0 +1,29 @@
+<div class="row px-3 py-2" *ngIf="isShowNav">
+  <div class="py-2" *ngIf="!isPageReadOnly && !isA2000Order">
+    <button class="btn btn-complete btn-small" type="button"
+            (click)="addNewStyle()">
+      <i class="fa fa-plus"></i> Add Style
+    </button>
+  </div>
+</div>
+<div [ngClass]="{'row px-3 pb-2': isShowNav}">
+  <div class="panel panel-transparent">
+    <!--<perfect-scrollbar class="scroll-nav" [config]="{suppressScrollX: false}">-->
+    <!--<ul class="nav nav-tabs" *ngIf="isShowNav">-->
+      <!--<ng-template ngFor [ngForOf]="tabs" let-tab let-i="index">-->
+        <!--<li class="text-center nav-item" *ngIf="tab.isView"-->
+            <!--[ngClass]="{'active': tab.isActive, 'disabled': tab.isDisabled}"-->
+            <!--(click)="switchTab($event, i)">-->
+          <!--<a class="justify-center nav-link"-->
+             <!--href="javascript:void(0)" aria-expanded="true">-->
+            <!--<span>{{tab.name}}</span>-->
+          <!--</a>-->
+        <!--</li>-->
+      <!--</ng-template>-->
+    <!--</ul>-->
+    <!--</perfect-scrollbar>-->
+    <!--<div [ngClass]="{'order-general': isShowNav}">-->
+      <router-outlet></router-outlet>
+    <!--</div>-->
+  </div>
+</div>

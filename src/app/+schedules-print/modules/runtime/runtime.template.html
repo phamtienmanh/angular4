@@ -1,0 +1,69 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0">Configure Print Run Time</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()">
+    <table class="table style-table">
+      <thead>
+      <tr>
+        <th></th>
+        <th>&nbsp;Defaults&nbsp;</th>
+        <th>Estimated&nbsp;</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td>
+          Units Scheduled
+        </td>
+        <td colspan="2">{{runtimeDetail?.scheduledQty}}</td>
+      </tr>
+      <tr>
+        <td>
+          Avg Pcs / Hr
+        </td>
+        <td>
+          <!--<input IntegerNumber-->
+                 <!--formControlName="avgPcsPerHrDefaults"-->
+                 <!--class="runTimeInput"/>-->
+          <!--<label class="error"-->
+                 <!--*ngIf="(frm.get('avgPcsPerHrDefaults').hasError('min') || frm.get('avgPcsPerHrDefaults').hasError('max'))-->
+                 <!--&& !frm.get('avgPcsPerHrDefaults').pristine">-->
+            <!--Avg Pcs/Hr from 1 to 2000.</label>-->
+          {{runtimeDetail?.avgPcsPerHrDefaults}}
+        </td>
+        <td>
+          <input IntegerNumber
+                 formControlName="avgPcsPerHrEstimated"
+                 class="runTimeInput"/>
+          <label class="error"
+                 *ngIf="(frm.get('avgPcsPerHrEstimated').hasError('min') || frm.get('avgPcsPerHrEstimated').hasError('max'))
+                 && !frm.get('avgPcsPerHrEstimated').pristine">
+            Avg Pcs/Hr from 1 to 2000.</label>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Hrs Needed
+        </td>
+        <td>{{runtimeDetail?.scheduledQty / frm.get('avgPcsPerHrDefaults').value | number: '.0-1'}}</td>
+        <td>{{runtimeDetail?.scheduledQty / frm.get('avgPcsPerHrEstimated').value | number: '.0-1'}}</td>
+      </tr>
+      </tbody>
+    </table>
+  </form>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-complete"
+          (click)="onSubmitForm()">
+    Save
+  </button>
+  <button class="btn btn-default"
+          (click)="activeModal.dismiss()">
+    Cancel
+  </button>
+</div>
+

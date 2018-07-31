@@ -1,0 +1,144 @@
+create-or-update-role {
+  display: block;
+
+  .check-header {
+    position: relative;
+    .checkbox {
+      width: min-content;
+      position: absolute;
+      top: 5px;
+      right: 0;
+    }
+  }
+
+  .form-container {
+    .row {
+      //justify-content: center;
+    }
+    .py-1 {
+      padding-top: 5px;
+    }
+  }
+
+  .checkbox {
+    margin-bottom: 0 !important;
+    margin-top: 5px !important;
+    padding-left: 0 !important;
+  }
+
+  .nav {
+    flex-wrap: nowrap !important;
+    width: 100%;
+    li {
+      //min-width: 70px;
+    }
+    li, li > a {
+      position: relative;
+      display: flex;
+    }
+    li {
+      &.active {
+        overflow: visible !important;
+      }
+      &.disabled {
+        pointer-events: none;
+      }
+    }
+  }
+  .nav-tabs {
+    li {
+      a {
+        font-size: 12px !important;
+      }
+    }
+    .nav-item {
+      border-bottom: 1px solid #ccc;
+      &.active {
+        border-bottom: none;
+        a {
+          padding-top: 5px !important;
+          border-color: #ccc !important;
+          border-top: 3px solid #3c8dbc !important;
+          border-bottom: 1px solid #fff !important;
+        }
+        span {
+          font-weight: bold;
+        }
+      }
+    }
+    .nav-link:hover {
+      border-color: #f3f3f3;
+      font-weight: bold;
+    }
+  }
+  .nav-tabs > li > a {
+    color: #626262;
+    text-transform: none;
+    font-weight: inherit;
+    font-family: "Segoe UI", Arial, sans-serif;
+    padding: 7px 10px !important;
+    font-size: 14px;
+    span {
+      font-weight: 400;
+      white-space: nowrap;
+    }
+  }
+  .nav-tabs > li > a:hover {
+    span {
+      font-weight: 600;
+    }
+  }
+
+  .role-table {
+    margin-top: 0;
+    td, th {
+      background: #fff!important;
+      padding: .5em 0.4em !important;
+      color: #2c2c2c !important;
+      text-align: center !important;
+      font-size: 12px !important;
+      border: 1px solid hsla(0,0%,90%,.8);
+      white-space: nowrap !important;
+      min-width: 40px;
+    }
+    th {
+      font-weight: 300 !important;
+      background-color: #f1f1f1 !important;
+    }
+    tr td {
+      &:first-child {
+        text-align: left !important;
+      }
+    }
+    tr:last-child {
+      td {
+        // border-bottom: 0;
+      }
+    }
+    tr th {
+      white-space: nowrap;
+      &:first-child {
+        width: 120px !important;
+      }
+      &:last-child {
+        min-width: 60px !important;
+      }
+    }
+
+    .checkbox {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      margin-top: 0 !important;
+      label {
+        margin-right: 0;
+        &:before {
+          margin-right: 0;
+        }
+        &:after {
+          left: 0.5px;
+        }
+      }
+    }
+  }
+}

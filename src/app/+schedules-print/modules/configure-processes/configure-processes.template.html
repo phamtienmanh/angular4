@@ -1,0 +1,120 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0">Configure Processes</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <ng-template ngFor let-pr [ngForOf]="frm.controls" let-i="index">
+    <form [formGroup]="pr" role="form" novalidate="">
+      <div class="row flex py-1"
+          [ngClass]="{'required': false}">
+        <div class="col-sm-2 control-label text-right">
+        <label>Process</label>
+        </div>
+        <div class="col-sm-9 my-textarea">
+        <ng-select  [items]="processList"
+                    bindLabel="displayName"
+                    bindValue="id"
+                    [placeholder]="'Process'"
+                    (change)="onSelectProcess($event?.id, i)"
+                    formControlName='processId'></ng-select>
+        </div>
+        <i aria-hidden="true" class="fa fa-times cursor" title="Click to Remove" (click)="removeProcess(i)"></i>
+      </div>
+      <ng-template [ngIf]="pr.get('processId').value === customProcessId">
+        <div class="row flex pb-1" [ngClass]="{'required': false}">
+          <div class="col-sm-2 control-label text-right">
+          </div>
+          <div class="col-sm-9">
+            <div class="row flex">
+              <div class="col-sm-3 control-label text-right">
+                <label>Description</label>
+              </div>
+              <div class="col-sm-9">
+                <input formControlName='description' type="text" [placeholder]="'Description'" class="form-control">
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- <div class="row flex pb-1" [ngClass]="{'required': false}">
+          <div class="col-sm-2 control-label text-right">
+          </div>
+          <div class="col-sm-9">
+            <div class="row flex">
+              <div class="col-sm-3 control-label text-right">
+                <label># Units</label>
+              </div>
+              <div class="col-sm-9">
+                <input formControlName='units' type="text" [placeholder]="'# Units'" class="form-control">
+                <label class="error"
+                      *ngIf="pr.get('units').hasError('pattern') && !pr.get('units').pristine">
+                    # Units from 1 to 999999.</label>
+              </div>
+            </div>
+          </div>
+        </div> -->
+        <div class="row flex pb-1" [ngClass]="{'required': false}">
+          <div class="col-sm-2 control-label text-right">
+          </div>
+          <div class="col-sm-9">
+            <div class="row flex">
+              <div class="col-sm-3 control-label text-right">
+                <label># People Required</label>
+              </div>
+              <div class="col-sm-9">
+                <input formControlName='peopleRequired' type="text" [placeholder]="'# People Required'" class="form-control">
+                <label class="error"
+                      *ngIf="pr.get('peopleRequired').hasError('pattern') && !pr.get('peopleRequired').pristine">
+                    # People Required 1 to 50.</label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row flex pb-1" [ngClass]="{'required': false}">
+          <div class="col-sm-2 control-label text-right">
+          </div>
+          <div class="col-sm-9">
+            <div class="row flex">
+              <div class="col-sm-3 control-label text-right">
+                <label>Hrs Needed</label>
+              </div>
+              <div class="col-sm-9">
+                <input formControlName='hrsNeeded' type="text" [placeholder]="'Hrs Needed'" class="form-control">
+                <label class="error"
+                      *ngIf="(pr.get('hrsNeeded').hasError('min') || pr.get('hrsNeeded').hasError('max'))
+                      && !pr.get('hrsNeeded').pristine">
+                      Hrs Needed from 0.01 to 100.</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+    </form>
+  </ng-template>
+  <div class="row flex py-1" *ngIf="frm.controls.length < 4">
+    <div class="col-sm-2">
+    </div>
+    <button class="btn btn-complete m-l-15"
+            (click)="addProcessForm()">
+      Add Process
+    </button>
+  </div>
+  <div class="row flex py-1">
+    <div class="col-sm-4">
+    </div>
+    <p *ngIf="errors[0].show" class="error m-l-15">{{errors[0].message}}</p>
+    <p *ngIf="errors[1].show" class="error m-l-15">{{errors[1].message}}</p>
+  </div>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-complete"
+          (click)="onSubmitForm()">
+    Save
+  </button>
+  <button class="btn btn-default"
+          (click)="activeModal.dismiss()">
+    Cancel
+  </button>
+</div>
+

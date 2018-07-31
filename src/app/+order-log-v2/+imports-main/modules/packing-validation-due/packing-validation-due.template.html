@@ -1,0 +1,203 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0 nowrap">Packing Validation Due - Change Status</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()">
+    <lead-eta [rowDetail]="leadTimeDetail" [isPageReadOnly]="isPageReadOnly || isLeadTimeReadOnly"></lead-eta>
+    <div class="row flex py-1"
+         [ngClass]="{'required': frm.get('formRequires').value['approvalStatus'].required}">
+      <div class="col-7">
+        <div class="row">
+          <div class="col-6 control-label text-right">
+            <label>Status</label>
+          </div>
+          <div class="col-6"
+               [ngClass]="{'has-error': !frm.get('approvalStatus').valid,
+                    'disabled': isPageReadOnly}">
+            <ng-select [items]="statusData"
+                       [placeholder]="!isPageReadOnly ? 'Status' : ''"
+                       [searchable]="false" #statusSelect
+                       (focus)="onSelectFocused(statusSelect)"
+                       bindLabel="name"
+                       bindValue="id"
+                       formControlName="approvalStatus">
+            </ng-select>
+            <label class="error"
+                   *ngIf="frm.get('approvalStatus').hasError('required') && !frm.get('approvalStatus').pristine">
+              {{validationMessages['default'].required}}</label>
+          </div>
+          <div class="btn-upload-behind">
+            <span class="cursor"
+                  (click)="openUploader(frm, uploadedType.PpSample)"
+                  *ngIf="!isPageReadOnly && !checkLengthUploaderByType(frm, uploadedType.PpSample)">
+              <i class="fa fa-upload fa-lg" aria-hidden="true"></i>
+            </span>
+            <span class="cursor"
+                  (click)="openUploader(frm, uploadedType.PpSample)"
+                  *ngIf="checkLengthUploaderByType(frm, uploadedType.PpSample)">
+              <i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"></i>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ng-container *ngIf="frm.get('approvalStatus').value && frm.get('approvalStatus').value !== taskStatus.BLANK">
+      <div class="row py-1">
+        <div class="col-7">
+          <ng-container *ngIf="frm.get('approvalStatus').value === taskStatus.APPROVED">
+            <ng-container *ngTemplateOutlet="approvedDateField"></ng-container>
+            <ng-container *ngTemplateOutlet="statusBy"></ng-container>
+            <ng-container *ngTemplateOutlet="commentField"></ng-container>
+          </ng-container>
+          <ng-container *ngIf="frm.get('approvalStatus').value === taskStatus.APPROVEDWCHANGES">
+            <ng-container *ngTemplateOutlet="approvedDateField"></ng-container>
+            <ng-container *ngTemplateOutlet="statusBy"></ng-container>
+            <ng-container *ngTemplateOutlet="commentField"></ng-container>
+          </ng-container>
+          <ng-container *ngIf="frm.get('approvalStatus').value === taskStatus.REJECTED">
+            <ng-container *ngTemplateOutlet="rejectedDateField"></ng-container>
+            <ng-container *ngTemplateOutlet="statusBy"></ng-container>
+            <ng-container *ngTemplateOutlet="commentField"></ng-container>
+          </ng-container>
+          <ng-container *ngIf="frm.get('approvalStatus').value === taskStatus.DROPPED">
+            <ng-container *ngTemplateOutlet="droppedDateField"></ng-container>
+          </ng-container>
+          <ng-template #approvedDateField>
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['approvalDateOnUtc'].required}">
+              <div class="col-6 control-label text-right">
+                <label class="nowrap">Date Approved</label>
+              </div>
+              <div class="col-6"
+                   [ngClass]="{'has-error':!frm.get('approvalDateOnUtc').valid}">
+                <my-date-picker class="flex" [options]="myTodayPickerOptions"
+                                #approvalDatePicker
+                                formControlName='approvalDate'
+                                [ngClass]="{'disabled': isPageReadOnly}"
+                                [disabled]="isPageReadOnly"
+                                (dateChanged)="onDateChangedBy($event, 'approvalDateOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, approvalDatePicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, approvalDatePicker, frm.get('approvalDateOnUtc'))"></my-date-picker>
+                <label class="error"
+                       *ngIf="frm.get('approvalDateOnUtc').hasError('required') && !frm.get('approvalDateOnUtc').pristine">
+                  {{validationMessages['default'].required}}</label>
+                <label class="error"
+                       *ngIf="frm.get('approvalDateOnUtc').hasError('maxDate') && !frm.get('approvalDateOnUtc').pristine">
+                  {{validationMessages['default'].maxLength}}
+                </label>
+              </div>
+            </div>
+          </ng-template>
+          <ng-template #rejectedDateField>
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['rejectedDateOnUtc'].required}">
+              <div class="col-6 control-label text-right">
+                <label class="nowrap">Date Rejected</label>
+              </div>
+              <div class="col-6"
+                   [ngClass]="{'has-error':!frm.get('rejectedDateOnUtc').valid}">
+                <my-date-picker class="flex" [options]="myTodayPickerOptions"
+                                #rejectedDatePicker
+                                formControlName='rejectedDate'
+                                [ngClass]="{'disabled': isPageReadOnly}"
+                                [disabled]="isPageReadOnly"
+                                (dateChanged)="onDateChangedBy($event, 'rejectedDateOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, rejectedDatePicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, rejectedDatePicker, frm.get('rejectedDateOnUtc'))"></my-date-picker>
+                <label class="error"
+                       *ngIf="frm.get('rejectedDateOnUtc').hasError('required') && !frm.get('rejectedDateOnUtc').pristine">
+                  {{validationMessages['default'].required}}</label>
+                <label class="error"
+                       *ngIf="frm.get('rejectedDateOnUtc').hasError('maxDate') && !frm.get('rejectedDateOnUtc').pristine">
+                  {{validationMessages['default'].maxLength}}
+                </label>
+              </div>
+            </div>
+          </ng-template>
+          <ng-template #droppedDateField>
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['droppedDateOnUtc'].required}">
+              <div class="col-6 control-label text-right">
+                <label class="nowrap">Date Dropped</label>
+              </div>
+              <div class="col-6"
+                   [ngClass]="{'has-error':!frm.get('droppedDateOnUtc').valid}">
+                <my-date-picker class="flex" [options]="myTodayPickerOptions"
+                                #droppedDatePicker
+                                formControlName='droppedDate'
+                                [ngClass]="{'disabled': isPageReadOnly}"
+                                [disabled]="isPageReadOnly"
+                                (dateChanged)="onDateChangedBy($event, 'droppedDateOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, droppedDatePicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, droppedDatePicker, frm.get('droppedDateOnUtc'))"></my-date-picker>
+                <label class="error"
+                       *ngIf="frm.get('droppedDateOnUtc').hasError('required') && !frm.get('droppedDateOnUtc').pristine">
+                  {{validationMessages['default'].required}}</label>
+                <label class="error"
+                       *ngIf="frm.get('droppedDateOnUtc').hasError('maxDate') && !frm.get('droppedDateOnUtc').pristine">
+                  {{validationMessages['default'].maxLength}}
+                </label>
+              </div>
+            </div>
+          </ng-template>
+          <ng-template #commentField>
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['comment'].required}">
+              <div class="col-6 control-label text-right">
+                <label>Comments</label>
+              </div>
+              <div class="col-6 my-textarea">
+                <textarea formControlName='comment'
+                          type="text"
+                          [placeholder]="!isPageReadOnly ? 'Comments' : ''"
+                          [attr.disabled]="isPageReadOnly ? true : null"
+                          class="form-control"></textarea>
+              </div>
+            </div>
+          </ng-template>
+          <ng-template #statusBy>
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['approvalByUserId'].required}">
+              <div class="col-6 control-label text-right">
+                <label>{{frm.get('approvalStatus').value === taskStatus.REJECTED ? 'Rejected' : 'Approval'}} By</label>
+              </div>
+              <div class="col-6"
+                   [ngClass]="{'has-error': !frm.get('approvalByUserId').valid,
+                    'disabled': isPageReadOnly}">
+                <ng-select [items]="approvalByList" #approvalByUserIdSelect
+                           [placeholder]="!isPageReadOnly ? (frm.get('approvalStatus').value === taskStatus.REJECTED ? 'Rejected By' : 'Approval By') : ''"
+                           [virtualScroll]="true"
+                           (focus)="onSelectFocused(approvalByUserIdSelect)"
+                           (open)="approvalByUserIdSelect.filterValue = !!frm.get('approvalByUserId').value ? frm.get('approvalByUserName').value : ''"
+                           (add)="onSelectItem($event, frm, 'fullName', 'approvalByUserName')"
+                           (clear)="frm.get('approvalByUserName').patchValue('')"
+                           bindLabel="fullName"
+                           bindValue="id"
+                           formControlName="approvalByUserId"></ng-select>
+                <label class="error"
+                       *ngIf="frm.get('approvalByUserId').hasError('required') && !frm.get('approvalByUserId').pristine">
+                  {{validationMessages['approvalByUserId'].required}}</label>
+              </div>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </ng-container>
+  </form>
+</div>
+<div class="modal-footer">
+  <ng-container *ngIf="!isPageReadOnly">
+    <button class="btn btn-complete"
+            (click)="onSubmitForm()">
+      Save
+    </button>
+  </ng-container>
+  <button class="btn btn-default"
+          (click)="activeModal.dismiss()">
+    Cancel
+  </button>
+</div>
+

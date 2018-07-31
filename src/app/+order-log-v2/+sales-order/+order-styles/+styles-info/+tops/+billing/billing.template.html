@@ -1,0 +1,226 @@
+<div class="px-3 py-2">
+  <form [formGroup]="frm" role="form" novalidate="">
+    <!-- <div class="row">
+      <div class="col-lg-12 general-title">
+        <span class="bold">Billing</span>
+      </div>
+    </div> -->
+    <div class="row">
+      <div class="col-lg-4">
+        <div class="row flex py-1 m-t-10"
+             [ngClass]="{'required': frm.get('formRequires').value['billCustomer'].required}">
+          <div class="col-sm-4 control-label text-right">
+            <label>Bill Customer</label>
+          </div>
+          <div class="col-sm-7"
+               [ngClass]="{'has-error':!frm.get('billCustomer').valid,
+                   'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled}">
+            <ng-select [items]="confirmData" #confirmSelect
+                       [virtualScroll]="true"
+                       [searchable]="false"
+                       [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled ? 'Bill Customer' : ''"
+                       (focus)="onSelectFocused(confirmSelect)"
+                       bindLabel="name"
+                       bindValue="id"
+                       formControlName="billCustomer"></ng-select>
+            <label class="error"
+                   *ngIf="frm.get('billCustomer').hasError('required') && !frm.get('billCustomer').pristine">
+              {{validationMessages['billCustomer'].required}}</label>
+          </div>
+        </div>
+        <div class="row flex py-1"
+             [ngClass]="{'required': frm.get('formRequires').value['billingAccountType'].required}">
+          <div class="col-sm-4 control-label text-right">
+            <label>Account Type</label>
+          </div>
+          <div class="col-sm-7"
+               [ngClass]="{'has-error':!frm.get('billingAccountType').valid,
+                   'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled}">
+            <ng-select [items]="accountTypeData" #accountTypeSelect
+                       [virtualScroll]="true"
+                       [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled ? 'Account Type' : ''"
+                       (focus)="onSelectFocused(accountTypeSelect)"
+                       (add)="onSelectItem($event, frm, 'id', 'billingAccountType')"
+                       bindLabel="name"
+                       bindValue="id"
+                       formControlName="billingAccountType"></ng-select>
+            <label class="error"
+                   *ngIf="frm.get('billingAccountType').hasError('required') && !frm.get('billingAccountType').pristine">
+              {{validationMessages['billingAccountType'].required}}</label>
+          </div>
+        </div>
+        <ng-template [ngIf]="frm.get('billingAccountType').value === 2 || frm.get('billingAccountType').value === 3">
+          <div class="row flex py-1"
+               [ngClass]="{'required': frm.get('formRequires').value['billingCustomerAccount'].required}">
+            <div class="col-sm-4 control-label text-right">
+              <label>Customer Account #</label>
+            </div>
+            <div class="col-sm-7"
+                 [ngClass]="{'has-error':!frm.get('billingCustomerAccount').valid}">
+              <input formControlName='billingCustomerAccount'
+                     type="text"
+                     [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled ? 'Customer Account #' : ''"
+                     [attr.disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled ? true : null"
+                     class="form-control">
+              <label class="error"
+                     *ngIf="frm.get('billingCustomerAccount').hasError('required') && !frm.get('billingCustomerAccount').pristine">
+                {{validationMessages['billingCustomerAccount'].required}}</label>
+            </div>
+          </div>
+          <div class="row flex py-1"
+               [ngClass]="{'required': frm.get('formRequires').value['billingName'].required}">
+            <div class="col-sm-4 control-label text-right">
+              <label>Name</label>
+            </div>
+            <div class="col-sm-7"
+                 [ngClass]="{'has-error':!frm.get('billingName').valid}">
+              <input formControlName='billingName'
+                     type="text"
+                     [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled ? 'Name' : ''"
+                     [attr.disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled ? true : null"
+                     class="form-control">
+              <label class="error"
+                     *ngIf="frm.get('billingName').hasError('required') && !frm.get('billingName').pristine">
+                {{validationMessages['billingName'].required}}</label>
+            </div>
+          </div>
+          <div class="row flex py-1"
+               [ngClass]="{'required': frm.get('formRequires').value['billingAddress1'].required}">
+            <div class="col-sm-4 control-label text-right">
+              <label>Address 1</label>
+            </div>
+            <div class="col-sm-7"
+                 [ngClass]="{'has-error':!frm.get('billingAddress1').valid}">
+              <input formControlName='billingAddress1'
+                     type="text"
+                     [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled ? 'Address 1' : ''"
+                     [attr.disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled ? true : null"
+                     class="form-control">
+              <label class="error"
+                     *ngIf="frm.get('billingAddress1').hasError('required') && !frm.get('billingAddress1').pristine">
+                {{validationMessages['billingAddress1'].required}}</label>
+            </div>
+          </div>
+          <div class="row flex py-1">
+            <div class="col-sm-4 control-label text-right">
+              <label>Address 2</label>
+            </div>
+            <div class="col-sm-7">
+              <input formControlName='billingAddress2'
+                     type="text"
+                     [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled ? 'Address 2' : ''"
+                     [attr.disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled ? true : null"
+                     class="form-control">
+            </div>
+          </div>
+          <div class="row flex py-1"
+               [ngClass]="{'required': frm.get('formRequires').value['billingCity'].required}">
+            <div class="col-sm-4 control-label text-right">
+              <label>City</label>
+            </div>
+            <div class="col-sm-7"
+                 [ngClass]="{'has-error':!frm.get('billingCity').valid}">
+              <input formControlName='billingCity'
+                     type="text"
+                     [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled ? 'City' : ''"
+                     [attr.disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled ? true : null"
+                     class="form-control">
+              <label class="error"
+                     *ngIf="frm.get('billingCity').hasError('required') && !frm.get('billingCity').pristine">
+                {{validationMessages['billingCity'].required}}</label>
+            </div>
+          </div>
+          <div class="row flex py-1"
+               [ngClass]="{'required': frm.get('formRequires').value['billingState'].required}">
+            <div class="col-sm-4 control-label text-right">
+              <label>State</label>
+            </div>
+            <div class="col-sm-7"
+                 [ngClass]="{'has-error':!frm.get('billingState').valid}">
+              <input formControlName='billingState'
+                     type="text"
+                     [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled ? 'State' : ''"
+                     [attr.disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled ? true : null"
+                     class="form-control">
+              <label class="error"
+                     *ngIf="frm.get('billingState').hasError('required') && !frm.get('billingState').pristine">
+                {{validationMessages['billingState'].required}}</label>
+            </div>
+          </div>
+          <div class="row flex py-1"
+               [ngClass]="{'required': frm.get('formRequires').value['billingZip'].required}">
+            <div class="col-sm-4 control-label text-right">
+              <label>Zip</label>
+            </div>
+            <div class="col-sm-7"
+                 [ngClass]="{'has-error':!frm.get('billingZip').valid}">
+              <input formControlName='billingZip'
+                     type="text"
+                     [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled ? 'Zip' : ''"
+                     [attr.disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled ? true : null"
+                     class="form-control">
+              <label class="error"
+                     *ngIf="frm.get('billingZip').hasError('required') && !frm.get('billingZip').pristine">
+                {{validationMessages['billingZip'].required}}</label>
+            </div>
+          </div>
+          <div class="row flex py-1"
+               [ngClass]="{'required': frm.get('formRequires').value['billingPhone'].required}">
+            <div class="col-sm-4 control-label text-right">
+              <label>Phone</label>
+            </div>
+            <div class="col-sm-7"
+                 [ngClass]="{'has-error':!frm.get('billingPhone').valid}">
+              <input formControlName='billingPhone'
+                     type="text"
+                     [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled ? 'Phone' : ''"
+                     [attr.disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled ? true : null"
+                     class="form-control">
+              <label class="error"
+                     *ngIf="frm.get('billingPhone').hasError('required') && !frm.get('billingPhone').pristine">
+                {{validationMessages['billingPhone'].required}}</label>
+            </div>
+          </div>
+        </ng-template>
+        <div class="row flex py-1">
+          <div class="col-sm-4 control-label text-right">
+            <label>Freight Cost</label>
+          </div>
+          <div class="col-sm-7">
+            <input formControlName='billingFreightCost'
+                   type="text"
+                   [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled ? 'Freight Cost' : ''"
+                   [attr.disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled ? true : null"
+                   class="form-control">
+            <label class="error"
+                   *ngIf="frm.get('billingFreightCost').hasError('pattern') && !frm.get('billingFreightCost').pristine">
+              {{validationMessages['billingFreightCost'].pattern}}</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+    <div class="row"
+         *ngIf="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled">
+      <div class="col-lg-4 col-sm-12 py-2">
+        <div class="row flex py-1">
+          <div class="col-sm-4"></div>
+          <div class="col-sm-6">
+            <button class="btn btn-complete btn-cons"
+                    (click)="onSaved(frm)">Save
+            </button>
+            <!--<button class="btn btn-default btn-cons"-->
+            <!--(click)="onCancel()">Cancel-->
+            <!--</button>-->
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="sticky-btn"
+         *ngIf="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled && isShowStickyBtn">
+      <button class="btn btn-complete btn-cons"
+              (click)="onSaved(frm)">Save
+      </button>
+    </div>
+  </form>
+</div>

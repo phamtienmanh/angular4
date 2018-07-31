@@ -1,0 +1,22 @@
+<div class="px-3 pb-3" *ngIf="subTabs.length; else noTop">
+  <ul class="nav nav-tabs sub-tab m-t-10">
+    <ng-container *ngFor="let tab of subTabs; let i=index">
+      <li class="text-center nav-item"
+          [ngClass]="{'active': tab.isActive}"
+          (click)="switchSubTab($event, i)">
+        <a class="justify-center nav-link"
+           href="javascript:void(0)" aria-expanded="true">
+          <span>{{tab.text}}</span>
+        </a>
+      </li>
+    </ng-container>
+  </ul>
+  <div class="order-general">
+    <router-outlet></router-outlet>
+  </div>
+</div>
+<ng-template #noTop>
+  <div class="px-3 py-3">
+    <p>No TOP quantities have been specified.</p>
+  </div>
+</ng-template>

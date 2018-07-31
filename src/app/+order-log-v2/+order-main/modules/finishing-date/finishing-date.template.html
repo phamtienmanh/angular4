@@ -1,0 +1,213 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0">Finishing Date - Change Status</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <div class="row" *ngIf="finishings && finishings.value && finishings.value.length">
+    <div class="p-l-f-0">
+      <div class="row flex py-1" style="height: 38px" [ngClass]="{'required': isTscVendor}">
+        <div class="col-sm-12 control-label text-center">
+          <label>Process #</label>
+        </div>
+      </div>
+      <div class="row flex py-1" style="height: 38px" [ngClass]="{'required': true}">
+        <div class="col-sm-12 control-label text-center">
+          <label>Status</label>
+        </div>
+      </div>
+      <div class="row flex py-1" style="height: 38px" [ngClass]="{'required': false}">
+        <div class="col-sm-12 control-label text-center">
+          <label>Vendor</label>
+        </div>
+      </div>
+      <div class="row flex py-1" style="height: 38px">
+        <div class="col-sm-12 control-label text-center">
+          <label class="nowrap">Scheduled Start Date</label>
+        </div>
+      </div>
+      <div class="row flex py-1" style="height: 38px">
+        <div class="col-sm-12 control-label text-center">
+          <label class="nowrap">Scheduled End Date</label>
+        </div>
+      </div>
+      <div class="row flex py-1" style="height: 38px">
+        <div class="col-sm-12 control-label text-center">
+          <label class="nowrap">Finishing Start Date</label>
+        </div>
+      </div>
+      <div class="row flex py-1" style="height: 38px">
+        <div class="col-sm-12 control-label text-center">
+          <label class="nowrap">Finishing End Date</label>
+        </div>
+      </div>
+    </div>
+    <div class=""
+         [ngClass]="{'col-10': finishings.controls.length >= 3,
+                  'col-9': finishings.controls.length <= 2,
+                  'pr-0': finishings.controls.length === 1}">
+      <ng-template [ngIf]="finishings.controls.length > 3">
+        <perfect-scrollbar [config]="{suppressScrollX: false, suppressScrollY: false}">
+          <ng-container *ngTemplateOutlet="finishingBody"></ng-container>
+        </perfect-scrollbar>
+      </ng-template>
+      <ng-template [ngIf]="finishings.controls.length <= 3">
+        <ng-container *ngTemplateOutlet="finishingBody"></ng-container>
+      </ng-template>
+      <ng-template #finishingBody>
+        <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()" (click)="formClick($event)">
+          <div class="row flex-nowrap full-width p-b-5" formArrayName="finishings">
+            <div class="p-l-f-0"
+                 [ngClass]="{'col-sm-4': finishings.controls.length >= 3, 'col-sm-6': finishings.controls.length == 2, 'col-sm-12': finishings.controls.length === 1, 'border-right': !last}"
+                 *ngFor="let finishing of finishings.controls; let i=index; let last=last" [formGroupName]="i">
+              <div class="row flex py-1"
+                   [ngClass]="{'disappear': +finishing.get('status').value !== taskStatus.SCHEDULED  && +finishing.get('status').value !== taskStatus.DONE}">
+                <div class="col-sm-12"
+                     [ngClass]="{'has-error':!finishing.get('processNumber').valid, 'disabled': isPageReadOnly}">
+                  <ng-select [items]="processesData"
+                             [placeholder]="!isPageReadOnly ? 'Process #' : ''"
+                             [searchable]="false" #processSelect
+                             (focus)="onSelectFocused(processSelect)"
+                             bindLabel="displayName"
+                             bindValue="processNumber"
+                             formControlName="processNumber"></ng-select>
+                  <label class="error"
+                         *ngIf="finishing.get('processNumber').hasError('required') && !finishing.get('processNumber').pristine">
+                    {{validationMessages['default'].required}}</label>
+                </div>
+              </div>
+              <div class="row flex py-1">
+                <div class="col-sm-12"
+                     [ngClass]="{'has-error':!finishing.get('status').valid, 'disabled': isPageReadOnly}">
+                  <ng-select [items]="statusData"
+                             [placeholder]="!isPageReadOnly ? 'Status' : ''"
+                             [searchable]="false" #statusSelect
+                             (focus)="onSelectFocused(statusSelect)"
+                             bindLabel="name"
+                             bindValue="id"
+                             formControlName="status"></ng-select>
+                  <label class="error"
+                         *ngIf="finishing.get('status').hasError('required') && !finishing.get('status').pristine">
+                    {{validationMessages['default'].required}}</label>
+                </div>
+              </div>
+              <div class="row flex py-1"
+                   [ngClass]="{'disappear': +finishing.get('status').value !== taskStatus.SCHEDULED  && +finishing.get('status').value !== taskStatus.DONE}">
+                <div class="col-sm-12"
+                     [ngClass]="{'has-error':!finishing.get('vendorId').valid, 'disabled': isPageReadOnly}">
+                  <ng-select [items]="vendorData" #vendorSelect
+                             [placeholder]="!isPageReadOnly ? 'Vendor' : ''"
+                             [virtualScroll]="true"
+                             (focus)="onSelectFocused(vendorSelect)"
+                             (open)="vendorSelect.filterValue = !!finishing.get('vendorId').value ? finishing.get('vendorName').value : ''"
+                             (add)="onSelectItem($event, finishing, 'name', 'vendorName')"
+                             (clear)="finishing.get('vendorName').patchValue('')"
+                             bindLabel="name"
+                             bindValue="id"
+                             formControlName="vendorId"></ng-select>
+                  <label class="error"
+                         *ngIf="finishing.get('vendorId').hasError('required') && !finishing.get('vendorId').pristine">
+                    {{validationMessages['default'].required}}</label>
+                </div>
+              </div>
+
+              <div [ngClass]="{'disappear': +finishing.get('status').value !== taskStatus.SCHEDULED  && +finishing.get('status').value !== taskStatus.DONE,
+                 'topright': (last || (i === finishings.value.length - 2 && finishings.value.length > 2)) && finishings.value.length > 1}">
+                <div class="row flex py-1" style="height: 38px">
+                  <div class="col-sm-12" *ngIf="+finishing.get('status').value === taskStatus.SCHEDULED"
+                       [ngClass]="{'has-error':!finishing.get('printDateOnUtc').valid}">
+                    <my-date-picker class="flex" [options]="finishing.get('finishingDateOptions').value"
+                                    formControlName='printDate' #finishingDatePicker
+                                    (dateChanged)="onDateChangedBy($event, finishing, 'printDateOnUtc')"
+                                    (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, finishingDatePicker)"
+                                    (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, finishingDatePicker, finishing.get('printDateOnUtc'))"></my-date-picker>
+                    <label class="error"
+                           *ngIf="finishing.get('printDateOnUtc').hasError('required') && !finishing.get('printDateOnUtc').pristine">
+                      {{validationMessages['default'].required}}</label>
+                    <label class="error nowrap"
+                           *ngIf="finishing.get('printDateOnUtc').hasError('maxDate') && !finishing.get('printDateOnUtc').pristine">
+                      {{validationMessages['printDateOnUtc'].maxLength}}</label>
+                  </div>
+                  <div class="col-sm-12 span-date" *ngIf="+finishing.get('status').value === taskStatus.DONE">
+                    <span *ngIf="finishing.get('previousPrintDateOnUtc').value">
+                      {{finishing.get('previousPrintDateOnUtc').value | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+                  </div>
+                </div>
+                <div class="row flex py-1" style="height: 38px">
+                  <!--<div class="col-sm-12" *ngIf="+finishing.get('status').value === taskStatus.SCHEDULED"-->
+                  <!--[ngClass]="{'has-error':!finishing.get('estDeliveryDateToOnUtc').valid}">-->
+                  <!--<my-date-picker class="flex" [options]="finishing.get('estDeliveryDateToOptions').value"-->
+                  <!--formControlName='estDeliveryDateTo' #estDeliveryDateToPicker-->
+                  <!--[defaultMonth]="myDatePickerService.configDefaultMonth(finishing.get('estDeliveryDateFrom').value)"-->
+                  <!--(dateChanged)="onDateChangedBy($event, finishing, 'estDeliveryDateToOnUtc')"-->
+                  <!--(inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, estDeliveryDateToPicker)"-->
+                  <!--(inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, estDeliveryDateToPicker, finishing.get('estDeliveryDateToOnUtc'))"></my-date-picker>-->
+                  <!--<label class="error"-->
+                  <!--*ngIf="(finishing.get('formRequires').value['estDeliveryDateToOnUtc'].required && !finishing.get('estDeliveryDateToOnUtc').value)">-->
+                  <!--{{validationMessages['estDeliveryDateToOnUtc'].required}}</label>-->
+                  <!--<label class="error nowrap"-->
+                  <!--*ngIf="finishing.get('estDeliveryDateToOnUtc').hasError('minDate') && !finishing.get('estDeliveryDateToOnUtc').pristine">-->
+                  <!--{{validationMessages['estDeliveryDateToOnUtc'].maxLength}}</label>-->
+                  <!--</div>-->
+                  <!--<div class="col-sm-12 span-date" *ngIf="+finishing.get('status').value === taskStatus.DONE">-->
+                  <!--<span *ngIf="finishing.get('previousEstDeliveryDateToOnUtc').value">-->
+                  <!--{{finishing.get('previousEstDeliveryDateToOnUtc').value | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>-->
+                  <!--</div>-->
+                </div>
+              </div>
+
+              <div [ngClass]="{'disappear': +finishing.get('status').value !== taskStatus.DONE,
+                  'topleft': !last || finishings.value.length === 1,
+                  'topright': (last && finishings.value.length > 1) || (i === finishings.value.length - 2 && finishings.value.length > 2)}">
+                <div class="row flex py-1">
+                  <div class="col-sm-12"
+                       [ngClass]="{'has-error':!finishing.get('finishingDateDoneFromOnUtc').valid}">
+                    <my-date-picker class="flex" [options]="finishing.get('finishingDateDoneFromOptions').value"
+                                    formControlName='finishingDateDoneFrom' #finishingDateDoneFromPicker
+                                    (dateChanged)="onDateChangedBy($event, finishing, 'finishingDateDoneFromOnUtc')"
+                                    (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, finishingDateDoneFromPicker)"
+                                    (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, finishingDateDoneFromPicker, finishing.get('finishingDateDoneFromOnUtc'))"></my-date-picker>
+                    <label class="error"
+                           *ngIf="finishing.get('finishingDateDoneFromOnUtc').hasError('required') && !finishing.get('finishingDateDoneFromOnUtc').pristine">
+                      {{validationMessages['default'].required}}</label>
+                    <label class="error nowrap"
+                           *ngIf="finishing.get('finishingDateDoneFromOnUtc').hasError('maxDate') && !finishing.get('finishingDateDoneFromOnUtc').pristine">
+                      {{validationMessages['finishingDateDoneFromOnUtc'].maxLength}}</label>
+                  </div>
+                </div>
+                <div class="row flex py-1">
+                  <div class="col-sm-12"
+                       [ngClass]="{'has-error':!finishing.get('finishingDateDoneToOnUtc').valid}">
+                    <my-date-picker class="flex" [options]="finishing.get('finishingDateDoneToOptions').value"
+                                    formControlName='finishingDateDoneTo' #finishingDateDoneToPicker
+                                    [defaultMonth]="myDatePickerService.configDefaultMonth(finishing.get('finishingDateDoneFrom').value)"
+                                    (dateChanged)="onDateChangedBy($event, finishing, 'finishingDateDoneToOnUtc')"
+                                    (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, finishingDateDoneToPicker)"
+                                    (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, finishingDateDoneToPicker, finishing.get('finishingDateDoneToOnUtc'))"></my-date-picker>
+                    <label class="error"
+                           *ngIf="finishing.get('finishingDateDoneToOnUtc').hasError('required') && !finishing.get('finishingDateDoneToOnUtc').pristine">
+                      {{validationMessages['default'].required}}</label>
+                    <label class="error nowrap"
+                           *ngIf="finishing.get('finishingDateDoneToOnUtc').hasError('minDate') && !finishing.get('finishingDateDoneToOnUtc').pristine">
+                      {{validationMessages['finishingDateDoneToOnUtc'].maxLength}}</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </ng-template>
+    </div>
+  </div>
+</div>
+<div class="modal-footer" *ngIf="finishings && finishings.value && finishings.value.length">
+  <button class="btn btn-complete"
+          (click)="onSubmitForm()">
+    Save
+  </button>
+  <button class="btn btn-default"
+          (click)="activeModal.dismiss()">
+    Cancel
+  </button>
+</div>

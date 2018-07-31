@@ -1,0 +1,88 @@
+blank-goods {
+  .p-l-f-0 {
+    //padding-right: 25px !important;
+    //
+    //div.row > div {
+    //  padding-right: 0 !important;
+    //}
+  }
+  .pos-top {
+    my-date-picker .mydp {
+      .selector.selectorarrow.selectorarrowright {
+        left: 0 !important;
+        bottom: 0 !important;
+      }
+    }
+  }
+  .pos-mid {
+    my-date-picker .mydp {
+      .selector.selectorarrow.selectorarrowright {
+        left: 0 !important;
+        bottom: -60px !important;
+      }
+    }
+  }
+  .topright {
+    my-date-picker .mydp {
+      .selector.selectorarrow.selectorarrowright {
+        right: 0 !important;
+        left: auto !important;
+      }
+    }
+  }
+
+  .error {
+    position: absolute;
+    z-index: 9;
+  }
+
+  .warehouse {
+    height: 76px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .span-date {
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .border-right {
+    border-right: 1px solid #ddd;
+  }
+
+  .input-group .form-control:not(:last-child), .input-group-addon:not(:last-child), .input-group-btn:not(:last-child) > .btn, .input-group-btn:not(:last-child) > .btn-group > .btn, .input-group-btn:not(:last-child) > .dropdown-toggle, .input-group-btn:not(:first-child) > .btn:not(:last-child):not(.dropdown-toggle), .input-group-btn:not(:first-child) > .btn-group:not(:last-child) > .btn {
+    border-right: 0 !important;
+  }
+  .input-group .input-group-addon {
+    background: white !important;
+    border-color: #ccc;
+    color: #626262 !important;
+  }
+
+  label.error {
+    height: 10px !important;
+    line-height: 8.5px !important;
+    font-size: 10px !important;
+  }
+
+  .style-name {
+    line-height: 14px;
+  }
+  .checkbox {
+    margin-top: 0;
+    margin-bottom: 0;
+    label {
+      padding-left: 0 !important;
+      &::after {
+        left: 0.2px;
+      }
+    }
+  }
+  .border-top {
+    border-top: 1px solid #ddd;
+  }
+}

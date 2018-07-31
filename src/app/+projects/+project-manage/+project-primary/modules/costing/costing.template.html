@@ -1,0 +1,99 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0 nowrap">Costing - Change Status</h4>
+  <button type="button" class="close" aria-label="Close" (click)="onClosePopup()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()">
+    <div class="row flex py-1"
+         [ngClass]="{'required': frm.get('formRequires').value['costingStatus'].required}">
+      <div class="col-7">
+        <div class="row">
+          <div class="col-6 control-label text-right">
+            <label>Status</label>
+          </div>
+          <div class="col-6"
+               [ngClass]="{'has-error': !frm.get('costingStatus').valid,
+                    'disabled': isPageReadOnly}">
+            <ng-select [items]="statusData"
+                       [placeholder]="!isPageReadOnly ? 'Status' : ''"
+                       [searchable]="false" #statusSelect
+                       (focus)="onSelectFocused(statusSelect)"
+                       bindLabel="name"
+                       bindValue="id"
+                       formControlName="costingStatus">
+            </ng-select>
+            <label class="error"
+                   *ngIf="frm.get('costingStatus').hasError('required') && !frm.get('costingStatus').pristine">
+              {{validationMessages['default'].required}}</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ng-container *ngIf="frm.get('costingStatus').value && frm.get('costingStatus').value !== taskStatus.BLANK">
+      <div class="row py-1">
+        <div class="col-7">
+          <ng-container *ngIf="frm.get('costingStatus').value === taskStatus.APPROVED">
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['costingDateApprovedOnUtc'].required}">
+              <div class="col-6 control-label text-right">
+                <label class="nowrap">Date Approved</label>
+              </div>
+              <div class="col-6"
+                   [ngClass]="{'has-error':!frm.get('costingDateApprovedOnUtc').valid}">
+                <my-date-picker class="flex" [options]="myTodayPickerOptions"
+                                #costingDateApprovedPicker
+                                formControlName='costingDateApproved'
+                                [ngClass]="{'disabled': isPageReadOnly}"
+                                [disabled]="isPageReadOnly"
+                                (dateChanged)="onDateChangedBy($event, 'costingDateApprovedOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, costingDateApprovedPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, costingDateApprovedPicker, frm.get('costingDateApprovedOnUtc'))"></my-date-picker>
+                <label class="error"
+                       *ngIf="frm.get('costingDateApprovedOnUtc').hasError('required') && !frm.get('costingDateApprovedOnUtc').pristine">
+                  {{validationMessages['default'].required}}</label>
+                <label class="error"
+                       *ngIf="frm.get('costingDateApprovedOnUtc').hasError('maxDate') && !frm.get('costingDateApprovedOnUtc').pristine">
+                  {{validationMessages['default'].maxLength}}
+                </label>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+        <div class="col-5">
+          <ng-container *ngIf="frm.get('costingStatus').value === taskStatus.APPROVED">
+            <div class="row flex py-1">
+              <div class="col-1 btn-upload-behind">
+                <span class="cursor"
+                      (click)="openUploader(frm)"
+                      *ngIf="!isPageReadOnly && !checkLengthUploaderByType(frm)">
+                  <i class="fa fa-upload fa-lg" aria-hidden="true"></i>
+                </span>
+                <span class="cursor"
+                      [ngClass]="{'disabled': isPageReadOnly}"
+                      (click)="openUploader(frm)"
+                      *ngIf="checkLengthUploaderByType(frm)">
+                  <i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"></i>
+                </span>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </ng-container>
+  </form>
+</div>
+<div class="modal-footer">
+  <ng-container *ngIf="!isPageReadOnly">
+    <button class="btn btn-complete"
+            (click)="onSubmitForm()">
+      Save
+    </button>
+  </ng-container>
+  <button class="btn btn-default"
+          (click)="onClosePopup()">
+    Cancel
+  </button>
+</div>
+

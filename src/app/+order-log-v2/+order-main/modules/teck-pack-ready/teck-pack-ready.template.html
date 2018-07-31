@@ -1,0 +1,122 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0">OWS Or Tech Pack Ready - Change Status</h4>
+  <button type="button" class="close" aria-label="Close" (click)="onClosePopup()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()">
+    <!--<div formArrayName="listOwsTp">-->
+    <!--<div *ngFor="let ship of listOwsTp.controls; index as i; first as first; last as last" [formGroupName]="i">-->
+    <div class="row">
+      <div class="col-sm-5">
+        <div class="row flex py-1"
+             [ngClass]="{'required': true}">
+          <div class="col-sm-6 control-label text-right px-0">
+            <label>Status</label>
+          </div>
+          <div class="col-sm-6"
+               [ngClass]="{'has-error':!frm.get('status').valid, 'disabled': isPageReadOnly}">
+            <ng-select [items]="statusData"
+                       [placeholder]="!isPageReadOnly ? 'Status' : ''"
+                       [searchable]="false" #statusSelect
+                       (focus)="onSelectFocused(statusSelect)"
+                       bindLabel="name"
+                       bindValue="id"
+                       formControlName="status"></ng-select>
+            <label class="error"
+                   *ngIf="frm.get('status').hasError('required') && !frm.get('status').pristine">
+              {{validationMessages['default'].required}}</label>
+          </div>
+        </div>
+        <ng-container *ngIf="frm.get('status').value !== null && frm.get('status').value !== undefined">
+          <ng-container *ngIf="+frm.get('status').value === taskStatus.DONE">
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['techPackReadyDateOnUtc'].required}">
+              <div class="col-sm-6 control-label text-right px-0">
+                <label>OWS or Tech Pack Ready Date</label>
+              </div>
+              <div class="col-sm-6"
+                   [ngClass]="{'has-error':!frm.get('techPackReadyDateOnUtc').valid}">
+                <my-date-picker [options]="myDatePickerOptions"
+                                #techPackReadyDatePicker
+                                formControlName="techPackReadyDate"
+                                (dateChanged)="onDateChangedBy($event, frm, 'techPackReadyDateOnUtc')"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, techPackReadyDatePicker, frm.get('techPackReadyDateOnUtc'))"></my-date-picker>
+                <label class="error"
+                       *ngIf="frm.get('techPackReadyDateOnUtc').hasError('required') && !frm.get('techPackReadyDateOnUtc').pristine">
+                  {{validationMessages['default'].required}}</label>
+                <label class="error"
+                       *ngIf="frm.get('techPackReadyDateOnUtc').hasError('maxToday') && !frm.get('techPackReadyDateOnUtc').pristine">
+                  {{validationMessages['techPackReadyDateOnUtc'].maxLength}}</label>
+              </div>
+            </div>
+          </ng-container>
+          <ng-container *ngIf="+frm.get('status').value !== taskStatus.BLANK">
+            <div class="row flex py-1"
+                 [ngClass]="{'required': false}">
+              <div class="col-sm-6 control-label text-right px-0">
+                <label>OWS / Tech Pack(s)</label>
+              </div>
+              <div class="col-sm-6">
+                <div class="input-group">
+                <span class="input-group-addon cursor" (click)="openUploader(frm)"
+                      *ngIf="!checkLengthUploaderByType(frm)">
+                  <i class="fa fa-upload" aria-hidden="true"></i>
+                </span>
+                  <span class="input-group-addon cursor"
+                        (click)="openUploader(frm)"
+                        *ngIf="checkLengthUploaderByType(frm)">
+                  <i class="fa fa-eye" [ngStyle]="{'top': '-1px'}" aria-hidden="true"></i>
+                </span>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+        </ng-container>
+      </div>
+      <ng-container *ngIf="frm.get('status').value !== null && frm.get('status').value !== undefined">
+        <div class="col-sm-7">
+          <div class="row flex py-1" *ngIf="styleList && styleList.length">
+            <p class="mb-0 bold">Apply to these styles:</p>
+          </div>
+          <div class="row flex py-1" *ngFor="let style of styleList; index as ii">
+            <div class="checkbox">
+              <input type="checkbox" [id]="i + '-' + ii + '-style'"
+                     [disabled]="style.orderDetailId === orderDetailId"
+                     [checked]="activeStylesChanges(frm, style.orderDetailId)"
+                     (change)="onSelectStyle(frm, style.orderDetailId)">
+              <label [for]="i + '-' + ii + '-style'">
+                {{getLabelString(style.styleInfo)}}
+              </label>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+    <!--<div class="row flex justify-content-end pb-2 border-bottom-ccc mx-1 my-2">-->
+    <!--<button type="button" class="btn btn-danger" (click)="deleteOwsTp(i)"-->
+    <!--*ngIf="listOwsTp.controls.length > 1">-->
+    <!--Delete This OWS/TP-->
+    <!--</button>-->
+    <!--</div>-->
+    <!--</div>-->
+    <!--</div>-->
+    <!--<div class="row flex justify-content-end mx-1">-->
+    <!--<button class="btn btn-complete" type="button" (click)="addOwsTp()">-->
+    <!--+ Add an OWS/TP-->
+    <!--</button>-->
+    <!--</div>-->
+  </form>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-complete"
+          (click)="onSubmitForm()">
+    Save
+  </button>
+  <button class="btn btn-default"
+          (click)="onClosePopup()">
+    Cancel
+  </button>
+</div>
+

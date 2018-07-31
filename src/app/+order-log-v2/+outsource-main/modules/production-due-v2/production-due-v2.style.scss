@@ -1,0 +1,72 @@
+production-due-v2 {
+  .p-l-f-0 {
+    padding-right: 25px !important;
+
+    div.row > div {
+      padding-right: 0 !important;
+    }
+  }
+
+  my-date-picker .mydp {
+    //.btnpicker {
+    //  visibility: hidden;
+    //}
+    //.btnclear {
+    //  position: absolute;
+    //}
+    .selector.selectorarrow.selectorarrowleft {
+      left: 0 !important;
+      top: -60px !important;
+    }
+  }
+  .topleft {
+    my-date-picker .mydp {
+      .selector.selectorarrow.selectorarrowleft {
+        left: 0 !important;
+        top: auto !important;
+        bottom: 0 !important;
+      }
+    }
+  }
+  .topright {
+    my-date-picker .mydp {
+      .selector.selectorarrow.selectorarrowleft {
+        right: 0 !important;
+        top: auto !important;
+        left: auto !important;
+        bottom: 0 !important;
+      }
+    }
+  }
+  .topright-upload {
+    my-date-picker .mydp {
+      .selector.selectorarrow.selectorarrowleft {
+        right: 0 !important;
+        left: auto !important;
+        bottom: -60px !important;
+      }
+    }
+  }
+
+  .error {
+    position: absolute;
+    z-index: 9;
+  }
+
+  .border-right {
+    border-right: 1px solid #ddd;
+  }
+
+  .span-date {
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  label.error {
+    height: 10px !important;
+    line-height: 8.5px !important;
+    font-size: 10px !important;
+  }
+}

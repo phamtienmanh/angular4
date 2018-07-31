@@ -1,0 +1,415 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0 nowrap">Trim Submits Due - Change Status</h4>
+  <button type="button" class="close" aria-label="Close" (click)="onClosePopup()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <lead-eta [rowDetail]="rowDetail" [isPageReadOnly]="isPageReadOnly"
+            [labelClass]="'col-5'" [controlClass]="'col-7'"></lead-eta>
+  <hr>
+  <div class="row" *ngIf="vendors && vendors.value && vendors.value.length">
+    <div class="p-l-f-0">
+      <div class="row flex" [ngStyle]="{'height': trimNameMaxHeight}"></div>
+      <div class="row flex py-1" style="height: 38px" [ngClass]="{'required': false}">
+        <div class="col-sm-12 control-label text-center">
+          <label>Status</label>
+        </div>
+      </div>
+      <div class="row flex py-1" style="height: 38px" [ngClass]="{'required': false}">
+        <div class="col-sm-12 control-label text-center">
+          <label>Vendor</label>
+        </div>
+      </div>
+      <div class="row flex py-1" style="height: 38px" [ngClass]="{'required': false}">
+        <div class="col-sm-12 control-label text-center">
+          <label>PO #</label>
+        </div>
+      </div>
+      <div class="row flex py-1" style="height: 38px" [ngClass]="{'required': false}">
+        <div class="col-sm-12 control-label text-center">
+          <label>Comments</label>
+        </div>
+      </div>
+      <div class="row flex py-1 m-t-30" style="height: 38px">
+        <div class="col-sm-12 control-label text-center">
+          <label class="nowrap">Trim ETA Start Date</label>
+        </div>
+      </div>
+      <div class="row flex py-1" style="height: 38px">
+        <div class="col-sm-12 control-label text-center">
+          <label class="nowrap">Trim ETA End Date</label>
+        </div>
+      </div>
+      <div class="row flex py-1" style="height: 38px">
+        <div class="col-sm-12 control-label text-center">
+          <label class="nowrap">Trim Received Start Date</label>
+        </div>
+      </div>
+      <div class="row flex py-1" style="height: 38px">
+        <div class="col-sm-12 control-label text-center">
+          <label class="nowrap">Trim Received End Date</label>
+        </div>
+      </div>
+      <div class="row flex py-1" style="height: 38px">
+        <div class="col-sm-12 control-label text-center">
+          <label class="nowrap">Carrier</label>
+        </div>
+      </div>
+      <div class="row flex py-1" style="height: 38px">
+        <div class="col-sm-12 control-label text-center">
+          <label class="nowrap">Tracking #</label>
+        </div>
+      </div>
+      <div class="row flex py-1" style="height: 38px">
+        <div class="col-sm-12 control-label text-center">
+          <label class="nowrap">Checked Start Date</label>
+        </div>
+      </div>
+      <div class="row flex py-1" style="height: 38px">
+        <div class="col-sm-12 control-label text-center">
+          <label class="nowrap">Checked End Date</label>
+        </div>
+      </div>
+    </div>
+    <div
+      [ngClass]="{'col-sm-9': vendors.controls.length >= 3, 'col-sm-8': vendors.controls.length === 2, 'col-sm-6': vendors.controls.length === 1}">
+      <ng-template [ngIf]="vendors.controls.length > 3">
+        <perfect-scrollbar [config]="{suppressScrollX: false, suppressScrollY: false}">
+          <ng-container *ngTemplateOutlet="trimEta"></ng-container>
+        </perfect-scrollbar>
+      </ng-template>
+      <ng-template [ngIf]="vendors.controls.length <= 3">
+        <ng-container *ngTemplateOutlet="trimEta"></ng-container>
+      </ng-template>
+    </div>
+  </div>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-complete"
+          (click)="onSubmitForm()">
+    Save
+  </button>
+  <button class="btn btn-default"
+          (click)="onClosePopup()">
+    Cancel
+  </button>
+</div>
+<ng-template #trimEta>
+  <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()" (click)="formClick($event)"
+        class="full-height-trim">
+    <div class="row flex-nowrap full-width" #trimNameList>
+      <div *ngFor="let trim of trimList; trackBy: trackByFn"
+           [ngClass]="{'col-sm-4': getLengthEachTrim() >= 3, 'col-sm-6': getLengthEachTrim() === 2,
+           'col-sm-12': getLengthEachTrim() === 1, 'px-0': getLengthEachTrim() === 1}">
+        <div class="row flex py-1">
+          <div class="col-sm-12 text-center p-link" (click)="goToTrimDetail(trim.trimId)">
+            {{trim.trimName}}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row flex-nowrap full-width p-b-5" formArrayName="listUpdateTrimEta">
+      <ng-container *ngFor="let trim of vendors.controls; trackBy: trackByFn; let i=index; let last=last" [formGroupName]="i">
+        <div [ngClass]="{'col-sm-4': getLengthEachTrim() >= 3, 'col-sm-6': getLengthEachTrim() === 2,
+           'col-sm-12': getLengthEachTrim() === 1, 'px-0': getLengthEachTrim() === 1,
+                'p-l-f-0': getLengthEachTrim() > 1,  'border-right': isShowBorderRight(i)}">
+          <div class="row flex py-1">
+            <div class="col-sm-12"
+                 [ngClass]="{'has-error':!trim.get('status').valid, 'disabled': isPageReadOnly}">
+              <ng-select [items]="statusData"
+                         [placeholder]="!isPageReadOnly ? 'Status' : ''"
+                         [searchable]="false" #statusSelect
+                         (focus)="onSelectFocused(statusSelect)"
+                         bindLabel="name"
+                         bindValue="id"
+                         formControlName="status"></ng-select>
+              <label class="error"
+                     *ngIf="trim.get('status').hasError('required') && !trim.get('status').pristine">
+                {{validationMessages['default'].required}}</label>
+            </div>
+          </div>
+          <div class="row flex py-1">
+            <div class="col-sm-12"
+                 [ngClass]="{'has-error':!trim.get('vendorId').valid, 'disabled': isPageReadOnly}">
+              <ng-select [items]="vendorData" #vendorSelect
+                         [placeholder]="!isPageReadOnly ? 'Vendor' : ''"
+                         [virtualScroll]="true"
+                         (focus)="onSelectFocused(vendorSelect)"
+                         (open)="vendorSelect.filterValue = !!trim.get('vendorId').value ? trim.get('vendorName').value : ''"
+                         (add)="onSelectItem($event, trim, 'name', 'vendorName')"
+                         (clear)="trim.get('vendorName').patchValue('')"
+                         bindLabel="name"
+                         bindValue="id"
+                         formControlName="vendorId"></ng-select>
+              <label class="error"
+                     *ngIf="trim.get('vendorId').hasError('required') && !trim.get('vendorId').pristine">
+                {{validationMessages['default'].required}}</label>
+            </div>
+          </div>
+          <div class="row flex py-1">
+            <div class="col-sm-12"
+                 [ngClass]="{'has-error':!trim.get('poNumber').valid,
+                 'disappear': trim.get('vendorName').value !== null && trim.get('vendorName').value !== undefined
+                    && ([
+                          'tee shirt central',
+                          'customer supplies trims',
+                          'tsc',
+                          'tsc warehouse',
+                          'factory 1',
+                          'factory supplies trims',
+                          'factory 1 warehouse',
+                          'tsc - whs'
+                        ].indexOf(trim.get('vendorName').value.toLowerCase()) > -1)
+                    || trim.get('status').value === taskStatus.COMPLETED}">
+              <div class="input-group">
+                <input formControlName='poNumber'
+                       type="text"
+                       [placeholder]="!isPageReadOnly ? 'PO #' : ''"
+                       class="form-control">
+                <span class="input-group-addon cursor"
+                      (click)="openUploader(trim, trimUploadedType.PoTrim)"
+                      *ngIf="!isPageReadOnly && !checkLengthUploaderByType(trim)">
+                  <i class="fa fa-upload" aria-hidden="true"></i>
+                </span>
+                <span class="input-group-addon cursor" [ngClass]="{'disabled': isPageReadOnly}"
+                      (click)="openUploader(trim, trimUploadedType.PoTrim)"
+                      *ngIf="checkLengthUploaderByType(trim)">
+                  <i class="fa fa-eye" [ngStyle]="{'top': '-1px'}" aria-hidden="true"></i>
+                </span>
+              </div>
+              <label class="error"
+                     *ngIf="trim.get('poNumber').hasError('required') && !trim.get('poNumber').pristine">
+                {{validationMessages['default'].required}}</label>
+            </div>
+          </div>
+          <div class="row flex py-1">
+            <div class="col-sm-12 my-textarea"
+                 [ngClass]="{'disappear': trim.get('status').value === taskStatus.COMPLETED}">
+              <textarea formControlName='poComment'
+                        type="text"
+                        [placeholder]="'Comments'"
+                        class="form-control"></textarea>
+            </div>
+          </div>
+
+          <div
+            *ngIf="trim.get('vendorName').value !== null && trim.get('vendorName').value !== undefined
+                  && ([
+                        'tee shirt central',
+                        'customer supplies trims',
+                        'tsc',
+                        'tsc warehouse',
+                        'factory 1',
+                        'factory supplies trims',
+                        'factory 1 warehouse',
+                        'tsc - whs'
+                      ].indexOf(trim.get('vendorName').value.toLowerCase()) === -1); then thenBlock else elseBlock"></div>
+
+          <ng-template #thenBlock>
+            <div [ngClass]="{'disappear': +trim.get('status').value !== taskStatus.SCHEDULED
+                        && +trim.get('status').value !== taskStatus.RECEIVED
+                        && +trim.get('status').value !== taskStatus.PARTIALLYRECEIVED,
+             'topleft': !last || vendors.value.length === 1,
+             'topright': (last && vendors.value.length > 1) || (i === vendors.value.length - 2 && vendors.value.length > 2)}">
+              <div class="row flex py-1">
+                <div class="col-sm-12 file-upload"
+                     *ngIf="+trim.get('status').value === taskStatus.SCHEDULED"
+                     [ngClass]="{'has-error':!trim.get('estDeliveryDateFromOnUtc').valid}">
+                  <my-date-picker class="flex" [options]="trim.get('estDeliveryDateFromOptions').value"
+                                  formControlName='estDeliveryDateFrom' #estDeliveryDateFromPicker
+                                  (dateChanged)="onDateChangedBy($event, trim, 'estDeliveryDateFromOnUtc')"
+                                  (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, estDeliveryDateFromPicker)"
+                                  (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, estDeliveryDateFromPicker, trim.get('estDeliveryDateFromOnUtc'))"></my-date-picker>
+                  <label class="error"
+                         *ngIf="trim.get('estDeliveryDateFromOnUtc').hasError('required') && !trim.get('estDeliveryDateFromOnUtc').pristine">
+                    {{validationMessages['default'].required}}</label>
+                  <label class="error nowrap"
+                         *ngIf="trim.get('estDeliveryDateFromOnUtc').hasError('maxDate') && !trim.get('estDeliveryDateFromOnUtc').pristine">
+                    {{validationMessages['estDeliveryDateFromOnUtc'].maxLength}}</label>
+                </div>
+                <div class="col-sm-12 span-date"
+                     *ngIf="+trim.get('status').value === taskStatus.RECEIVED || +trim.get('status').value === taskStatus.PARTIALLYRECEIVED">
+                <span *ngIf="trim.get('previousEstDeliveryDateFromOnUtc').value">
+                  {{trim.get('previousEstDeliveryDateFromOnUtc').value | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+                </div>
+                <div class="col-sm-12" style="height: 30px"
+                     *ngIf="+trim.get('status').value !== taskStatus.SCHEDULED
+                          && +trim.get('status').value !== taskStatus.RECEIVED
+                          && +trim.get('status').value !== taskStatus.PARTIALLYRECEIVED">
+                </div>
+              </div>
+              <div class="row flex py-1">
+                <div class="col-sm-12 file-upload"
+                     *ngIf="+trim.get('status').value === taskStatus.SCHEDULED"
+                     [ngClass]="{'has-error':!trim.get('estDeliveryDateToOnUtc').valid}">
+                  <my-date-picker class="flex" [options]="trim.get('estDeliveryDateToOptions').value"
+                                  formControlName='estDeliveryDateTo' #estDeliveryDateToPicker
+                                  [defaultMonth]="myDatePickerService.configDefaultMonth(trim.get('estDeliveryDateFrom').value)"
+                                  (dateChanged)="onDateChangedBy($event, trim, 'estDeliveryDateToOnUtc')"
+                                  (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, estDeliveryDateToPicker)"
+                                  (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, estDeliveryDateToPicker, trim.get('estDeliveryDateToOnUtc'))"></my-date-picker>
+                  <!--<label class="error"-->
+                  <!--*ngIf="(trim.get('formRequires').value['estDeliveryDateToOnUtc'].required && !trim.get('estDeliveryDateToOnUtc').value)">-->
+                  <!--{{validationMessages['estDeliveryDateToOnUtc'].required}}</label>-->
+                  <label class="error nowrap"
+                         *ngIf="trim.get('estDeliveryDateToOnUtc').hasError('minDate') && !trim.get('estDeliveryDateToOnUtc').pristine">
+                    {{validationMessages['estDeliveryDateToOnUtc'].maxLength}}</label>
+                </div>
+                <div class="col-sm-12 span-date"
+                     *ngIf="+trim.get('status').value === taskStatus.RECEIVED || +trim.get('status').value === taskStatus.PARTIALLYRECEIVED">
+                <span *ngIf="trim.get('previousEstDeliveryDateToOnUtc').value">
+                  {{trim.get('previousEstDeliveryDateToOnUtc').value | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+                </div>
+                <div class="col-sm-12" style="height: 30px"
+                     *ngIf="+trim.get('status').value !== taskStatus.SCHEDULED  && +trim.get('status').value !== taskStatus.RECEIVED && +trim.get('status').value !== taskStatus.PARTIALLYRECEIVED">
+
+                </div>
+              </div>
+            </div>
+          </ng-template>
+          <ng-template #elseBlock>
+            <div class="warehouse"
+                 [ngClass]="{'disappear': !trim.get('vendorName').value
+                        || trim.get('vendorName').value === null
+                        || trim.get('vendorName').value === undefined
+                        || !trim.get('status').value
+                        || +trim.get('status').value === taskStatus.COMPLETED
+                        || +trim.get('status').value === taskStatus.TBD}">
+              <span>{{trim.get('vendorName').value && ['factory supplies trims']
+                .indexOf(trim.get('vendorName').value.toLowerCase()) > -1 ? 'Factory' : 'Warehouse'}}</span>
+            </div>
+          </ng-template>
+
+          <div
+            [ngClass]="{'disappear': +trim.get('status').value !== taskStatus.RECEIVED && +trim.get('status').value !== taskStatus.PARTIALLYRECEIVED,
+             'topleft': !last || vendors.value.length === 1,
+             'topright': (last && vendors.value.length > 1) || (i === vendors.value.length - 2 && vendors.value.length > 2)}">
+            <div class="row flex py-1">
+              <div class="col-sm-12 file-upload"
+                   *ngIf="+trim.get('status').value === taskStatus.RECEIVED || +trim.get('status').value === taskStatus.PARTIALLYRECEIVED"
+                   [ngClass]="{'has-error':!trim.get('receivedDateFromOnUtc').valid}">
+                <my-date-picker class="flex" [options]="trim.get('receivedDateFromOptions').value"
+                                formControlName='receivedDateFrom' #receivedDateFromPicker
+                                (dateChanged)="onDateChangedBy($event, trim, 'receivedDateFromOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, receivedDateFromPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, receivedDateFromPicker, trim.get('receivedDateFromOnUtc'))"></my-date-picker>
+                <label class="error"
+                       *ngIf="trim.get('receivedDateFromOnUtc').hasError('required') && !trim.get('receivedDateFromOnUtc').pristine">
+                  {{validationMessages['default'].required}}</label>
+                <label class="error nowrap"
+                       *ngIf="trim.get('receivedDateFromOnUtc').hasError('maxDate') && !trim.get('receivedDateFromOnUtc').pristine">
+                  {{validationMessages['receivedDateFromOnUtc'].maxLength}}</label>
+              </div>
+              <!--<div class="col-sm-12 span-date" *ngIf="+trim.get('status').value === taskStatus.PARTIALLYRECEIVED">-->
+              <!--<span *ngIf="trim.get('previousReceivedDateFromOnUtc').value">-->
+              <!--{{trim.get('previousReceivedDateFromOnUtc').value | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>-->
+              <!--</div>-->
+              <div class="col-sm-12" style="height: 31px"
+                   *ngIf="+trim.get('status').value !== taskStatus.RECEIVED && +trim.get('status').value !== taskStatus.PARTIALLYRECEIVED">
+
+              </div>
+            </div>
+            <div class="row flex py-1">
+              <div class="col-sm-12 file-upload"
+                   *ngIf="+trim.get('status').value === taskStatus.RECEIVED || +trim.get('status').value === taskStatus.PARTIALLYRECEIVED"
+                   [ngClass]="{'has-error':!trim.get('receivedDateToOnUtc').valid}">
+                <my-date-picker class="flex" [options]="trim.get('receivedDateToOptions').value"
+                                formControlName='receivedDateTo' #receivedDateToPicker
+                                [defaultMonth]="myDatePickerService.configDefaultMonth(trim.get('receivedDateFrom').value)"
+                                (dateChanged)="onDateChangedBy($event, trim, 'receivedDateToOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, receivedDateToPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, receivedDateToPicker, trim.get('receivedDateToOnUtc'))"></my-date-picker>
+                <!--<label class="error"-->
+                <!--*ngIf="(trim.get('formRequires').value['receivedDateToOnUtc'].required && !trim.get('receivedDateToOnUtc').value)">-->
+                <!--{{validationMessages['receivedDateToOnUtc'].required}}</label>-->
+                <label class="error nowrap"
+                       *ngIf="trim.get('receivedDateToOnUtc').hasError('minDate') && !trim.get('receivedDateToOnUtc').pristine">
+                  {{validationMessages['receivedDateToOnUtc'].maxLength}}</label>
+              </div>
+              <!--<div class="col-sm-12 span-date" *ngIf="+trim.get('status').value === taskStatus.PARTIALLYRECEIVED">-->
+              <!--<span *ngIf="trim.get('previousReceivedDateToOnUtc').value">-->
+              <!--{{trim.get('previousReceivedDateToOnUtc').value | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>-->
+              <!--</div>-->
+              <div class="col-sm-12" style="height: 31px"
+                   *ngIf="+trim.get('status').value !== taskStatus.RECEIVED && +trim.get('status').value !== taskStatus.PARTIALLYRECEIVED">
+
+              </div>
+            </div>
+          </div>
+          <div
+            [ngClass]="{'topleft': !last || vendors.value.length === 1,
+                      'topright': (last && vendors.value.length > 1) || (i === vendors.value.length - 2 && vendors.value.length > 2)}">
+            <div class="row flex py-1">
+              <div class="col-sm-12 file-upload"
+                   [ngClass]="{'has-error':!trim.get('carrierId').valid,
+                    'disabled': isPageReadOnly || (+trim.get('status').value !== taskStatus.RECEIVED && +trim.get('status').value !== taskStatus.PARTIALLYRECEIVED)}">
+                <ng-select [items]="shippingCarrier" #carrierSelect
+                           [placeholder]="!isPageReadOnly &&
+                       (+trim.get('status').value === taskStatus.RECEIVED || +trim.get('status').value === taskStatus.PARTIALLYRECEIVED) ? 'Carrier' : ''"
+                           [virtualScroll]="true"
+                           (focus)="onSelectFocused(carrierSelect)"
+                           (open)="carrierSelect.filterValue = !!trim.get('carrierId').value ? trim.get('carrierName').value : ''"
+                           (add)="onSelectItem($event, trim, 'name', 'carrierName')"
+                           (clear)="trim.get('carrierName').patchValue('')"
+                           bindLabel="name"
+                           bindValue="id"
+                           formControlName="carrierId"></ng-select>
+              </div>
+            </div>
+            <div class="row flex py-1">
+              <div class="col-sm-12 file-upload"
+                   [ngClass]="{'has-error':!trim.get('trackingNumber').valid}">
+                <input formControlName='trackingNumber'
+                       type="text"
+                       [placeholder]="!isPageReadOnly &&
+                       (+trim.get('status').value === taskStatus.RECEIVED || +trim.get('status').value === taskStatus.PARTIALLYRECEIVED) ? 'Tracking #' : ''"
+                       [attr.disabled]="isPageReadOnly || (+trim.get('status').value !== taskStatus.RECEIVED && +trim.get('status').value !== taskStatus.PARTIALLYRECEIVED) ? true : null"
+                       class="form-control">
+              </div>
+            </div>
+          </div>
+          <div
+            [ngClass]="{'disappear': +trim.get('status').value !== taskStatus.RECEIVED && +trim.get('status').value !== taskStatus.PARTIALLYRECEIVED,
+             'topleft': !last || vendors.value.length === 1,
+             'topright': (last && vendors.value.length > 1) || (i === vendors.value.length - 2 && vendors.value.length > 2)}">
+            <div class="row flex py-1">
+              <div class="col-sm-12 file-upload"
+                   [ngClass]="{'has-error':!trim.get('checkedDateFromOnUtc').valid}">
+                <my-date-picker class="flex" [options]="trim.get('checkedDateFromOptions').value"
+                                formControlName='checkedDateFrom' #checkedDateFromPicker
+                                (dateChanged)="onDateChangedBy($event, trim, 'checkedDateFromOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, checkedDateFromPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, checkedDateFromPicker, trim.get('checkedDateFromOnUtc'))"></my-date-picker>
+                <label class="error"
+                       *ngIf="trim.get('checkedDateFromOnUtc').hasError('required') && !trim.get('checkedDateFromOnUtc').pristine">
+                  {{validationMessages['default'].required}}</label>
+                <label class="error nowrap"
+                       *ngIf="trim.get('checkedDateFromOnUtc').hasError('maxDate') && !trim.get('checkedDateFromOnUtc').pristine">
+                  {{validationMessages['checkedDateFromOnUtc'].maxLength}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1">
+              <div class="col-sm-12 file-upload"
+                   [ngClass]="{'has-error':!trim.get('checkedDateToOnUtc').valid}">
+                <my-date-picker class="flex" [options]="trim.get('checkedDateToOptions').value"
+                                formControlName='checkedDateTo' #checkedDateToPicker
+                                [defaultMonth]="myDatePickerService.configDefaultMonth(trim.get('checkedDateFrom').value)"
+                                (dateChanged)="onDateChangedBy($event, trim, 'checkedDateToOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, checkedDateToPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, checkedDateToPicker, trim.get('checkedDateToOnUtc'))"></my-date-picker>
+                <!--<label class="error"-->
+                <!--*ngIf="(trim.get('formRequires').value['checkedDateToOnUtc'].required && !trim.get('checkedDateToOnUtc').value)">-->
+                <!--{{validationMessages['checkedDateToOnUtc'].required}}</label>-->
+                <label class="error nowrap"
+                       *ngIf="trim.get('checkedDateToOnUtc').hasError('minDate') && !trim.get('checkedDateToOnUtc').pristine">
+                  {{validationMessages['checkedDateToOnUtc'].maxLength}}</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </form>
+</ng-template>
+

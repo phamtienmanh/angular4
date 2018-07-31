@@ -1,0 +1,81 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0 nowrap">Phys. Sample Approved By Testing Facility (PP) - Change Status</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()">
+    <lead-eta [rowDetail]="rowDetail" [isPageReadOnly]="isPageReadOnly || isLeadTimeReadOnly"></lead-eta>
+    <div class="row flex py-1"
+         [ngClass]="{'required': frm.get('formRequires').value['physSampleApprovedByTestingFacilityPpStatus'].required}">
+      <div class="col-7">
+        <div class="row">
+          <div class="col-6 control-label text-right">
+            <label>Status</label>
+          </div>
+          <div class="col-6"
+               [ngClass]="{'has-error': !frm.get('physSampleApprovedByTestingFacilityPpStatus').valid,
+                    'disabled': isPageReadOnly}">
+            <ng-select [items]="statusData"
+                       [placeholder]="!isPageReadOnly ? 'Status' : ''"
+                       [searchable]="false" #statusSelect
+                       (focus)="onSelectFocused(statusSelect)"
+                       bindLabel="name"
+                       bindValue="id"
+                       formControlName="physSampleApprovedByTestingFacilityPpStatus">
+            </ng-select>
+            <label class="error"
+                   *ngIf="frm.get('physSampleApprovedByTestingFacilityPpStatus').hasError('required') && !frm.get('physSampleApprovedByTestingFacilityPpStatus').pristine">
+              {{validationMessages['default'].required}}</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ng-container *ngIf="frm.get('physSampleApprovedByTestingFacilityPpStatus').value && frm.get('physSampleApprovedByTestingFacilityPpStatus').value !== taskStatus.BLANK">
+      <div class="row py-1">
+        <div class="col-7">
+          <ng-container *ngIf="frm.get('physSampleApprovedByTestingFacilityPpStatus').value === taskStatus.DONE">
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['physSampleApprovedByTestingFacilityPpOnUtc'].required}">
+              <div class="col-6 control-label text-right">
+                <label class="nowrap">Date Approved</label>
+              </div>
+              <div class="col-6"
+                   [ngClass]="{'has-error':!frm.get('physSampleApprovedByTestingFacilityPpOnUtc').valid}">
+                <my-date-picker class="flex" [options]="myTodayPickerOptions"
+                                #physSampleApprovedByTestingFacilityPpPicker
+                                formControlName='physSampleApprovedByTestingFacilityPp'
+                                [ngClass]="{'disabled': isPageReadOnly}"
+                                [disabled]="isPageReadOnly"
+                                (dateChanged)="onDateChangedBy($event, 'physSampleApprovedByTestingFacilityPpOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, physSampleApprovedByTestingFacilityPpPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, physSampleApprovedByTestingFacilityPpPicker, frm.get('physSampleApprovedByTestingFacilityPpOnUtc'))"></my-date-picker>
+                <label class="error"
+                       *ngIf="frm.get('physSampleApprovedByTestingFacilityPpOnUtc').hasError('required') && !frm.get('physSampleApprovedByTestingFacilityPpOnUtc').pristine">
+                  {{validationMessages['default'].required}}</label>
+                <label class="error"
+                       *ngIf="frm.get('physSampleApprovedByTestingFacilityPpOnUtc').hasError('maxDate') && !frm.get('physSampleApprovedByTestingFacilityPpOnUtc').pristine">
+                  {{validationMessages['default'].maxLength}}
+                </label>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </ng-container>
+  </form>
+</div>
+<div class="modal-footer">
+  <ng-container *ngIf="!isPageReadOnly">
+    <button class="btn btn-complete"
+            (click)="onSubmitForm()">
+      Save
+    </button>
+  </ng-container>
+  <button class="btn btn-default"
+          (click)="activeModal.dismiss()">
+    Cancel
+  </button>
+</div>
+

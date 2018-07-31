@@ -1,0 +1,34 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0">Change Bin #</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <div class="row flex py-1">
+    <div class="col-sm-4 control-label text-right">
+      <label class="nowrap p-r-0">Bin #</label>
+    </div>
+    <div class="col-sm-7">
+      <ng-select [items]="sampleBinList" #sampleBinIdSelect
+                 [virtualScroll]="true"
+                 (focus)="onSelectFocused(sampleBinIdSelect)"
+                 (open)="onSelectOpen(sampleBinIdSelect)"
+                 (change)="onChangeSelect($event)"
+                 [placeholder]="!isPageReadOnly ? 'Bin #' : ''"
+                 bindLabel="name"
+                 bindValue="id"
+                 [(ngModel)]="sampleBinId"></ng-select>
+    </div>
+  </div>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-complete"
+          (click)="onSubmitForm()">
+    Save
+  </button>
+  <button class="btn btn-default"
+          (click)="activeModal.dismiss()">
+    Cancel
+  </button>
+</div>

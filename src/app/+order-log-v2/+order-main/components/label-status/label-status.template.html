@@ -1,0 +1,28 @@
+<p [class]="'stt-p ' + getStatusObj(columnStatus).className" #statusElm>
+  {{getStatusObj(columnStatus).id ? preFixName : ''}}{{shortName ? shortName : getStatusObj(columnStatus).name}}</p>
+<button type="button" *ngIf="isReorder && isConfirmReorder === null"
+        class="btn btn-success btn-small m-t-5"
+        (click)="confirmReorder($event)">Conf Reorder
+</button>
+<button type="button" *ngIf="isShowUpdateSchedulerStatus"
+        class="btn btn-success btn-small m-t-5 p-l-10 p-r-10"
+        (click)="updateSchedulerStatus($event)">NA
+</button>
+<!--<div *ngIf="isMarkedMode; then isMarkedBlock else normalBlock"></div>-->
+<!--<ng-template #isMarkedBlock>-->
+<!--<p class="stt-p stt-green" *ngIf="columnStatus === taskStatus.RECEIVED">-->
+<!--Received-->
+<!--<ng-container *ngTemplateOutlet="checkMark"></ng-container>-->
+<!--</p>-->
+<!--<p class="stt-p stt-light-green" *ngIf="columnStatus === taskStatus.PARTIALLYRECEIVED">-->
+<!--Partial Rcvd-->
+<!--<ng-container *ngTemplateOutlet="checkMark"></ng-container>-->
+<!--</p>-->
+<!--<ng-template #checkMark>-->
+<!--<i class="fa fa-check bold ml-1" [ngClass]="{'color-lightgrey': isMarked, 'color-black': !isMarked}"></i>-->
+<!--</ng-template>-->
+<!--</ng-template>-->
+<!--<ng-template #normalBlock>-->
+<!--<p class="stt-p stt-green" *ngIf="columnStatus === taskStatus.RECEIVED">Received</p>-->
+<!--<p class="stt-p stt-light-green" *ngIf="columnStatus === taskStatus.PARTIALLYRECEIVED">Partial Rcvd</p>-->
+<!--</ng-template>-->

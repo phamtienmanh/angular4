@@ -1,0 +1,311 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0 nowrap">Packaging approved by Licensor - Change Status</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()">
+    <lead-eta [rowDetail]="rowDetail" [isPageReadOnly]="isPageReadOnly || isLeadTimeReadOnly"></lead-eta>
+    <button type="button" class="btn btn-complete btn-cons" (click)="selectPackagings()" *ngIf="!isPageReadOnly ">
+      Select Packaging(s)
+    </button>
+    <hr>
+    <div class="row" *ngIf="packagings && packagings.value && packagings.value.length">
+      <div class="p-l-f-0">
+        <div class="row flex" [ngStyle]="{'height': packagingMaxHeight}"></div>
+        <div class="row flex py-1" style="height: 38px" [ngClass]="{'required': false}">
+          <div class="col-sm-12 control-label text-center">
+            <label>Status</label>
+          </div>
+        </div>
+        <div class="row flex py-1" style="height: 38px">
+          <div class="col-sm-12 control-label text-center">
+            <label class="nowrap">Date Submitted</label>
+          </div>
+        </div>
+        <div class="row flex py-1" style="height: 38px">
+          <div class="col-sm-12 control-label text-center">
+            <label class="nowrap">Date Rejected</label>
+          </div>
+        </div>
+        <div class="row flex py-1" style="height: 38px">
+          <div class="col-sm-12 control-label text-center">
+            <label class="nowrap">Date Approved</label>
+          </div>
+        </div>
+        <div class="row flex py-1" style="height: 38px">
+          <div class="col-sm-12 control-label text-center">
+            <label class="nowrap">Date Dropped</label>
+          </div>
+        </div>
+        <div class="row flex py-1" style="height: 68px" [ngClass]="{'required': false}">
+          <div class="col-sm-12 control-label text-center">
+            <label>Comments</label>
+          </div>
+        </div>
+        <div class="row flex py-1">
+          <div class="col-sm-12 control-label text-center">
+            <label class="nowrap">Images</label>
+          </div>
+        </div>
+      </div>
+      <div
+        [ngClass]="{'col-sm-10': packagings.controls.length >= 3, 'col-sm-9': packagings.controls.length <= 2}">
+        <ng-template [ngIf]="packagings.controls.length > 3">
+          <perfect-scrollbar [config]="{suppressScrollX: false, suppressScrollY: true}">
+            <ng-container *ngTemplateOutlet="packagingTypes"></ng-container>
+          </perfect-scrollbar>
+        </ng-template>
+        <ng-template [ngIf]="packagings.controls.length <= 3">
+          <ng-container *ngTemplateOutlet="packagingTypes"></ng-container>
+        </ng-template>
+      </div>
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <ng-container *ngIf="!isPageReadOnly">
+    <button class="btn btn-complete"
+            (click)="onSubmitForm()">
+      Save
+    </button>
+  </ng-container>
+  <button class="btn btn-default"
+          (click)="activeModal.dismiss()">
+    Cancel
+  </button>
+</div>
+
+<ng-template #packagingTypes>
+  <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()" (click)="formClick($event)"
+        class="full-height-trim">
+    <div formArrayName="updatePackaging">
+      <div class="row flex-nowrap full-width" #packagingNameList>
+        <!--Haven't trackBy func b/c must render all item to sort form group-->
+        <div *ngFor="let packaging of packagings.controls | formSortBy: 'type'"
+             [ngClass]="{'col-sm-4': packagings.controls.length >= 3, 'col-sm-6': packagings.controls.length === 2,
+           'col-sm-12': packagings.controls.length === 1, 'px-0': packagings.controls.length === 1}">
+          <div class="row flex py-1">
+            <div class="col-sm-12 text-center">
+              {{packaging.get('typeName').value}}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row flex-nowrap full-width p-b-5">
+        <!--Haven't trackBy func b/c must render all item to sort form group-->
+        <ng-container
+          *ngFor="let packaging of packagings.controls | formSortBy: 'type'; let i=index; let first=first; let last=last"
+          [formGroupName]="i">
+          <div [ngClass]="{'col-sm-4': packagings.controls.length >= 3, 'col-sm-6': packagings.controls.length === 2,
+                  'col-sm-12': packagings.controls.length === 1, 'px-0': packagings.controls.length === 1,
+                     'p-l-f-0': packagings.controls.length > 1, 'border-right': !last}">
+            <div class="row flex py-1">
+              <div class="col-sm-12"
+                   [ngClass]="{'has-error':!packaging.get('status').valid, 'disabled': isPageReadOnly}">
+                <ng-select [items]="statusData"
+                           [placeholder]="!isPageReadOnly ? 'Status' : ''"
+                           [searchable]="false" #statusSelect
+                           (focus)="onSelectFocused(statusSelect)"
+                           bindLabel="name"
+                           bindValue="id"
+                           formControlName="status"></ng-select>
+                <label class="error"
+                       *ngIf="packaging.get('status').hasError('required') && !packaging.get('status').pristine">
+                  {{validationMessages['default'].required}}</label>
+              </div>
+            </div>
+
+            <ng-container *ngIf="packaging.get('status').value === taskStatus.APPROVED">
+              <ng-template *ngTemplateOutlet="submittedDateField"></ng-template>
+              <ng-template *ngTemplateOutlet="blankDateField"></ng-template>
+              <ng-template *ngTemplateOutlet="approvedDateField"></ng-template>
+              <ng-template *ngTemplateOutlet="blankDateField"></ng-template>
+              <ng-template *ngTemplateOutlet="commentField"></ng-template>
+            </ng-container>
+
+            <ng-container *ngIf="packaging.get('status').value === taskStatus.APPROVEDWCHANGES">
+              <ng-template *ngTemplateOutlet="submittedDateField"></ng-template>
+              <ng-template *ngTemplateOutlet="blankDateField"></ng-template>
+              <ng-template *ngTemplateOutlet="approvedDateField"></ng-template>
+              <ng-template *ngTemplateOutlet="blankDateField"></ng-template>
+              <ng-template *ngTemplateOutlet="commentField"></ng-template>
+            </ng-container>
+
+            <ng-container *ngIf="packaging.get('status').value === taskStatus.REJECTED">
+              <ng-template *ngTemplateOutlet="submittedDateField"></ng-template>
+              <ng-template *ngTemplateOutlet="rejectedDateField"></ng-template>
+              <ng-template *ngTemplateOutlet="blankDateField"></ng-template>
+              <ng-template *ngTemplateOutlet="blankDateField"></ng-template>
+              <ng-template *ngTemplateOutlet="commentField"></ng-template>
+            </ng-container>
+
+            <ng-container *ngIf="packaging.get('status').value === taskStatus.DROPPED">
+              <ng-template *ngTemplateOutlet="blankDateField"></ng-template>
+              <ng-template *ngTemplateOutlet="blankDateField"></ng-template>
+              <ng-template *ngTemplateOutlet="blankDateField"></ng-template>
+              <ng-template *ngTemplateOutlet="droppedDateField"></ng-template>
+              <ng-template *ngTemplateOutlet="commentField"></ng-template>
+            </ng-container>
+
+            <ng-container
+              *ngIf="!packaging.get('status').value || packaging.get('status').value === taskStatus.BLANK">
+              <ng-template *ngTemplateOutlet="blankDateField"></ng-template>
+              <ng-template *ngTemplateOutlet="blankDateField"></ng-template>
+              <ng-template *ngTemplateOutlet="blankDateField"></ng-template>
+              <ng-template *ngTemplateOutlet="blankDateField"></ng-template>
+              <ng-template *ngTemplateOutlet="blankCommentField"></ng-template>
+            </ng-container>
+
+            <ng-template #blankDateField>
+              <div class="row flex py-1">
+                <div class="col-sm-12" style="height: 30px"></div>
+              </div>
+            </ng-template>
+            <ng-template #blankCommentField>
+              <div class="row flex py-1">
+                <div class="col-sm-12" style="height: 60px"></div>
+              </div>
+            </ng-template>
+            <ng-template #submittedDateField>
+              <div class="row flex py-1">
+                <div class="col-sm-12"
+                     [ngClass]="{'has-error':!packaging.get('dateSubmittedOnUtc').valid, 'none-left': first}">
+                  <my-date-picker class="flex" [options]="myTodayPickerOptions"
+                                  formControlName='dateSubmitted' #dateSubmittedPicker
+                                  [ngClass]="{'disabled': isPageReadOnly}"
+                                  [disabled]="isPageReadOnly"
+                                  (dateChanged)="onDateChangedBy($event, packaging, 'dateSubmittedOnUtc')"
+                                  (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, dateSubmittedPicker)"
+                                  (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, dateSubmittedPicker, packaging.get('dateSubmittedOnUtc'))"></my-date-picker>
+                  <label class="error"
+                         *ngIf="packaging.get('dateSubmittedOnUtc').hasError('required') && !packaging.get('dateSubmittedOnUtc').pristine">
+                    {{validationMessages['default'].required}}</label>
+                  <label class="error nowrap"
+                         *ngIf="packaging.get('dateSubmittedOnUtc').hasError('maxDate') && !packaging.get('dateSubmittedOnUtc').pristine">
+                    {{validationMessages['dateSubmittedOnUtc'].maxLength}}</label>
+                </div>
+              </div>
+            </ng-template>
+            <ng-template #rejectedDateField>
+              <div class="row flex py-1">
+                <div class="col-sm-12"
+                     [ngClass]="{'has-error':!packaging.get('dateRejectedOnUtc').valid, 'none-left': first}">
+                  <my-date-picker class="flex" [options]="myTodayPickerOptions"
+                                  formControlName='dateRejected' #dateRejectedPicker
+                                  [ngClass]="{'disabled': isPageReadOnly}"
+                                  [disabled]="isPageReadOnly"
+                                  (dateChanged)="onDateChangedBy($event, packaging, 'dateRejectedOnUtc')"
+                                  (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, dateRejectedPicker)"
+                                  (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, dateRejectedPicker, packaging.get('dateRejectedOnUtc'))"></my-date-picker>
+                  <label class="error"
+                         *ngIf="packaging.get('dateRejectedOnUtc').hasError('required') && !packaging.get('dateRejectedOnUtc').pristine">
+                    {{validationMessages['default'].required}}</label>
+                  <label class="error nowrap"
+                         *ngIf="packaging.get('dateRejectedOnUtc').hasError('maxDate') && !packaging.get('dateRejectedOnUtc').pristine">
+                    {{validationMessages['dateRejectedOnUtc'].maxLength}}</label>
+                </div>
+              </div>
+            </ng-template>
+            <ng-template #droppedDateField>
+              <div class="row flex py-1">
+                <div class="col-sm-12"
+                     [ngClass]="{'has-error':!packaging.get('dateDroppedOnUtc').valid, 'none-left': first}">
+                  <my-date-picker class="flex" [options]="myTodayPickerOptions"
+                                  formControlName='dateDropped' #dateDroppedPicker
+                                  [ngClass]="{'disabled': isPageReadOnly}"
+                                  [disabled]="isPageReadOnly"
+                                  (dateChanged)="onDateChangedBy($event, packaging, 'dateDroppedOnUtc')"
+                                  (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, dateDroppedPicker)"
+                                  (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, dateDroppedPicker, packaging.get('dateDroppedOnUtc'))"></my-date-picker>
+                  <label class="error"
+                         *ngIf="packaging.get('dateDroppedOnUtc').hasError('required') && !packaging.get('dateDroppedOnUtc').pristine">
+                    {{validationMessages['default'].required}}</label>
+                  <label class="error nowrap"
+                         *ngIf="packaging.get('dateDroppedOnUtc').hasError('maxDate') && !packaging.get('dateDroppedOnUtc').pristine">
+                    {{validationMessages['dateDroppedOnUtc'].maxLength}}</label>
+                </div>
+              </div>
+            </ng-template>
+            <ng-template #approvedDateField>
+              <div class="row flex py-1">
+                <div class="col-sm-12"
+                     [ngClass]="{'has-error':!packaging.get('dateApprovedOnUtc').valid, 'none-left': first}">
+                  <my-date-picker class="flex" [options]="myTodayPickerOptions"
+                                  formControlName='dateApproved' #dateApprovedPicker
+                                  [ngClass]="{'disabled': isPageReadOnly}"
+                                  [disabled]="isPageReadOnly"
+                                  (dateChanged)="onDateChangedBy($event, packaging, 'dateApprovedOnUtc')"
+                                  (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, dateApprovedPicker)"
+                                  (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, dateApprovedPicker, packaging.get('dateApprovedOnUtc'))"></my-date-picker>
+                  <label class="error"
+                         *ngIf="packaging.get('dateApprovedOnUtc').hasError('required') && !packaging.get('dateApprovedOnUtc').pristine">
+                    {{validationMessages['default'].required}}</label>
+                  <label class="error nowrap"
+                         *ngIf="packaging.get('dateApprovedOnUtc').hasError('maxDate') && !packaging.get('dateApprovedOnUtc').pristine">
+                    {{validationMessages['dateApprovedOnUtc'].maxLength}}</label>
+                </div>
+              </div>
+            </ng-template>
+            <ng-template #commentField>
+              <div class="row flex py-1">
+                <div class="col-sm-12 my-textarea"
+                     [ngClass]="{'disappear': packaging.get('status').value === taskStatus.COMPLETED}">
+                <textarea formControlName='comments'
+                          type="text"
+                          [placeholder]="!isPageReadOnly ? 'Comments' : ''"
+                          [attr.disabled]="isPageReadOnly ? true : null"
+                          class="form-control"></textarea>
+                </div>
+              </div>
+            </ng-template>
+
+            <div class="row flex py-1">
+              <div class="col-sm-12 flex justify-content-center">
+                <div class="upload-box"
+                     ng2FileDrop
+                     [ngClass]="{'nv-file-over': packaging.get('hasBaseDropZoneOver').value}"
+                     (fileOver)="fileOverBase($event, packaging)"
+                     (onFileDrop)="onFileDropped($event, packaging, index)"
+                     [uploader]="uploader"
+                     *ngIf="!packaging.get('imageUrl').value && !isPageReadOnly">
+                  <div class="contain text-center">
+                    <div class="icon">
+                      <i class="fa fa-upload" aria-hidden="true"></i>
+                    </div>
+                    <div class="text">Drop files to upload</div>
+                    <div class="button">
+                      <label class="btn mt-2 py-1">
+                        Or Click Here <input type="file" (change)="uploadImage(packaging, i)"
+                                             [id]="'styleInputFile-' + i"
+                                             [style.display]="'none'"
+                                             ng2FileSelect style="opacity: 0"
+                                             [uploader]="uploader" accept=".png, .jpg"/><br/>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="showImage text-center full-width relative"
+                     *ngIf="packaging.get('imageUrl').value">
+                  <img [src]="packaging.get('absoluteUrl').value" height="auto"
+                       class="full-width img-thumbnail-none-wh width-responsive" imgZoomClick/>
+                  <span class="remove-image" (click)="removeImage(packaging)"
+                        *ngIf="!isPageReadOnly">
+                    <i aria-hidden="true" class="fa fa-times"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <ng-container *ngIf="packagings.controls.length > 3">
+              <div class="row flex py-1">
+                <div class="col-sm-12" style="height: 30px"></div>
+              </div>
+            </ng-container>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </form>
+</ng-template>

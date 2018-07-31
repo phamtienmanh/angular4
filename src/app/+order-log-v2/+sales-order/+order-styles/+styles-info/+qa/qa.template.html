@@ -1,0 +1,125 @@
+<div class="px-3 py-2">
+  <form [formGroup]="frm" role="form" novalidate="">
+    <div class="row">
+      <div class="col-xl-6 col-lg-10 col-sm-12">
+        <div class="row flex py-1"
+             [ngClass]="{'required': frm.get('formRequires').value['auditorId'].required}">
+          <div class="col-4 control-label text-right">
+            <label>Auditor</label>
+          </div>
+          <div class="col-6"
+               [ngClass]="{'has-error':!frm.get('auditorId').valid,
+                   'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled}">
+            <ng-select [items]="auditorData" #auditorSelect
+                       [virtualScroll]="true"
+                       [searchable]="false"
+                       [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled ? 'Auditor' : ''"
+                       (focus)="onSelectFocused(auditorSelect)"
+                       bindLabel="fullName"
+                       bindValue="id"
+                       formControlName="auditorId"></ng-select>
+            <label class="error"
+                   *ngIf="frm.get('auditorId').hasError('required') && !frm.get('auditorId').pristine">
+              {{validationMessages['auditorId'].required}}</label>
+          </div>
+        </div>
+        <div class="row flex py-1"
+             [ngClass]="{'required': frm.get('formRequires').value['auditDateOnUtc'].required}">
+          <div class="col-4 control-label text-right">
+            <label class="nowrap">Audit Date</label>
+          </div>
+          <div class="col-6"
+               [ngClass]="{'has-error':!frm.get('auditDateOnUtc').valid}">
+            <my-date-picker class="flex" [options]="auditDateOptions"
+                            #auditDatePicker
+                            formControlName='auditDate'
+                            [ngClass]="{'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled}"
+                            [disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled"
+                            (dateChanged)="onDateChangedBy($event, 'auditDateOnUtc')"
+                            (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, auditDatePicker)"
+                            (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, auditDatePicker, frm.get('auditDateOnUtc'))"></my-date-picker>
+            <label class="error"
+                   *ngIf="frm.get('auditDateOnUtc').hasError('required') && !frm.get('auditDateOnUtc').pristine">
+              {{validationMessages['auditDateOnUtc'].required}}</label>
+            <label class="error"
+                   *ngIf="frm.get('auditDateOnUtc').hasError('maxDate') && !frm.get('auditDateOnUtc').pristine">
+              {{validationMessages['default'].maxLength}}</label>
+          </div>
+        </div>
+        <div class="row flex py-1">
+          <div class="col-3"></div>
+          <div class="col-3">
+            <div class="row flex align-items-center">
+              <div class="col-sm-2">
+                <div class="radio radio-success">
+                  <input type="radio" id="standard" value="1" checked
+                         formControlName='auditType'
+                         [attr.disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled ? true : null">
+                  <label for="standard"></label>
+                </div>
+              </div>
+              <div class="col-sm-9 control-label">
+                <label>Standard</label>
+              </div>
+            </div>
+          </div>
+          <div class="col-3">
+            <div class="row flex align-items-center">
+              <div class="col-sm-2">
+                <div class="radio radio-success">
+                  <input type="radio" id="inspection" value="2"
+                         formControlName='auditType'
+                         [attr.disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled ? true : null">
+                  <label for="inspection"></label>
+                </div>
+              </div>
+              <div class="col-sm-9 control-label">
+                <label>100% Inspection</label>
+              </div>
+            </div>
+          </div>
+          <div class="col-1 btn-upload">
+          <span class="cursor"
+                (click)="openUploader(styleUploadedType.QA)"
+                *ngIf="!checkLengthUploaderByType() && !isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled">
+            <i class="fa fa-upload fa-lg" aria-hidden="true"></i>
+          </span>
+            <span class="cursor"
+                  (click)="openUploader(styleUploadedType.QA)"
+                  *ngIf="checkLengthUploaderByType()">
+            <i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"></i>
+          </span>
+          </div>
+        </div>
+        <div class="row flex py-1">
+          <div class="col-4 control-label text-right">
+            <label class="nowrap">Comment</label>
+          </div>
+          <div class="col-6 my-textarea">
+          <textarea formControlName='comment'
+                    type="text"
+                    [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled ? 'Comment' : ''"
+                    [attr.disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled ? true : null"
+                    class="form-control"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+    <div class="row" *ngIf="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled">
+      <div class="col-lg-6 col-sm-12 py-2">
+        <div class="row flex py-1">
+          <div class="col-sm-4"></div>
+          <div class="col-sm-6">
+            <button class="btn btn-complete btn-cons"
+                    (click)="onSubmitForm()">Save
+            </button>
+            <!--<button class="btn btn-default btn-cons"-->
+            <!--(click)="onCancel()">Cancel-->
+            <!--</button>-->
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,172 @@
+trim-submits-due {
+  .border-btm {
+    border-bottom: 1px solid #ddd;
+  }
+  .m-l--10 {
+    margin-left: -10px;
+  }
+  .hr-space {
+    position: absolute;
+    margin: 0 0 0 -10px;
+  }
+
+  .p-l-f-0 {
+    padding-right: 25px !important;
+
+    div.row > div {
+      padding-right: 0 !important;
+    }
+  }
+  my-date-picker .mydp {
+    //.btnpicker {
+    //  visibility: hidden;
+    //}
+    //.btnclear {
+    //  position: absolute;
+    //}
+    .selector.selectorarrow.selectorarrowleft {
+      left: 0 !important;
+      bottom: -60px !important;
+    }
+  }
+  .topleft {
+    height: 76px;
+    my-date-picker .mydp {
+      .selector.selectorarrow.selectorarrowleft {
+        left: 0 !important;
+        bottom: 0 !important;
+      }
+    }
+  }
+  .topright {
+    height: 76px;
+    my-date-picker .mydp {
+      .selector.selectorarrow.selectorarrowleft {
+        right: 0 !important;
+        left: auto !important;
+        bottom: 0 !important;
+      }
+    }
+  }
+  .topright-upload {
+    my-date-picker .mydp {
+      .selector.selectorarrow.selectorarrowleft {
+        right: 0 !important;
+        left: auto !important;
+        bottom: -60px !important;
+      }
+    }
+  }
+
+  .file-upload {
+    my-date-picker .mydp {
+      //.btnclear {
+      //  position: absolute;
+      //}
+    }
+  }
+
+  .btn-upload {
+    position: relative;
+    top: 5px;
+    padding-left: 10px !important;
+  }
+
+  .btn-upload-left {
+    left: -15px;
+  }
+
+  .input-group .form-control:not(:last-child), .input-group-addon:not(:last-child), .input-group-btn:not(:last-child) > .btn, .input-group-btn:not(:last-child) > .btn-group > .btn, .input-group-btn:not(:last-child) > .dropdown-toggle, .input-group-btn:not(:first-child) > .btn:not(:last-child):not(.dropdown-toggle), .input-group-btn:not(:first-child) > .btn-group:not(:last-child) > .btn {
+    border-right: 0 !important;
+  }
+  .input-group .input-group-addon {
+    background: white !important;
+    border-color: #ccc;
+    color: #626262 !important;
+    z-index: 9;
+  }
+
+  .input-group-addon {
+    position: absolute;
+    right: 0;
+  }
+
+  .error {
+    position: absolute;
+    z-index: 9;
+  }
+
+  .border-right {
+    border-right: 1px solid #ddd;
+  }
+
+  .warehouse {
+    height: 76px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .span-date {
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .full-height-trim {
+    height: 100%;
+    perfect-scrollbar {
+      height: 100%;
+      .ps-content {
+        height: 100%;
+        & > div:nth-of-type(2) {
+          height: 93%;
+        }
+      }
+    }
+  }
+
+  label.error {
+    height: 10px !important;
+    line-height: 8.5px !important;
+    font-size: 10px !important;
+  }
+
+  .my-textarea {
+    textarea {
+      min-height: 60px !important;
+    }
+  }
+
+  .style-name {
+    width: 175px;
+    word-wrap: break-word;
+    text-align: left;
+    line-height: 15px;
+  }
+
+  .checkbox {
+    margin-bottom: 0 !important;
+    margin-top: 5px !important;
+    padding-left: 0 !important;
+    label {
+      margin-bottom: 0 !important;
+      margin-right: 0;
+    }
+    label::before {
+      left: 2px;
+    }
+  }
+
+  .style-checkbox {
+    label {
+      &:before {
+        top: -11.6px;
+      }
+      &:after {
+        top: -13px;
+      }
+    }
+  }
+}

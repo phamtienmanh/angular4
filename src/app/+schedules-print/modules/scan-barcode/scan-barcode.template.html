@@ -1,0 +1,40 @@
+<div class="modal-header m-b-10">
+  <h4 class="modal-title">
+    Authorize Quantities<ng-template [ngIf]="scanTypeName"> - {{scanTypeName}}</ng-template>
+  </h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.close({status: false})">
+    <span aria-hidden="true">×</span>
+  </button>
+</div>
+<div class="modal-body">
+  <div class="row flex pt-1">
+    <div class="col-sm-4"></div>
+    <div class="col-sm-6">
+      <span class="bold">Confirming quantities requires manager approval</span>
+    </div>
+  </div>
+  <div class="row flex py-1"
+       [ngClass]="{'required': true}">
+    <div class="col-sm-4 control-label text-right">
+      <label>Scan Badge ID</label>
+    </div>
+    <div class="col-sm-6">
+      <input type="text" class="form-control masked" [(ngModel)]="badgeId" (change)="onChange($event)" [focusOnInit]="true">
+    </div>
+  </div>
+  <div class="error-msg" [ngClass]="{'none': !isWrongBadgeId}">
+    <!-- <p class="mbe-1">Invalid Badge ID {{wrongBadgeId}}</p> -->
+    <p class="mbe-1">Invalid Badge ID</p>
+    <p>You are not authorized to use this function.</p>
+  </div>
+</div>
+<div class="modal-footer">
+  <!--<button class="btn btn-complete"-->
+  <!--(click)="onSubmit()">-->
+  <!--Save-->
+  <!--</button>-->
+  <button class="btn btn-default"
+          (click)="activeModal.close({status: false})">
+    Close
+  </button>
+</div>

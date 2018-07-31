@@ -1,0 +1,113 @@
+@import '~styles/_var.scss'; // see webpack.dev.js > sassLoader
+
+dashboard {
+  display: block;
+  height: 5000px;
+  padding-bottom: 50px;
+  .report-header {
+    z-index: 99;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+  .color-black {
+    color: #000;
+  }
+  .width-40 {
+    width: 40px;
+  }
+
+  .button-holder {
+    display: flex;
+    flex-direction: column;
+  }
+  .handle-header {
+    flex-shrink: 0;
+    height: 30px;
+    width: 100%;
+    background: #ccc;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    justify-content: space-between;
+  }
+
+  gridster {
+    background: #fff !important;
+  }
+
+  gridster-item {
+    border: 1px solid #ccc;
+  }
+
+  .gridster-item-content {
+    margin: 10px;
+    position: relative;
+    flex-grow: 1;
+    overflow: hidden;
+  }
+
+  table {
+    margin: 0 !important;
+    .collapse-toggle {
+      transition: .3s transform ease-in-out;
+    }
+    .collapsed {
+      transform: rotate(-90deg);
+    }
+    td, th {
+      background: #fff!important;
+      padding: .5em 0.4em !important;
+      color: #2c2c2c !important;
+      text-align: center !important;
+      font-size: 12px !important;
+      border: 1px solid hsla(0,0%,90%,.8);
+      white-space: nowrap !important;
+      min-width: 40px;
+    }
+    th {
+      text-transform: none !important;
+      font-family: Montserrat;
+      font-weight: 500 !important;
+      background-color: #f1f1f1 !important;
+    }
+    tr th {
+      white-space: nowrap;
+      &:last-child {
+        min-width: 60px !important;
+      }
+    }
+    .selected {
+      span {
+        display: block;
+        background-color: #d9d9d9;
+      }
+    }
+  }
+
+  .action-btn {
+    margin-top: 5px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    cursor: pointer;
+  }
+
+  my-date-picker {
+    width: 135px;
+  }
+
+  .dropdown-menu {
+    width: 320px;
+    .checkbox {
+      margin-bottom: 0 !important;
+      margin-top: 0 !important;
+      &:after {
+        top: 0.5px;
+      }
+      label {
+        margin-bottom: .2rem;
+      }
+    }
+  }
+}
+

@@ -1,0 +1,54 @@
+<div class="px-3 pb-3">
+  <!-- <p class="title p-5" *ngIf="curPrintLocation > -1">{{orderIndex.styleName}}</p> -->
+  <div class="panel panel-transparent py-1">
+    <button class="btn btn-complete mb-2 m-t-5" (click)="selectLocations()" *ngIf="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled">Select Location(s)</button>
+    <perfect-scrollbar class="scroll-nav" [config]="{suppressScrollX: false}">
+      <ul class="nav nav-tabs" *ngIf="curPrintLocation > -1">
+        <li class="text-center nav-item" *ngFor="let tab of locationList; let i=index"
+            [ngClass]="{'active': tab.isActive}"
+            [ngStyle]="{'display': !tab.checked ? 'none' : ''}"
+            (click)="switchTab($event, i)">
+          <a class="justify-center nav-link"
+            href="javascript:void(0)" aria-expanded="true">
+            <span>{{tab.text}}</span>
+          </a>
+          <!-- <i *ngIf="tab.isAllowDelete && tab.isActive && !tab.isEditing"
+            (click)="deteleDesign(i)"
+            class="fa fa-times hover-delete" aria-hidden="true"></i>
+
+          <form role="form" novalidate="" *ngIf="tab.isEditing" (ngSubmit)="editNewDesign(tab)">
+            <div class="input-group new-design">
+              <input type="text" name="designName"
+                    [(ngModel)]="tab.name"
+                    class="form-control" [focusOnInit]="true"
+                    (blur)="editNewDesign(tab)"
+                    (keyup.esc)="tab.name = edittingTabName; editNewDesign(tab)">
+              <a href="javascript:void(0)" class="btn-delete" (mousedown)="tab.name = edittingTabName">
+                <i class="fa fa-times hover-delete" aria-hidden="true"></i>
+              </a>
+            </div>
+          </form> -->
+        </li>
+        <!-- <span class="select-location m-l-5" (click)="selectLocations()">Select Location(s)</span> -->
+      </ul>
+    </perfect-scrollbar>
+    <div class="order-general px-3 pb-3" [ngStyle]="{'display': curPrintLocation === -1 ? 'none' : ''}">
+      <!-- <p class="title p-5">{{curPrintLocation > -1 ? 'Print Location: ' + locationList[curPrintLocation].text : ''}}</p> -->
+
+      <ul class="nav nav-tabs sub-tab m-t-10" *ngIf="curPrintLocation > -1">
+        <li class="text-center nav-item" *ngFor="let tab of subTabs; let i=index"
+            [ngClass]="{'active': tab.isActive}"
+            (click)="switchSubTab($event, i)">
+          <a class="justify-center nav-link"
+              href="javascript:void(0)" aria-expanded="true">
+            <span>{{tab.text}}</span>
+          </a>
+        </li>
+      </ul>
+      <div class="order-general">
+          <router-outlet></router-outlet>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,465 @@
+﻿scheduler {
+  perfect-scrollbar {
+    @media (max-width: 990px) {
+      .ps__rail-x {
+        position: fixed !important;
+        left: 15px !important;
+      }
+    }
+    width: auto;
+  }
+  .wrap-row {
+    word-break: break-all;
+  }
+  .filterBtn {
+    @media (min-width: 1200px) {
+      margin-left: 15px;
+    }
+    @media (max-width: 1199px) {
+      margin-left: 8px;
+    }
+  }
+  // .ui-select-toggle {
+  //   .ui-select-match-text {
+  //     max-width: 90%;
+  //     overflow: hidden;
+  //   }
+  //   a {
+  //     margin-right: -5px !important;
+  //   }
+  //   &.form-control {
+  //     padding: 8px 12px;
+  //   }
+  // }
+  .fixedHeader {
+    position: fixed;
+    z-index: 1;
+    visibility: hidden;
+    // padding-right: 14px;
+    // margin-right: 18px;
+    // margin-left: -1px;
+  }
+
+  .btn-top-right {
+    position: absolute;
+    top: 10px;
+    right: 0;
+  }
+
+  .table {
+    th {
+      background-color: #ccc;
+    }
+    th, td {
+      border-right: 1px solid #bbb;
+      border-bottom: 1px solid #bbb !important;
+    }
+    td {
+      vertical-align: middle;
+      position: relative;
+      p {
+        margin-bottom: 0px;
+        font-size: 11px;
+      }
+    }
+    .btn-small {
+      padding: 3px 2px;
+      font-size: inherit;
+    }
+  }
+
+  .runTimeInput {
+    width: 59px;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    font-size: 12px;
+    color: #626262;
+    text-align: center;
+  }
+  .maintenance-input {
+    width: 90%;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    font-size: 16px;
+    color: #626262;
+    text-align: center;
+  }
+  .maintenance-job {
+    .p-link:hover {
+      color: #fff;
+    }
+  }
+  table {
+    th {
+      text-transform: unset !important;
+    }
+  }
+  .neededDate {
+    span {
+      i {
+        &.pull-right {
+          margin-top: 3px;
+        }
+      }
+    }
+
+    my-date-picker {
+      .mydp {
+        border: none;
+        .selection {
+          display: none;
+        }
+        .selectorarrow {
+          margin-top: -1px !important;
+        }
+        .alignselectorright {
+          right: 21px;
+        }
+        .selector {
+          border: none;
+        }
+      }
+      table {
+        th, td {
+          border-right: none;
+        }
+        th:first-child {
+          padding-left: 4px !important;
+        }
+        th {
+          text-transform: unset !important;
+          font-family: inherit;
+        }
+        tbody {
+          td {
+            border-bottom: none;
+            font-size: 14px;
+          }
+        }
+        &.header {
+          border-left: 1px solid #ccc;
+          border-top: 1px solid #ccc;
+          border-right: 1px solid #ccc;
+        }
+        &.caltable {
+          border-left: 1px solid #ccc;
+          border-bottom: 1px solid #ccc;
+          border-right: 1px solid #ccc;
+        }
+      }
+    }
+  }
+  .gu-transit {
+    opacity: 0.2;
+    -ms-filter: unset;
+    filter: unset;
+    td {
+      border-bottom: 2px dashed green !important;
+      border-top: 2px dashed green !important;
+    }
+    td:first-child {
+      border-left: 2px dashed green !important;
+    }
+    td:last-child {
+      border-right: 2px dashed green !important;
+    }
+  }
+  form {
+    width: 100%;
+  }
+  .un-p-link {
+    color: red;
+  }
+  .p-large {
+    text-align: center;
+    font-weight: bold;
+    font-size: 16px;
+  }
+  .to-be-schedule-panel {
+    position: relative;
+    padding-top: 10px;
+    .table {
+      tr:nth-child(even) {
+        td {
+          background-color: #f5f5f5;
+        }
+      }
+    }
+  }
+  .first-scroll {
+    float: left;
+    width: 764px;
+    .ps-content {
+      padding-right: 15px;
+    }
+    .ps__thumb-y {
+      left: 2px;
+    }
+  }
+  .schedule-panel {
+    float: right;
+    position: relative;
+    padding-left: 10px;
+    padding-top: 18px;
+    width: 100%;
+  }
+  .over-fixed {
+    z-index: 2;
+    background-color: #fff;
+  }
+  .full-scheduled {
+    background-color: #92d050 !important;
+  }
+  .part-scheduled {
+    background-color: orange !important;
+  }
+  .none-scheduled {
+    background-color: yellow !important;
+  }
+  .null-scheduled {
+    background-color: #666 !important;
+  }
+  .ps__rail-y {
+    &:hover {
+      opacity: 1 !important;
+    }
+  }
+  .ps-in-scrolling {
+    .ps__rail-y {
+      opacity: 1 !important;
+    }
+  }
+  // .ps__rail-x {
+    // position: fixed !important;
+    // bottom: 10px !important;
+    // right: 20px;
+    // left: auto !important;
+  // }
+  .even-row {
+    td:not(.maintenance-job):not(.red-cell):not(.null-scheduled):not(.resched-cell):not(.archived-cell):not(.selected-cell) {
+      background-color: #f5f5f5 !important;
+    }
+  }
+  .font-size-8 {
+    .table {
+      th {
+        font-size: 8px;
+      }
+      td {
+        font-size: 8px;
+        p {
+          font-size: 8px;
+        }
+      }
+    }
+  }
+  .font-size-9 {
+    .table {
+      th {
+        font-size: 9px;
+      }
+      td {
+        font-size: 9px;
+        p {
+          font-size: 9px;
+        }
+      }
+    }
+  }
+  .font-size-10 {
+    .table {
+      th {
+        font-size: 10px;
+      }
+      td {
+        font-size: 10px;
+        p {
+          font-size: 10px;
+        }
+      }
+    }
+  }
+  .font-size-11 {
+    .table {
+      th {
+        font-size: 11px;
+      }
+      td {
+        font-size: 11px;
+        p {
+          font-size: 11px;
+        }
+      }
+    }
+    .sub-table-finishing {
+      td {
+        font-size: 10px;
+        p {
+          font-size: 10px;
+        }
+      }
+    }
+  }
+  .font-size-12 {
+    .table {
+      th {
+        font-size: 12px;
+      }
+      td {
+        font-size: 12px;
+        p {
+          font-size: 12px;
+        }
+      }
+    }
+    .sub-table-finishing {
+      td {
+        font-size: 10px;
+        p {
+          font-size: 10px;
+        }
+      }
+    }
+  }
+  .move-icon {
+    position: absolute;
+    bottom: 8px;
+    left: calc(50% - 7px);
+    i {
+      cursor: -webkit-grab;
+      cursor: -moz-grab;
+    }
+  }
+  .invalid-area {
+    tr:first-child {
+      td {
+        border-top: 2px solid red;
+      }
+    }
+    tr {
+      .first-td {
+        border-left: 2px solid red;
+      }
+      .last-td {
+        border-right: 2px solid red;
+      }
+    }
+    tr:last-child {
+      td {
+        border-bottom: 2px solid red;
+      }
+    }
+    .gu-transit {
+      td {
+        border-bottom: 2px dashed red !important;
+        border-top: 2px dashed red !important;
+      }
+      td:first-child {
+        border-left: 2px dashed red !important;
+      }
+      td:last-child {
+        border-right: 2px dashed red !important;
+      }
+    }
+  }
+  .date-color {
+    background-color: #2b3a82;
+    color: #fff;
+  }
+
+  my-date-picker {
+    width: 135px;
+  }
+
+  .days-tab::before {
+    content:"";
+    background: #fff;
+    position: relative;
+    bottom: -25px;
+    left: 0;
+    height: 10px;
+    width: 10px;
+  }
+
+  .nav {
+    flex-wrap: nowrap !important;
+    li > a > span {
+      white-space: nowrap;
+    }
+  }
+
+  .red-cell {
+    background-color: red !important;
+    color: white;
+    .p-link {
+      color: white;
+    }
+    i {
+      color: white;
+    }
+  }
+
+  .resched-cell {
+    background-color: #FF9900 !important;
+    color: white;
+    .p-link {
+      color: white;
+    }
+    i {
+      color: white;
+    }
+  }
+
+  .sub-table-finishing {
+    width: 100%;
+    height: 100%;
+    td {
+      padding: 2px !important;
+    }
+  }
+
+  .sub-move {
+    left: calc(50% - 5px);
+    bottom: 0;
+  }
+
+  .edit-processes {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+  }
+  .process-row {
+    background-color: #eee !important;
+  }
+  .selected-cell {
+    background-color: #00cfc2 !important;
+  }
+  .scroll-sm, .over-fixed {
+    margin-left: 764px;
+  }
+}
+body {
+  .gu-mirror {
+    // display: none;
+    td {
+      border: 1px solid #ccc;
+      padding-left: 5px;
+      padding-right: 5px;
+      background-color: #fff;
+    }
+    .full-scheduled {
+      background-color: #92d050 !important;
+    }
+    .part-scheduled {
+      background-color: orange !important;
+    }
+    .none-scheduled {
+      background-color: yellow !important;
+    }
+    i {
+      display: none;
+    }
+  }
+}

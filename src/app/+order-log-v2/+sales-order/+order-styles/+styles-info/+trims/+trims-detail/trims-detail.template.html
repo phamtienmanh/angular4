@@ -1,0 +1,695 @@
+<div class="order-general px-2 py-2">
+  <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()" (click)="formClick($event)">
+    <div class="row mx-2">
+      <div class="col-lg-12 general-title">
+        <span class="bold">General</span>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xl-4 col-lg-6">
+        <div class="row flex py-1">
+          <div class="col-sm-3 col-lg-4 control-label text-right">
+            <label class="nowrap">Use for All Styles</label>
+          </div>
+          <div class="col-sm-7 col-lg-8">
+            <div class="checkbox">
+              <input type="checkbox" id="isUseForAllStyles"
+                     formControlName='isUseForAllStyles' (change)="onUseAllStyleChange($event)"
+                     [attr.disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled ? true : null">
+              <label for="isUseForAllStyles"></label>
+            </div>
+          </div>
+        </div>
+        <div class="row flex py-1">
+          <div class="col-sm-3 col-lg-4 control-label text-right">
+            <label>Art Required</label>
+          </div>
+          <div class="col-sm-7 col-lg-8">
+            <div class="checkbox">
+              <input type="checkbox" id="isArtRequired"
+                     formControlName='isArtRequired'
+                     [attr.disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled ? true : null">
+              <label for="isArtRequired"></label>
+            </div>
+          </div>
+        </div>
+        <ng-container *ngIf="!!frm.get('isArtRequired').value">
+          <div class="row flex py-1"
+               [ngClass]="{'required': frm.get('formRequires').value['artDesignName'].required}">
+            <div class="col-sm-3 col-lg-4 control-label text-right">
+              <label class="nowrap">Art Design ID</label>
+            </div>
+            <div class="col-sm-7 col-lg-8"
+                 [ngClass]="{'has-error':!frm.get('artDesignName').valid,
+                 'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled}">
+              <ng-select [items]="designData" #designSelect
+                         [addTag]="true"
+                         IntegerNumber
+                         [virtualScroll]="true"
+                         [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled ? 'Art Design ID' : ''"
+                         (focus)="onSelectFocused(designSelect)"
+                         (open)="designSelect.filterValue = !!frm.get('artDesignId').value ? frm.get('artDesignName').value : ''"
+                         (add)="onSelectItem($event, frm, 'name', 'artDesignName')"
+                         (clear)="frm.get('artDesignName').patchValue('')"
+                         bindLabel="name"
+                         bindValue="id"
+                         formControlName="artDesignId"></ng-select>
+              <label class="error"
+                     *ngIf="frm.get('artDesignName').hasError('required') && !frm.get('artDesignName').pristine">
+                {{validationMessages['artDesignName'].required}}</label>
+            </div>
+          </div>
+          <div class="row flex py-1"
+               [ngClass]="{'required': frm.get('formRequires').value['artReceivedDateOnUtc'].required}">
+            <div class="col-sm-3 col-lg-4 control-label text-right">
+              <label>Art Received</label>
+            </div>
+            <div class="col-sm-6 col-lg-7"
+                 [ngClass]="{'has-error':!frm.get('artReceivedDateOnUtc').valid}">
+              <my-date-picker [options]="myDatePickerOptions"
+                              #artReceivedDatePicker
+                              formControlName='artReceivedDate'
+                              [ngClass]="{'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled}"
+                              [disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled"
+                              (dateChanged)="onDateChangedBy($event, frm, 'artReceivedDateOnUtc')"
+                              (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, artReceivedDatePicker)"
+                              (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, artReceivedDatePicker, frm.get('artReceivedDateOnUtc'))"></my-date-picker>
+              <label class="error"
+                     *ngIf="frm.get('artReceivedDateOnUtc').hasError('required') && !frm.get('artReceivedDateOnUtc').pristine">
+                {{validationMessages['artReceivedDateOnUtc'].required}}</label>
+            </div>
+            <div class="col-sm-1 col-lg-1 flex justify-content-center btn-upload">
+                  <span class="cursor pt-1"
+                        (click)="openUploader(frm, trimUploadedType.ArtReceived, 'artReceivedDateOnUtc', true)"
+                        *ngIf="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled && !checkLengthUploaderByType(frm, trimUploadedType.ArtReceived)">
+                    <i class="fa fa-upload fa-lg" aria-hidden="true"></i>
+                  </span>
+              <span class="cursor pt-1"
+                    (click)="openUploader(frm, trimUploadedType.ArtReceived, 'artReceivedDateOnUtc', true)"
+                    *ngIf="checkLengthUploaderByType(frm, trimUploadedType.ArtReceived)">
+                    <i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"></i>
+                  </span>
+            </div>
+          </div>
+          <div class="row flex py-1"
+               [ngClass]="{'required': frm.get('formRequires').value['artApprovedDateOnUtc'].required}">
+            <div class="col-sm-3 col-lg-4 control-label text-right">
+              <label>Art Approved</label>
+            </div>
+            <div class="col-sm-6 col-lg-7"
+                 [ngClass]="{'has-error':!frm.get('artApprovedDateOnUtc').valid}">
+              <my-date-picker [options]="myDatePickerOptions"
+                              #artApprovedDatePicker
+                              formControlName='artApprovedDate'
+                              [ngClass]="{'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled}"
+                              [disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled"
+                              (dateChanged)="onDateChangedBy($event, frm, 'artApprovedDateOnUtc')"
+                              (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, artApprovedDatePicker)"
+                              (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, artApprovedDatePicker, frm.get('artApprovedDateOnUtc'))"></my-date-picker>
+              <label class="error"
+                     *ngIf="frm.get('artApprovedDateOnUtc').hasError('required') && !frm.get('artApprovedDateOnUtc').pristine">
+                {{validationMessages['artApprovedDateOnUtc'].required}}</label>
+            </div>
+            <div class="col-sm-1 col-lg-1 flex justify-content-center btn-upload">
+                  <span class="cursor pt-1"
+                        (click)="openUploader(frm, trimUploadedType.ArtApproved, 'artApprovedDateOnUtc', true)"
+                        *ngIf="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled && !checkLengthUploaderByType(frm, trimUploadedType.ArtApproved)">
+                    <i class="fa fa-upload fa-lg" aria-hidden="true"></i>
+                  </span>
+              <span class="cursor pt-1"
+                    (click)="openUploader(frm, trimUploadedType.ArtApproved, 'artApprovedDateOnUtc', true)"
+                    *ngIf="checkLengthUploaderByType(frm, trimUploadedType.ArtApproved)">
+                    <i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"></i>
+                  </span>
+            </div>
+          </div>
+          <div class="row flex py-1"
+               [ngClass]="{'required': frm.get('formRequires').value['artSentToVendorDateOnUtc'].required}">
+            <div class="col-sm-3 col-lg-4 control-label text-right">
+              <label class="nowrap">Art Sent to Vendor</label>
+            </div>
+            <div class="col-sm-7 col-lg-8"
+                 [ngClass]="{'has-error':!frm.get('artSentToVendorDateOnUtc').valid}">
+              <my-date-picker [options]="onTopDateOptions"
+                              #artSentToVendorDatePicker
+                              formControlName='artSentToVendorDate'
+                              [ngClass]="{'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled}"
+                              [disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled"
+                              (dateChanged)="onDateChangedBy($event, frm, 'artSentToVendorDateOnUtc')"
+                              (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, artSentToVendorDatePicker)"
+                              (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, artSentToVendorDatePicker, frm.get('artSentToVendorDateOnUtc'))"></my-date-picker>
+              <label class="error"
+                     *ngIf="frm.get('artSentToVendorDateOnUtc').hasError('required') && !frm.get('artSentToVendorDateOnUtc').pristine">
+                {{validationMessages['artSentToVendorDateOnUtc'].required}}</label>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+      <div class="col-lg-1 hidden-xs hidden-sm"></div>
+      <div class="col-lg-4 m-t-5 p-1">
+        <!--<div class="row flex justify-content-center my-2">-->
+        <!--<span class="bold">Preview</span>-->
+        <!--</div>-->
+        <div class="upload-box trim-upload-box"
+             *ngIf="!frm.get('imageUrl').value && !isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled">
+          <div class="contain text-center p-2">
+            <div class="icon">
+              <i class="fa fa-upload" aria-hidden="true"></i>
+            </div>
+            <div class="text">Drop files to upload</div>
+            <div class="button">
+              <label class="btn mt-2">
+                Or Click Here <input type="file" (change)="uploadImage()"
+                                     [style.display]="'none'"
+                                     ng2FileSelect style="opacity: 0"
+                                     [uploader]="uploader" accept=".png, .jpg"/><br/>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="showImage text-center relative" *ngIf="frm.get('imageUrl').value">
+          <img [src]="frm.get('absoluteUrl').value" height="200" width="auto"
+               class="img-thumbnail-none-wh width-responsive" imgZoomClick/>
+          <span class="remove-image" (click)="removeImage(frm)"
+                *ngIf="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled">
+             <i aria-hidden="true" class="fa fa-times"></i>
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="row mx-2 mt-2">
+      <div class="col-lg-12 general-title">
+        <span class="pull-left bold">Purchasing</span>
+        <!--<div class="checkbox pull-left ml-4 po-checkbox" *ngIf="vendors.controls.length">-->
+        <!--<input type="checkbox" id="isAllPoSpecified"-->
+        <!--formControlName="isAllPoSpecified">-->
+        <!--<label for="isAllPoSpecified">All POs have been specified</label>-->
+        <!--</div>-->
+      </div>
+    </div>
+    <div formArrayName="listPurchasing">
+      <ng-container *ngFor="let vendor of vendors.controls; let i=index; let first=first; let last=last">
+        <div class="row" [formGroupName]="i" [ngClass]="{'p-t-10': first}">
+          <div class="col-xl-4 col-lg-6 col-sm-12">
+            <div class="row flex py-1"
+                 [ngClass]="{'required': vendor.get('formRequires').value['vendorName'].required}">
+              <div class="col-sm-3 col-lg-4 control-label text-right">
+                <label>Vendor Name</label>
+              </div>
+              <div class="col-sm-7 col-lg-8"
+                   [ngClass]="{'has-error':!vendor.get('vendorName').valid,
+                 'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled}">
+                <ng-select [items]="vendorData" #vendorSelect
+                           [virtualScroll]="true"
+                           [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled ? 'Vendor' : ''"
+                           (focus)="onSelectFocused(vendorSelect)"
+                           (open)="vendorSelect.filterValue = !!vendor.get('vendorId').value ? vendor.get('vendorName').value : ''"
+                           (add)="onSelectItem($event, vendor, 'name', 'vendorName')"
+                           (clear)="vendor.get('vendorName').patchValue('')"
+                           bindLabel="name"
+                           bindValue="id"
+                           formControlName="vendorId"></ng-select>
+                <label class="error"
+                       *ngIf="vendor.get('vendorName').hasError('required') && !vendor.get('vendorName').pristine">
+                  {{validationMessages['vendorName'].required}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1"
+                 *ngIf="vendor.get('vendorName').value !== null && vendor.get('vendorName').value !== undefined
+                        && ([
+                          'tee shirt central',
+                          'customer supplies trims',
+                          'tsc',
+                          'tsc warehouse',
+                          'factory 1',
+                          'factory supplies trims',
+                          'factory 1 warehouse',
+                          'tsc - whs'
+                        ].indexOf(vendor.get('vendorName').value.toLowerCase()) === -1)"
+                 [ngClass]="{'required': vendor.get('formRequires').value['poNumber'].required}">
+              <div class="col-sm-3 col-lg-4 control-label text-right">
+                <label>PO #</label>
+              </div>
+              <div class="col-sm-7 col-lg-8"
+                   [ngClass]="{'has-error':!vendor.get('poNumber').valid}">
+                <div class="input-group">
+                  <input formControlName='poNumber'
+                         type="text"
+                         [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled ? 'PO #' : ''"
+                         [attr.disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled ? true : null"
+                         class="form-control">
+                  <span class="input-group-addon cursor"
+                        (click)="openUploader(vendor, trimUploadedType.PoTrim)"
+                        *ngIf="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled && !(vendor.get('files').value && vendor.get('files').value.length)">
+                    <i class="fa fa-upload" aria-hidden="true"></i>
+                  </span>
+                  <span class="input-group-addon cursor"
+                        [ngClass]="{'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled}"
+                        (click)="openUploader(vendor, trimUploadedType.PoTrim)"
+                        *ngIf="vendor.get('files').value && vendor.get('files').value.length">
+                    <i class="fa fa-eye" [ngStyle]="{'top': '-1px'}" aria-hidden="true"></i>
+                  </span>
+                </div>
+                <label class="error"
+                       *ngIf="vendor.get('poNumber').hasError('required') && !vendor.get('poNumber').pristine">
+                  {{validationMessages['poNumber'].required}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1"
+                 *ngIf="vendor.get('vendorName').value !== null && vendor.get('vendorName').value !== undefined
+                    && ([
+                          'tee shirt central',
+                          'customer supplies trims',
+                          'tsc',
+                          'tsc warehouse',
+                          'factory 1',
+                          'factory supplies trims',
+                          'factory 1 warehouse',
+                          'tsc - whs'
+                        ].indexOf(vendor.get('vendorName').value.toLowerCase()) === -1)"
+                 [ngClass]="{'required': vendor.get('formRequires').value['poDateOnUtc'].required}">
+              <div class="col-sm-3 col-lg-4 control-label text-right">
+                <label class="nowrap">PO Date</label>
+              </div>
+              <div class="col-sm-7 col-lg-8"
+                   [ngClass]="{'has-error':!vendor.get('poDateOnUtc').valid}">
+                <my-date-picker [options]="myDatePickerOptions"
+                                #poDatePicker
+                                formControlName='poDate'
+                                [ngClass]="{'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled}"
+                                [disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled"
+                                (dateChanged)="onDateChangedBy($event, vendor, 'poDateOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, poDatePicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, poDatePicker, vendor.get('poDateOnUtc'))"></my-date-picker>
+                <label class="error"
+                       *ngIf="vendor.get('poDateOnUtc').hasError('required') && !vendor.get('poDateOnUtc').pristine">
+                  {{validationMessages['poDateOnUtc'].required}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1"
+                 [ngClass]="{'required': false}">
+              <div class="col-sm-3 col-lg-4 control-label text-right">
+                <label>Comments</label>
+              </div>
+              <div class="col-sm-7 col-lg-8 my-textarea"
+                   [ngClass]="{'has-error':!vendor.get('poComment').valid}">
+                <textarea formControlName='poComment'
+                          type="text"
+                          [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled ? 'Comments' : ''"
+                          [attr.disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled ? true : null"
+                          class="form-control"></textarea>
+                <label class="error"
+                       *ngIf="vendor.get('poComment').hasError('required') && !vendor.get('poComment').pristine">
+                  {{validationMessages['poComment'].required}}</label>
+              </div>
+            </div>
+          </div>
+          <div class="col-xxl-3-half col-xl-5 col-lg-6 col-sm-12">
+            <div class="row flex py-1">
+              <div class="col-md-4 col-lg-6">
+                <div class="row"
+                     [ngClass]="{'required': true}">
+                  <div class="col-sm-9 col-lg-8 control-label text-right">
+                    <label class="nowrap">Ship to TSC</label>
+                  </div>
+                  <div class="col-sm-3 col-lg-4">
+                    <div class="checkbox">
+                      <input type="checkbox" [id]="'isShipToTsc-' + i"
+                             (change)="onShipChange($event, vendor, 'isShipToTsc')"
+                             [disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled"
+                             formControlName='isShipToTsc'>
+                      <label [for]="'isShipToTsc-' + i"></label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-8 col-lg-6">
+                <div class="row"
+                     [ngClass]="{'required': true}">
+                  <div class="col-sm-5 col-lg-8 control-label text-right">
+                    <label class="nowrap">Ship to 3rd Party</label>
+                  </div>
+                  <div class="col-sm-2 col-lg-4">
+                    <div class="checkbox ml-2">
+                      <input type="checkbox" [id]="'isShipTo3rdParty-' + i"
+                             (change)="onShipChange($event, vendor, 'isShipTo3rdParty')"
+                             [disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled"
+                             [checked]="!vendor.get('isShipToTsc').value">
+                      <label [for]="'isShipTo3rdParty-' + i"></label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!--<div class="col-12">-->
+              <!--<div class="row">-->
+              <!--<div class="col-sm-3 col-lg-4"></div>-->
+              <!--<div class="col-sm-9 col-lg-8">-->
+              <!--<label class="error"-->
+              <!--*ngIf="vendor.get('isShipToTsc').value !== false || vendor.get('isShipToTsc').value !== true">-->
+              <!--{{validationMessages['shipDestination'].required}}</label>-->
+              <!--</div>-->
+              <!--</div>-->
+              <!--</div>-->
+            </div>
+            <div class="row flex py-1" *ngIf="!vendor.get('isShipToTsc').value"
+                 [ngClass]="{'required': vendor.get('formRequires').value['deliverToVendorName'].required}">
+              <div class="col-sm-3 col-lg-4 control-label text-right">
+                <label class="nowrap">Deliver To Vendor</label>
+              </div>
+              <div class="col-sm-7 col-lg-7"
+                   [ngClass]="{'has-error':!vendor.get('deliverToVendorName').valid,
+                 'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled}">
+                <ng-select [items]="deliverToVendorData" #deliverToVendorSelect
+                           [addTag]="true"
+                           [virtualScroll]="true"
+                           [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled ? 'Deliver To Vendor' : ''"
+                           (focus)="onSelectFocused(deliverToVendorSelect)"
+                           (open)="deliverToVendorSelect.filterValue = !!vendor.get('deliverToVendorId').value ? vendor.get('deliverToVendorName').value : ''"
+                           (add)="onSelectItem($event, vendor, 'name', 'deliverToVendorName')"
+                           (clear)="vendor.get('deliverToVendorName').patchValue('')"
+                           bindLabel="name"
+                           bindValue="id"
+                           formControlName="deliverToVendorId"></ng-select>
+                <label class="error"
+                       *ngIf="vendor.get('deliverToVendorName').hasError('required') && !vendor.get('deliverToVendorName').pristine">
+                  {{validationMessages['deliverToVendorName'].required}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1"
+                 [ngClass]="{'required': vendor.get('formRequires').value['shipViaName'].required}">
+              <div class="col-sm-3 col-lg-4 control-label text-right">
+                <label>Ship Via</label>
+              </div>
+              <div class="col-sm-7 col-lg-7"
+                   [ngClass]="{'has-error':!vendor.get('shipViaName').valid,
+                 'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled}">
+                <ng-select [items]="shipViaData" #shipViaSelect
+                           [addTag]="true"
+                           [virtualScroll]="true"
+                           [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled ? 'Ship Via' : ''"
+                           (focus)="onSelectFocused(shipViaSelect)"
+                           (open)="shipViaSelect.filterValue = !!vendor.get('shipViaId').value ? vendor.get('shipViaName').value : ''"
+                           (add)="onSelectItem($event, vendor, 'name', 'shipViaName')"
+                           (clear)="vendor.get('shipViaName').patchValue('')"
+                           bindLabel="name"
+                           bindValue="id"
+                           formControlName="shipViaId"></ng-select>
+                <label class="error"
+                       *ngIf="vendor.get('shipViaName').hasError('required') && !vendor.get('shipViaName').pristine">
+                  {{validationMessages['shipViaName'].required}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1 min-content">
+              <div class="col-sm-3 col-lg-4 control-label text-right m-r-5">
+                <label class="nowrap">Est Delivery Date</label>
+              </div>
+              <div class=""
+                   *ngIf="vendor.get('vendorName').value !== null && vendor.get('vendorName').value !== undefined
+                        && ([
+                          'tee shirt central',
+                          'customer supplies trims',
+                          'tsc',
+                          'tsc warehouse',
+                          'factory 1',
+                          'factory supplies trims',
+                          'factory 1 warehouse',
+                          'tsc - whs'
+                        ].indexOf(vendor.get('vendorName').value.toLowerCase()) === -1)"
+                   [ngClass]="{'has-error':!vendor.get('estDeliveryDateFromOnUtc').valid}">
+                <my-date-picker class="flex" [options]="estDeliveryFromOptions"
+                                #estDeliveryDateFromPicker
+                                [defaultMonth]="myDatePickerService.configDefaultMonth(vendor.get('estDeliveryDateTo').value, true)"
+                                formControlName='estDeliveryDateFrom'
+                                [disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled"
+                                [ngClass]="{'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled}"
+                                (dateChanged)="onDateChangedBy($event, vendor, 'estDeliveryDateFromOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, estDeliveryDateFromPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, estDeliveryDateFromPicker, vendor.get('estDeliveryDateFromOnUtc'))"></my-date-picker>
+                <label class="error"
+                       *ngIf="(vendor.get('formRequires').value['estDeliveryDateFromOnUtc'].required && !vendor.get('estDeliveryDateFromOnUtc').value)">
+                  {{validationMessages['estDeliveryDateFromOnUtc'].required}}</label>
+                <label class="error nowrap"
+                       *ngIf="vendor.get('estDeliveryDateFromOnUtc').hasError('maxDate') && !vendor.get('estDeliveryDateFromOnUtc').pristine">
+                  {{validationMessages['estDeliveryDateFromOnUtc'].maxLength}}</label>
+              </div>
+              <div class="px-2 flex justify-content-center"
+                   [ngClass]="{'disappear': isPageReadOnly && !vendor.get('estDeliveryDateToOnUtc').value}"
+                   *ngIf="vendor.get('vendorName').value !== null && vendor.get('vendorName').value !== undefined
+                        && ([
+                          'tee shirt central',
+                          'customer supplies trims',
+                          'tsc',
+                          'tsc warehouse',
+                          'factory 1',
+                          'factory supplies trims',
+                          'factory 1 warehouse',
+                          'tsc - whs'
+                        ].indexOf(vendor.get('vendorName').value.toLowerCase()) === -1)">
+                <span class="m-t-4">to</span>
+              </div>
+              <div class=""
+                   *ngIf="vendor.get('vendorName').value !== null && vendor.get('vendorName').value !== undefined
+                        && ([
+                          'tee shirt central',
+                          'customer supplies trims',
+                          'tsc',
+                          'tsc warehouse',
+                          'factory 1',
+                          'factory supplies trims',
+                          'factory 1 warehouse',
+                          'tsc - whs'
+                        ].indexOf(vendor.get('vendorName').value.toLowerCase()) === -1)"
+                   [ngClass]="{'has-error':!vendor.get('estDeliveryDateToOnUtc').valid}">
+                <my-date-picker class="flex" [options]="estDeliveryToOptions"
+                                #estDeliveryDateToPicker
+                                [defaultMonth]="myDatePickerService.configDefaultMonth(vendor.get('estDeliveryDateFrom').value)"
+                                formControlName='estDeliveryDateTo'
+                                [disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled"
+                                [ngClass]="{'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled}"
+                                (dateChanged)="onDateChangedBy($event, vendor, 'estDeliveryDateToOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, estDeliveryDateToPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, estDeliveryDateToPicker, vendor.get('estDeliveryDateToOnUtc'))"></my-date-picker>
+                <label class="error"
+                       *ngIf="(vendor.get('formRequires').value['estDeliveryDateToOnUtc'].required && !vendor.get('estDeliveryDateToOnUtc').value)">
+                  {{validationMessages['estDeliveryDateToOnUtc'].required}}</label>
+                <label class="error nowrap"
+                       *ngIf="vendor.get('estDeliveryDateToOnUtc').hasError('minDate') && !vendor.get('estDeliveryDateToOnUtc').pristine">
+                  {{validationMessages['estDeliveryDateToOnUtc'].maxLength}}</label>
+              </div>
+              <label class="col-sm-6 label-readonly pl-2"
+                     *ngIf="vendor.get('vendorName').value !== null && vendor.get('vendorName').value !== undefined
+                      && ([
+                          'tee shirt central',
+                          'customer supplies trims',
+                          'tsc',
+                          'tsc warehouse',
+                          'factory supplies trims',
+                          'factory 1',
+                          'factory 1 warehouse',
+                          'tsc - whs'
+                        ].indexOf(vendor.get('vendorName').value.toLowerCase()) > -1)">
+                {{['factory supplies trims'].indexOf(vendor.get('vendorName').value.toLowerCase()) > -1 ? 'Factory' : 'Warehouse'}}
+              </label>
+            </div>
+            <div class="row flex py-1 min-content">
+              <div class="col-sm-3 col-lg-4 control-label text-right m-r-5">
+                <label class="nowrap">Received Date</label>
+              </div>
+              <div class=""
+                   [ngClass]="{'has-error':!vendor.get('receivedDateFromOnUtc').valid}">
+                <my-date-picker class="flex" [options]="receivedFromOptions"
+                                #receivedDateFromPicker
+                                [defaultMonth]="myDatePickerService.configDefaultMonth(vendor.get('receivedDateTo').value, true)"
+                                formControlName='receivedDateFrom'
+                                [disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled"
+                                [ngClass]="{'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled}"
+                                (dateChanged)="onDateChangedBy($event, vendor, 'receivedDateFromOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, receivedDateFromPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, receivedDateFromPicker, vendor.get('receivedDateFromOnUtc'))"></my-date-picker>
+                <label class="error"
+                       *ngIf="(vendor.get('formRequires').value['receivedDateFromOnUtc'].required && !vendor.get('receivedDateFromOnUtc').value)">
+                  {{validationMessages['receivedDateFromOnUtc'].required}}</label>
+                <label class="error nowrap"
+                       *ngIf="vendor.get('receivedDateFromOnUtc').hasError('maxDate') && !vendor.get('receivedDateFromOnUtc').pristine">
+                  {{validationMessages['receivedDateFromOnUtc'].maxLength}}</label>
+              </div>
+              <div class="px-2 flex justify-content-center"
+                   [ngClass]="{'disappear': isPageReadOnly && !vendor.get('receivedDateToOnUtc').value}">
+                <span class="m-t-4">to</span>
+              </div>
+              <div class=""
+                   [ngClass]="{'has-error':!vendor.get('receivedDateToOnUtc').valid}">
+                <my-date-picker class="flex" [options]="receivedToOptions"
+                                #receivedDateToPicker
+                                [defaultMonth]="myDatePickerService.configDefaultMonth(vendor.get('receivedDateFrom').value)"
+                                formControlName='receivedDateTo'
+                                [disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled"
+                                [ngClass]="{'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled}"
+                                (dateChanged)="onDateChangedBy($event, vendor, 'receivedDateToOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, receivedDateToPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, receivedDateToPicker, vendor.get('receivedDateToOnUtc'))"></my-date-picker>
+                <label class="error"
+                       *ngIf="(vendor.get('formRequires').value['receivedDateToOnUtc'].required && !vendor.get('receivedDateToOnUtc').value)">
+                  {{validationMessages['receivedDateToOnUtc'].required}}</label>
+                <label class="error nowrap"
+                       *ngIf="vendor.get('receivedDateToOnUtc').hasError('minDate') && !vendor.get('receivedDateToOnUtc').pristine">
+                  {{validationMessages['receivedDateToOnUtc'].maxLength}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1 min-content">
+              <div class="col-sm-3 col-lg-4 control-label text-right m-r-5">
+                <label class="nowrap">Checked Date</label>
+              </div>
+              <div class=""
+                   [ngClass]="{'has-error':!vendor.get('checkedDateFromOnUtc').valid}">
+                <my-date-picker class="flex" [options]="checkedFromOptions"
+                                #checkedDateFromPicker
+                                [defaultMonth]="myDatePickerService.configDefaultMonth(vendor.get('checkedDateTo').value, true)"
+                                formControlName='checkedDateFrom'
+                                [disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled"
+                                [ngClass]="{'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled}"
+                                (dateChanged)="onDateChangedBy($event, vendor, 'checkedDateFromOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, checkedDateFromPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, checkedDateFromPicker, vendor.get('checkedDateFromOnUtc'))"></my-date-picker>
+                <label class="error"
+                       *ngIf="(vendor.get('formRequires').value['checkedDateFromOnUtc'].required && !vendor.get('checkedDateFromOnUtc').value)">
+                  {{validationMessages['checkedDateFromOnUtc'].required}}</label>
+                <label class="error nowrap"
+                       *ngIf="vendor.get('checkedDateFromOnUtc').hasError('maxDate') && !vendor.get('checkedDateFromOnUtc').pristine">
+                  {{validationMessages['checkedDateFromOnUtc'].maxLength}}</label>
+              </div>
+              <div class="px-2 flex justify-content-center"
+                   [ngClass]="{'disappear': isPageReadOnly && !vendor.get('checkedDateToOnUtc').value}">
+                <span class="m-t-4">to</span>
+              </div>
+              <div class=""
+                   [ngClass]="{'has-error':!vendor.get('checkedDateToOnUtc').valid}">
+                <my-date-picker class="flex" [options]="checkedToOptions"
+                                #checkedDateToPicker
+                                [defaultMonth]="myDatePickerService.configDefaultMonth(vendor.get('checkedDateFrom').value)"
+                                formControlName='checkedDateTo'
+                                [disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled"
+                                [ngClass]="{'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled}"
+                                (dateChanged)="onDateChangedBy($event, vendor, 'checkedDateToOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, checkedDateToPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, checkedDateToPicker, vendor.get('checkedDateToOnUtc'))"></my-date-picker>
+                <label class="error"
+                       *ngIf="(vendor.get('formRequires').value['checkedDateToOnUtc'].required && !vendor.get('checkedDateToOnUtc').value)">
+                  {{validationMessages['checkedDateToOnUtc'].required}}</label>
+                <label class="error nowrap"
+                       *ngIf="vendor.get('checkedDateToOnUtc').hasError('minDate') && !vendor.get('checkedDateToOnUtc').pristine">
+                  {{validationMessages['checkedDateToOnUtc'].maxLength}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1"
+                 [ngClass]="{'required': vendor.get('formRequires').value['carrierId'].required}">
+              <div class="col-sm-3 col-lg-4 control-label text-right">
+                <label>Carrier</label>
+              </div>
+              <div class="col-sm-7 col-lg-7"
+                   [ngClass]="{'has-error':!vendor.get('carrierId').valid,
+                    'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled}">
+                <ng-select [items]="shippingCarrier" #carrierSelect
+                           [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled ? 'Carrier' : ''"
+                           [virtualScroll]="true"
+                           (focus)="onSelectFocused(carrierSelect)"
+                           (open)="carrierSelect.filterValue = !!vendor.get('carrierId').value ? vendor.get('carrierName').value : ''"
+                           (add)="onSelectItem($event, vendor, 'name', 'carrierName')"
+                           (clear)="vendor.get('carrierName').patchValue('')"
+                           bindLabel="name"
+                           bindValue="id"
+                           formControlName="carrierId"></ng-select>
+                <label class="error"
+                       *ngIf="vendor.get('carrierId').hasError('required') && !vendor.get('carrierId').pristine">
+                  {{validationMessages['carrierId'].required}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1"
+                 [ngClass]="{'required': vendor.get('formRequires').value['trackingNumber'].required}">
+              <div class="col-sm-3 col-lg-4 control-label text-right">
+                <label>Tracking #</label>
+              </div>
+              <div class="col-sm-7 col-lg-7"
+                   [ngClass]="{'has-error':!vendor.get('trackingNumber').valid}">
+                <input formControlName='trackingNumber'
+                       type="text"
+                       [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled ? 'Tracking #' : ''"
+                       [attr.disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled ? true : null"
+                       class="form-control">
+                <label class="error"
+                       *ngIf="vendor.get('trackingNumber').hasError('required') && !vendor.get('trackingNumber').pristine">
+                  {{validationMessages['trackingNumber'].required}}</label>
+              </div>
+            </div>
+          </div>
+          <div class="col-xxl-4 col-xl-3 col-lg-12">
+            <div class="row flex my-2"
+                 *ngIf="frm.get('styles').value && frm.get('styles').value.length">
+              <div class="col-sm-12">
+                <p class="mb-0 bold">Apply to these styles</p>
+              </div>
+            </div>
+            <div class="row flex py-1" *ngFor="let style of getStylesList(); let styleIndex = index">
+              <div class="col-sm-12 flex">
+                <div class="checkbox po-checkbox">
+                  <input type="checkbox" [id]="i + '-' + styleIndex + '-style'"
+                         [disabled]="(style.id === styleId) || isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled || isUseForAllStyles"
+                         [checked]="activeStylesChanges(vendor, style.id) || isUseForAllStyles"
+                         (change)="onSelectStyle($event, vendor, style.id, style.trimId)">
+                  <label [for]="i + '-' + styleIndex + '-style'" style="white-space: normal;">
+                    {{getLabelString(style)}}
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row py-1 border-bottom-ccc m-b-15 m-t-10"
+             *ngIf="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled">
+          <div class="col-xl-2"></div>
+          <div class="col-xxl-8 col-xl-10 col-lg-12">
+            <div class="row">
+              <div class="col-2"></div>
+              <div class="col-xl-6 col-lg-10 flex justify-content-end">
+                <button class="btn btn-complete mr-2" type="button" (click)="addVendor()"
+                        *ngIf="last && !frm.get('isAllPoSpecified').value">+ Add a Vendor
+                </button>
+                <button type="button" class="btn btn-danger ml-2" (click)="deleteVendor(i)">
+                  Delete This Vendor
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+    <div class="row py-1">
+      <div class="col-xl-4 col-lg-5">
+        <div class="row flex">
+          <div class="col-sm-3 col-lg-4"></div>
+          <div class="col-sm-7 col-lg-8">
+            <button class="btn btn-complete pull-left" type="button" (click)="addVendor()"
+                    *ngIf="!vendors.controls.length && !isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled">+ Add a Vendor
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row mt-lg-0 mt-sm-4" *ngIf="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled">
+      <div class="py-2 col-lg-4">
+        <div class="row flex py-1">
+          <div class="col-sm-3 col-lg-4"></div>
+          <div class="col-sm-7 col-lg-8">
+            <button class="btn btn-complete" type="submit">Save</button>
+            <!--<button class="btn btn-default" type="button" (click)="onCancel()">-->
+            <!--Cancel-->
+            <!--</button>-->
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="sticky-btn" *ngIf="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled && isShowStickyBtn">
+      <button class="btn btn-complete" type="submit">Save</button>
+    </div>
+  </form>
+</div>

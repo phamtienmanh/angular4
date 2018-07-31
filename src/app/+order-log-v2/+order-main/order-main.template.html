@@ -1,0 +1,1998 @@
+<div class="sync-task" *ngIf="a2000SyncTask">
+  <div>
+    <p>Last A2000 Sync:</p>
+    <p>Next A2000 Sync:</p>
+  </div>
+  <div>
+    <p>{{a2000SyncTask.lastA2000Sync | amFromUtc | amLocal | amDateFormat:
+      'MMM DD @ h:mmA'}}</p>
+    <p>{{a2000SyncTask.nextA2000Sync | amFromUtc | amLocal | amDateFormat:
+      'MMM DD @ h:mmA'}}</p>
+  </div>
+</div>
+<div class="row mt-2" #orderLogHeader>
+  <div class="panel panel-transparent" id="orderLogHeader">
+    <perfect-scrollbar class="scroll-sm" [config]="{suppressScrollX: false}" (psScrollX)="onScrollTabX($event)"
+                       #dashboardScroll>
+      <ul class="nav nav-tabs m-b-10" fitcontent>
+        <ng-template ngFor [ngForOf]="tabs" let-tab let-i="index">
+          <li class="text-center nav-item" *ngIf="tab.isView"
+              [ngClass]="{'active': tab.isActive, 'disabled': tab.isDisabled}"
+              (click)="switchTab($event, i)">
+            <a class="justify-center nav-link"
+               href="javascript:void(0)" aria-expanded="true">
+              <span>{{tab.name}}</span>
+            </a>
+          </li>
+        </ng-template>
+      </ul>
+    </perfect-scrollbar>
+  </div>
+</div>
+<div class="panel panel-transparent py-3" id="orderLogTable" *ngIf="getCurrentTab().name !== 'Order Notification'">
+  <ng-template [ngIf]="!isA2000Dashboard">
+    <order-main-filter [fontSize]="myConfigStyle['font-size']"
+                       [isHaveData]="orderLogData.data && !!orderLogData.data.length"
+                       [isShowExportBulkPo]="getCurrentTab().name === 'Blanks Not Purchased'"
+                       [canExportLayout]="canExportLayout"
+                       (onExportLayout)="onExportLayout($event)"
+                       (onExportOrder)="onExportOrder($event)"
+                       (onExportReport)="onExportReport($event)"
+                       (onExportBulkPo)="onExportBulkPo($event)"
+                       (onChangeFontSize)="onChangeFontSize($event)"
+                       (onUpdateFilter)="onUpdateFilter($event)"
+                       (onFilter)="onFilter($event)"></order-main-filter>
+  </ng-template>
+  <div class="py-2" *ngIf="orderLogData.data === null">
+    <span class="font-size-16">No orders match the current selections.</span>
+  </div>
+  <div class="py-2" *ngIf="orderLogData.data && !orderLogData.data.length">
+    <span class="font-size-16">
+      {{isA2000Dashboard ? 'No orders match the current selections.' : 'No orders have been created.'}}
+    </span>
+  </div>
+  <div class="py-2" [hidden]="!orderLogData.data || !orderLogData.data.length">
+    <div class="ngx-datatable material custom-ngx-dtb" id="header"
+         [ngStyle]="myConfigStyleHeader"></div>
+    <div class="col-sm-12 p-0" *ngIf="isA2000Dashboard">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="flex justify-content-end">
+            <!-- <a class="mx-1" href="javascript:void(0)" (click)="exportOrder('pdf')">
+              <i class="fa fa-file-pdf-o fa-2x text-danger" aria-hidden="true"></i>
+            </a> -->
+            <a class="mx-1" href="javascript:void(0)" (click)="exportA2000('xlsx')">
+              <i class="fa fa-file-excel-o fa-2x text-success" aria-hidden="true"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ng-template [ngIf]="!isA2000Dashboard || isA2000Dashboard">
+      <ng-container *ngTemplateOutlet="pagination"></ng-container>
+    </ng-template>
+    <!-- <ng-template [ngIf]="isA2000Dashboard">
+      <div class="row pb-2">
+        <div class="col-4">{{orderLogData.totalRecord}} items</div>
+      </div>
+    </ng-template> -->
+    <div class="relative">
+      <div class="overlay-cancelled" *ngIf="getCurrentTab().name === 'Cancelled'"></div>
+      <perfect-scrollbar [config]="{suppressScrollX: false}" (psScrollX)="onScrollX($event)">
+        <div class="table-wrapper" #tableWrapper id="tableWrapper">
+          <div *ngIf="isA2000Dashboard; then a2000Table else otherTable"></div>
+          <ng-template #a2000Table>
+            <ngx-datatable #orderLogTable
+                           class="material ngx-table-hover"
+                           [ngStyle]="myConfigStyle"
+                           [rows]="orderLogData.data"
+                           [columnMode]="'force'"
+                           [footerHeight]="0"
+                           [headerHeight]="'auto'"
+                           [rowHeight]="'auto'"
+                           [externalSorting]="true"
+                           [sorts]="[{prop: 'customer', dir: 'asc'}]"
+                           (sort)="onSort($event)">
+              <ngx-datatable-column
+                [name]="'Customer Code'"
+                [prop]="'customer'"
+                [minWidth]="105"
+                [width]="105"
+                [draggable]="false"
+                [sortable]="false"
+                [resizeable]="false">
+              </ngx-datatable-column>
+              <ngx-datatable-column
+                [name]="'Customer Name'"
+                [prop]="'custName'"
+                [minWidth]="154"
+                [width]="154"
+                [draggable]="false"
+                [sortable]="false"
+                [resizeable]="false">
+              </ngx-datatable-column>
+              <ngx-datatable-column
+                [name]="'Customer PO'"
+                [prop]="'baseOrderNo'"
+                [minWidth]="110"
+                [width]="110"
+                [draggable]="false"
+                [sortable]="false"
+                [resizeable]="false">
+              </ngx-datatable-column>
+              <ngx-datatable-column
+                [name]="'Order Week'"
+                [prop]="'orderWeek'"
+                [minWidth]="90"
+                [width]="90"
+                [draggable]="false"
+                [sortable]="false"
+                [resizeable]="false">
+              </ngx-datatable-column>
+              <ngx-datatable-column
+                [name]="'Entered By'"
+                [prop]="'enteredBy'"
+                [minWidth]="100"
+                [width]="100"
+                [draggable]="false"
+                [sortable]="false"
+                [resizeable]="false">
+              </ngx-datatable-column>
+              <ngx-datatable-column [name]="'Order Date'"
+                                    [prop]="'orderDate'"
+                                    [minWidth]="107"
+                                    [width]="107"
+                                    [resizeable]="false"
+                                    [sortable]="false"
+                                    [draggable]="false">
+                <ng-template let-value="value" ngx-datatable-cell-template>
+                  <span>{{value | amDateFormat: 'MM/DD/YYYY'}}</span>
+                </ng-template>
+              </ngx-datatable-column>
+              <ngx-datatable-column [name]="'Start Date'"
+                                    [prop]="'startDate'"
+                                    [minWidth]="107"
+                                    [width]="107"
+                                    [draggable]="false"
+                                    [sortable]="false"
+                                    [resizeable]="false">
+                <ng-template let-value="value" ngx-datatable-cell-template>
+                  <span>{{value | amDateFormat: 'MM/DD/YYYY'}}</span>
+                </ng-template>
+              </ngx-datatable-column>
+              <ngx-datatable-column [name]="'Cancel Date'"
+                                    [prop]="'cancelDate'"
+                                    [minWidth]="107"
+                                    [width]="107"
+                                    [draggable]="false"
+                                    [sortable]="false"
+                                    [resizeable]="false">
+                <ng-template let-value="value" ngx-datatable-cell-template>
+                  <span>{{value | amDateFormat: 'MM/DD/YYYY'}}</span>
+                </ng-template>
+              </ngx-datatable-column>
+              <ngx-datatable-column
+                [name]="'# Line Items'"
+                [prop]="'lineItems'"
+                [minWidth]="75"
+                [width]="75"
+                [draggable]="false"
+                [sortable]="false"
+                [resizeable]="false">
+              </ngx-datatable-column>
+              <ngx-datatable-column
+                [name]="'Book Qty'"
+                [prop]="'bookQty'"
+                [minWidth]="70"
+                [width]="70"
+                [draggable]="false"
+                [sortable]="false"
+                [resizeable]="false">
+              </ngx-datatable-column>
+              <ngx-datatable-column
+                [name]="'Ship Qty'"
+                [prop]="'shipQty'"
+                [minWidth]="70"
+                [width]="70"
+                [draggable]="false"
+                [sortable]="false"
+                [resizeable]="false">
+              </ngx-datatable-column>
+              <ngx-datatable-column
+                [name]="'Cancel Qty'"
+                [prop]="'cancelQty'"
+                [minWidth]="80"
+                [width]="80"
+                [draggable]="false"
+                [sortable]="false"
+                [resizeable]="false">
+              </ngx-datatable-column>
+              <ngx-datatable-column
+                [name]="'#Stores'"
+                [prop]="'numStores'"
+                [minWidth]="70"
+                [width]="70"
+                [draggable]="false"
+                [sortable]="false"
+                [resizeable]="false">
+              </ngx-datatable-column>
+            </ngx-datatable>
+          </ng-template>
+          <ng-template #otherTable>
+            <div class="selection-block" *ngIf="orderLogData.data && orderLogData.data.length && canExportLayout && (getCurrentSelectedItem() + getOtherSelectedItem() > 0)">
+              <p *ngIf="orderLogData.selected.isCheckedAll && !orderLogData.selected.itemsRemoved.length; else noCheckedAll">
+                All {{orderLogData.totalRecord}} orders on all pages are selected. <span class="p-link" (click)="resetRowSelected()">Clear selections</span>.</p>
+              <ng-template #noCheckedAll>
+                <p>
+                  {{getCurrentSelectedItem() + getOtherSelectedItem()}} orders are selected.
+                  <span class="p-link" (click)="onCheckAll(true)"> Select all {{orderLogData.totalRecord}} orders on all pages </span>
+                  or <span class="p-link" (click)="resetRowSelected()">Clear all selections</span>.</p>
+                <!--<p *ngIf="getOtherSelectedItem() > 0">{{getCurrentSelectedItem() + getOtherSelectedItem()}} orders are selected. <span class="p-link" (click)="resetRowSelected()">Clear selections</span>.</p>-->
+              </ng-template>
+            </div>
+            <table class="table order-table" border="1px"
+                   [ngStyle]="myConfigStyle"
+                   *ngIf="!isNoColumnChecked()">
+              <thead>
+              <tr class="table-header">
+                <th class="center cursor" (click)="collapseAll($event)">
+                  <i class="collapse-toggle cursor fa fa-caret-down fa-2x"
+                     [ngClass]="{'collapsed': isAllCollapse}"></i>
+                  <div class="checkbox check-all" [ngClass]="{'disappear': !canExportLayout}">
+                    <input type="checkbox" [id]="'select-all'"
+                           [(ngModel)]="orderLogData.selected.isCheckedPage"
+                           (ngModelChange)="onCheckPage($event)">
+                    <label [for]="'select-all'"></label>
+                  </div>
+                </th>
+                <th *ngIf="isShowAllColumns || columns.CSRCustPORetailerPOOrderDates"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].csr.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].csr.width">
+                  CSR<br>Cust / PO #<br>Retailer / PO #<br>Order Dates
+                </th>
+                <th *ngIf="isShowAllColumns || columns.CreditApproval"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].creditApproval.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].creditApproval.width">
+                  Credit<br>Approval
+                </th>
+                <th *ngIf="isShowAllColumns || columns.OrderDocumentation"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].orderDocumentation.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].orderDocumentation.width">
+                  Order<br>Documentation
+                </th>
+                <th *ngIf="isShowAllColumns || columns.OWSTechPackReady"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].techPackReady.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].techPackReady.width">
+                  OWS /<br>Tech<br>Pack<br>Ready
+                </th>
+                <th *ngIf="isShowAllColumns || columns.TrimETARcvd"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].trimEta.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].trimEta.width">
+                  Trim<br>ETA<br>/<br>Rcvd
+                </th>
+                <th *ngIf="isShowAllColumns || columns.BlankGoodsETARcvd"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].blankGoodsEta.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].blankGoodsEta.width">
+                  Blank<br>Goods ETA<br>/<br>Rcvd
+                </th>
+                <th *ngIf="isShowAllColumns || columns.CutTicketCreated"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].cutTicketCreated.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].cutTicketCreated.width">
+                  Cut Ticket /<br>Production PO<br>Created
+                </th>
+                <th *ngIf="isShowAllColumns || columns.OrderStaged"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].orderStaged.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].orderStaged.width">
+                  Order<br>Staged
+                </th>
+                <th *ngIf="isShowAllColumns || columns.DesignDescriptionTotal"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].styleInfo.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].styleInfo.width">
+                  Design #<br>Description<br>Total
+                </th>
+                <th *ngIf="isShowAllColumns || columns.PrintLocation"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].printLocation.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].printLocation.width">
+                  Print<br>Location
+                </th>
+                <th *ngIf="isShowAllColumns || columns.ArtReleased"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].artReleased.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].artReleased.width">
+                  Art<br>Released
+                </th>
+                <th *ngIf="isShowAllColumns || columns.PrintApproval"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].printApproval.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].printApproval.width">
+                  Print<br>Approval
+                </th>
+                <th *ngIf="isShowAllColumns || columns.PrintDate"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].printDate.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].printDate.width">
+                  Print<br>Date
+                </th>
+                <th *ngIf="isShowAllColumns || columns.NeckLabelApproval"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].neckLabelApproval.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].neckLabelApproval.width">
+                  Neck<br>Label<br>Approval
+                </th>
+                <th *ngIf="isShowAllColumns || columns.NeckLabelDate"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].neckLabelDate.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].neckLabelDate.width">
+                  Neck<br>Label<br>Date
+                </th>
+                <th *ngIf="isShowAllColumns || columns.SpecialtyTreatmentDate"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].specialtyTreatmentDate.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].specialtyTreatmentDate.width">
+                  Specialty<br>Treatment<br>Date
+                </th>
+                <th *ngIf="isShowAllColumns || columns.FinishingDate"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].finishingDate.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].finishingDate.width">
+                  Finishing<br>Date
+                </th>
+                <th *ngIf="isShowAllColumns || columns.ShippingLabels"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].shippingLabelsResponse.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].shippingLabelsResponse.width">
+                  Shipping<br>Labels
+                </th>
+                <th *ngIf="isShowAllColumns || columns.PickPackDate"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].pickAndPackDate.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].pickAndPackDate.width">
+                  Pick &<br>Pack<br>Date
+                </th>
+                <th *ngIf="isShowAllColumns || columns.EtaTsc"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].etaTscResponse.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].etaTscResponse.width">
+                  ETA @<br>TSC<br>
+                </th>
+                <th *ngIf="isShowAllColumns || columns.QA"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].qa.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].qa.width">QA
+                </th>
+                <th *ngIf="isShowAllColumns || columns.ReadytoShipDate"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].readyToShipDate.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].readyToShipDate.width">
+                  Ready<br>To<br>Ship<br>Date
+                </th>
+                <th *ngIf="isShowAllColumns || columns.ActualShipDate"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].actualToShipDate.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].actualToShipDate.width">
+                  Actual<br>Ship<br>Date
+                </th>
+                <th *ngIf="isShowAllColumns || columns.ShippingDocumentation"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].shippingDocumentation.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].shippingDocumentation.width">
+                  Shipping<br>Documentation
+                </th>
+                <th *ngIf="isShowAllColumns || columns.Invoiced"
+                    [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].invoiced.width"
+                    [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].invoiced.width">Invoiced
+                </th>
+              </tr>
+              </thead>
+              <tbody>
+              <ng-template ngFor let-row [ngForOf]="orderLogData.data" let-i="index"
+                           let-first="first">
+                <ng-template ngFor let-detail [ngForOf]="row.orderDetails" let-ii="index"
+                             let-firstStyle="first" let-lastStyle="last">
+                  <ng-template ngFor let-item [ngForOf]="detail.printLocations" let-iii="index"
+                               let-firstPrint="first" let-lastPrint="last">
+                    <tr *ngIf="!row.isCollapse || (firstStyle && firstPrint)"
+                        [ngClass]="{'start-order': !first && firstStyle && firstPrint}">
+                      <td *ngIf="firstStyle && firstPrint"
+                          [attr.rowSpan]="orderColSpan(row)"
+                          class="center cursor">
+                        <div class="seperate-child"
+                             (click)="collapseRow($event, row)">
+                          <i class="collapse-toggle cursor fa fa-caret-down fa-2x"
+                             [ngClass]="{'collapsed': row.isCollapse}"></i>
+                          <b class="m-t-5">{{(tableConfig.currentPage - 1) * tableConfig.pageSize + i + 1}}</b>
+                          <div class="checkbox check-each" [ngClass]="{'disappear': !canExportLayout}">
+                            <input type="checkbox" [id]="'checkbox-' + row.id" #rowCheckbox
+                                   (change)="onRowSelected($event, row)">
+                            <label [for]="'checkbox-' + row.id"></label>
+                          </div>
+                        </div>
+                        <ng-container *ngTemplateOutlet="selectedRow; context: {id: row.id}"></ng-container>
+                      </td>
+                      <td *ngIf="firstStyle && firstPrint && (isShowAllColumns || columns.CSRCustPORetailerPOOrderDates)"
+                          [attr.rowSpan]="orderColSpan(row)"
+                          [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].csr.width"
+                          [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].csr.width">
+                        <div *ngIf="row.orderLogInfo.isOrderNotification
+                                    && !row.orderLogInfo.orderNotificationImportedDateOnUtc"
+                             class="p-1">
+                          <p class="center p-link">{{row.orderLogInfo.csr}}</p>
+                          <p class="center p-link">{{row.orderLogInfo.customerName}} <span
+                            *ngIf="row.orderLogInfo.customerName && row.orderLogInfo.customerPoId">#</span>
+                            {{row.orderLogInfo.customerPoId}}</p>
+                          <p class="center p-link">{{row.orderLogInfo.retailerName}} <span
+                            *ngIf="row.orderLogInfo.retailerName && row.orderLogInfo.retailerPoId">#</span>
+                            {{row.orderLogInfo.retailerPoId}}</p>
+                          <p class="center p-link" *ngIf="row.orderLogInfo.cancelDateOnUtc">
+                              <span
+                                class="inline">CNCL: {{row.orderLogInfo.cancelDateOnUtc | amDateFormat: 'MM/DD/YY'}}</span>
+                          </p>
+                          <p class="center mbe-1 p-link">{{row.totalStyleUnits + ' units'}}</p>
+                        </div>
+                        <div *ngIf="!row.orderLogInfo.isOrderNotification
+                                    || row.orderLogInfo.orderNotificationImportedDateOnUtc"
+                             [ngClass]="{'col-readonly': !canModifyCols('CSR, Cust / PO #,  Retailer / PO  #,  Order Dates') || row.orderLogInfo.isCancelled, 'unread': !row.orderLogInfo.isReaded}">
+                          <div class="p-1" (click)="goToOrderInfo($event, row.id)">
+                            <p class="center p-link">{{row.orderLogInfo.csr}}</p>
+                            <p class="center p-link">{{row.orderLogInfo.customerName}} <span
+                              *ngIf="row.orderLogInfo.customerName && row.orderLogInfo.customerPoId">#</span>
+                              {{row.orderLogInfo.customerPoId}}</p>
+                            <p class="center p-link">{{row.orderLogInfo.retailerName}} <span
+                              *ngIf="row.orderLogInfo.retailerName && row.orderLogInfo.retailerPoId">#</span>
+                              {{row.orderLogInfo.retailerPoId}}</p>
+                            <p class="center p-link" [ngPlural]="row.orderLogInfo.fulfillmentType">
+                              <ng-template ngPluralCase="0">?</ng-template>
+                              <ng-template ngPluralCase="1">In Fulfillment</ng-template>
+                              <ng-template ngPluralCase="2">In DC</ng-template>
+                              <ng-template ngPluralCase="3">Drop Ship</ng-template>
+                              <ng-template ngPluralCase="4">In Store</ng-template>
+                              <ng-template ngPluralCase="other"></ng-template>
+                            </p>
+                            <p class="center p-link mbe-1" *ngIf="row.orderLogInfo.orderDateOnUtc">
+                              <span class="inline">ORD: {{row.orderLogInfo.orderDateOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+                            </p>
+                            <p class="center p-link mbe-1" *ngIf="row.orderLogInfo.startDateOnUtc">
+                              <span
+                                class="inline">START: {{row.orderLogInfo.startDateOnUtc | amDateFormat: 'MM/DD/YY'}}</span>
+                            </p>
+                            <p class="center p-link mbe-1" *ngIf="row.orderLogInfo.cancelDateOnUtc">
+                              <span
+                                class="inline">CNCL: {{row.orderLogInfo.cancelDateOnUtc | amDateFormat: 'MM/DD/YY'}}</span>
+                            </p>
+                            <p class="center p-link mbe-1" *ngIf="row.orderLogInfo.isInDcOrder">
+                              <span class="inline">LDSNE: {{row.orderLogInfo.lastDateToShipNonExpedited | amDateFormat: 'MM/DD/YY'}}</span>
+                            </p>
+                            <p class="center p-link mbe-1">{{row.totalStyleUnits + ' units'}}</p>
+                          </div>
+                          <div *ngIf="!row.isCollapse" class="p-1 flex justify-content-center">
+                            <div class="status-btn">
+                              <label-status [columnStatus]="row.trimEtaStatus"
+                                            [shortName]="'T'"></label-status>
+                            </div>
+                            <div class="status-btn">
+                              <label-status [columnStatus]="row.blankEtaStatus"
+                                            [shortName]="'B'"></label-status>
+                            </div>
+                            <div class="status-btn">
+                              <label-status [columnStatus]="row.printApprovalStatus"
+                                            [shortName]="'P'"></label-status>
+                            </div>
+                            <div class="status-btn">
+                              <label-status [columnStatus]="row.scStatus"
+                                            [shortName]="'Sc'"></label-status>
+                            </div>
+                            <div class="status-btn">
+                              <label-status [columnStatus]="row.actualToShipDateStatus"
+                                            [shortName]="'Sh'"></label-status>
+                            </div>
+                            <!--<div class="status-btn cursor"-->
+                                 <!--(click)="onChangePrintDateStatus(row, statusColumns.Shipping, row.orderLogInfo.shippingStatus)">-->
+                              <!--<label-status [columnStatus]="row.orderLogInfo.shippingStatus"-->
+                                            <!--[shortName]="'Sh'"></label-status>-->
+                            <!--</div>-->
+                          </div>
+                        </div>
+                        <ng-container *ngTemplateOutlet="selectedRow; context: {id: row.id}"></ng-container>
+                      </td>
+                      <td *ngIf="firstStyle && firstPrint && (isShowAllColumns || columns.CreditApproval)"
+                          [ngClass]="{'order-notification': row.orderLogInfo.isOrderNotification
+                            && !row.orderLogInfo.orderNotificationImportedDateOnUtc}"
+                          [attr.rowSpan]="orderColSpan(row)"
+                          [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].creditApproval.width"
+                          [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].creditApproval.width">
+                        <div class="seperate-child" (click)="onChangeCreditApproval($event, row, row.creditApproval)"
+                             [ngClass]="{'col-readonly': !canModifyCols('Credit Approval') || row.orderLogInfo.isCancelled, 'unread': !row.orderLogInfo.isReaded}">
+                          <label-status [columnStatus]="row.creditApproval.status"></label-status>
+
+                          <p
+                            *ngIf="row.creditApproval.status && row.creditApproval.creditApprovedDateOnUtc">
+                            {{row.creditApproval.creditApprovedDateOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                          </p>
+
+                          <p *ngIf="row.creditApproval.status && row.creditApproval.fullName">
+                            {{row.creditApproval.fullName}}</p>
+                        </div>
+                        <ng-container *ngTemplateOutlet="selectedRow; context: {id: row.id}"></ng-container>
+                      </td>
+                      <td *ngIf="firstStyle && firstPrint && (isShowAllColumns || columns.OrderDocumentation)"
+                          [ngClass]="{'order-notification': row.orderLogInfo.isOrderNotification
+                            && !row.orderLogInfo.orderNotificationImportedDateOnUtc}"
+                          [attr.rowSpan]="orderColSpan(row)"
+                          [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].orderDocumentation.width"
+                          [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].orderDocumentation.width">
+                        <div *ngIf="row.isCollapse" class="col-disabled"></div>
+                        <div *ngIf="!row.isCollapse" class="seperate-child"
+                             (click)="onChangeFolderReady(row, row.folderReady)"
+                             [ngClass]="{'col-readonly': !canModifyCols('Order Documentation') || row.orderLogInfo.isCancelled, 'unread': !row.orderLogInfo.isReaded}">
+                          <label-status [columnStatus]="row.folderReady.status"></label-status>
+
+                          <p *ngIf="row.folderReady.isUploaded">
+                            <i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"
+                               (click)="openFolderReadyUploader(row.id)"></i>
+                          </p>
+
+                          <p
+                            *ngIf="row.folderReady.status && row.folderReady.status === taskStatus.CREATED && row.folderReady.folderReadyForLogisticsCreatedDateOnUtc">
+                            {{row.folderReady.folderReadyForLogisticsCreatedDateOnUtc | amFromUtc | amLocal |
+                            amDateFormat:'MM/DD/YY h:mm A'}}
+                          </p>
+
+                          <p
+                            *ngIf="row.folderReady.status && row.folderReady.status === taskStatus.RECEIVED && row.folderReady.folderReadyForLogisticsReceivedDateOnUtc">
+                            {{row.folderReady.folderReadyForLogisticsReceivedDateOnUtc | amFromUtc | amLocal |
+                            amDateFormat:'MM/DD/YY h:mm A'}}
+                          </p>
+
+                          <p *ngIf="row.folderReady.status && row.folderReady.fullName">{{row.folderReady.fullName}}</p>
+                        </div>
+                        <ng-container *ngTemplateOutlet="selectedRow; context: {id: row.id}"></ng-container>
+                      </td>
+                      <td *ngIf="firstPrint && (isShowAllColumns || columns.OWSTechPackReady)"
+                          [ngClass]="{'order-notification': row.orderLogInfo.isOrderNotification
+                            && !row.orderLogInfo.orderNotificationImportedDateOnUtc}"
+                          [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                          [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].techPackReady.width"
+                          [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].techPackReady.width">
+                        <div *ngIf="row.isCollapse" class="col-disabled"></div>
+                        <ng-container *ngIf="!row.isCollapse">
+                          <div class="overlay-cancelled" *ngIf="detail.styleInfo?.isCancelled"></div>
+                          <div class="seperate-child" *ngIf="detail.techPackReady"
+                               [id]="row.id + '-' + i + '-' + 'techPackReady'"
+                               (click)="onChangeTechPackReady(row, detail, detail.techPackReady, ii)"
+                               [ngClass]="{'col-readonly': !canModifyCols('OWS / Tech Pack Ready') || row.orderLogInfo.isCancelled || detail.styleInfo?.isCancelled, 'unread': !row.orderLogInfo.isReaded}">
+                            <label-status [columnStatus]="detail.techPackReady.status"></label-status>
+
+                            <p *ngIf="detail.techPackReady.isUploaded">
+                              <i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"
+                                 (click)="openOWSTeckPackUploader(detail.orderDetailId, 'Tech Pack(s)')"></i>
+                            </p>
+
+                            <p
+                              *ngIf="detail.techPackReady.status && detail.techPackReady.status === taskStatus.DONE && detail.techPackReady.techPackReadyDateOnUtc">
+                              {{detail.techPackReady.techPackReadyDateOnUtc | amFromUtc | amLocal | amDateFormat:
+                              'MM/DD/YY h:mm A'}}
+                            </p>
+
+                            <p *ngIf="detail.techPackReady.status && detail.techPackReady.fullName" class="m-t-5">
+                              {{detail.techPackReady.fullName}}</p>
+                          </div>
+                        </ng-container>
+                        <ng-container *ngTemplateOutlet="selectedRow; context: {id: row.id}"></ng-container>
+                      </td>
+                      <td *ngIf="firstPrint && (isShowAllColumns || columns.TrimETARcvd)"
+                          [ngClass]="{'order-notification': row.orderLogInfo.isOrderNotification
+                            && !row.orderLogInfo.orderNotificationImportedDateOnUtc}"
+                          [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                          [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].trimEta.width"
+                          [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].trimEta.width">
+                        <div *ngIf="row.isCollapse">
+                          <label-status [columnStatus]="row.trimEtaStatus"></label-status>
+                        </div>
+                        <ng-container *ngIf="!row.isCollapse">
+                          <div class="overlay-cancelled" *ngIf="detail.styleInfo?.isCancelled"></div>
+                          <div class="seperate-child"
+                               *ngIf="detail.trimEta && detail.trimEta.trimId !== 0 && !detail.styleInfo?.noTrimRequired"
+                               (click)="onChangeTrimEta(row, detail, detail.trimEta)"
+                               [ngClass]="{'col-readonly': row.orderLogInfo.isCancelled || detail.styleInfo?.isCancelled, 'unread': !row.orderLogInfo.isReaded}">
+                            <label-status [columnStatus]="detail.trimEta.status"
+                                          [isMarkedMode]="false"></label-status>
+
+                            <p *ngIf="detail.trimEta.status && detail.trimEta.status !== taskStatus.BLANK"
+                               class="p-pos">
+                              POs:
+                              <br/>
+                              {{detail.trimEta.poNumbers}}
+                            </p>
+
+                            <p *ngIf="detail.trimEta.isUploaded">
+                              <i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"
+                                 (click)="openTrimUploader(detail.orderDetailId)"></i>
+                            </p>
+
+                            <p class="mbe-1"
+                               *ngIf="detail.trimEta.status && detail.trimEta.status !== taskStatus.BLANK">
+                              Eta:
+                              {{detail.trimEta.estDeliveryDateFromOnUtc ? (' ' + (detail.trimEta.estDeliveryDateFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY')) : ''}}
+                              {{!detail.trimEta.estDeliveryDateFromOnUtc && detail.trimEta.hasEtaNa ? ' N/A' : ''}}
+                              {{detail.trimEta.estDeliveryDateToOnUtc ? (' - ' + (detail.trimEta.estDeliveryDateToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY')) : ''}}
+                              <ng-container *ngIf="detail.trimEta.hasTscVendor">
+                                <br/>
+                                {{detail.trimEta.estDeliveryDateFromOnUtc || detail.trimEta.hasEtaNa || detail.trimEta.estDeliveryDateToOnUtc ? ', Warehouse' : ' Warehouse'}}
+                              </ng-container>
+                              <ng-container *ngIf="detail.trimEta.hasFactorySupply">
+                                <br/>
+                                {{(detail.trimEta.hasEtaNa || detail.trimEta.hasTscVendor) ? ', Factory' : ' Factory'}}
+                              </ng-container>
+                            </p>
+
+                            <p class="m-t-5 mbe-1"
+                               *ngIf="detail.trimEta.status && detail.trimEta.status !== taskStatus.BLANK">
+                              Rcvd:
+                              <span class="m-l-1"
+                                    *ngIf="detail.trimEta.receivedDateFromOnUtc && !detail.trimEta.receivedDateToOnUtc">
+                            {{detail.trimEta.receivedDateFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}</span>
+                              <span class="m-l-1"
+                                    *ngIf="detail.trimEta.receivedDateFromOnUtc && detail.trimEta.receivedDateToOnUtc">
+                            {{detail.trimEta.receivedDateFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+                              <span class="m-l-1" *ngIf="!detail.trimEta.receivedDateFromOnUtc">N/A</span>
+                            </p>
+                            <p class="mbe-1"
+                               *ngIf="detail.trimEta.status && detail.trimEta.status !== taskStatus.BLANK">
+                              <span *ngIf="detail.trimEta.receivedDateToOnUtc">
+                                 - {{detail.trimEta.receivedDateToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                              </span>
+                            </p>
+
+                            <p *ngIf="detail.trimEta.status && detail.trimEta.status !== taskStatus.BLANK"
+                               class="m-t-5 mb-0">
+                              Chkd:
+                              <span class="m-l-1"
+                                    *ngIf="detail.trimEta.checkedDateFromOnUtc && !detail.trimEta.checkedDateToOnUtc">
+                            {{detail.trimEta.checkedDateFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}</span>
+                              <span class="m-l-1"
+                                    *ngIf="detail.trimEta.checkedDateFromOnUtc && detail.trimEta.checkedDateToOnUtc">
+                            {{detail.trimEta.checkedDateFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+                              <span class="m-l-1" *ngIf="!detail.trimEta.checkedDateFromOnUtc">N/A</span>
+                            </p>
+                            <p *ngIf="detail.trimEta.status && detail.trimEta.status !== taskStatus.BLANK">
+                              <span *ngIf="detail.trimEta.checkedDateToOnUtc">
+                                 - {{detail.trimEta.checkedDateToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                              </span>
+                            </p>
+
+                            <p class="m-t-5" *ngIf="detail.trimEta.status && detail.trimEta.fullName">
+                              {{detail.trimEta.fullName}}</p>
+                          </div>
+                          <div class="seperate-child"
+                                 *ngIf="detail.orderDetailId &&
+                                 (!detail.trimEta || detail.trimEta.trimId === 0 || detail.styleInfo?.noTrimRequired)"
+                                 [ngClass]="{'col-readonly': !canModifyCols('Trim ETA / Rcvd') || row.orderLogInfo.isCancelled || detail.styleInfo?.isCancelled, 'unread': !row.orderLogInfo.isReaded}"
+                            >
+                              <div class="row center p-link">
+                                <p class="col-sm-12" (click)="goToTrimSetup(row, detail)">
+                                  {{detail.styleInfo?.noTrimRequired ? 'Trims Not Required' : 'No Trims Setup'}}
+                                </p>
+                              </div>
+                            </div>
+                        </ng-container>
+                        <ng-container *ngTemplateOutlet="selectedRow; context: {id: row.id}"></ng-container>
+                      </td>
+                      <td *ngIf="firstPrint && (isShowAllColumns || columns.BlankGoodsETARcvd)"
+                          [ngClass]="{'order-notification': row.orderLogInfo.isOrderNotification
+                            && !row.orderLogInfo.orderNotificationImportedDateOnUtc}"
+                          [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                          [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].blankGoodsEta.width"
+                          [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].blankGoodsEta.width">
+                        <div *ngIf="row.isCollapse">
+                          <label-status [columnStatus]="row.blankEtaStatus"></label-status>
+                        </div>
+                        <ng-container *ngIf="!row.isCollapse">
+                          <div class="overlay-cancelled" *ngIf="detail.styleInfo?.isCancelled"></div>
+                          <div class="seperate-child" *ngIf="detail.blankGoodsEta"
+                               (click)="onChangeBlankGoods(row, detail, detail.blankGoodsEta)"
+                               [ngClass]="{'col-readonly': row.orderLogInfo.isCancelled || detail.styleInfo?.isCancelled, 'unread': !row.orderLogInfo.isReaded}">
+                            <label-status [columnStatus]="detail.blankGoodsEta.status"></label-status>
+
+                            <p *ngIf="detail.blankGoodsEta.status && detail.blankGoodsEta.status !== taskStatus.BLANK && detail.blankGoodsEta.poNumbers"
+                               class="p-pos">
+                              POs:
+                              <br/>
+                              {{detail.blankGoodsEta.poNumbers}}
+                            </p>
+
+                            <p *ngIf="detail.blankGoodsEta.isUploaded">
+                              <i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"
+                                 (click)="openBlankUploader(detail.orderDetailId)"></i>
+                            </p>
+
+                            <ng-template [ngIf]="detail.blankGoodsEta.status && detail.blankGoodsEta.isPoRevised">
+                              <p>(Revised)</p>
+                            </ng-template>
+
+                            <p class="mbe-1"
+                               *ngIf="detail.blankGoodsEta.status && detail.blankGoodsEta.status !== taskStatus.BLANK">
+                              Eta:
+                              {{detail.blankGoodsEta.estDeliveryDateFromOnUtc ? (' ' + (detail.blankGoodsEta.estDeliveryDateFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY')) : ''}}
+                              {{!detail.blankGoodsEta.estDeliveryDateFromOnUtc && detail.blankGoodsEta.hasEtaNa ? ' N/A' : ''}}
+                              {{detail.blankGoodsEta.estDeliveryDateToOnUtc ? (' - ' + (detail.blankGoodsEta.estDeliveryDateToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY')) : ''}}
+                              <ng-container *ngIf="detail.blankGoodsEta.hasTscVendor">
+                                <br/>
+                                {{detail.blankGoodsEta.estDeliveryDateFromOnUtc || detail.blankGoodsEta.hasEtaNa || detail.blankGoodsEta.estDeliveryDateToOnUtc ? ', Warehouse' : ' Warehouse'}}
+                              </ng-container>
+                              <ng-container *ngIf="detail.blankGoodsEta.hasFactorySupply">
+                                <br/>
+                                {{(detail.blankGoodsEta.hasEtaNa || detail.blankGoodsEta.hasTscVendor) ? ', Factory' : ' Factory'}}
+                              </ng-container>
+                            </p>
+
+                            <p *ngIf="detail.blankGoodsEta.status && detail.blankGoodsEta.status !== taskStatus.BLANK"
+                               class="m-t-5 mb-0">Rcvd:
+                              <span class="m-l-1"
+                                    *ngIf="detail.blankGoodsEta.receivedDateFromOnUtc && !detail.blankGoodsEta.receivedDateToOnUtc">
+                          {{detail.blankGoodsEta.receivedDateFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                        </span>
+                              <span class="m-l-1"
+                                    *ngIf="detail.blankGoodsEta.receivedDateFromOnUtc && detail.blankGoodsEta.receivedDateToOnUtc">
+                          {{detail.blankGoodsEta.receivedDateFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                        </span>
+                              <span class="m-l-1" *ngIf="!detail.blankGoodsEta.receivedDateFromOnUtc">N/A</span>
+                            </p>
+                            <p
+                              *ngIf="detail.blankGoodsEta.status && detail.blankGoodsEta.status !== taskStatus.BLANK">
+                        <span *ngIf="detail.blankGoodsEta.receivedDateToOnUtc">- {{detail.blankGoodsEta.receivedDateToOnUtc | amFromUtc | amLocal | amDateFormat:
+                      'MM/DD/YY h:mm A'}}</span>
+                            </p>
+
+                            <p class="m-t-5" *ngIf="detail.blankGoodsEta.status && detail.blankGoodsEta.fullName">
+                              {{detail.blankGoodsEta.fullName}}</p>
+                          </div>
+                          <div class="seperate-child" *ngIf="detail.orderDetailId && !detail.blankGoodsEta"
+                               [ngClass]="{'col-readonly': !canModifyCols('Blank Goods ETA / Rcvd') || row.orderLogInfo.isCancelled || detail.styleInfo?.isCancelled, 'unread': !row.orderLogInfo.isReaded}"
+                               (click)="onChangeBlankGoods(row, detail, detail.blankGoodsEta)">
+                            <p class="stt-p stt-lightgrey" *ngIf="detail.isBlankNotApplicable">N/A</p>
+                            <p class="stt-p stt-black" *ngIf="!detail.isBlankNotApplicable">?</p>
+                          </div>
+                        </ng-container>
+                        <ng-container *ngTemplateOutlet="selectedRow; context: {id: row.id}"></ng-container>
+                      </td>
+                      <ng-container *ngIf="firstStyle && firstPrint && row.isCollapse &&
+                                         ((+ columns.CutTicketCreated
+                                          + columns.OrderStaged
+                                          + columns.DesignDescriptionTotal
+                                          + columns.PrintLocation
+                                          + columns.ArtReleased) > 0 || isShowAllColumns) &&
+                                          (!row.orderLogInfo.isOrderNotification ||
+                                            row.orderLogInfo.orderNotificationImportedDateOnUtc)">
+                        <td [attr.colspan]="isShowAllColumns ? 5 : (+ columns.CutTicketCreated
+                                                                    + columns.OrderStaged
+                                                                    + columns.DesignDescriptionTotal
+                                                                    + columns.PrintLocation
+                                                                    + columns.ArtReleased)"
+                            [style.minWidth.px]="+ columns.CutTicketCreated * myStyleColumns[myConfigStyle['font-size']].cutTicketCreated.width
+                       + columns.OrderStaged * myStyleColumns[myConfigStyle['font-size']].orderStaged.width
+                       + columns.DesignDescriptionTotal * myStyleColumns[myConfigStyle['font-size']].styleInfo.width
+                       + columns.PrintLocation * myStyleColumns[myConfigStyle['font-size']].printLocation.width
+                       + columns.ArtReleased * myStyleColumns[myConfigStyle['font-size']].artReleased.width"
+                            [style.maxWidth.px]="+ columns.CutTicketCreated * myStyleColumns[myConfigStyle['font-size']].cutTicketCreated.width
+                       + columns.OrderStaged * myStyleColumns[myConfigStyle['font-size']].orderStaged.width
+                       + columns.DesignDescriptionTotal * myStyleColumns[myConfigStyle['font-size']].styleInfo.width
+                       + columns.PrintLocation * myStyleColumns[myConfigStyle['font-size']].printLocation.width
+                       + columns.ArtReleased * myStyleColumns[myConfigStyle['font-size']].artReleased.width">
+                          <div class="relative py-1 flex img-container">
+                            <ng-container *ngFor="let style of row.orderDetails">
+                              <ng-container *ngIf="style.styleInfo && !style.styleInfo.isCancelled">
+                                <ng-container *ngFor="let item of style.printLocations; let i = index; let firstItem = first">
+                                  <span *ngIf="firstItem" class="img-child-collapse center">
+                                    <p class="p-link m-b-5 break-word" *ngIf="style.styleInfo.licensorName">({{style.styleInfo.licensorName}})</p>
+                                    <p class="p-link" (click)="goToStyle(row.id, style.orderDetailId)"
+                                       [ngClass]="{'type-domestic': style.styleInfo?.itemType === itemTypes.DOMESTIC,
+                                                   'type-outsource': style.styleInfo?.itemType === itemTypes.OUTSOURCE,
+                                                   'type-cutandsew': style.styleInfo?.itemType === itemTypes.IMPORTS}">
+                                      {{style.styleInfo.units}} units</p>
+                                    <img *ngIf="item && item.imageUrl"
+                                         class="img-thumbnail-none-wh"
+                                         [src]="item.imageUrl" width="50"
+                                         height="50" imgZoomClick>
+                                    <img *ngIf="(!item || !item.imageUrl) && style.styleInfo?.imageUrl"
+                                         class="img-thumbnail-none-wh"
+                                         [src]="style.styleInfo?.imageUrl" width="50"
+                                         height="50"
+                                         imgZoomClick>
+                                  </span>
+                                </ng-container>
+                              </ng-container>
+                            </ng-container>
+                          </div>
+                          <div class="px-2 total-badge">{{row.totalStyleUnits}} units</div>
+                          <ng-container *ngTemplateOutlet="selectedRow; context: {id: row.id}"></ng-container>
+                        </td>
+                      </ng-container>
+                      <ng-container *ngIf="!row.isCollapse ||
+                                            row.orderLogInfo.isOrderNotification
+                                            && !row.orderLogInfo.orderNotificationImportedDateOnUtc">
+                        <td *ngIf="firstPrint && (isShowAllColumns || columns.CutTicketCreated)"
+                            [ngClass]="{'order-notification': row.orderLogInfo.isOrderNotification
+                            && !row.orderLogInfo.orderNotificationImportedDateOnUtc}"
+                            [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                            [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].cutTicketCreated.width"
+                            [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].cutTicketCreated.width">
+                          <div class="overlay-cancelled" *ngIf="detail.styleInfo?.isCancelled"></div>
+                          <div class="seperate-child" *ngIf="detail.cutTicketCreated"
+                               (click)="onChangeCutTicket(row, detail, detail.cutTicketCreated)"
+                               [ngClass]="{'col-readonly': !canModifyCols('Cut Ticket Created') || row.orderLogInfo.isCancelled || detail.styleInfo?.isCancelled, 'unread': !row.orderLogInfo.isReaded}">
+                            <label-status [columnStatus]="detail.cutTicketCreated.status"></label-status>
+
+                            <p
+                              *ngIf="detail.cutTicketCreated.status && detail.cutTicketCreated.status !== taskStatus.BLANK">
+                              {{detail.cutTicketCreated.cutTicketNumber}}</p>
+
+                            <p
+                              *ngIf="detail.cutTicketCreated.isUploaded"
+                              class="">
+                              <i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"
+                                 (click)="openStyleUploader(detail.orderDetailId, styleUploadedType.ProductionPO, 'Production PO - Cut Ticket')"></i>
+
+                            </p>
+
+                            <ng-template
+                              [ngIf]="detail.cutTicketCreated.status && detail.cutTicketCreated.isCutTicketRevised">
+                              <p>(Revised)</p>
+                            </ng-template>
+
+                            <p
+                              *ngIf="detail.cutTicketCreated.status && detail.cutTicketCreated.status !== taskStatus.BLANK && detail.cutTicketCreated.cutTicketCreatedOnUtc">
+                              Pend:
+                              <span class="m-l-1">
+                            {{detail.cutTicketCreated.cutTicketCreatedOnUtc | amDateFormat: 'MM/DD/YY'}}
+                          </span>
+                            </p>
+
+                            <p
+                              *ngIf="detail.cutTicketCreated.status === taskStatus.REJECTED  && detail.cutTicketCreated.cutTicketRejectedOnUtc">
+                              Rejc:
+                              <span class="m-l-1">
+                            {{detail.cutTicketCreated.cutTicketRejectedOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                          </span>
+                            </p>
+
+                            <p
+                              *ngIf="detail.cutTicketCreated.status === taskStatus.APPROVED  && detail.cutTicketCreated.cutTicketApprovedOnUtc">
+                              Appr:
+                              <span class="m-l-1">
+                            {{detail.cutTicketCreated.cutTicketApprovedOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                          </span>
+                            </p>
+
+                            <p
+                              *ngIf="detail.cutTicketCreated.status === taskStatus.PENDINGAPPROVAL && detail.cutTicketCreated.createdByUser">
+                              {{detail.cutTicketCreated.createdByUser}}</p>
+                            <p
+                              *ngIf="detail.cutTicketCreated.status === taskStatus.REJECTED && detail.cutTicketCreated.approvedByUser">
+                              {{detail.cutTicketCreated.approvedByUser}}</p>
+                            <p
+                              *ngIf="detail.cutTicketCreated.status === taskStatus.APPROVED && detail.cutTicketCreated.approvedByUser">
+                              {{detail.cutTicketCreated.approvedByUser}}</p>
+                          </div>
+                          <ng-container *ngTemplateOutlet="selectedRow; context: {id: row.id}"></ng-container>
+                        </td>
+                        <td *ngIf="firstPrint && (isShowAllColumns || columns.OrderStaged)"
+                            [ngClass]="{'order-notification': row.orderLogInfo.isOrderNotification
+                            && !row.orderLogInfo.orderNotificationImportedDateOnUtc}"
+                            [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                            [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].orderStaged.width"
+                            [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].orderStaged.width">
+                          <div class="overlay-cancelled" *ngIf="detail.styleInfo?.isCancelled"></div>
+                          <div class="seperate-child" *ngIf="detail.orderStaged"
+                               [ngClass]="{'col-readonly': !canModifyCols('Order Staged') || row.orderLogInfo.isCancelled || detail.styleInfo?.isCancelled, 'unread': !row.orderLogInfo.isReaded}"
+                               (click)="onChangeOrderStaged(row, detail, detail.orderStaged)">
+                            <label-status [columnStatus]="detail.orderStaged.status"></label-status>
+
+                            <!--<p *ngIf="detail.orderStaged.status">{{detail.orderStaged.stationName}}</p>-->
+
+                            <p class="m-t-5 mbe-1 min-height-content"
+                               *ngIf="detail.orderStaged.status === taskStatus.PARTIAL">
+                              Part:
+                              <span class="m-l-1"
+                                    *ngIf="detail.orderStaged.orderStagedPartialFromOnUtc && !detail.orderStaged.orderStagedPartialToOnUtc">
+                      {{detail.orderStaged.orderStagedPartialFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                    </span>
+                              <span class="m-l-1"
+                                    *ngIf="detail.orderStaged.orderStagedPartialFromOnUtc && detail.orderStaged.orderStagedPartialToOnUtc">
+                      {{detail.orderStaged.orderStagedPartialFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                    </span>
+                              <span class="m-l-1" *ngIf="!detail.orderStaged.orderStagedPartialFromOnUtc">N/A</span>
+                            </p>
+                            <p class="mbe-1" *ngIf="detail.orderStaged.status === taskStatus.PARTIAL">
+                    <span *ngIf="detail.orderStaged.orderStagedPartialToOnUtc">
+                       - {{detail.orderStaged.orderStagedPartialToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                    </span>
+                            </p>
+                            <p class="m-t-5 mbe-1 min-height-content"
+                               *ngIf="detail.orderStaged.status === taskStatus.DONE">
+                              Done:
+                              <span class="m-l-1"
+                                    *ngIf="detail.orderStaged.orderStagedDoneFromOnUtc && !detail.orderStaged.orderStagedDoneToOnUtc">
+                      {{detail.orderStaged.orderStagedDoneFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                    </span>
+                              <span class="m-l-1"
+                                    *ngIf="detail.orderStaged.orderStagedDoneFromOnUtc && detail.orderStaged.orderStagedDoneToOnUtc">
+                      {{detail.orderStaged.orderStagedDoneFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                    </span>
+                              <span class="m-l-1" *ngIf="!detail.orderStaged.orderStagedDoneFromOnUtc">N/A</span>
+                            </p>
+                            <p class="mbe-1" *ngIf="detail.orderStaged.status === taskStatus.DONE">
+                    <span *ngIf="detail.orderStaged.orderStagedDoneToOnUtc">
+                       - {{detail.orderStaged.orderStagedDoneToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                    </span>
+                            </p>
+
+                            <p *ngIf="detail.orderStaged.status && detail.orderStaged.fullName" class="m-t-10">
+                              {{detail.orderStaged.fullName}}</p>
+                          </div>
+                          <ng-container *ngTemplateOutlet="selectedRow; context: {id: row.id}"></ng-container>
+                        </td>
+                        <td *ngIf="firstPrint && (isShowAllColumns || columns.DesignDescriptionTotal)"
+                            [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                            [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].styleInfo.width"
+                            [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].styleInfo.width">
+                          <div *ngIf="row.orderLogInfo.isOrderNotification
+                                    && !row.orderLogInfo.orderNotificationImportedDateOnUtc"
+                               class="p-1">
+                            <p class="center" *ngIf="row.orderLogInfo.styles">{{row.orderLogInfo.styles}} styles</p>
+                            <p class="center" *ngIf="row.orderLogInfo.units">{{row.orderLogInfo.units}} units</p>
+                          </div>
+                          <ng-container *ngIf="!row.orderLogInfo.isOrderNotification
+                                              || row.orderLogInfo.orderNotificationImportedDateOnUtc">
+                            <div *ngIf="!detail.styleInfo"
+                                 class="seperate-child"
+                                 [ngClass]="{'col-readonly': !canModifyCols('Design # Description Total') || row.orderLogInfo.isCancelled, 'unread': !row.orderLogInfo.isReaded}">
+                              <!--[ngClass]="{'col-readonly': !canModifyOrders() || row.orderLogInfo.isCancelled, 'unread': !row.orderLogInfo.isReaded}"-->
+                              <div class="row center p-link">
+                                <p class="col-sm-12" (click)="goToStyleSetup(row.id)">No Styles Setup</p>
+                              </div>
+                            </div>
+                            <div *ngIf="detail.styleInfo" class="full-height"
+                                 (click)="goToStyle(row.id, detail.orderDetailId)"
+                                 [ngClass]="{'col-readonly': !canModifyCols('Design # Description Total') || row.orderLogInfo.isCancelled || detail.styleInfo?.isCancelled, 'unread': !row.orderLogInfo.isReaded}">
+                              <div class="overlay-cancelled" *ngIf="detail.styleInfo?.isCancelled"></div>
+                              <div class="seperate-child full-height">
+
+                                <p class="stt-p type-domestic"
+                                   *ngIf="detail.styleInfo?.itemType === itemTypes.DOMESTIC">Domestic</p>
+                                <p class="stt-p type-outsource"
+                                   *ngIf="detail.styleInfo?.itemType === itemTypes.OUTSOURCE">Outsource</p>
+                                <p class="stt-p type-cutandsew"
+                                   *ngIf="detail.styleInfo?.itemType === itemTypes.IMPORTS">Imports</p>
+
+                                <p class="p-link min-height-content mt-3">{{detail.styleInfo?.brand}}</p>
+
+                                <p class="p-link">{{detail.styleInfo?.partnerStyle}}</p>
+
+                                <p class="p-link min-height-content mt-0">{{detail.styleInfo?.styleName}}</p>
+
+                                <p class="p-link mt-0">{{detail.styleInfo?.units >= 0 ? (detail.styleInfo.units + ' units') : ''}}</p>
+
+                                <p class="p-link" *ngIf="detail.styleInfo?.licensorName">({{detail.styleInfo?.licensorName}})</p>
+                              </div>
+                            </div>
+                          </ng-container>
+                          <ng-container *ngTemplateOutlet="selectedRow; context: {id: row.id}"></ng-container>
+                        </td>
+                        <td *ngIf="isShowAllColumns || columns.PrintLocation"
+                            [ngClass]="{'order-notification': row.orderLogInfo.isOrderNotification
+                            && !row.orderLogInfo.orderNotificationImportedDateOnUtc}"
+                            [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].printLocation.width"
+                            [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].printLocation.width">
+                          <div class="overlay-cancelled" *ngIf="detail.styleInfo?.isCancelled"></div>
+                          <div *ngIf="detail.orderDetailId && !item"
+                               class="img-child"
+                               [ngClass]="{'col-readonly': !canModifyCols('Print Location') || row.orderLogInfo.isCancelled || detail.styleInfo?.isCancelled, 'unread': !row.orderLogInfo.isReaded}">
+                            <div class="row center p-link">
+                              <p class="col-sm-12" (click)="goToPrintLocationSetup(row, detail)">No Print Locations
+                                Setup</p>
+                            </div>
+
+                            <img *ngIf="detail.styleInfo?.imageUrl" class="img-thumbnail-none-wh"
+                                 [src]="detail.styleInfo?.imageUrl" width="50"
+                                 height="50"
+                                 imgZoomClick>
+                          </div>
+                          <div *ngIf="item"
+                                 class="img-child"
+                                 [ngClass]="{'col-readonly': !canModifyCols('Print Location') || row.orderLogInfo.isCancelled || detail.styleInfo?.isCancelled, 'unread': !row.orderLogInfo.isReaded}">
+                            <p class="p-link"
+                               (click)="goToPrintLocation(row.id, detail.orderDetailId, item.printLocationId)">
+                              {{item.printLocation}}</p>
+
+                            <img *ngIf="item.imageUrl" class="img-thumbnail-none-wh" [src]="item.imageUrl" width="50"
+                                 height="50"
+                                 imgZoomClick>
+
+                            <div class="m-t-5 m-b-5" *ngIf="isAdminAndSchedule() && !detail.styleInfo?.isCancelled
+                              && !row.orderLogInfo.isCancelled && getCurrentTab().name !== 'Archived'">
+                              <button type="button" *ngIf="!item.isMarkedForScheduling"
+                                      class="btn btn-complete btn-small"
+                                      (click)="markedForScheduling(row.id, detail.orderDetailId, item, true)">+ Queue
+                              </button>
+                              <button type="button" *ngIf="item.isMarkedForScheduling"
+                                      class="btn btn-success btn-small"
+                                      (click)="markedForScheduling(row.id, detail.orderDetailId, item, false)">Queued
+                              </button>
+                            </div>
+                          </div>
+                          <ng-container *ngTemplateOutlet="selectedRow; context: {id: row.id}"></ng-container>
+                        </td>
+                        <td *ngIf="isShowAllColumns || columns.ArtReleased"
+                            [ngClass]="{'order-notification': row.orderLogInfo.isOrderNotification
+                            && !row.orderLogInfo.orderNotificationImportedDateOnUtc}"
+                            [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].artReleased.width"
+                            [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].artReleased.width">
+                          <div class="overlay-cancelled" *ngIf="detail.styleInfo?.isCancelled"></div>
+                          <div *ngIf="detail.orderDetailId && !item" class="seperate-child"
+                               [ngClass]="{'col-readonly': !canModifyCols('Art Released') || row.orderLogInfo.isCancelled || detail.styleInfo?.isCancelled, 'unread': !row.orderLogInfo.isReaded}">
+                            <label-status [columnStatus]=""
+                                          (onConfirmReorder)="onConfirmReorder($event, detail)"
+                                          [isReorder]="detail.isReorder"
+                                          [isConfirmReorder]="detail.isConfirmReorder"></label-status>
+                          </div>
+                          <div *ngIf="item" class="seperate-child"
+                                 (click)="onChangeArtReleased(row, detail, item, item.artReleased, ii, item.printLocationId)"
+                                 [ngClass]="{'col-readonly': !canModifyCols('Art Released') || row.orderLogInfo.isCancelled || detail.styleInfo?.isCancelled, 'unread': !row.orderLogInfo.isReaded}">
+                              <label-status [columnStatus]="item.artReleased.status"
+                                            (onConfirmReorder)="onConfirmReorder($event, detail)"
+                                            [isReorder]="detail.isReorder"
+                                            [isConfirmReorder]="detail.isConfirmReorder"></label-status>
+
+                              <p
+                                *ngIf="item.artReleased.status && item.artReleased.status !== taskStatus.BLANK && item.artReleased.artReleasedDateOnUtc">
+                                Rel: {{item.artReleased.artReleasedDateOnUtc | amFromUtc | amLocal | amDateFormat:
+                                'MM/DD/YY'}}
+                              </p>
+
+                              <p *ngIf="item.artReleased.status && item.artReleased.fullName">
+                                {{item.artReleased.fullName}}</p>
+                            </div>
+                          <ng-container *ngTemplateOutlet="selectedRow; context: {id: row.id}"></ng-container>
+                        </td>
+                      </ng-container>
+                      <td *ngIf="isShowAllColumns || columns.PrintApproval"
+                          [ngClass]="{'order-notification': row.orderLogInfo.isOrderNotification
+                            && !row.orderLogInfo.orderNotificationImportedDateOnUtc}"
+                          [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].printApproval.width"
+                          [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].printApproval.width">
+                        <div *ngIf="row.isCollapse">
+                          <label-status [columnStatus]="row.printApprovalStatus"></label-status>
+                        </div>
+                        <ng-container *ngIf="!row.isCollapse">
+                          <div class="overlay-cancelled" *ngIf="detail.styleInfo?.isCancelled"></div>
+                          <div *ngIf="detail.orderDetailId && !item" class="seperate-child"
+                               [ngClass]="{'col-readonly': !canModifyCols('Print Approval') || row.orderLogInfo.isCancelled || detail.styleInfo?.isCancelled, 'unread': !row.orderLogInfo.isReaded}">
+                            <label-status [columnStatus]=""
+                                          (onConfirmReorder)="onConfirmReorder($event, detail)"
+                                          [isReorder]="detail.isReorder"
+                                          [isConfirmReorder]="detail.isConfirmReorder"></label-status>
+                          </div>
+                          <div *ngIf="item" class="seperate-child"
+                               (click)="onChangePrintApproval(row, detail, item, item.printApproval, ii, item.printLocationId)"
+                               [ngClass]="{'col-readonly': !canModifyCols('Print Approval') || row.orderLogInfo.isCancelled || detail.styleInfo?.isCancelled, 'unread': !row.orderLogInfo.isReaded}">
+                            <label-status [columnStatus]="item.printApproval.status"
+                                          (onConfirmReorder)="onConfirmReorder($event, detail)"
+                                          [isReorder]="detail.isReorder"
+                                          [isConfirmReorder]="detail.isConfirmReorder"></label-status>
+
+                            <!--<p class="min-height-content mb-0"-->
+                            <!--*ngIf="item.printApproval.approvalTypes && item.printApproval.approvalTypes.length">-->
+                            <!--<span>Appr Type:</span>-->
+                            <!--</p>-->
+
+                            <!--<p *ngIf="item.printApproval.approvalTypes && item.printApproval.approvalTypes.length">-->
+                            <!--{{item.printApproval.approvalTypes ?-->
+                            <!--item.printApproval.approvalTypes.join(', ') : ''}}</p>-->
+
+                            <p
+                              *ngIf="item.printApproval.status && item.printApproval.status !== taskStatus.BLANK && item.printApproval.status !== taskStatus.RERUN">
+                              Sched:
+                              <span class="m-l-1"
+                                    *ngIf="item.printApproval.printScheduledDateOnUtc">
+                          {{item.printApproval.printScheduledDateOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                      </span>
+                              <!--<span class="m-l-1"-->
+                              <!--*ngIf="item.printApproval.printScheduledDateOnUtc && item.printApproval.printScheduledDateToOnUtc">-->
+                              <!--{{item.printApproval.printScheduledDateOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}-->
+                              <!--</span>-->
+                              <span class="m-l-1" *ngIf="!item.printApproval.printScheduledDateOnUtc">N/A</span>
+                            </p>
+                            <!--<p class=""-->
+                            <!--*ngIf="item.printApproval.status && item.printApproval.status !== taskStatus.BLANK && item.printApproval.status !== taskStatus.RERUN">-->
+                            <!--<span *ngIf="item.printApproval.printScheduledDateToOnUtc">-->
+                            <!-- - {{item.printApproval.printScheduledDateToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}-->
+                            <!--</span>-->
+                            <!--</p>-->
+                            <p *ngIf="item.printApproval.status === taskStatus.APPROVED" class="m-t-5">Appr:
+                              <span class="m-l-1" *ngIf="item.printApproval.printApprovedDateOnUtc">
+                        {{item.printApproval.printApprovedDateOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                      </span>
+                              <span class="m-l-1" *ngIf="!item.printApproval.printApprovedDateOnUtc">N/A</span>
+                            </p>
+
+                            <p class="m-t-5" *ngIf="item.printApproval.status && item.printApproval.fullName">
+                              {{item.printApproval.fullName}}</p>
+                          </div>
+                        </ng-container>
+                        <ng-container *ngTemplateOutlet="selectedRow; context: {id: row.id}"></ng-container>
+                      </td>
+                      <td *ngIf="isShowAllColumns || columns.PrintDate"
+                          [ngClass]="{'order-notification': row.orderLogInfo.isOrderNotification
+                            && !row.orderLogInfo.orderNotificationImportedDateOnUtc}"
+                          [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].printDate.width"
+                          [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].printDate.width">
+                        <!--<div *ngIf="row.isCollapse"-->
+                             <!--class="full-height"-->
+                             <!--(click)="onChangePrintDateStatus(row, statusColumns.Schedule, row.orderLogInfo.scheduleStatus)">-->
+                          <!--<label-status [columnStatus]="row.orderLogInfo.scheduleStatus"-->
+                                        <!--[preFixName]="'Sched '"></label-status>-->
+                        <!--</div>-->
+                        <div *ngIf="row.isCollapse"
+                             class="seperate-child"
+                             (click)="onAddComment(row, row.printDateStatus, commentTypes.Print)">
+                          <label-status [columnStatus]="row.printDateStatus"></label-status>
+                          <p *ngIf="row.orderLogInfo?.printDateComments" class="center m-t-15">
+                            <i class="fa fa-comments fa-2x cursor" title="Comments"></i>
+                          </p>
+                        </div>
+                        <ng-container *ngIf="!row.isCollapse">
+                          <div class="overlay-cancelled" *ngIf="detail.styleInfo?.isCancelled"></div>
+                          <div *ngIf="detail.orderDetailId && !item" class="seperate-child"
+                               [ngClass]="{'col-readonly': !canModifyCols('Print Date') || row.orderLogInfo.isCancelled || detail.styleInfo?.isCancelled, 'unread': !row.orderLogInfo.isReaded}"></div>
+                          <div *ngIf="item" class="seperate-child"
+                               (click)="onChangePrintDate(row, detail, item, item.printDate)"
+                               [ngClass]="{'col-readonly': !canModifyCols('Print Date') || row.orderLogInfo.isCancelled || detail.styleInfo?.isCancelled, 'unread': !row.orderLogInfo.isReaded}">
+                            <label-status [columnStatus]="item.printDate.status"
+                                          [isShowUpdateSchedulerStatus]="!row.orderLogInfo.isCancelled
+                                                                      && !detail.styleInfo.isCancelled
+                                                                      && item.printDate.status === null"
+                                          (onUpdateSchedulerStatus)="onUpdateSchedulerStatus(row, item.printDate, 'Print Date',
+                                          item.printLocationId, null, null)"></label-status>
+
+                            <p *ngIf="item.printDate.status && item.printDate.status !== taskStatus.BLANK">
+                              {{item.printDate.vendors}}</p>
+
+                            <p class="mbe-1"
+                               *ngIf="item.printDate.status && item.printDate.status !== taskStatus.BLANK">
+                              Sched:
+                              <span class="m-l-1"
+                                    *ngIf="item.printDate.printDateScheduledFromOnUtc && !item.printDate.printDateScheduledToOnUtc">
+                          {{item.printDate.printDateScheduledFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                      </span>
+                              <span class="m-l-1"
+                                    *ngIf="item.printDate.printDateScheduledFromOnUtc && item.printDate.printDateScheduledToOnUtc">
+                        {{item.printDate.printDateScheduledFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+                              <span class="m-l-1" *ngIf="!item.printDate.printDateScheduledFromOnUtc">N/A</span>
+                            </p>
+                            <p class="" *ngIf="item.printDate.status && item.printDate.status !== taskStatus.BLANK">
+                      <span *ngIf="item.printDate.printDateScheduledToOnUtc">
+                           - {{item.printDate.printDateScheduledToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                      </span>
+                            </p>
+                            <p class="m-t-5"
+                               *ngIf="item.printDate.status && item.printDate.status === taskStatus.DONE">Done:
+                              <span class="m-l-1"
+                                    *ngIf="item.printDate.printDateDoneFromOnUtc && !item.printDate.printDateDoneToOnUtc">
+                        {{item.printDate.printDateDoneFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                      </span>
+                              <span class="m-l-1"
+                                    *ngIf="item.printDate.printDateDoneFromOnUtc && item.printDate.printDateDoneToOnUtc">
+                        {{item.printDate.printDateDoneFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                      </span>
+                              <span class="m-l-1" *ngIf="!item.printDate.printDateDoneFromOnUtc">N/A</span>
+                            </p>
+                            <p *ngIf="item.printDate.status && item.printDate.status === taskStatus.DONE">
+                      <span *ngIf="item.printDate.printDateDoneToOnUtc && !item.printDate.isShowTbd">
+                         - {{item.printDate.printDateDoneToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                      </span>
+                              <span *ngIf="item.printDate.isShowTbd">
+                         - TBD
+                      </span>
+                            </p>
+
+                            <p *ngIf="item.printDate.status && item.printDate.fullName" class="m-t-5">
+                              {{item.printDate.fullName}}</p>
+                          </div>
+                        </ng-container>
+                        <ng-container *ngTemplateOutlet="selectedRow; context: {id: row.id}"></ng-container>
+                      </td>
+                      <td *ngIf="firstPrint && (isShowAllColumns || columns.NeckLabelApproval)"
+                          [ngClass]="{'order-notification': row.orderLogInfo.isOrderNotification
+                            && !row.orderLogInfo.orderNotificationImportedDateOnUtc}"
+                          [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                          [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].neckLabelApproval.width"
+                          [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].neckLabelApproval.width">
+                        <div *ngIf="row.isCollapse" class="col-disabled"></div>
+                        <ng-container *ngIf="!row.isCollapse">
+                          <div class="overlay-cancelled" *ngIf="detail.styleInfo?.isCancelled"></div>
+                          <ng-container *ngIf="detail.neckLabelApproval">
+                            <div class="seperate-child" *ngIf="detail.neckLabelApproval.noNeckLabel === false"
+                                 (click)="onChangeNeckLabelApproval($event, row, detail, detail.neckLabelApproval)"
+                                 [ngClass]="{'col-readonly': !canModifyCols('Neck Label Approval') || row.orderLogInfo.isCancelled || detail.styleInfo?.isCancelled, 'unread': !row.orderLogInfo.isReaded}">
+                              <label-status [columnStatus]="detail.neckLabelApproval.status"
+                                            (onConfirmReorder)="onConfirmReorder($event, detail)"
+                                            [isReorder]="detail.isReorder"
+                                            [isConfirmReorder]="detail.isConfirmReorder"></label-status>
+
+                              <p *ngIf="detail.neckLabelApproval.imageUrl">
+                                <img class="img-thumbnail-none-wh"
+                                     [src]="detail.neckLabelApproval.imageUrl" width="50" height="50" imgZoomClick>
+                              </p>
+
+                              <p class="mb-0"
+                                 [ngClass]="{'min-height-content': !detail.neckLabelApproval.imageUrl}"
+                                 *ngIf="detail.neckLabelApproval.approvalTypes && detail.neckLabelApproval.approvalTypes.length">
+                                <span>Appr Type:</span>
+                              </p>
+
+                              <p
+                                *ngIf="detail.neckLabelApproval.approvalTypes && detail.neckLabelApproval.approvalTypes.length">
+                                {{detail.neckLabelApproval.approvalTypes ?
+                                detail.neckLabelApproval.approvalTypes.join(', ') :
+                                ''}}
+                              </p>
+
+                              <p [ngClass]="{'min-height-content': !detail.neckLabelApproval.imageUrl}">
+                                Method: {{detail.neckLabelApproval.printMethodName || 'N/A'}}
+                              </p>
+
+                              <p class="mbe-1"
+                                 *ngIf="detail.neckLabelApproval.status && detail.neckLabelApproval.status !== taskStatus.BLANK">
+                                Sched:
+                                <span class="m-l-1"
+                                      *ngIf="detail.neckLabelApproval.neckLabelApprovalScheduledFromDateOnUtc && !detail.neckLabelApproval.neckLabelApprovalScheduledToDateOnUtc">
+                          {{detail.neckLabelApproval.neckLabelApprovalScheduledFromDateOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                      </span>
+                                <span class="m-l-1"
+                                      *ngIf="detail.neckLabelApproval.neckLabelApprovalScheduledFromDateOnUtc && detail.neckLabelApproval.neckLabelApprovalScheduledToDateOnUtc">
+                        {{detail.neckLabelApproval.neckLabelApprovalScheduledFromDateOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                      </span>
+                                <span class="m-l-1"
+                                      *ngIf="!detail.neckLabelApproval.neckLabelApprovalScheduledFromDateOnUtc">N/A</span>
+                              </p>
+                              <p class=""
+                                 *ngIf="detail.neckLabelApproval.status && detail.neckLabelApproval.status !== taskStatus.BLANK">
+                      <span *ngIf="detail.neckLabelApproval.neckLabelApprovalScheduledToDateOnUtc">
+                           - {{detail.neckLabelApproval.neckLabelApprovalScheduledToDateOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                      </span>
+                              </p>
+                              <p *ngIf="detail.neckLabelApproval.status === taskStatus.APPROVED" class="m-t-5">Appr:
+                                <span class="m-l-1" *ngIf="detail.neckLabelApproval.neckLabelApprovalApprovedDateOnUtc">
+                        {{detail.neckLabelApproval.neckLabelApprovalApprovedDateOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                      </span>
+                                <span class="m-l-1"
+                                      *ngIf="!detail.neckLabelApproval.neckLabelApprovalApprovedDateOnUtc">N/A</span>
+                              </p>
+
+                              <p *ngIf="detail.neckLabelApproval.status && detail.neckLabelApproval.fullName"
+                                 class="m-t-5">
+                                {{detail.neckLabelApproval.fullName}}</p>
+                            </div>
+                            <div class="seperate-child" *ngIf="detail.neckLabelApproval.noNeckLabel
+                              || detail.neckLabelApproval.noNeckLabel === null"
+                                 [ngClass]="{'col-readonly': !canModifyCols('Neck Label Approval') || row.orderLogInfo.isCancelled || detail.styleInfo?.isCancelled, 'unread': !row.orderLogInfo.isReaded}">
+                              <div class="row center p-link">
+                                <p class="col-sm-12" (click)="goToNeckLabelSetup(row, detail, 'Neck Label Approval')"
+                                   *ngIf="detail.neckLabelApproval.noNeckLabel === null">No Neck
+                                  Label
+                                  Setup</p>
+                                <p class="col-sm-12" (click)="goToNeckLabelSetup(row, detail, 'Neck Label Approval')"
+                                   *ngIf="detail.neckLabelApproval.noNeckLabel">Neck Label Not Required</p>
+                              </div>
+                            </div>
+                          </ng-container>
+                        </ng-container>
+                        <ng-container *ngTemplateOutlet="selectedRow; context: {id: row.id}"></ng-container>
+                      </td>
+                      <td *ngIf="firstPrint && (isShowAllColumns || columns.NeckLabelDate)"
+                          [ngClass]="{'order-notification': row.orderLogInfo.isOrderNotification
+                            && !row.orderLogInfo.orderNotificationImportedDateOnUtc}"
+                          [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                          [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].neckLabelDate.width"
+                          [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].neckLabelDate.width">
+                        <div *ngIf="row.isCollapse"
+                             class="seperate-child"
+                             (click)="onAddComment(row, row.neckLabelDateStatus, commentTypes.NeckLabel)">
+                          <label-status [columnStatus]="row.neckLabelDateStatus"></label-status>
+                          <p *ngIf="row.orderLogInfo?.neckLabelDateComments" class="center m-t-15">
+                            <i class="fa fa-comments fa-2x cursor" title="Comments"></i>
+                          </p>
+                        </div>
+                        <ng-container *ngIf="!row.isCollapse">
+                          <div class="overlay-cancelled" *ngIf="detail.styleInfo?.isCancelled"></div>
+                          <ng-container *ngIf="detail.neckLabelDate">
+                            <div class="seperate-child" *ngIf="detail.neckLabelDate.noNeckLabel === false"
+                                 [id]="row.id + '-' + i + '-' + 'neckLabelDate'"
+                                 (click)="onChangeNeckLabelDate(row, detail, detail.neckLabelDate)"
+                                 [ngClass]="{'col-readonly': !canModifyCols('Neck Label Date') || row.orderLogInfo.isCancelled || detail.styleInfo?.isCancelled, 'unread': !row.orderLogInfo.isReaded}"
+                            >
+                              <label-status [columnStatus]="detail.neckLabelDate.status"
+                                            [isShowUpdateSchedulerStatus]="!row.orderLogInfo.isCancelled
+                                                                      && !detail.styleInfo?.isCancelled
+                                                                      && detail.neckLabelDate.status === null"
+                                            (onUpdateSchedulerStatus)="onUpdateSchedulerStatus(row, detail.neckLabelDate,
+                                            'Neck Label Date',
+                                            null, detail.neckLabelId, null)"></label-status>
+
+                              <p
+                                *ngIf="detail.neckLabelDate.status && detail.neckLabelDate.status !== taskStatus.BLANK">
+                                {{detail.neckLabelDate.vendors}}</p>
+
+                              <p class="mbe-1"
+                                 *ngIf="detail.neckLabelDate.status && detail.neckLabelDate.status !== taskStatus.BLANK">
+                                Sched:
+                                <span class="m-l-1"
+                                      *ngIf="detail.neckLabelDate.neckLabelDateScheduledFromOnUtc && !detail.neckLabelDate.neckLabelDateScheduledToOnUtc">
+                          {{detail.neckLabelDate.neckLabelDateScheduledFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                      </span>
+                                <span class="m-l-1"
+                                      *ngIf="detail.neckLabelDate.neckLabelDateScheduledFromOnUtc && detail.neckLabelDate.neckLabelDateScheduledToOnUtc">
+                        {{detail.neckLabelDate.neckLabelDateScheduledFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                      </span>
+                                <span class="m-l-1"
+                                      *ngIf="!detail.neckLabelDate.neckLabelDateScheduledFromOnUtc">N/A</span>
+                              </p>
+                              <p class=""
+                                 *ngIf="detail.neckLabelDate.status && detail.neckLabelDate.status !== taskStatus.BLANK">
+                      <span *ngIf="detail.neckLabelDate.neckLabelDateScheduledToOnUtc">
+                            - {{detail.neckLabelDate.neckLabelDateScheduledToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                      </span>
+                              </p>
+                              <p class="m-t-5 mbe-1"
+                                 *ngIf="detail.neckLabelDate.status && detail.neckLabelDate.status === taskStatus.DONE">
+                                Done:
+                                <span class="m-l-1"
+                                      *ngIf="detail.neckLabelDate.neckLabelDateDoneFromOnUtc && !detail.neckLabelDate.neckLabelDateDoneToOnUtc">
+                        {{detail.neckLabelDate.neckLabelDateDoneFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                      </span>
+                                <span class="m-l-1"
+                                      *ngIf="detail.neckLabelDate.neckLabelDateDoneFromOnUtc && detail.neckLabelDate.neckLabelDateDoneToOnUtc">
+                        {{detail.neckLabelDate.neckLabelDateDoneFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                      </span>
+                                <span class="m-l-1" *ngIf="!detail.neckLabelDate.neckLabelDateDoneFromOnUtc">N/A</span>
+                              </p>
+                              <p class=""
+                                 *ngIf="detail.neckLabelDate.status && detail.neckLabelDate.status === taskStatus.DONE">
+                      <span *ngIf="detail.neckLabelDate.neckLabelDateDoneToOnUtc && !detail.neckLabelDate.isShowTbd">
+                          - {{detail.neckLabelDate.neckLabelDateDoneToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                      </span>
+                                <span *ngIf="detail.neckLabelDate.isShowTbd">
+                          - TBD
+                      </span>
+                              </p>
+
+                              <p *ngIf="detail.neckLabelDate.status && detail.neckLabelDate.fullName" class="m-t-5">
+                                {{detail.neckLabelDate.fullName}}</p>
+                            </div>
+                            <div class="seperate-child" *ngIf="detail.neckLabelDate.noNeckLabel
+                      || detail.neckLabelDate.noNeckLabel === null"
+                                 [ngClass]="{'col-readonly': !canModifyCols('Neck Label Date') || row.orderLogInfo.isCancelled || detail.styleInfo?.isCancelled, 'unread': !row.orderLogInfo.isReaded}"
+                            >
+                              <div class="row center p-link">
+                                <p class="col-sm-12" (click)="goToNeckLabelSetup(row, detail, 'Neck Label Date')"
+                                   *ngIf="detail.neckLabelDate.noNeckLabel === null">No Neck Label
+                                  Setup</p>
+                                <p class="col-sm-12" (click)="goToNeckLabelSetup(row, detail, 'Neck Label Date')"
+                                   *ngIf="detail.neckLabelDate.noNeckLabel">Neck Label Not Required</p>
+                              </div>
+                            </div>
+                          </ng-container>
+                        </ng-container>
+                        <ng-container *ngTemplateOutlet="selectedRow; context: {id: row.id}"></ng-container>
+                      </td>
+                      <td *ngIf="firstPrint && (isShowAllColumns || columns.SpecialtyTreatmentDate)"
+                          [ngClass]="{'order-notification': row.orderLogInfo.isOrderNotification
+                            && !row.orderLogInfo.orderNotificationImportedDateOnUtc}"
+                          [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                          [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].specialtyTreatmentDate.width"
+                          [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].specialtyTreatmentDate.width">
+                        <div *ngIf="row.isCollapse" class="col-disabled"></div>
+                        <ng-container *ngIf="!row.isCollapse">
+                          <div class="overlay-cancelled" *ngIf="detail.styleInfo?.isCancelled"></div>
+                          <div *ngIf="detail.specialtyTreatmentDate"
+                               class="seperate-child full-height"
+                               [ngClass]="{'col-readonly': !canModifyCols('Specialty Treatment Date') || row.orderLogInfo.isCancelled, 'unread': !row.orderLogInfo.isReaded}"
+                               (click)="onChangeSpecialtyTreatment(row, detail, detail.specialtyTreatmentDate)">
+                            <label-status [columnStatus]="detail.specialtyTreatmentDate.status"
+                                          (onConfirmReorder)="onConfirmReorder($event, detail)"
+                                          [isReorder]="detail.isReorder"
+                                          [isConfirmReorder]="detail.isConfirmReorder"></label-status>
+
+                            <p
+                              *ngIf="detail.specialtyTreatmentDate.status && detail.specialtyTreatmentDate.status !== taskStatus.BLANK">
+                              {{detail.specialtyTreatmentDate.stationName}}</p>
+
+                            <p class="mbe-1"
+                               *ngIf="detail.specialtyTreatmentDate.status && detail.specialtyTreatmentDate.status !== taskStatus.BLANK && detail.specialtyTreatmentDate.treatments">
+                              Treat:</p>
+                            <p
+                              *ngIf="detail.specialtyTreatmentDate.status && detail.specialtyTreatmentDate.status !== taskStatus.BLANK && detail.specialtyTreatmentDate.treatments">
+                              {{detail.specialtyTreatmentDate.treatments}}</p>
+
+                            <p class="mbe-1"
+                               *ngIf="detail.specialtyTreatmentDate.status && detail.specialtyTreatmentDate.status !== taskStatus.BLANK">
+                              Sched:
+                              <span class="m-l-1"
+                                    *ngIf="detail.specialtyTreatmentDate.specialtyTreatmentDateScheduledFromOnUtc && !detail.specialtyTreatmentDate.specialtyTreatmentDateScheduledToOnUtc">
+                        {{detail.specialtyTreatmentDate.specialtyTreatmentDateScheduledFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                    </span>
+                              <span class="m-l-1"
+                                    *ngIf="detail.specialtyTreatmentDate.specialtyTreatmentDateScheduledFromOnUtc && detail.specialtyTreatmentDate.specialtyTreatmentDateScheduledToOnUtc">
+                      {{detail.specialtyTreatmentDate.specialtyTreatmentDateScheduledFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                    </span>
+                              <span class="m-l-1"
+                                    *ngIf="!detail.specialtyTreatmentDate.specialtyTreatmentDateScheduledFromOnUtc">N/A</span>
+                            </p>
+                            <p
+                              *ngIf="detail.specialtyTreatmentDate.status && detail.specialtyTreatmentDate.status !== taskStatus.BLANK"
+                              class="">
+                    <span *ngIf="detail.specialtyTreatmentDate.specialtyTreatmentDateScheduledToOnUtc">
+                          - {{detail.specialtyTreatmentDate.specialtyTreatmentDateScheduledToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                    </span>
+                            </p>
+                            <p class="m-t-5 mb-0" *ngIf="detail.specialtyTreatmentDate.status === taskStatus.PARTIAL">
+                              Part:
+                              <span class="m-l-1"
+                                    *ngIf="detail.specialtyTreatmentDate.specialtyTreatmentDatePartialFromOnUtc && !detail.specialtyTreatmentDate.specialtyTreatmentDatePartialToOnUtc">
+                        {{detail.specialtyTreatmentDate.specialtyTreatmentDatePartialFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                    </span>
+                              <span class="m-l-1"
+                                    *ngIf="detail.specialtyTreatmentDate.specialtyTreatmentDatePartialFromOnUtc && detail.specialtyTreatmentDate.specialtyTreatmentDatePartialToOnUtc">
+                      {{detail.specialtyTreatmentDate.specialtyTreatmentDatePartialFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                    </span>
+                              <span class="m-l-1"
+                                    *ngIf="!detail.specialtyTreatmentDate.specialtyTreatmentDatePartialFromOnUtc">N/A</span>
+                            </p>
+                            <p *ngIf="detail.specialtyTreatmentDate.status === taskStatus.PARTIAL" class="">
+                    <span *ngIf="detail.specialtyTreatmentDate.specialtyTreatmentDatePartialToOnUtc">
+                          - {{detail.specialtyTreatmentDate.specialtyTreatmentDatePartialToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                    </span>
+                            </p>
+                            <p *ngIf="detail.specialtyTreatmentDate.status === taskStatus.DONE" class="m-t-5">Done:
+                              <span class="m-l-1"
+                                    *ngIf="detail.specialtyTreatmentDate.specialtyTreatmentDateDoneOnUtc">
+                      {{detail.specialtyTreatmentDate.specialtyTreatmentDateDoneOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                    </span>
+                              <span class="m-l-1"
+                                    *ngIf="!detail.specialtyTreatmentDate.specialtyTreatmentDateDoneOnUtc">N/A</span>
+                            </p>
+
+                            <p *ngIf="detail.specialtyTreatmentDate.status && detail.specialtyTreatmentDate.fullName"
+                               class="m-t-5">
+                              {{detail.specialtyTreatmentDate.fullName}}</p>
+                          </div>
+                        </ng-container>
+                        <ng-container *ngTemplateOutlet="selectedRow; context: {id: row.id}"></ng-container>
+                      </td>
+                      <td *ngIf="firstPrint && (isShowAllColumns || columns.FinishingDate)"
+                          [ngClass]="{'order-notification': row.orderLogInfo.isOrderNotification
+                            && !row.orderLogInfo.orderNotificationImportedDateOnUtc}"
+                          [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                          [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].finishingDate.width"
+                          [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].finishingDate.width">
+                        <div *ngIf="row.isCollapse"
+                             class="seperate-child"
+                             (click)="onAddComment(row, row.finishingDateStatus, commentTypes.Finishing)">
+                          <label-status [columnStatus]="row.finishingDateStatus"></label-status>
+                          <p *ngIf="row.orderLogInfo?.finishingDateComments" class="center m-t-15">
+                            <i class="fa fa-comments fa-2x cursor" title="Comments"></i>
+                          </p>
+                        </div>
+                        <ng-container *ngIf="!row.isCollapse">
+                          <div class="overlay-cancelled" *ngIf="detail.styleInfo?.isCancelled"></div>
+                          <div *ngIf="detail.finishingDate" class="seperate-child full-height"
+                               [ngClass]="{'col-readonly': !canModifyCols('Finishing Date') || row.orderLogInfo.isCancelled || detail.styleInfo.isCancelled, 'unread': !row.orderLogInfo.isReaded}"
+                               (click)="onChangeFinishingDate(row, detail, detail.finishingDate)">
+                            <label-status [columnStatus]="detail.finishingDate.status"
+                                          [isShowUpdateSchedulerStatus]="!row.orderLogInfo.isCancelled
+                                                                      && !detail.styleInfo?.isCancelled
+                                                                      && detail.finishingDate.status === null"
+                                          (onUpdateSchedulerStatus)="onUpdateSchedulerStatus(row, detail.finishingDate,
+                                          'Finishing Date',
+                                          null, null, detail.orderDetailId)"></label-status>
+
+                            <p
+                              *ngIf="detail.finishingDate.status && detail.finishingDate.status !== taskStatus.BLANK">
+                              {{detail.finishingDate.vendors}}</p>
+
+                            <p class="mbe-1"
+                               *ngIf="detail.finishingDate.status && detail.finishingDate.status !== taskStatus.BLANK">
+                              Sched:
+                              <span class="m-l-1"
+                                    *ngIf="detail.finishingDate.finishingDateScheduledFromOnUtc && !detail.finishingDate.finishingDateScheduledToOnUtc">
+                        {{detail.finishingDate.finishingDateScheduledFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                    </span>
+                              <span class="m-l-1"
+                                    *ngIf="detail.finishingDate.finishingDateScheduledFromOnUtc && detail.finishingDate.finishingDateScheduledToOnUtc">
+                      {{detail.finishingDate.finishingDateScheduledFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                    </span>
+                              <span class="m-l-1"
+                                    *ngIf="!detail.finishingDate.finishingDateScheduledFromOnUtc">N/A</span>
+                            </p>
+                            <p *ngIf="detail.finishingDate.status && detail.finishingDate.status !== taskStatus.BLANK"
+                               class="">
+                    <span *ngIf="detail.finishingDate.finishingDateScheduledToOnUtc">
+                          - {{detail.finishingDate.finishingDateScheduledToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                    </span>
+                            </p>
+                            <p class="m-t-5 mbe-1"
+                               *ngIf="detail.finishingDate.status && detail.finishingDate.status === taskStatus.DONE">
+                              Done:
+                              <span class="m-l-1"
+                                    *ngIf="detail.finishingDate.finishingDateDoneFromOnUtc && !detail.finishingDate.finishingDateDoneToOnUtc">
+                        {{detail.finishingDate.finishingDateDoneFromUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                      </span>
+                              <span class="m-l-1"
+                                    *ngIf="detail.finishingDate.finishingDateDoneFromOnUtc && detail.finishingDate.finishingDateDoneToOnUtc">
+                        {{detail.finishingDate.finishingDateDoneFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                      </span>
+                              <span class="m-l-1" *ngIf="!detail.finishingDate.finishingDateDoneFromOnUtc">N/A</span>
+                            </p>
+                            <p class=""
+                               *ngIf="detail.finishingDate.status && detail.finishingDate.status === taskStatus.DONE">
+                      <span *ngIf="detail.finishingDate.finishingDateDoneToOnUtc && !detail.finishingDate.isShowTbd">
+                          - {{detail.finishingDate.finishingDateDoneToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                      </span>
+                              <span *ngIf="detail.finishingDate.isShowTbd">
+                          - TBD
+                      </span>
+                            </p>
+
+                            <p *ngIf="detail.finishingDate.status && detail.finishingDate.fullName" class="m-t-5">
+                              {{detail.finishingDate.fullName}}</p>
+                          </div>
+                        </ng-container>
+                        <ng-container *ngTemplateOutlet="selectedRow; context: {id: row.id}"></ng-container>
+                      </td>
+                      <td *ngIf="firstPrint && (isShowAllColumns || columns.ShippingLabels)"
+                      [ngClass]="{'order-notification': row.orderLogInfo.isOrderNotification
+                      && !row.orderLogInfo.orderNotificationImportedDateOnUtc}"
+                      [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                          [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].shippingLabelsResponse.width"
+                          [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].shippingLabelsResponse.width">
+                        <div *ngIf="row.isCollapse" class="col-disabled"></div>
+                        <ng-container *ngIf="!row.isCollapse">
+                          <div class="overlay-cancelled" *ngIf="detail.styleInfo?.isCancelled || detail.styleInfo?.itemType === 1"></div>
+                          <div *ngIf="detail.shippingLabelsResponse && detail.styleInfo?.itemType !== 1"
+                               class="seperate-child full-height"
+                               (click)="onChangeShippingLabelsTscPackingList(row, detail, detail.shippingLabelsResponse)"
+                               [ngClass]="{'col-readonly': !canModifyCols('Shipping Labels') || row.orderLogInfo.isCancelled || detail.styleInfo.isCancelled, 'unread': !row.orderLogInfo.isReaded}">
+                            <label-status [columnStatus]="detail.shippingLabelsResponse.shippingLabelsTscPackingListStatus"></label-status>
+
+                            <p *ngIf="detail.shippingLabelsResponse.shippingLabelsTscPackingListOnUtc">
+                              {{detail.shippingLabelsResponse.shippingLabelsTscPackingListOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                            </p>
+
+                            <p *ngIf="detail.shippingLabelsResponse.shippingLabelsTscPackingListIsUploaded">
+                              <i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"
+                                 (click)="openShippingTscUploader(detail.orderDetailId)"></i>
+                            </p>
+
+                            <p *ngIf="detail.shippingLabelsResponse.shippingLabelsTscPackingListStatus && detail.shippingLabelsResponse.shippingLabelsTscPackingListByUserName" class="m-t-5">
+                              {{detail.shippingLabelsResponse.shippingLabelsTscPackingListByUserName}}</p>
+                          </div>
+                        </ng-container>
+                        <ng-container *ngTemplateOutlet="selectedRow; context: {id: row.id}"></ng-container>
+                      </td>
+                      <td *ngIf="firstPrint && (isShowAllColumns || columns.PickPackDate)"
+                          [ngClass]="{'order-notification': row.orderLogInfo.isOrderNotification
+                            && !row.orderLogInfo.orderNotificationImportedDateOnUtc}"
+                          [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                          [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].pickAndPackDate.width"
+                          [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].pickAndPackDate.width">
+                        <div *ngIf="row.isCollapse" class="col-disabled"></div>
+                        <ng-container *ngIf="!row.isCollapse">
+                          <div class="overlay-cancelled" *ngIf="detail.styleInfo?.isCancelled"></div>
+                          <div *ngIf="detail.pickAndPackDate"
+                               (click)="onChangePickPackDate(row, detail, detail.pickAndPackDate)"
+                               class="seperate-child full-height"
+                               [ngClass]="{'col-readonly': !canModifyCols('Pick & Pack Date') || row.orderLogInfo.isCancelled || detail.styleInfo.isCancelled, 'unread': !row.orderLogInfo.isReaded}">
+                            <label-status [columnStatus]="detail.pickAndPackDate.status"></label-status>
+
+                            <p
+                              *ngIf="detail.pickAndPackDate.status && detail.pickAndPackDate.status !== taskStatus.BLANK">
+                              {{detail.pickAndPackDate.stationName}}</p>
+
+                            <p class="mbe-1"
+                               *ngIf="detail.pickAndPackDate.status && detail.pickAndPackDate.status !== taskStatus.BLANK">
+                              Sched:
+                              <span class="m-l-1"
+                                    *ngIf="detail.pickAndPackDate.pickAndPackDateScheduledFromOnUtc && !detail.pickAndPackDate.pickAndPackDateScheduledToOnUtc">
+                        {{detail.pickAndPackDate.pickAndPackDateScheduledFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                    </span>
+                              <span class="m-l-1"
+                                    *ngIf="detail.pickAndPackDate.pickAndPackDateScheduledFromOnUtc && detail.pickAndPackDate.pickAndPackDateScheduledToOnUtc">
+                      {{detail.pickAndPackDate.pickAndPackDateScheduledFromOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                    </span>
+                              <span class="m-l-1" *ngIf="!detail.pickAndPackDate.pickAndPackDateScheduledFromOnUtc">N/A</span>
+                            </p>
+                            <p
+                              *ngIf="detail.pickAndPackDate.status && detail.pickAndPackDate.status !== taskStatus.BLANK"
+                              class="">
+                    <span *ngIf="detail.pickAndPackDate.pickAndPackDateScheduledToOnUtc">
+                          - {{detail.pickAndPackDate.pickAndPackDateScheduledToOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                    </span>
+                            </p>
+                            <p *ngIf="detail.pickAndPackDate.status === taskStatus.DONE" class="m-t-5">Done:
+                              <span class="m-l-1" *ngIf="detail.pickAndPackDate.pickAndPackDateDoneOnUtc">
+                      {{detail.pickAndPackDate.pickAndPackDateDoneOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                    </span>
+                              <span class="m-l-1" *ngIf="!detail.pickAndPackDate.pickAndPackDateDoneOnUtc">N/A</span>
+                            </p>
+
+                            <p *ngIf="detail.pickAndPackDate.status && detail.pickAndPackDate.fullName" class="m-t-5">
+                              {{detail.pickAndPackDate.fullName}}</p>
+                          </div>
+                        </ng-container>
+                        <ng-container *ngTemplateOutlet="selectedRow; context: {id: row.id}"></ng-container>
+                      </td>
+                      <td *ngIf="firstPrint && (isShowAllColumns || columns.EtaTsc)"
+                          [ngClass]="{'order-notification': row.orderLogInfo.isOrderNotification
+                            && !row.orderLogInfo.orderNotificationImportedDateOnUtc}"
+                          [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                          [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].etaTscResponse.width"
+                          [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].etaTscResponse.width">
+                        <div *ngIf="row.isCollapse" class="col-disabled"></div>
+                        <ng-container *ngIf="!row.isCollapse">
+                          <div class="overlay-cancelled" *ngIf="detail.styleInfo?.isCancelled || detail.styleInfo?.itemType === 1"></div>
+                          <div *ngIf="detail.etaTscResponse && detail.styleInfo?.itemType !== 1"
+                               class="seperate-child full-height"
+                               (click)="onChangeEtaTsc(row, detail, detail.etaTscResponse)"
+                               [ngClass]="{'col-readonly': !canModifyCols('ETA @ TSC') || row.orderLogInfo.isCancelled || detail.styleInfo.isCancelled, 'unread': !row.orderLogInfo.isReaded}">
+                            <label-status [columnStatus]="detail.etaTscResponse.etaTscDateStatus"></label-status>
+
+                            <p *ngIf="detail.etaTscResponse.etaTscDateOnUtc">
+                              {{detail.etaTscResponse.etaTscDateOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}
+                            </p>
+
+                            <p *ngIf="detail.etaTscResponse.etaTscDateStatus && detail.etaTscResponse.etaTscDateByUserName" class="m-t-5">
+                              {{detail.etaTscResponse.etaTscDateByUserName}}</p>
+                          </div>
+                        </ng-container>
+                        <ng-container *ngTemplateOutlet="selectedRow; context: {id: row.id}"></ng-container>
+                      </td>
+                      <td *ngIf="firstPrint && (isShowAllColumns || columns.QA)"
+                          [ngClass]="{'order-notification': row.orderLogInfo.isOrderNotification
+                            && !row.orderLogInfo.orderNotificationImportedDateOnUtc}"
+                          [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                          [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].qa.width"
+                          [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].qa.width">
+                        <div *ngIf="row.isCollapse" class="col-disabled"></div>
+                        <ng-container *ngIf="!row.isCollapse">
+                          <div class="overlay-cancelled" *ngIf="detail.styleInfo?.isCancelled"></div>
+                          <div *ngIf="detail.qa"
+                               class="seperate-child full-height"
+                               [ngClass]="{'col-readonly': !canModifyCols('QA') || row.orderLogInfo.isCancelled || detail.styleInfo.isCancelled, 'unread': !row.orderLogInfo.isReaded}"
+                               (click)="onChangeQA(row, detail, detail.qa)">
+                            <label-status [columnStatus]="detail.qa.status"></label-status>
+
+                            <p
+                              *ngIf="detail.qa.status && detail.qa.status !== taskStatus.PENDING && detail.qa.auditor">
+                              {{detail.qa.auditor}}
+                            </p>
+
+                            <p
+                              *ngIf="detail.qa.isUploaded"
+                              style="margin-bottom: 10px !important;">
+                              <i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"
+                                 (click)="openQAUploader(detail.orderDetailId)"></i>
+                            </p>
+
+                            <p
+                              *ngIf="detail.qa.status && detail.qa.status !== taskStatus.PENDING && detail.qa.auditDateOnUtc">
+                              {{detail.qa.auditDateOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                            </p>
+
+                            <p *ngIf="detail.qa.status && detail.qa.fullName" class="m-t-5">
+                              {{detail.qa.fullName}}</p>
+                          </div>
+                        </ng-container>
+                        <ng-container *ngTemplateOutlet="selectedRow; context: {id: row.id}"></ng-container>
+                      </td>
+                      <td *ngIf="firstPrint && (isShowAllColumns || columns.ReadytoShipDate)"
+                          [ngClass]="{'order-notification': row.orderLogInfo.isOrderNotification
+                            && !row.orderLogInfo.orderNotificationImportedDateOnUtc}"
+                          [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                          [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].actualToShipDate.width"
+                          [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].actualToShipDate.width">
+                        <div *ngIf="row.isCollapse" class="col-disabled"></div>
+                        <ng-container *ngIf="!row.isCollapse">
+                          <div class="overlay-cancelled" *ngIf="detail.styleInfo?.isCancelled"></div>
+                          <div class="seperate-child" *ngIf="detail.readyToShipDate"
+                               [id]="row.id + '-' + i + '-' + 'readyToShipDate'"
+                               (click)="onChangeReadyToShipDate(row, detail, detail.readyToShipDate)"
+                               [ngClass]="{'col-readonly': !canModifyCols('Ready to Ship Date') || row.orderLogInfo.isCancelled || detail.styleInfo?.isCancelled, 'unread': !row.orderLogInfo.isReaded}"
+                          >
+                            <label-status [columnStatus]="detail.readyToShipDate.status"></label-status>
+
+                            <ng-container
+                              *ngIf="detail.readyToShipDate.status && detail.readyToShipDate.status !== taskStatus.BLANK">
+                              <p>{{combineInfoString(detail.readyToShipDate.readyToShipVendors, 'vendorName')}}</p>
+
+                              <p class="mbe-1">Sched:</p>
+                              <p>{{combineDateString(detail.readyToShipDate.readyToShipVendors,
+                                'schedReadyToShipStartDateOnUtc', 'schedReadyToShipEndDateOnUtc')}}</p>
+
+                              <ng-container *ngIf="detail.readyToShipDate.status !== taskStatus.SCHEDULED">
+                                <ng-container *ngIf="detail.readyToShipDate.status === taskStatus.PARTIAL">
+                                  <p class="mbe-1">Partial:</p>
+                                  <p>{{combineDateString(detail.readyToShipDate.readyToShipVendors,
+                                    'readyToShipStartDateOnUtc',
+                                    'readyToShipEndDateOnUtc')}}</p>
+                                </ng-container>
+
+                                <ng-container *ngIf="detail.readyToShipDate.status === taskStatus.DONE">
+                                  <p class="mbe-1">Done:</p>
+                                  <p>{{combineDateString(detail.readyToShipDate.readyToShipVendors,
+                                    'readyToShipStartDateOnUtc',
+                                    'readyToShipEndDateOnUtc')}}</p>
+                                </ng-container>
+                              </ng-container>
+                            </ng-container>
+
+                            <p *ngIf="detail.readyToShipDate.status && detail.readyToShipDate.fullName" class="m-t-5">
+                              {{detail.readyToShipDate.fullName}}</p>
+                          </div>
+                          <div class="seperate-child" *ngIf="detail.orderDetailId && !detail.readyToShipDate"
+                               (click)="onChangeReadyToShipDate(row, detail, detail.readyToShipDate)"
+                               [ngClass]="{'col-readonly': !canModifyCols('Ready to Ship Date') || row.orderLogInfo.isCancelled || detail.styleInfo?.isCancelled, 'unread': !row.orderLogInfo.isReaded}"></div>
+                        </ng-container>
+                        <ng-container *ngTemplateOutlet="selectedRow; context: {id: row.id}"></ng-container>
+                      </td>
+                      <td *ngIf="firstPrint && (isShowAllColumns || columns.ActualShipDate)"
+                          [ngClass]="{'order-notification': row.orderLogInfo.isOrderNotification
+                            && !row.orderLogInfo.orderNotificationImportedDateOnUtc}"
+                          [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                          [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].actualToShipDate.width"
+                          [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].actualToShipDate.width">
+                        <!--<div *ngIf="row.isCollapse"-->
+                             <!--class="seperate-child"-->
+                             <!--(click)="onChangePrintDateStatus(row, statusColumns.Shipping, row.orderLogInfo.shippingStatus)">-->
+                          <!--<label-status [columnStatus]="row.orderLogInfo.shippingStatus"-->
+                                        <!--[preFixName]="'Ship '"></label-status>-->
+                        <!--</div>-->
+                        <div *ngIf="row.isCollapse"
+                             class="seperate-child"
+                             (click)="onAddComment(row, row.actualToShipDateStatus, commentTypes.Actual)">
+                          <label-status [columnStatus]="row.actualToShipDateStatus"></label-status>
+                          <p *ngIf="row.orderLogInfo?.actualToShipDateComments" class="center m-t-15">
+                            <i class="fa fa-comments fa-2x cursor" title="Comments"></i>
+                          </p>
+                        </div>
+                        <ng-container *ngIf="!row.isCollapse">
+                          <div class="overlay-cancelled" *ngIf="detail.styleInfo?.isCancelled"></div>
+                          <div class="seperate-child" *ngIf="detail.actualToShipDate"
+                               [id]="row.id + '-' + i + '-' + 'actualToShipDate'"
+                               (click)="onChangeActualToShipDate(row, detail, detail.actualToShipDate)"
+                               [ngClass]="{'col-readonly': !canModifyCols('Actual Ship Date') || row.orderLogInfo.isCancelled || detail.styleInfo?.isCancelled, 'unread': !row.orderLogInfo.isReaded}"
+                          >
+                            <label-status [columnStatus]="detail.actualToShipDate.status"></label-status>
+
+                            <ng-container
+                              *ngIf="detail.actualToShipDate.status && detail.actualToShipDate.status !== taskStatus.BLANK">
+                              <p>{{combineInfoString(detail.actualToShipDate.actualToShipVendors, 'vendorName',
+                                true)}}</p>
+                            </ng-container>
+
+                            <p class="m-b-10" *ngIf="detail.actualToShipDate.isUploaded">
+                              <i class="fa fa-eye fa-lg" [ngStyle]="{'top': '-1px'}" aria-hidden="true"
+                                 (click)="openShipmentUploader(row.id, detail.orderDetailId)"></i>
+                            </p>
+
+                            <ng-container
+                              *ngIf="detail.actualToShipDate.status && detail.actualToShipDate.status !== taskStatus.BLANK">
+                              <p class="mbe-1">Sched:</p>
+                              <p>{{combineDateString(detail.actualToShipDate.actualToShipVendors,
+                                'schedShipDateOnUtc',
+                                '')}}</p>
+
+                              <ng-container *ngIf="detail.actualToShipDate.status !== taskStatus.SCHEDULED">
+                                <ng-container *ngIf="detail.actualToShipDate.status === taskStatus.PARTIAL">
+                                  <p class="mbe-1">Partial:</p>
+                                  <p>{{combineDateString(detail.actualToShipDate.actualToShipVendors, 'shipDateOnUtc',
+                                    '')}}</p>
+                                </ng-container>
+
+                                <ng-container *ngIf="detail.actualToShipDate.status === taskStatus.DONE">
+                                  <p class="mbe-1">Done:</p>
+                                  <p>{{combineDateString(detail.actualToShipDate.actualToShipVendors, 'shipDateOnUtc',
+                                    '')}}</p>
+                                </ng-container>
+                              </ng-container>
+                            </ng-container>
+
+                            <p *ngIf="detail.actualToShipDate.status && detail.actualToShipDate.fullName"
+                               class="m-t-5">
+                              {{detail.actualToShipDate.fullName}}</p>
+                          </div>
+                          <div class="seperate-child" *ngIf="detail.orderDetailId && !detail.actualToShipDate"
+                               (click)="onChangeActualToShipDate(row, detail, detail.actualToShipDate)"
+                               [ngClass]="{'col-readonly': !canModifyCols('Actual Ship Date') || row.orderLogInfo.isCancelled || detail.styleInfo?.isCancelled, 'unread': !row.orderLogInfo.isReaded}"
+                          >
+
+                          </div>
+                        </ng-container>
+                        <ng-container *ngTemplateOutlet="selectedRow; context: {id: row.id}"></ng-container>
+                      </td>
+                      <td *ngIf="firstPrint && (isShowAllColumns || columns.ShippingDocumentation)"
+                          [ngClass]="{'order-notification': row.orderLogInfo.isOrderNotification
+                            && !row.orderLogInfo.orderNotificationImportedDateOnUtc}"
+                          [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                          [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].shippingDocumentation.width"
+                          [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].shippingDocumentation.width">
+                        <div *ngIf="row.isCollapse" class="col-disabled"></div>
+                        <ng-container *ngIf="!row.isCollapse">
+                          <div class="overlay-cancelled" *ngIf="detail.styleInfo?.isCancelled"></div>
+                          <div class="seperate-child" *ngIf="detail.folderSubmittedToAccounting"
+                               [id]="row.id + '-' + i + '-' + 'shippingDocumentation'"
+                               (click)="onChangeFolderSubmittedToAccounting(row, detail, detail.folderSubmittedToAccounting)"
+                               [ngClass]="{'col-readonly': !canModifyCols('Shipping Documentation') || row.orderLogInfo.isCancelled || detail.styleInfo?.isCancelled, 'unread': !row.orderLogInfo.isReaded}"
+                          >
+                            <label-status [columnStatus]="detail.folderSubmittedToAccounting.status"></label-status>
+
+                            <ng-container
+                              *ngIf="detail.folderSubmittedToAccounting.status && detail.folderSubmittedToAccounting.status !== taskStatus.BLANK">
+                              <p class="m-t-5 min-height-content"
+                                 *ngIf="detail.folderSubmittedToAccounting.status && detail.folderSubmittedToAccounting.folderSubmittedToAccountingCompletedOnUtc">
+                                Comp: {{detail.folderSubmittedToAccounting.folderSubmittedToAccountingCompletedOnUtc |
+                                amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                              </p>
+
+                              <p class="m-t-5 min-height-content"
+                                 *ngIf="detail.folderSubmittedToAccounting.status && detail.folderSubmittedToAccounting.status === taskStatus.RECEIVED && detail.folderSubmittedToAccounting.folderSubmittedToAccountingReceivedOnUtc">
+                                Rcvd: {{detail.folderSubmittedToAccounting.folderSubmittedToAccountingReceivedOnUtc |
+                                amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                              </p>
+
+                              <p
+                                *ngIf="detail.folderSubmittedToAccounting.status === taskStatus.REJECTED  && detail.folderSubmittedToAccounting.folderSubmittedToAccountingRejectedOnUtc">
+                                Rejc: {{detail.folderSubmittedToAccounting.folderSubmittedToAccountingRejectedOnUtc |
+                                amFromUtc | amLocal | amDateFormat: 'MM/DD/YY h:mm A'}}
+                              </p>
+
+                              <ng-container
+                                *ngIf="detail.folderSubmittedToAccounting.folderSubmittedToAccountingRejectOwnerName">
+                                <p>
+                                  ({{detail.folderSubmittedToAccounting.folderSubmittedToAccountingRejectOwnerName}})</p>
+                              </ng-container>
+                            </ng-container>
+
+                            <p class="m-t-5"
+                               *ngIf="detail.folderSubmittedToAccounting.status && detail.folderSubmittedToAccounting.fullName">
+                              {{detail.folderSubmittedToAccounting.fullName}}</p>
+                          </div>
+                          <div class="seperate-child" *ngIf="detail.orderDetailId && !detail.folderSubmittedToAccounting"
+                               (click)="onChangeFolderSubmittedToAccounting(row, detail, detail.folderSubmittedToAccounting)"
+                               [ngClass]="{'col-readonly': !canModifyCols('Shipping Documentation') || row.orderLogInfo.isCancelled || detail.styleInfo?.isCancelled, 'unread': !row.orderLogInfo.isReaded}"
+                          >
+
+                          </div>
+                        </ng-container>
+                        <ng-container *ngTemplateOutlet="selectedRow; context: {id: row.id}"></ng-container>
+                      </td>
+                      <td *ngIf="firstPrint && (isShowAllColumns || columns.Invoiced)"
+                          [ngClass]="{'order-notification': row.orderLogInfo.isOrderNotification
+                            && !row.orderLogInfo.orderNotificationImportedDateOnUtc}"
+                          [attr.rowSpan]="row.isCollapse ? 1 : detail.printLocations.length"
+                          [style.minWidth.px]="myStyleColumns[myConfigStyle['font-size']].invoiced.width"
+                          [style.maxWidth.px]="myStyleColumns[myConfigStyle['font-size']].invoiced.width">
+                        <div *ngIf="row.isCollapse"
+                             class="seperate-child">
+                          <label-status [columnStatus]="row.invoicedStatus"></label-status>
+                        </div>
+                        <ng-container *ngIf="!row.isCollapse">
+                          <div class="overlay-cancelled" *ngIf="detail.styleInfo?.isCancelled"></div>
+                          <div class="seperate-child" *ngIf="detail.invoiced"
+                               [id]="row.id + '-' + i + '-' + 'invoiced'"
+                               (click)="onChangeInvoiced(row, detail, detail.invoiced)"
+                               [ngClass]="{'col-readonly': !canModifyCols('Invoiced') || row.orderLogInfo.isCancelled || detail.styleInfo?.isCancelled, 'unread': !row.orderLogInfo.isReaded}"
+                          >
+                            <label-status [columnStatus]="detail.invoiced.status"></label-status>
+
+                            <ng-container
+                              *ngIf="detail.invoiced.status && detail.invoiced.status !== taskStatus.BLANK">
+                              <ng-container *ngIf="detail.invoiced.isManualInvoice">
+                                <p removeIfEmpty>{{combineInfoStr([detail.invoiced.a2000ImportInvoicedId,
+                                  detail.invoiced.invoicedId])}}</p>
+
+                                <p removeIfEmpty>{{combineDateStr([detail.invoiced.a2000ImportInvoicedOnUtc,
+                                  detail.invoiced.invoicedOnUtc])}}</p>
+                              </ng-container>
+                              <ng-container *ngIf="!detail.invoiced.isManualInvoice">
+                                <ng-container *ngIf="detail.invoiced.isA2000Import">
+                                  <p removeIfEmpty>{{combineInfoStr([detail.invoiced.a2000ImportInvoicedId])}}</p>
+
+                                  <p removeIfEmpty>{{combineDateStr([detail.invoiced.a2000ImportInvoicedOnUtc])}}</p>
+                                </ng-container>
+                                <ng-container *ngIf="!detail.invoiced.isA2000Import">
+                                  <p removeIfEmpty>{{combineInfoStr([detail.invoiced.invoicedId])}}</p>
+
+                                  <p removeIfEmpty>{{combineDateStr([detail.invoiced.invoicedOnUtc])}}</p>
+                                </ng-container>
+                              </ng-container>
+                            </ng-container>
+
+                            <p class="m-t-5" *ngIf="detail.invoiced.status" removeIfEmpty>
+                              {{detail.invoiced.fullName}}</p>
+                          </div>
+                          <div class="seperate-child" *ngIf="detail.orderDetailId && !detail.invoiced"
+                               (click)="onChangeInvoiced(row, detail, detail.invoiced)"
+                               [ngClass]="{'col-readonly': !canModifyCols('Invoiced') || row.orderLogInfo.isCancelled || detail.styleInfo?.isCancelled, 'unread': !row.orderLogInfo.isReaded}"
+                          >
+                            <!--<p class="stt-p stt-black">?</p>-->
+                          </div>
+                        </ng-container>
+                        <ng-container *ngTemplateOutlet="selectedRow; context: {id: row.id}"></ng-container>
+                      </td>
+                    </tr>
+                  </ng-template>
+                </ng-template>
+              </ng-template>
+              </tbody>
+            </table>
+          </ng-template>
+        </div>
+      </perfect-scrollbar>
+    </div>
+    <ng-template [ngIf]="!isA2000Dashboard || isA2000Dashboard">
+      <ng-container *ngTemplateOutlet="paginationTop"></ng-container>
+    </ng-template>
+  </div>
+  <ng-template #pagination>
+    <pagination-control [totalRecord]="orderLogData.totalRecord" *ngIf="orderLogData.data && orderLogData.data.length"
+                        [pageName]="'orderMain'"
+                        [pageSize]="tableConfig.pageSize"
+                        [pageSizeList]="[10, 25, 50]"
+                        [currentPage]="tableConfig.currentPage"
+                        (onSelectedPageSize)="onSelectedPageSize($event)"
+                        (onPageChange)="onPageChange($event)">
+      <ng-container center>
+        <div ngbDropdown class="select-column-dropdown m-l-35" #myDrop="ngbDropdown"
+             placement="bottom-right"
+             (openChange)="onChangeShowHideColumn($event)"
+             (clickOutside)="myDrop.close()"
+             [attachOutsideOnClick]="true">
+          <i class="fa fa-sliders fa-2x cursor" id="dropdown4" ngbDropdownToggle></i>
+          <div ngbDropdownMenu aria-labelledby="dropdown4">
+            <div class="col-12 px-1">
+              <div class="checkbox">
+                <input type="checkbox" id="all-options4" [checked]="isCheckedAll"
+                       (change)="onCheckedColsAll($event)">
+                <label [style.margin-bottom]="'.2rem'" for="all-options4">All</label>
+              </div>
+            </div>
+            <div class="divider"></div>
+            <div class="">
+              <div class="col-12 px-1" *ngFor="let col of showHideColumns; let i = index">
+                <div class="checkbox">
+                  <input type="checkbox"
+                         [id]="'col-' + i"
+                         [name]="'col-' + i"
+                         [(ngModel)]="col.isView"
+                         (change)="changeCheckedCol($event)">
+                  <label [for]="'col-' + i">{{col.description}}</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <ng-container *ngIf="!isShowAllColumns; else showMyCols">
+          <a href="javascript:void(0)" class="show-cols"
+             (click)="showAllColumns(true)">Show All Columns</a>
+        </ng-container>
+        <ng-template #showMyCols>
+          <a href="javascript:void(0)" class="show-cols"
+             (click)="showAllColumns(false)">Show My Columns</a>
+        </ng-template>
+      </ng-container>
+    </pagination-control>
+  </ng-template>
+  <ng-template #paginationTop>
+    <pagination-control [totalRecord]="orderLogData.totalRecord" *ngIf="orderLogData.data && orderLogData.data.length"
+                        [pageName]="'orderMain'"
+                        [pageSize]="tableConfig.pageSize"
+                        [currentPage]="tableConfig.currentPage"
+                        [pageSizeList]="[10, 25, 50]"
+                        [dropdownPosition]="'top-left'"
+                        (onSelectedPageSize)="onSelectedPageSize($event)"
+                        (onPageChange)="onPageChange($event)"></pagination-control>
+  </ng-template>
+</div>
+<div class="panel panel-transparent py-3" *ngIf="getCurrentTab().name === 'Order Notification'">
+  <order-notification></order-notification>
+</div>
+
+<ng-template #selectedRow let-id="id">
+  <div class="selected-row" *ngIf="isSelectedRow(id)"></div>
+</ng-template>

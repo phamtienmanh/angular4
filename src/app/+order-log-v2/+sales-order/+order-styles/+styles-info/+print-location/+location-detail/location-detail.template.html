@@ -1,0 +1,621 @@
+<a class="export-icon" href="javascript:void(0)" (click)="exportPrintLocation('pdf')" *ngIf="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled && !isNonAdminArtManagerArtist">
+  <i class="fa fa-file-pdf-o fa-2x text-danger" aria-hidden="true"></i>
+</a>
+<div class="px-4 pb-3">
+  <form [formGroup]="frm" role="form" novalidate="" (keydown.enter)="$event.preventDefault()"
+        (click)="formClick($event)">
+    <div class="p-b-35">
+      <div class="row m-t-15">
+        <div class="col-sm-6 col-md-6 col-lg-6 col-xl-3">
+          <div class="row flex py-1 ng-select-disable"
+               [ngClass]="{'required': frm.get('formRequires').value['locationName'].required}">
+            <div class="col-sm-4 control-label text-right">
+              <label>Location</label>
+            </div>
+            <div class="col-sm-7"
+                 [ngClass]="{'has-error':!frm.get('locationName').valid}">
+              <p class="p-readonly">{{frm.get('locationName').value}}</p>
+            </div>
+          </div>
+          <div class="row flex py-1"
+               [ngClass]="{'required': frm.get('formRequires').value['printMethodName'].required}">
+            <div class="col-sm-4 control-label text-right">
+              <label>Embellishment Type</label>
+            </div>
+            <div class="col-sm-7"
+                 [ngClass]="{'has-error':!frm.get('printMethodName').valid,
+                 'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled || isNonAdminArtManagerArtist}">
+              <ng-select [items]="serviceDataOrigin" #serviceSelect
+                         [searchable]="false"
+                         [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled && !isNonAdminArtManagerArtist ? 'Embellishment Type' : ''"
+                         (focus)="onSelectFocused(serviceSelect)"
+                         (add)="onSelectItem($event, frm, 'name', 'printMethodName')"
+                         (clear)="frm.get('printMethodName').patchValue('')"
+                         bindLabel="name"
+                         bindValue="id"
+                         formControlName="printMethodId"></ng-select>
+              <label class="error"
+                     *ngIf="frm.get('printMethodName').hasError('required') && !frm.get('printMethodName').pristine">
+                {{validationMessages['printMethodName'].required}}</label>
+            </div>
+          </div>
+          <div class="row flex py-1"
+               [ngClass]="{'required': frm.get('formRequires').value['printMachineNames'].required}">
+            <div class="col-sm-4 control-label text-right">
+              <label>Machines</label>
+            </div>
+            <div class="col-sm-7"
+                 [ngClass]="{'has-error':!frm.get('printMachineNames').valid}">
+              <ng-container *ngIf="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled || isNonAdminArtManagerArtist; else multiMachinesSelectBlock">
+                <p class="p-readonly">
+                  {{frm.get('printMachineNames').value ? frm.get('printMachineNames').value.join(', ') : ''}}</p>
+              </ng-container>
+              <ng-template #multiMachinesSelectBlock>
+                <ng-select [items]="machineDataOrigin" #multiMachinesSelecter
+                           [multiple]="true"
+                           [closeOnSelect]="false"
+                           [hideSelected]="true"
+                           [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled && !isNonAdminArtManagerArtist ? 'Machines' : ''"
+                           [searchable]="false"
+                           (focus)="onSelectFocused(multiMachinesSelecter)"
+                           bindValue="name"
+                           bindLabel="name"
+                           formControlName="printMachineNames">
+                </ng-select>
+              </ng-template>
+              <label class="error"
+                     *ngIf="frm.get('printMachineNames').hasError('required') && !frm.get('printMachineNames').pristine">
+                {{validationMessages['printMachineNames'].required}}</label>
+            </div>
+          </div>
+          <div class="row flex py-1"
+               *ngIf="frm.get('locationName').value !== 'Accessory'"
+               [ngClass]="{'required': frm.get('formRequires').value['placement'].required}">
+            <div class="col-sm-4 control-label text-right">
+              <label>Placement</label>
+            </div>
+            <div class="col-sm-7"
+                 [ngClass]="{'has-error':!frm.get('placement').valid}">
+              <input formControlName='placement'
+                     type="text"
+                     [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled && !isNonAdminArtManagerArtist ? 'Placement' : ''"
+                     [attr.disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled || isNonAdminArtManagerArtist ? true : null"
+                     class="form-control">
+              <label class="error"
+                     *ngIf="frm.get('placement').hasError('required') && !frm.get('placement').pristine">
+                {{validationMessages['placement'].required}}</label>
+            </div>
+          </div>
+          <div class="row flex py-1"
+               [ngClass]="{'required': frm.get('formRequires').value['width'].required}">
+            <div class="col-sm-4 control-label text-right">
+              <label>Width (in)</label>
+            </div>
+            <div class="col-sm-7"
+                 [ngClass]="{'has-error':!frm.get('width').valid}">
+              <input formControlName='width'
+                     type="text"
+                     [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled && !isNonAdminArtManagerArtist ? 'Width' : ''"
+                     [attr.disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled || isNonAdminArtManagerArtist ? true : null"
+                     class="form-control">
+              <label class="error"
+                     *ngIf="frm.get('width').hasError('required') && !frm.get('width').pristine">
+                {{validationMessages['width'].required}}</label>
+            </div>
+          </div>
+          <div class="row flex py-1"
+               [ngClass]="{'required': frm.get('formRequires').value['height'].required}">
+            <div class="col-sm-4 control-label text-right">
+              <label>Height (in)</label>
+            </div>
+            <div class="col-sm-7"
+                 [ngClass]="{'has-error':!frm.get('height').valid}">
+              <input formControlName='height'
+                     type="text"
+                     [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled && !isNonAdminArtManagerArtist ? 'Height' : ''"
+                     [attr.disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled || isNonAdminArtManagerArtist ? true : null"
+                     class="form-control">
+              <label class="error"
+                     *ngIf="frm.get('height').hasError('required') && !frm.get('height').pristine">
+                {{validationMessages['height'].required}}</label>
+            </div>
+          </div>
+          <div class="row flex py-1">
+            <div class="col-sm-4 control-label text-right">
+              <label>Comments</label>
+            </div>
+            <div class="col-sm-7 my-textarea">
+                <textarea formControlName='comments'
+                          type="text"
+                          [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled && !isNonAdminArtManagerArtist ? 'Comments' : ''"
+                          [attr.disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled || isNonAdminArtManagerArtist ? true : null"
+                          class="form-control"></textarea>
+            </div>
+          </div>
+          <div class="row flex py-1"
+               [ngClass]="{'required': frm.get('formRequires').value['artReceivedDateOnUtc'].required}">
+            <div class="col-sm-4 control-label text-right">
+              <label>Art Received</label>
+            </div>
+            <div class="col-sm-7"
+                 [ngClass]="{'has-error':!frm.get('artReceivedDateOnUtc').valid}">
+              <my-date-picker [options]="myDatePickerOptions"
+                              #artReceivedDatePicker
+                              formControlName='artReceivedDate'
+                              [disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled || isNonAdminArtManagerArtist"
+                              [ngClass]="{'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled || isNonAdminArtManagerArtist}"
+                              (dateChanged)="onDateChangedBy($event, 'artReceivedDateOnUtc')"
+                              (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, artReceivedDatePicker)"
+                              (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, artReceivedDatePicker, frm.get('artReceivedDateOnUtc'))"></my-date-picker>
+
+              <label class="error"
+                     *ngIf="frm.get('artReceivedDateOnUtc').hasError('required') && !frm.get('artReceivedDateOnUtc').pristine">
+                {{validationMessages['artReceivedDateOnUtc'].required}}</label>
+            </div>
+            <span class="input-group-addon cursor" (click)="onArtApprove($event, 0, uploadFileType.ArtReceivedStyle, 'Art Received')"
+                  *ngIf="!fileViewReceived.length && !isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled && !isNonAdminArtManagerArtist">
+                <i class="fa fa-upload" aria-hidden="true"></i>
+              </span>
+            <span class="input-group-addon cursor eye-inline"
+                  (click)="onArtApprove($event, 0, uploadFileType.ArtReceivedStyle, 'Art Received')"
+                  *ngIf="fileViewReceived.length">
+                    <i class="fa fa-eye" [ngStyle]="{'top': '-1px'}" aria-hidden="true"></i>
+              </span>
+          </div>
+          <div class="row flex py-1"
+               [ngClass]="{'required': frm.get('formRequires').value['approvedToSampleDateOnUtc'].required}">
+            <div class="col-sm-4 control-label text-right">
+              <label>Approved to Sample</label>
+            </div>
+            <div class="col-sm-7"
+                 [ngClass]="{'has-error':!frm.get('approvedToSampleDateOnUtc').valid}">
+              <my-date-picker [options]="myDatePickerTopOptions"
+                              #approvedToSampleDatePicker
+                              formControlName='approvedToSampleDate'
+                              [disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled || isNonAdminArtManagerArtist"
+                              [ngClass]="{'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled || isNonAdminArtManagerArtist}"
+                              (dateChanged)="onDateChangedBy($event, 'approvedToSampleDateOnUtc')"
+                              (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, approvedToSampleDatePicker)"
+                              (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, approvedToSampleDatePicker, frm.get('approvedToSampleDateOnUtc'))"></my-date-picker>
+              <label class="error"
+                     *ngIf="frm.get('approvedToSampleDateOnUtc').hasError('required') && !frm.get('approvedToSampleDateOnUtc').pristine">
+                {{validationMessages['approvedToSampleDateOnUtc'].required}}</label>
+            </div>
+          </div>
+          <div class="row flex py-1"
+               [ngClass]="{'required': frm.get('formRequires').value['artApprovedDateOnUtc'].required}">
+            <div class="col-sm-4 control-label text-right">
+              <label class="nowrap">Print Approval</label>
+            </div>
+            <div class="col-sm-7"
+                 [ngClass]="{'has-error':!frm.get('artApprovedDateOnUtc').valid}">
+              <my-date-picker [options]="myDatePickerOptions"
+                              #artApprovedDatePicker
+                              formControlName='artApprovedDate'
+                              [disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled || isNonAdminArtManagerArtist"
+                              [ngClass]="{'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled || isNonAdminArtManagerArtist}"
+                              (dateChanged)="onDateChangedBy($event, 'artApprovedDateOnUtc')"
+                              (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, artApprovedDatePicker)"
+                              (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, artApprovedDatePicker, frm.get('artApprovedDateOnUtc'))"></my-date-picker>
+
+              <label class="error"
+                     *ngIf="frm.get('artApprovedDateOnUtc').hasError('required') && !frm.get('artApprovedDateOnUtc').pristine">
+                {{validationMessages['artApprovedDateOnUtc'].required}}</label>
+            </div>
+            <span class="input-group-addon cursor" (click)="onArtApprove($event, 1, uploadFileType.ArtApprovedStyle, 'Print Approval')"
+                  *ngIf="!fileViewApproved.length && !isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled && !isNonAdminArtManagerArtist">
+                <i class="fa fa-upload" aria-hidden="true"></i>
+              </span>
+            <span class="input-group-addon cursor eye-inline"
+                  (click)="onArtApprove($event, 1, uploadFileType.ArtApprovedStyle, 'Print Approval')"
+                  *ngIf="fileViewApproved.length">
+                    <i class="fa fa-eye" [ngStyle]="{'top': '-1px'}" aria-hidden="true"></i>
+              </span>
+          </div>
+          <div class="row flex py-1" *ngIf="!!frm.get('isTscFactory').value"
+               [ngClass]="{'required': frm.get('formRequires').value['artReleasedDateOnUtc'].required}">
+            <div class="col-sm-4 control-label text-right">
+              <label>Art Released</label>
+            </div>
+            <div class="col-sm-7"
+                 [ngClass]="{'has-error':!frm.get('artReleasedDateOnUtc').valid}">
+              <my-date-picker [options]="myDatePickerOptions"
+                              #artReleasedDatePicker
+                              formControlName='artReleasedDate'
+                              [disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled || isNonAdminArtManagerArtist"
+                              [ngClass]="{'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled || isNonAdminArtManagerArtist}"
+                              (dateChanged)="onDateChangedBy($event, 'artReleasedDateOnUtc')"
+                              (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, artReleasedDatePicker)"
+                              (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, artReleasedDatePicker, frm.get('artReleasedDateOnUtc'))"></my-date-picker>
+
+              <label class="error"
+                     *ngIf="frm.get('artReleasedDateOnUtc').hasError('required') && !frm.get('artReleasedDateOnUtc').pristine">
+                {{validationMessages['artReleasedDateOnUtc'].required}}</label>
+            </div>
+          </div>
+          <div class="row flex py-1">
+            <div class="col-sm-4 control-label text-right">
+              <label style="white-space: nowrap;">Tech Sheet(s)</label>
+            </div>
+            <div class="col-sm-7">
+              <div class="input-group">
+                  <span class="input-group-addon cursor white-bg"
+                        (click)="onArtApprove($event, 2, uploadFileType.TechSheets, 'Tech Sheet(s)')"
+                        *ngIf="!techSheetFiles.length && !isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled && !isNonAdminArtManagerArtist">
+                  <i class="fa fa-upload" aria-hidden="true"></i>
+                  </span>
+                <span class="input-group-addon cursor white-bg"
+                      [ngClass]="{'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled || isNonAdminArtManagerArtist}"
+                      (click)="onArtApprove($event, 2, uploadFileType.TechSheets, 'Tech Sheet(s)')"
+                      *ngIf="techSheetFiles.length">
+                  <i class="fa fa-eye" [ngStyle]="{'top': '-1px'}" aria-hidden="true"></i>
+                  </span>
+              </div>
+            </div>
+          </div>
+          <div class="row flex py-1"
+               [ngClass]="{'required': frm.get('formRequires').value['sampleDateOnUtc'].required}">
+            <div class="col-sm-4 control-label text-right">
+              <label>Sample Date</label>
+            </div>
+            <div class="col-sm-7"
+                 [ngClass]="{'has-error':!frm.get('sampleDateOnUtc').valid}">
+              <my-date-picker [options]="myDatePickerTopOptions"
+                              #sampleDatePicker
+                              formControlName='sampleDate'
+                              [disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled || isNonAdminArtManagerArtist"
+                              [ngClass]="{'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled || isNonAdminArtManagerArtist}"
+                              (dateChanged)="onDateChangedBy($event, 'sampleDateOnUtc')"
+                              (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, sampleDatePicker)"
+                              (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, sampleDatePicker, frm.get('sampleDateOnUtc'))"></my-date-picker>
+              <label class="error"
+                     *ngIf="frm.get('sampleDateOnUtc').hasError('required') && !frm.get('sampleDateOnUtc').pristine">
+                {{validationMessages['sampleDateOnUtc'].required}}</label>
+            </div>
+          </div>
+          <div class="row flex py-1"
+               [ngClass]="{'required': frm.get('formRequires').value['samplePrinterId'].required}">
+            <div class="col-sm-4 control-label text-right">
+              <label class="nowrap">Sample Printer</label>
+            </div>
+            <div class="col-sm-7"
+                 [ngClass]="{'has-error':!frm.get('samplePrinterId').valid,
+                 'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled || isNonAdminArtManagerArtist}">
+              <ng-select [items]="samplePrinterDataOrigin" #samplePrinterSelect
+                         [dropdownPosition]="'top'"
+                         [searchable]="false"
+                         [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled && !isNonAdminArtManagerArtist ? 'Sample Printer' : ''"
+                         (focus)="onSelectFocused(samplePrinterSelect)"
+                         (add)="onSelectItem($event, frm, 'samplePrinterType', 'samplePrinterType')"
+                         (clear)="frm.get('samplePrinterType').patchValue('')"
+                         bindLabel="samplePrinterName"
+                         bindValue="fakeId"
+                         formControlName="samplePrinterId"></ng-select>
+              <label class="error"
+                     *ngIf="frm.get('samplePrinterId').hasError('required') && !frm.get('samplePrinterId').pristine">
+                {{validationMessages['samplePrinterId'].required}}</label>
+            </div>
+          </div>
+          <div class="row flex py-1"
+               *ngIf="frm.get('locationName').value !== 'Accessory'"
+               [ngClass]="{'required': frm.get('formRequires').value['separatorId'].required}">
+            <div class="col-sm-4 control-label text-right">
+              <label class="nowrap">Separator</label>
+            </div>
+            <div class="col-sm-7"
+                 [ngClass]="{'has-error':!frm.get('separatorId').valid,
+                 'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled || isNonAdminArtManagerArtist}">
+              <ng-select [items]="separatorData" #separatorSelect
+                         [virtualScroll]="true"
+                         [searchable]="false"
+                         [dropdownPosition]="'top'"
+                         [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled && !isNonAdminArtManagerArtist ? 'Separator' : ''"
+                         (focus)="onSelectFocused(separatorSelect)"
+                         bindLabel="fullName"
+                         bindValue="id"
+                         formControlName="separatorId"></ng-select>
+              <label class="error"
+                     *ngIf="frm.get('separatorId').hasError('required') && !frm.get('separatorId').pristine">
+                {{validationMessages['separatorId'].required}}</label>
+            </div>
+          </div>
+          <div class="row flex py-1"
+               [ngClass]="{'required': frm.get('formRequires').value['separationDateOnUtc'].required}">
+            <div class="col-sm-4 control-label text-right">
+              <label>Separation Date</label>
+            </div>
+            <div class="col-sm-7"
+                 [ngClass]="{'has-error':!frm.get('separationDateOnUtc').valid}">
+              <my-date-picker [options]="myDatePickerTopOptions"
+                              #separationDatePicker
+                              formControlName='separationDate'
+                              [disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled || isNonAdminArtManagerArtist"
+                              [ngClass]="{'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled || isNonAdminArtManagerArtist}"
+                              (dateChanged)="onDateChangedBy($event, 'separationDateOnUtc')"
+                              (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, separationDatePicker)"
+                              (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, separationDatePicker, frm.get('separationDateOnUtc'))"></my-date-picker>
+              <label class="error"
+                     *ngIf="frm.get('separationDateOnUtc').hasError('required') && !frm.get('separationDateOnUtc').pristine">
+                {{validationMessages['separationDateOnUtc'].required}}</label>
+            </div>
+          </div>
+          <div class="row flex py-1"
+               [ngClass]="{'required': frm.get('formRequires').value['productionDateOnUtc'].required}">
+            <div class="col-sm-4 control-label text-right">
+              <label>Production Date</label>
+            </div>
+            <div class="col-sm-7"
+                 [ngClass]="{'has-error':!frm.get('productionDateOnUtc').valid}">
+              <my-date-picker [options]="myDatePickerTopOptions"
+                              #productionDatePicker
+                              formControlName='productionDate'
+                              [disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled || isNonAdminArtManagerArtist"
+                              [ngClass]="{'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled || isNonAdminArtManagerArtist}"
+                              (dateChanged)="onDateChangedBy($event, 'productionDateOnUtc')"
+                              (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, productionDatePicker)"
+                              (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, productionDatePicker, frm.get('productionDateOnUtc'))"></my-date-picker>
+              <label class="error"
+                     *ngIf="frm.get('productionDateOnUtc').hasError('required') && !frm.get('productionDateOnUtc').pristine">
+                {{validationMessages['productionDateOnUtc'].required}}</label>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-md-6 col-lg-6 hidden-lg p-l-20">
+          <div class="row flex py-1 full-height"
+               [ngClass]="{'required': false}">
+            <div class="control-label custom-label">
+              <label></label>
+            </div>
+            <div class="upload-box" *ngIf="!frm.get('imageUrl').value && !isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled && !isNonAdminArtManagerArtist">
+              <div class="contain text-center">
+                <div class="icon">
+                  <i class="fa fa-upload" aria-hidden="true"></i>
+                </div>
+                <div class="text">Drop files to upload</div>
+                <div class="button">
+                  <label class="btn mt-2">
+                    Or Click Here <input type="file" (change)="uploadImage()"
+                                         id="locationInputFile1"
+                                         [style.display]="'none'"
+                                         ng2FileSelect style="opacity: 0"
+                                         [uploader]="uploader" accept=".png, .jpg"/><br/>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="showImage text-center full-width" *ngIf="frm.get('imageUrl').value">
+              <img [src]="frm.get('absoluteUrl').value" height="auto"
+                   class="full-width img-thumbnail-none-wh width-responsive" imgZoomClick/>
+              <span class="remove-image" (click)="removeImage(frm)" *ngIf="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled && !isNonAdminArtManagerArtist">
+                    <i aria-hidden="true" class="fa fa-times"></i>
+                  </span>
+            </div>
+            <label class="error"
+                   *ngIf="frm.get('imageUrl').hasError('required') && !frm.get('imageUrl').pristine">
+              {{validationMessages['imageUrl'].required}}</label>
+          </div>
+        </div>
+        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-5 p-r-20">
+          <ng-container *ngIf="frm.get('locationName').value !== 'Accessory'">
+            <ul class="nav nav-tabs">
+              <ng-template ngFor [ngForOf]="colorsTab" let-tab>
+                <li class="text-center nav-item" *ngIf="tab.isView"
+                    [ngClass]="{'active': tab.isActive, 'disappear': tab.isDisable}"
+                    (click)="switchColorTab(tab.id)">
+                  <a class="justify-center nav-link"
+                     href="javascript:void(0)" aria-expanded="true">
+                    <span>{{tab.name}}</span>
+                  </a>
+                </li>
+              </ng-template>
+            </ul>
+            <div class="table-wrapper pt-2" #tableWrapper>
+            <table class="table table-sm style-table">
+              <thead>
+              <tr>
+                <th [ngStyle]="{'min-width': '50px', 'width': '50px'}">Seq</th>
+                <th [ngStyle]="{'min-width': '100px', 'width': '100px'}">PMS</th>
+                <th [ngStyle]="{'min-width': '100px', 'width': '100px'}">Mesh</th>
+                <th [ngStyle]="{'min-width': '100px', 'width': '100px'}">Type</th>
+                <th [ngStyle]="{'min-width': '30px', 'width': '30px'}"></th>
+              </tr>
+              </thead>
+              <tbody [dragula]='"bag-one"'
+                     [dragulaOptions]="dragOptions">
+              <ng-template [ngIf]="getCurrentActivatedTabColor() === 'Pre'">
+                <tr class="dragging-table"
+                    *ngFor="let color of frm.get('prePmsColors').value; let i = index; let first = first; let last = last">
+                  <td [ngClass]="{'seq-handle': !isPrintApproved}"
+                      [title]="!isPrintApproved ? 'Drag to reorder' : ''">{{i + 1}}</td>
+                  <td class="auto-align" [ngClass]="{'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled || isNonAdminArtManagerArtist || isPrintApproved}">
+                    <ng-select [items]="colorsDataOrigin" #colorsSelect
+                               [addTag]="true"
+                               [virtualScroll]="true"
+                               [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled && !isNonAdminArtManagerArtist && !isPrintApproved? 'PMS' : ''"
+                               (focus)="onSelectFocused(colorsSelect)"
+                               (open)="colorsSelect.filterValue = !!color.pmsName ? color.pmsNameSelect : ''"
+                               (add)="color.pmsNameSelect = $event.name"
+                               (clear)="color.pmsNameSelect = null"
+                               bindLabel="name"
+                               bindValue="name"
+                               [(ngModel)]="color.pmsName"
+                               [ngModelOptions]="{standalone: true}"></ng-select>
+                  </td>
+                  <td>
+                    <div class="input-group">
+                      <input [(ngModel)]='color.mesh'
+                             [ngModelOptions]="{standalone: true}"
+                             type="text"
+                             IntegerNumber maxlength="4"
+                             [disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled || isNonAdminArtManagerArtist || isPrintApproved"
+                             [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled && !isNonAdminArtManagerArtist && !isPrintApproved ? 'Mesh' : ''"
+                             class="form-control text-center">
+                      <span class="input-group-addon cursor" style="margin-left: 0"
+                            *ngIf="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled && !isNonAdminArtManagerArtist && !isPrintApproved"
+                            (click)="applyAllByProp(color.mesh, 'mesh')"
+                            [title]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled && !isNonAdminArtManagerArtist && !isPrintApproved ? 'Click to Apply All' : ''">
+                          <i class="fa fa-exchange apply-all" aria-hidden="true"></i>
+                      </span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="btn-group" data-toggle="buttons" role="group">
+                      <button class="btn btn-default btn-xs"
+                              (click)="selectRadio(i, 0)"
+                              [ngClass]="{active: color.type === 0}"
+                              [disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled || isNonAdminArtManagerArtist || isPrintApproved"
+                              type="button">
+                        P
+                      </button>
+                      <button class="btn btn-default btn-xs"
+                              (click)="selectRadio(i, 1)"
+                              [ngClass]="{active: color.type === 1}"
+                              [disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled || isNonAdminArtManagerArtist || isPrintApproved"
+                              type="button">
+                        W
+                      </button>
+                      <button class="btn btn-default btn-xs"
+                              (click)="selectRadio(i, 2)"
+                              [ngClass]="{active: color.type === 2}"
+                              [disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled || isNonAdminArtManagerArtist || isPrintApproved"
+                              type="button">
+                        HS
+                      </button>
+                      <button class="btn btn-default btn-xs"
+                              *ngIf="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled && !isNonAdminArtManagerArtist && !isPrintApproved"
+                              (click)="applyAllByProp(color.type, 'type')"
+                              [title]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled && !isNonAdminArtManagerArtist && !isPrintApproved ? 'Click to Apply All' : ''"
+                              type="button">
+                        <i class="fa fa-exchange cursor apply-all py-1" aria-hidden="true"></i>
+                      </button>
+                    </div>
+                  </td>
+                  <td>
+                    <i class="fa fa-times cursor un-p-link py-1" aria-hidden="true"
+                       *ngIf="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled && !isNonAdminArtManagerArtist && !isPrintApproved && !first" (click)="removeFilm(i)"
+                       [title]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled && !isNonAdminArtManagerArtist ? 'Click to Remove' : ''"></i>
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template [ngIf]="getCurrentActivatedTabColor() === 'Approved'">
+                <tr
+                  *ngFor="let color of frm.get('approvedPmsColors').value; let i = index; let first = first; let last = last">
+                  <td>{{i + 1}}</td>
+                  <td class="auto-align" [ngClass]="{'disabled': isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled || isNonAdminArtManagerArtist || isPrintApproved}">
+                    <ng-select [items]="colorsDataOrigin" #colorsSelect
+                               [addTag]="true"
+                               [virtualScroll]="true"
+                               [placeholder]="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled && !isNonAdminArtManagerArtist && !isPrintApproved ? 'PMS' : ''"
+                               (focus)="onSelectFocused(colorsSelect)"
+                               (open)="colorsSelect.filterValue = !!color.pmsName ? color.pmsNameSelect : ''"
+                               (add)="color.pmsNameSelect = $event.name"
+                               (clear)="color.pmsNameSelect = null"
+                               bindLabel="name"
+                               bindValue="name"
+                               [(ngModel)]="color.pmsName"
+                               [ngModelOptions]="{standalone: true}"></ng-select>
+                  </td>
+                  <td>{{color.mesh}}</td>
+                  <td>
+                    <div class="btn-group" data-toggle="buttons" role="group">
+                      <button class="btn btn-default btn-xs"
+                              [ngClass]="{active: color.type === 0}"
+                              [disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled || isNonAdminArtManagerArtist || isPrintApproved"
+                              type="button">
+                        P
+                      </button>
+                      <button class="btn btn-default btn-xs"
+                              [ngClass]="{active: color.type === 1}"
+                              [disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled || isNonAdminArtManagerArtist || isPrintApproved"
+                              type="button">
+                        W
+                      </button>
+                      <button class="btn btn-default btn-xs"
+                              [ngClass]="{active: color.type === 2}"
+                              [disabled]="isPageReadOnly || isStyleReadOnly || isStyleCancelled || isOrderArchived || isOrderCancelled || isNonAdminArtManagerArtist || isPrintApproved"
+                              type="button">
+                        HS
+                      </button>
+                    </div>
+                  </td>
+                  <td>
+                  </td>
+                </tr>
+              </ng-template>
+              </tbody>
+            </table>
+            <button *ngIf="getCurrentActivatedTabColor() === 'Pre'
+                            && !isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled && !isNonAdminArtManagerArtist && frm.get('prePmsColors').value.length < 16 && !isPrintApproved"
+                    class="btn btn-complete btn-cons"
+                    (click)="addFilm(pmsType.Pre)">Add Seq
+            </button>
+          </div>
+          </ng-container>
+        </div>
+        <div class="col-lg-4 col-xl-4 hidden-sm hidden-md hidden-xs p-l-20">
+          <div class="row flex py-1 full-height"
+               [ngClass]="{'required': false}">
+            <div class="control-label custom-label">
+              <label></label>
+            </div>
+            <div class="upload-box" *ngIf="!frm.get('imageUrl').value && !isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled && !isNonAdminArtManagerArtist">
+              <div class="contain text-center">
+                <div class="icon">
+                  <i class="fa fa-upload" aria-hidden="true"></i>
+                </div>
+                <div class="text">Drop files to upload</div>
+                <div class="button">
+                  <label class="btn mt-2">
+                    Or Click Here <input type="file" (change)="uploadImage()"
+                                         id="locationInputFile2"
+                                         [style.display]="'none'"
+                                         ng2FileSelect style="opacity: 0"
+                                         [uploader]="uploader" accept=".png, .jpg"/><br/>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="showImage text-center full-width" *ngIf="frm.get('imageUrl').value">
+              <img [src]="frm.get('absoluteUrl').value" height="auto"
+                   class="full-width img-thumbnail-none-wh width-responsive" imgZoomClick/>
+              <span class="remove-image" (click)="removeImage(frm)" *ngIf="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled && !isNonAdminArtManagerArtist">
+                    <i aria-hidden="true" class="fa fa-times"></i>
+                  </span>
+            </div>
+            <label class="error"
+                   *ngIf="frm.get('imageUrl').hasError('required') && !frm.get('imageUrl').pristine">
+              {{validationMessages['imageUrl'].required}}</label>
+          </div>
+        </div>
+      </div>
+      <br/>
+      <div class="row" *ngIf="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled && !isNonAdminArtManagerArtist">
+        <!-- <div class="col-sm-1 m-l-30"></div> -->
+        <div class="col-lg-3">
+          <div class="row flex py-1">
+            <div class="col-sm-4"></div>
+            <div class="col-sm-8">
+              <button class="btn btn-complete btn-cons"
+                      (click)="onSaved(frm)">Save
+              </button>
+            </div>
+          </div>
+
+          <!-- <div class="pull-left">
+            <button class="btn btn-complete btn-cons mx-1"
+                    (click)="onSaved(frm)">Save
+            </button>
+
+          </div> -->
+        </div>
+      </div>
+      <div class="sticky-btn" *ngIf="!isPageReadOnly && !isStyleReadOnly && !isStyleCancelled && !isOrderArchived && !isOrderCancelled && !isNonAdminArtManagerArtist && isShowStickyBtn">
+
+        <button class="btn btn-complete btn-cons"
+                (click)="onSaved(frm)">Save
+        </button>
+
+      </div>
+    </div>
+  </form>
+</div>

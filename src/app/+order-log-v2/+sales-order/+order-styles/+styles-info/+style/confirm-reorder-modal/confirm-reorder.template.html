@@ -1,0 +1,182 @@
+<div class="modal-header m-b-10">
+  <h4 class="modal-title">Confirm Reorder</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.close(false)">
+    <span aria-hidden="true">×</span>
+  </button>
+</div>
+<div class="modal-body">
+  <div class="py-2" [hidden]="styleList && styleList.length">
+    <span>No styles with the same partner style / blank style / blank color combination were found.</span>
+  </div>
+  <div class="py-2" [hidden]="!styleList || !styleList.length">
+    <p>Select the original style for this reorder. Saving your selection will overwrite the current style’s Print Location, Neck Label, and Trim data with the data from the original style you’ve selected.</p>
+    <perfect-scrollbar [config]="{suppressScrollX: false}">
+      <div class="table-wrapper" #tableWrapper>
+        <ngx-datatable #stylesTable
+                       class="material ngx-table-hover"
+                       [rows]="styleList"
+                       [columnMode]="'force'"
+                       [footerHeight]="0"
+                       [headerHeight]="'auto'"
+                       [rowHeight]="'auto'"
+                       [externalSorting]="true">
+          <ngx-datatable-column [name]="' '"
+                                [prop]="'id'"
+                                [width]="45"
+                                [minWidth]="45"
+                                [maxWidth]="45"
+                                [sortable]="false"
+                                [canAutoResize]="true"
+                                [draggable]="false"
+                                [resizeable]="false">
+            <ng-template let-value="value" ngx-datatable-cell-template>
+              <div class="checkbox">
+                <input type="checkbox" [id]="'checkbox-' + value"
+                       [checked]="value === selectedStyleId"
+                       (change)="selectStyle($event, value)">
+                <label [for]="'checkbox-' + value">&nbsp;</label>
+              </div>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column [name]="' '"
+                                [prop]="'imageUrl'"
+                                [width]="75"
+                                [minWidth]="75"
+                                [maxWidth]="75"
+                                [cellClass]="'flex justify-center full-width-style'"
+                                [resizeable]="false"
+                                [draggable]="false">
+            <ng-template let-value="value" ngx-datatable-cell-template>
+              <img class="img-thumbnail-none-wh" imgZoomClick
+                   [src]="value" width="50"
+                   height="50">
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column
+            [name]="'Design Id'"
+            [prop]="'designId'"
+            [resizeable]="false"
+            [draggable]="false">
+            <ng-template let-row="row" ngx-datatable-header-template>
+              <div class="full-width center">Design Id</div>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column
+            [name]="'CSR'"
+            [width]="140"
+            [minWidth]="140"
+            [maxWidth]="140"
+            [resizeable]="false"
+            [draggable]="false">
+            <ng-template let-row="row" ngx-datatable-header-template>
+              <div class="full-width center">CSR</div>
+              <div class="full-width center">Cust / PO #</div>
+            </ng-template>
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <p class="center">{{row.csr}}</p>
+              <p class="center">{{row.customerName}} <span
+                *ngIf="row.customerName && row.customerPo">#</span>
+                {{row.customerPo}}</p>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column
+            [name]="''"
+            [width]="140"
+            [minWidth]="140"
+            [maxWidth]="140"
+            [resizeable]="false"
+            [draggable]="false">
+            <ng-template ngx-datatable-header-template>
+              <div class="full-width center">Order Dates</div>
+            </ng-template>
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <p class="center mbe-1" *ngIf="row.orderDateOnUtc">
+                  <span class="inline">ORD: {{row.orderDateOnUtc | amDateFormat: 'MM/DD/YY'}}</span>
+              <p class="center mbe-1" *ngIf="row.startShipDateOnUtc">
+                <span class="inline">START: {{row.startShipDateOnUtc | amDateFormat: 'MM/DD/YY'}}</span>
+              </p>
+              <p class="center mbe-1" *ngIf="row.cancelDateOnUtc">
+                <span class="inline">CNCL: {{row.cancelDateOnUtc | amDateFormat: 'MM/DD/YY'}}</span>
+              </p>
+              <p class="center mbe-1" *ngIf="row.lastDateToShipNonExpedited">
+                <span class="inline">LDSNE: {{row.lastDateToShipNonExpedited | amDateFormat: 'MM/DD/YY'}}</span>
+              </p>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column
+            [name]="'Partner Style Name'"
+            [resizeable]="false"
+            [draggable]="false">
+            <ng-template let-row="row" ngx-datatable-header-template>
+              <div class="full-width center">Design #</div>
+              <div class="full-width center">Description</div>
+            </ng-template>
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <p class="center">{{row.partnerStyleName}}</p>
+              <p class="center">{{row.partnerStyle}} </p>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column
+            [name]="''"
+            [resizeable]="false"
+            [draggable]="false">
+            <ng-template let-row="row" ngx-datatable-header-template>
+              <div class="full-width center">Blank Style /</div>
+              <div class="full-width center">Size Class /</div>
+              <div class="full-width center">Color</div>
+            </ng-template>
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <p class="center">{{row.blankStyleName}}</p>
+              <p class="center">{{row.sizeClass}}</p>
+              <p class="center">{{row.color}} </p>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column
+            [name]="''"
+            [resizeable]="false"
+            [draggable]="false">
+            <ng-template let-row="row" ngx-datatable-header-template>
+              <div class="full-width center">Neck Label</div>
+            </ng-template>
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <p class="center" *ngIf="!row.hasNeckLabel && !row.neckLabelId">No Neck Label Setup</p>
+              <p class="center" *ngIf="!row.hasNeckLabel && row.neckLabelId">No Neck Label Needed</p>
+              <img *ngIf="row.neckLabelId && row.neckLabelImage" class="img-thumbnail-none-wh" imgZoomClick
+                   [src]="row.neckLabelImage" width="50"
+                   height="50">
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column
+            [name]="'Trims'"
+            [prop]="'trims'"
+            [resizeable]="false"
+            [draggable]="false">
+            <ng-template let-row="row" ngx-datatable-header-template>
+              <div class="full-width center">Trims</div>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column
+            [name]="'Print Locations'"
+            [prop]="'printLocations'"
+            [resizeable]="false"
+            [draggable]="false">
+            <ng-template let-row="row" ngx-datatable-header-template>
+              <div class="full-width center">Print Locations</div>
+            </ng-template>
+          </ngx-datatable-column>
+        </ngx-datatable>
+      </div>
+    </perfect-scrollbar>
+  </div>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-complete"
+          [hidden]="!styleList || !styleList.length"
+          (click)="onSubmit()">
+    Reorder Confirmed
+  </button>
+  <button class="btn btn-default"
+          (click)="activeModal.close(false)">
+    Cancel
+  </button>
+</div>

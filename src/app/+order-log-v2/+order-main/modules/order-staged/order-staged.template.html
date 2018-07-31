@@ -1,0 +1,160 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0">Order Staged - Change Status</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()">
+    <div class="row flex py-1"
+         [ngClass]="{'required': false}">
+      <div class="col-sm-7">
+        <div class="row">
+          <div class="col-sm-6 control-label text-right">
+            <label>Status</label>
+          </div>
+          <div class="col-sm-6"
+               [ngClass]="{'has-error':!frm.get('status').valid, 'disabled': isPageReadOnly}">
+            <ng-select [items]="statusData"
+                       [placeholder]="!isPageReadOnly ? 'Status' : ''"
+                       [searchable]="false" #statusSelect
+                       (focus)="onSelectFocused(statusSelect)"
+                       bindLabel="name"
+                       bindValue="id"
+                       formControlName="status"></ng-select>
+            <label class="error"
+                   *ngIf="frm.get('status').hasError('required') && !frm.get('status').pristine">
+              {{validationMessages['default'].required}}</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="+frm.get('status').value === taskStatus.DONE">
+      <div class="row py-1">
+        <div class="col-sm-7 col-lg-7 col-xl-7">
+          <div class="row flex"
+               [ngClass]="{'required': frm.get('formRequires').value['orderStagedDoneFromOnUtc'].required}">
+            <div class="col-6 col-sm-6 control-label text-right">
+              <label class="nowrap">Order Staged Date</label>
+            </div>
+            <div class="col-6 col-sm-6"
+                 [ngClass]="{'has-error':!frm.get('orderStagedDoneFromOnUtc').valid}">
+              <my-date-picker class="flex" [options]="orderStagedDoneFromOptions"
+                              #orderStagedDoneFromPicker
+                              formControlName='orderStagedDoneFrom'
+                              (dateChanged)="onDateChangedBy($event, 'orderStagedDoneFromOnUtc')"
+                              (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, orderStagedDoneFromPicker)"
+                              (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, orderStagedDoneFromPicker, frm.get('orderStagedDoneFromOnUtc'))"></my-date-picker>
+              <label class="error"
+                     *ngIf="frm.get('orderStagedDoneFromOnUtc').hasError('required') && !frm.get('orderStagedDoneFromOnUtc').pristine">
+                {{validationMessages['default'].required}}</label>
+              <label class="error"
+                     *ngIf="frm.get('orderStagedDoneFromOnUtc').hasError('maxDate') && !frm.get('orderStagedDoneFromOnUtc').pristine">
+                {{validationMessages['orderStagedDoneFromOnUtc'].maxLength}}
+              </label>
+              <label class="error"
+                     *ngIf="frm.get('orderStagedDoneFromOnUtc').hasError('maxToday') && !frm.get('orderStagedDoneFromOnUtc').hasError('maxDate') && !frm.get('orderStagedDoneFromOnUtc').pristine">
+                {{validationMessages['default'].maxLength}}</label>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-5 col-lg-5 col-xl-5">
+          <div class="row flex">
+            <div class="col-4 col-sm-4 flex justify-content-center">
+              <span class="m-t-4">to</span>
+            </div>
+            <div class="col-8 col-sm-8"
+                 [ngClass]="{'has-error':!frm.get('orderStagedDoneToOnUtc').valid}">
+              <my-date-picker class="flex" [options]="orderStagedDoneToOptions"
+                              #orderStagedDoneToPicker
+                              [defaultMonth]="myDatePickerService.configDefaultMonth(frm.get('orderStagedDoneFrom').value)"
+                              formControlName='orderStagedDoneTo'
+                              (dateChanged)="onDateChangedBy($event, 'orderStagedDoneToOnUtc')"
+                              (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, orderStagedDoneToPicker)"
+                              (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, orderStagedDoneToPicker, frm.get('orderStagedDoneToOnUtc'))"></my-date-picker>
+              <label class="error"
+                     *ngIf="frm.get('orderStagedDoneToOnUtc').hasError('required') && !frm.get('orderStagedDoneToOnUtc').pristine">
+                {{validationMessages['default'].required}}</label>
+              <label class="error"
+                     *ngIf="frm.get('orderStagedDoneToOnUtc').hasError('minDate') && !frm.get('orderStagedDoneToOnUtc').pristine">
+                {{validationMessages['orderStagedDoneToOnUtc'].maxLength}}
+              </label>
+              <label class="error"
+                     *ngIf="frm.get('orderStagedDoneToOnUtc').hasError('maxToday') && !frm.get('orderStagedDoneToOnUtc').pristine">
+                {{validationMessages['default'].maxLength}}</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="+frm.get('status').value === taskStatus.PARTIAL">
+      <div class="row py-1">
+        <div class="col-sm-7 col-lg-7 col-xl-7">
+          <div class="row flex"
+               [ngClass]="{'required': frm.get('formRequires').value['orderStagedPartialFromOnUtc'].required}">
+            <div class="col-6 col-sm-6 control-label text-right">
+              <label class="nowrap">Order Staged Date</label>
+            </div>
+            <div class="col-6 col-sm-6"
+                 [ngClass]="{'has-error':!frm.get('orderStagedPartialFromOnUtc').valid}">
+              <my-date-picker class="flex" [options]="orderStagedPartialFromOptions"
+                              #orderStagedPartialFromPicker
+                              formControlName='orderStagedPartialFrom'
+                              (dateChanged)="onDateChangedBy($event, 'orderStagedPartialFromOnUtc')"
+                              (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, orderStagedPartialFromPicker)"
+                              (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, orderStagedPartialFromPicker, frm.get('orderStagedPartialFromOnUtc'))"></my-date-picker>
+              <label class="error"
+                     *ngIf="frm.get('orderStagedPartialFromOnUtc').hasError('required') && !frm.get('orderStagedPartialFromOnUtc').pristine">
+                {{validationMessages['default'].required}}</label>
+              <label class="error"
+                     *ngIf="frm.get('orderStagedPartialFromOnUtc').hasError('maxDate') && !frm.get('orderStagedPartialFromOnUtc').pristine">
+                {{validationMessages['orderStagedPartialFromOnUtc'].maxLength}}
+              </label>
+              <label class="error"
+                     *ngIf="frm.get('orderStagedPartialFromOnUtc').hasError('maxToday') && !frm.get('orderStagedPartialFromOnUtc').hasError('maxDate') && !frm.get('orderStagedPartialFromOnUtc').pristine">
+                {{validationMessages['default'].maxLength}}</label>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-5 col-lg-5 col-xl-5">
+          <div class="row flex">
+            <div class="col-4 col-sm-4 flex justify-content-center">
+              <span class="m-t-4">to</span>
+            </div>
+            <div class="col-8 col-sm-8"
+                 [ngClass]="{'has-error':!frm.get('orderStagedPartialToOnUtc').valid}">
+              <my-date-picker class="flex" [options]="orderStagedPartialToOptions"
+                              #orderStagedPartialToPicker
+                              [defaultMonth]="myDatePickerService.configDefaultMonth(frm.get('orderStagedPartialFrom').value)"
+                              formControlName='orderStagedPartialTo'
+                              (dateChanged)="onDateChangedBy($event, 'orderStagedPartialToOnUtc')"
+                              (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, orderStagedPartialToPicker)"
+                              (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, orderStagedPartialToPicker, frm.get('orderStagedPartialToOnUtc'))"></my-date-picker>
+              <label class="error"
+                     *ngIf="frm.get('orderStagedPartialToOnUtc').hasError('required') && !frm.get('orderStagedPartialToOnUtc').pristine">
+                {{validationMessages['default'].required}}</label>
+              <label class="error"
+                     *ngIf="frm.get('orderStagedPartialToOnUtc').hasError('minDate') && !frm.get('orderStagedPartialToOnUtc').pristine">
+                {{validationMessages['orderStagedPartialToOnUtc'].maxLength}}
+              </label>
+              <label class="error"
+                     *ngIf="frm.get('orderStagedPartialToOnUtc').hasError('maxToday') && !frm.get('orderStagedPartialToOnUtc').pristine">
+                {{validationMessages['default'].maxLength}}</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-complete"
+          (click)="onSubmitForm()">
+    Save
+  </button>
+  <button class="btn btn-default"
+          (click)="activeModal.dismiss()">
+    Cancel
+  </button>
+</div>
+

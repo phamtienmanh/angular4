@@ -1,0 +1,81 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0 nowrap">Bulk Fabric - Change Status</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()">
+    <lead-eta [rowDetail]="rowDetail" [isPageReadOnly]="isPageReadOnly || isLeadTimeReadOnly"></lead-eta>
+    <div class="row flex py-1"
+         [ngClass]="{'required': frm.get('formRequires').value['bulkFabricStatus'].required}">
+      <div class="col-7">
+        <div class="row">
+          <div class="col-6 control-label text-right">
+            <label>Status</label>
+          </div>
+          <div class="col-6"
+               [ngClass]="{'has-error': !frm.get('bulkFabricStatus').valid,
+                    'disabled': isPageReadOnly}">
+            <ng-select [items]="statusData"
+                       [placeholder]="!isPageReadOnly ? 'Status' : ''"
+                       [searchable]="false" #statusSelect
+                       (focus)="onSelectFocused(statusSelect)"
+                       bindLabel="name"
+                       bindValue="id"
+                       formControlName="bulkFabricStatus">
+            </ng-select>
+            <label class="error"
+                   *ngIf="frm.get('bulkFabricStatus').hasError('required') && !frm.get('bulkFabricStatus').pristine">
+              {{validationMessages['default'].required}}</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ng-container *ngIf="frm.get('bulkFabricStatus').value && frm.get('bulkFabricStatus').value !== taskStatus.BLANK">
+      <div class="row py-1">
+        <div class="col-7">
+          <ng-container *ngIf="frm.get('bulkFabricStatus').value === taskStatus.DONE">
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['bulkFabricDateCompletedOnUtc'].required}">
+              <div class="col-6 control-label text-right">
+                <label class="nowrap">Date Completed</label>
+              </div>
+              <div class="col-6"
+                   [ngClass]="{'has-error':!frm.get('bulkFabricDateCompletedOnUtc').valid}">
+                <my-date-picker class="flex" [options]="myTodayPickerOptions"
+                                #bulkFabricPicker
+                                formControlName='bulkFabricDateCompleted'
+                                [ngClass]="{'disabled': isPageReadOnly}"
+                                [disabled]="isPageReadOnly"
+                                (dateChanged)="onDateChangedBy($event, 'bulkFabricDateCompletedOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, bulkFabricPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, bulkFabricPicker, frm.get('bulkFabricDateCompletedOnUtc'))"></my-date-picker>
+                <label class="error"
+                       *ngIf="frm.get('bulkFabricDateCompletedOnUtc').hasError('required') && !frm.get('bulkFabricDateCompletedOnUtc').pristine">
+                  {{validationMessages['default'].required}}</label>
+                <label class="error"
+                       *ngIf="frm.get('bulkFabricDateCompletedOnUtc').hasError('maxDate') && !frm.get('bulkFabricDateCompletedOnUtc').pristine">
+                  {{validationMessages['default'].maxLength}}
+                </label>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </ng-container>
+  </form>
+</div>
+<div class="modal-footer">
+  <ng-container *ngIf="!isPageReadOnly">
+    <button class="btn btn-complete"
+            (click)="onSubmitForm()">
+      Save
+    </button>
+  </ng-container>
+  <button class="btn btn-default"
+          (click)="activeModal.dismiss()">
+    Cancel
+  </button>
+</div>
+

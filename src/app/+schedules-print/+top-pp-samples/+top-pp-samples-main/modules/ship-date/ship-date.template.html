@@ -1,0 +1,215 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0">Ship Date - Change Status</h4>
+  <button type="button" class="close" aria-label="Close" (click)="onClosePopup()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()">
+    <div class="row shipment-info" *ngIf="shipDateDetails">
+      <div class="col-12 badge-inverse bold center py-1">
+        Shipment {{shipDateDetails.consolidateDate | amDateFormat: 'MM/DD/YYYY'}}
+        _{{shipDateDetails.shipmentIndex}}</div>
+      <div class="col-4">
+        <div class="row">
+          <div class="col-4 text-right px-0">Ship From:</div>
+          <div class="col-6">
+            <p *ngIf="shipDateDetails.shipFromName">{{shipDateDetails.shipFromName}}</p>
+            <p *ngIf="shipDateDetails.shipFromAddress1">{{shipDateDetails.shipFromAddress1}}</p>
+            <p *ngIf="shipDateDetails.shipFromAddress2">{{shipDateDetails.shipFromAddress2}}</p>
+            <p>
+              <span *ngIf="shipDateDetails.shipFromCity">{{shipDateDetails.shipFromCity}}</span>
+              <span *ngIf="shipDateDetails.shipFromState">, {{shipDateDetails.shipFromState}}</span>
+              <span *ngIf="shipDateDetails.shipFromZip">, {{shipDateDetails.shipFromZip}}</span>
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="row">
+          <div class="col-4 text-right px-0">Ship To:</div>
+          <div class="col-6">
+            <p *ngIf="shipDateDetails.shipToName">{{shipDateDetails.shipToName}}</p>
+            <p *ngIf="shipDateDetails.shipToAddress1">{{shipDateDetails.shipToAddress1}}</p>
+            <p *ngIf="shipDateDetails.shipToAddress2">{{shipDateDetails.shipToAddress2}}</p>
+            <p>
+              <span *ngIf="shipDateDetails.shipToCity">{{shipDateDetails.shipToCity}}</span>
+              <span *ngIf="shipDateDetails.shipToState">, {{shipDateDetails.shipToState}}</span>
+              <span *ngIf="shipDateDetails.shipToZip">, {{shipDateDetails.shipToZip}}</span>
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="row">
+          <div class="col-4 text-right px-0">Carrier:</div>
+          <div class="col-6">
+            <p *ngIf="shipDateDetails">{{shipDateDetails.shipToCarrierName}}</p>
+          </div>
+          <div class="col-4 text-right px-0">Method:</div>
+          <div class="col-6">
+            <p *ngIf="shipDateDetails">{{shipDateDetails.shipToMethodName}}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ng-container formArrayName="topPpShipments">
+      <ng-container *ngFor="let topPp of topPpShipments.controls; let frmIndex = index" [formGroupName]="frmIndex">
+        <div class="row py-2">
+          <div class="underline bold">{{topPp.get('topPpName').value}}</div>
+        </div>
+        <div class="row">
+          <div class="col-6">
+            <div class="row flex py-1"
+                 [ngClass]="{'required': true}">
+              <div class="col-sm-4 control-label text-right px-0">
+                <label>Status</label>
+              </div>
+              <div class="col-sm-7"
+                   [ngClass]="{'has-error':!topPp.get('status').valid, 'disabled': isPageReadOnly}">
+                <ng-select [items]="statusData"
+                           [placeholder]="!isPageReadOnly ? 'Status' : ''"
+                           [searchable]="false" #statusSelect
+                           (focus)="onSelectFocused(statusSelect)"
+                           bindLabel="name"
+                           bindValue="id"
+                           formControlName="status"></ng-select>
+                <label class="error"
+                       *ngIf="topPp.get('status').hasError('required') && !topPp.get('status').pristine">
+                  {{validationMessages['status'].required}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1"
+                 [ngClass]="{'required': true}">
+              <div class="col-sm-4 control-label text-right px-0">
+                <label>Shipped Qty</label>
+              </div>
+              <div class="col-sm-7">
+                <perfect-scrollbar [config]="{suppressScrollX: false, suppressScrollY: true, scrollXMarginOffset: 10}"
+                                   id="perfect-scrollbar">
+                  <div class="table-wrapper" #tableWrapper>
+                    <table class="table table-sm size-table"
+                           *ngIf="topPp.get('shippedQtys').controls && topPp.get('shippedQtys').controls.length">
+                      <thead>
+                      <tr>
+                        <th *ngFor="let size of topPp.get('shippedQtys').controls">
+                          {{size.get('size').value}}
+                        </th>
+                        <th>
+                          Total
+                        </th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr formArrayName="shippedQtys">
+                        <td *ngFor="let size of topPp.get('shippedQtys').controls; let sizeIndex = index">
+                          <ng-container [formGroupName]="sizeIndex">
+                            <input formControlName="qty"
+                                   (focus)="onFocus($event)"
+                                   (keyup)="onKeyUp($event, topPp)"
+                                   (blur)="onBlur($event, size)"
+                                   IntegerNumber
+                                   type="text"
+                                   class="text-center p-link"
+                                   [style.color]="topPp.get('shippedQtys')['required'] ? 'red' : ''"/>
+                          </ng-container>
+                        </td>
+                        <td>
+                          {{calTotal(topPp.get('shippedQtys'))}}
+                        </td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </perfect-scrollbar>
+                <label class="error"
+                       *ngIf="topPp.get('shippedQtys')['required'] && !topPp.get('shippedQtys').pristine">
+                  {{validationMessages['shippedQtys'].required}}</label>
+              </div>
+            </div>
+            <div class="row flex py-1"
+                 [ngClass]="{'required': true}">
+              <div class="col-sm-4 control-label text-right px-0">
+                <label>Date Shipped</label>
+              </div>
+              <div class="col-sm-7"
+                   [ngClass]="{'has-error':!topPp.get('shipFromDateShippedOnUtc').valid}">
+                <my-date-picker [options]="myDatePickerOptions"
+                                #dateShippedDatePicker
+                                formControlName='shipFromDateShipped'
+                                [disabled]="isPageReadOnly"
+                                [ngClass]="{'disabled': isPageReadOnly}"
+                                (dateChanged)="onDateChangedBy($event, topPp, 'shipFromDateShippedOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, dateShippedDatePicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, dateShippedDatePicker, topPp.get('shipFromDateShippedOnUtc'))"></my-date-picker>
+
+                <label class="error"
+                       *ngIf="topPp.get('shipFromDateShippedOnUtc').hasError('required') && !topPp.get('shipFromDateShippedOnUtc').pristine">
+                  {{validationMessages['default'].required}}</label>
+              </div>
+              <div class="col-sm-1 px-0">
+                <div class="input-group">
+                  <span class="input-group-addon cursor" (click)="openUploader(topPp, uploadedType.ShippingFile)"
+                        *ngIf="!isPageReadOnly && !checkLengthUploaderByType(topPp)">
+                    <i class="fa fa-upload" aria-hidden="true"></i>
+                  </span>
+                      <span class="input-group-addon cursor" [ngClass]="{'disabled': isPageReadOnly}"
+                            (click)="openUploader(topPp, uploadedType.ShippingFile)"
+                            *ngIf="checkLengthUploaderByType(topPp)">
+                    <i class="fa fa-eye" [ngStyle]="{'top': '-1px'}" aria-hidden="true"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="row flex py-1"
+                 [ngClass]="{'required': false}">
+              <div class="col-sm-4 control-label text-right px-0">
+                <label>Tracking #</label>
+              </div>
+              <div class="col-sm-7"
+                   [ngClass]="{'has-error':!topPp.get('shipToTracking').valid, 'disabled': isPageReadOnly}">
+                <input formControlName='shipToTracking'
+                       type="text"
+                       [placeholder]="!isPageReadOnly ? 'Tracking #' : ''"
+                       [attr.disabled]="isPageReadOnly ? true : null"
+                       class="form-control">
+              </div>
+            </div>
+            <div class="row flex py-1"
+                 [ngClass]="{'required': false}">
+              <div class="col-sm-4 control-label text-right px-0">
+                <label>Comments</label>
+              </div>
+              <div class="col-sm-7 my-textarea"
+                   [ngClass]="{'has-error':!topPp.get('comments').valid, 'disabled': isPageReadOnly}">
+                <textarea formControlName='comments'
+                          type="text"
+                          [placeholder]="!isPageReadOnly ? 'Comments' : ''"
+                          [attr.disabled]="isPageReadOnly ? true : null"
+                          class="form-control"></textarea>
+              </div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="text-center full-width relative cursor"
+                 *ngIf="topPp.get('imageUrl').value">
+              <img [src]="topPp.get('imageUrl').value" height="auto"
+                   class="full-width img-thumbnail-none-wh width-responsive" imgZoomClick/>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </ng-container>
+  </form>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-complete"
+          (click)="onSubmitForm()">
+    Save
+  </button>
+  <button class="btn btn-default"
+          (click)="onClosePopup()">
+    Cancel
+  </button>
+</div>
+

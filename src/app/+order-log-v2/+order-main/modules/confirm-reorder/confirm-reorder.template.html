@@ -1,0 +1,62 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0">Confirm Reorder</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()">
+    <div class="row flex py-1"
+         [ngClass]="{'required': frm.get('formRequires').value['isConfirmReorder'].required}">
+      <div class="col-sm-4 control-label text-right">
+        <label>Reorder Confirmed?</label>
+      </div>
+      <div class="col-sm-6"
+           [ngClass]="{'has-error':!frm.get('isConfirmReorder').valid}">
+        <div class="checkbox inline-block">
+          <input type="checkbox" id="yes"
+                 (click)="onSelect(true)" [checked]="frm.get('isConfirmReorder').value">
+          <label for="yes">
+            Yes
+          </label>
+        </div>
+        <div class="checkbox inline-block">
+          <input type="checkbox" id="no"
+                 (click)="onSelect(false)" [checked]="frm.get('isConfirmReorder').value === false">
+          <label for="no">
+            No
+          </label>
+        </div>
+        <label class="error"
+               *ngIf="frm.get('isConfirmReorder').hasError('required') && !frm.get('isConfirmReorder').pristine">
+          {{validationMessages['isConfirmReorder'].required}}</label>
+      </div>
+    </div>
+    <div class="row flex py-1" *ngIf="frm.get('isConfirmReorder').value === false"
+         [ngClass]="{'required': frm.get('formRequires').value['reorderComment'].required}">
+      <div class="col-sm-4 control-label text-right">
+        <label>Reorder Comments</label>
+      </div>
+      <div class="col-xl-6 my-textarea">
+        <textarea formControlName='reorderComment'
+                  type="text"
+                  [placeholder]="'Reorder Comments'"
+                  class="form-control"></textarea>
+        <label class="error"
+               *ngIf="frm.get('reorderComment').hasError('required') && !frm.get('reorderComment').pristine">
+          {{validationMessages['reorderComment'].required}}</label>
+      </div>
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-complete"
+          (click)="onSubmitForm()">
+    Save
+  </button>
+  <button class="btn btn-default"
+          (click)="activeModal.dismiss()">
+    Cancel
+  </button>
+</div>
+

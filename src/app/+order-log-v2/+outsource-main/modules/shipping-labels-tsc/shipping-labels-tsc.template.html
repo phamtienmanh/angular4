@@ -1,0 +1,121 @@
+<div class="modal-header">
+  <h4 class="modal-title m-0 nowrap">Shipping Labels / TSC Packing List - Change Status</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="frm" role="form" novalidate="" (ngSubmit)="onSubmitForm()">
+    <lead-eta [rowDetail]="rowDetail" [isPageReadOnly]="isPageReadOnly || isLeadTimeReadOnly"></lead-eta>
+    <div class="row flex py-1"
+         [ngClass]="{'required': frm.get('formRequires').value['shippingLabelsTscPackingListStatus'].required}">
+      <div class="col-7">
+        <div class="row">
+          <div class="col-6 control-label text-right">
+            <label>Status</label>
+          </div>
+          <div class="col-6"
+               [ngClass]="{'has-error': !frm.get('shippingLabelsTscPackingListStatus').valid,
+                    'disabled': isPageReadOnly}">
+            <ng-select [items]="statusData"
+                       [placeholder]="!isPageReadOnly ? 'Status' : ''"
+                       [searchable]="false" #statusSelect
+                       (focus)="onSelectFocused(statusSelect)"
+                       bindLabel="name"
+                       bindValue="id"
+                       formControlName="shippingLabelsTscPackingListStatus">
+            </ng-select>
+            <label class="error"
+                   *ngIf="frm.get('shippingLabelsTscPackingListStatus').hasError('required') && !frm.get('shippingLabelsTscPackingListStatus').pristine">
+              {{validationMessages['default'].required}}</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ng-container *ngIf="frm.get('shippingLabelsTscPackingListStatus').value && frm.get('shippingLabelsTscPackingListStatus').value !== taskStatus.BLANK">
+      <div class="row py-1">
+        <div class="col-7">
+          <ng-container *ngIf="frm.get('shippingLabelsTscPackingListStatus').value === taskStatus.DONE">
+            <div class="row flex py-1"
+                 [ngClass]="{'required': frm.get('formRequires').value['shippingLabelsTscPackingListOnUtc'].required}">
+              <div class="col-6 control-label text-right">
+                <label class="nowrap">Date Sent</label>
+              </div>
+              <div class="col-6"
+                   [ngClass]="{'has-error':!frm.get('shippingLabelsTscPackingListOnUtc').valid}">
+                <my-date-picker class="flex" [options]="myTodayPickerOptions"
+                                #shippingLabelsTscPackingListPicker
+                                formControlName='shippingLabelsTscPackingList'
+                                [ngClass]="{'disabled': isPageReadOnly}"
+                                [disabled]="isPageReadOnly"
+                                (dateChanged)="onDateChangedBy($event, 'shippingLabelsTscPackingListOnUtc')"
+                                (inputFieldChanged)="myDatePickerService.onInputFieldChanged($event, shippingLabelsTscPackingListPicker)"
+                                (inputFocusBlur)="myDatePickerService.onInputFocusBlur($event, shippingLabelsTscPackingListPicker, frm.get('shippingLabelsTscPackingListOnUtc'))"></my-date-picker>
+                <label class="error"
+                       *ngIf="frm.get('shippingLabelsTscPackingListOnUtc').hasError('required') && !frm.get('shippingLabelsTscPackingListOnUtc').pristine">
+                  {{validationMessages['default'].required}}</label>
+                <label class="error"
+                       *ngIf="frm.get('shippingLabelsTscPackingListOnUtc').hasError('maxDate') && !frm.get('shippingLabelsTscPackingListOnUtc').pristine">
+                  {{validationMessages['default'].maxLength}}
+                </label>
+              </div>
+            </div>
+            <div class="row flex py-1"
+                 [ngClass]="{'required': false}">
+              <div class="col-6 control-label text-right">
+                <label>Shipping Labels</label>
+              </div>
+              <div class="col-6">
+                <div class="input-group">
+                <span class="input-group-addon cursor" (click)="openUploader(frm, styleUploadedType.ShippingLabels, 'Shipping Labels')"
+                      *ngIf="!isPageReadOnly && !checkLengthUploaderByType(frm, styleUploadedType.ShippingLabels)">
+                  <i class="fa fa-upload" aria-hidden="true"></i>
+                </span>
+                  <span class="input-group-addon cursor"
+                        [ngClass]="{'disabled': isPageReadOnly}"
+                        (click)="openUploader(frm, styleUploadedType.ShippingLabels, 'Shipping Labels')"
+                        *ngIf="checkLengthUploaderByType(frm, styleUploadedType.ShippingLabels)">
+                  <i class="fa fa-eye" [ngStyle]="{'top': '-1px'}" aria-hidden="true"></i>
+                </span>
+                </div>
+              </div>
+            </div>
+            <div class="row flex py-1"
+                 [ngClass]="{'required': false}">
+              <div class="col-6 control-label text-right">
+                <label>TSC Packing List</label>
+              </div>
+              <div class="col-6">
+                <div class="input-group">
+                <span class="input-group-addon cursor" (click)="openUploader(frm, styleUploadedType.TscPackingList, 'TSC Packing List')"
+                      *ngIf="!isPageReadOnly && !checkLengthUploaderByType(frm, styleUploadedType.TscPackingList)">
+                  <i class="fa fa-upload" aria-hidden="true"></i>
+                </span>
+                  <span class="input-group-addon cursor"
+                        [ngClass]="{'disabled': isPageReadOnly}"
+                        (click)="openUploader(frm, styleUploadedType.TscPackingList, 'TSC Packing List')"
+                        *ngIf="checkLengthUploaderByType(frm, styleUploadedType.TscPackingList)">
+                  <i class="fa fa-eye" [ngStyle]="{'top': '-1px'}" aria-hidden="true"></i>
+                </span>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </ng-container>
+  </form>
+</div>
+<div class="modal-footer">
+  <ng-container *ngIf="!isPageReadOnly">
+    <button class="btn btn-complete"
+            (click)="onSubmitForm()">
+      Save
+    </button>
+  </ng-container>
+  <button class="btn btn-default"
+          (click)="activeModal.dismiss()">
+    Cancel
+  </button>
+</div>
+

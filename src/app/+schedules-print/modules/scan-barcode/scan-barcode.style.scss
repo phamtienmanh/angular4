@@ -1,0 +1,11 @@
+scan-barcode {
+  .error-msg {
+    background: red;
+    color: white;
+    margin-top: 15px;
+    text-align: center;
+  }
+  .masked {
+    -webkit-text-security: disc;
+  }
+}

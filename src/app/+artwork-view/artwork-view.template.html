@@ -1,0 +1,279 @@
+<breadcrumb></breadcrumb>
+<div class="panel panel-transparent py-3">
+  <artwork-view-filter [fontSize]="myConfigStyle['font-size']"
+                          (onExportOrder)="onExportOrder($event)"
+                          (onChangeFontSize)="onChangeFontSize($event)"
+                          (onUpdateFilter)="onUpdateFilter($event)"
+                          (onFilter)="onFilter($event)"></artwork-view-filter>
+  <div class="py-2" [hidden]="artworkData.data && artworkData.data.length">
+    <span class="font-size-16">No artwork matches the current selections.</span>
+  </div>
+  <div class="py-2" [hidden]="!artworkData.data || !artworkData.data.length">
+    <div class="ngx-datatable material" id="header"
+         [ngStyle]="myConfigStyleHeader"></div>
+    <ng-container *ngTemplateOutlet="pagination"></ng-container>
+    <perfect-scrollbar [config]="{suppressScrollX: false}" (psScrollX)="onScrollX($event)">
+      <div class="table-wrapper" #tableWrapper id="tableWrapper">
+        <ngx-datatable #artworkTable
+                       class="material ngx-table-hover"
+                       [ngStyle]="myConfigStyle"
+                       [rows]="artworkData.data"
+                       [columnMode]="'force'"
+                       [footerHeight]="0"
+                       [headerHeight]="'auto'"
+                       [rowHeight]="'auto'"
+                       [externalSorting]="true"
+                       [loadingIndicator]="tableConfig.loading"
+                       (activate)="onActivate($event)"
+                       [sorts]="[{prop: 'designId', dir: 'asc'}]"
+                       (sort)="onSort($event)">
+          <!--<ngx-datatable-column [name]="' '"-->
+                                <!--[prop]="'imageUrl'"-->
+                                <!--[cellClass]="'columns-80'"-->
+                                <!--[minWidth]="80"-->
+                                <!--[resizeable]="false"-->
+                                <!--[draggable]="false">-->
+            <!--<ng-template let-value="value" ngx-datatable-cell-template>-->
+              <!--<img class="img-thumbnail-none-wh" imgZoomClick-->
+                   <!--[src]="value || '../assets/img/no-image-found.jpg'" width="75" height="75">-->
+            <!--</ng-template>-->
+          <!--</ngx-datatable-column>-->
+          <ngx-datatable-column [name]="'Design ID'"
+                                [prop]="'designId'"
+                                [width]="myStyleColumns[myConfigStyle['font-size']].designId.width"
+                                [minWidth]="myStyleColumns[myConfigStyle['font-size']].designId.width"
+                                [cellClass]="myStyleColumns[myConfigStyle['font-size']].designId.cellClass"
+                                [resizeable]="false"
+                                [draggable]="false">
+            <ng-template let-row="row" let-sort="sortFn" ngx-datatable-header-template>
+              <div class="full-width center cursor" (click)="sort()">Design ID</div>
+            </ng-template>
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <div class="seperate-child" (click)="goToSample(row.orderId, row.orderDetailId)">
+                <p class="center p-link">{{row.designId}}</p>
+              </div>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column [name]="'Customer'"
+                                [prop]="'customerName'"
+                                [width]="myStyleColumns[myConfigStyle['font-size']].customerName.width"
+                                [minWidth]="myStyleColumns[myConfigStyle['font-size']].customerName.width"
+                                [cellClass]="myStyleColumns[myConfigStyle['font-size']].customerName.cellClass"
+                                [resizeable]="false"
+                                [draggable]="false">
+            <ng-template let-row="row" let-sort="sortFn" ngx-datatable-header-template>
+              <div class="full-width center cursor" (click)="sort()">Customer</div>
+            </ng-template>
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <div class="seperate-child">
+                <p class="center">{{row.customerName}}</p>
+              </div>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column [name]="'Style Name'"
+                                [prop]="'styleName'"
+                                [width]="myStyleColumns[myConfigStyle['font-size']].styleName.width"
+                                [minWidth]="myStyleColumns[myConfigStyle['font-size']].styleName.width"
+                                [cellClass]="myStyleColumns[myConfigStyle['font-size']].styleName.cellClass"
+                                [resizeable]="false"
+                                [draggable]="false">
+            <ng-template let-row="row" let-sort="sortFn" ngx-datatable-header-template>
+              <div class="full-width center cursor" (click)="sort()">Style Name</div>
+            </ng-template>
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <div class="seperate-child" (click)="goToStyle(row.orderId, row.orderDetailId)">
+                <p class="center p-link" *ngIf="row.partnerStyle">{{row.partnerStyle}}</p>
+                <p class="center p-link" *ngIf="row.styleName">{{row.styleName}}</p>
+              </div>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column [name]="'Vendor Style / Color'"
+                                [width]="myStyleColumns[myConfigStyle['font-size']].vendorStyle.width"
+                                [minWidth]="myStyleColumns[myConfigStyle['font-size']].vendorStyle.width"
+                                [cellClass]="myStyleColumns[myConfigStyle['font-size']].vendorStyle.cellClass"
+                                [resizeable]="false"
+                                [draggable]="false">
+            <ng-template let-row="row" let-sort="sortFn" ngx-datatable-header-template>
+              <div class="full-width center cursor" (click)="sort()">Vendor Style</div>
+              <div class="full-width center cursor" (click)="sort()">/ Color</div>
+            </ng-template>
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <div class="seperate-child">
+                <p>{{getVendorStyleColor(row)}}</p>
+              </div>
+            </ng-template>
+            <ng-template let-row="row" ngx-datatable-cell-template>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column [name]="'Approval Process'"
+                                [prop]="'approvalProcess'"
+                                [width]="myStyleColumns[myConfigStyle['font-size']].approvalProcess.width"
+                                [minWidth]="myStyleColumns[myConfigStyle['font-size']].approvalProcess.width"
+                                [cellClass]="myStyleColumns[myConfigStyle['font-size']].approvalProcess.cellClass"
+                                [resizeable]="false"
+                                [draggable]="false">
+            <ng-template let-row="row" let-sort="sortFn" ngx-datatable-header-template>
+              <div class="full-width center cursor" (click)="sort()">Approval Process</div>
+            </ng-template>
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <div class="seperate-child">
+                <p *ngIf="row.approvalTypes && row.approvalTypes.length">
+                  {{row.approvalTypes ? row.approvalTypes.join(', ') : ''}}
+                </p>
+              </div>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column [name]="'Neck Label'"
+                                [prop]="'neckLabel'"
+                                [width]="myStyleColumns[myConfigStyle['font-size']].neckLabel.width"
+                                [minWidth]="myStyleColumns[myConfigStyle['font-size']].neckLabel.width"
+                                [cellClass]="myStyleColumns[myConfigStyle['font-size']].neckLabel.cellClass"
+                                [sortable]="false"
+                                [resizeable]="false"
+                                [draggable]="false">
+            <ng-template let-row="row" let-sort="sortFn" ngx-datatable-header-template>
+              <div class="full-width center cursor" (click)="sort()">Neck</div>
+              <div class="full-width center cursor" (click)="sort()">Label</div>
+            </ng-template>
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <div class="img-child">
+                <div class="row center p-link">
+                  <p *ngIf="!row.neckLabelId || row.hasNeckLabel === null"
+                     class="col-sm-12" (click)="goToNeckLabelSetup(row.orderId, row.orderDetailId)">No Neck Label
+                    Setup</p>
+                  <p *ngIf="row.hasNeckLabel === false"
+                     class="col-sm-12" (click)="goToNeckLabelSetup(row, detail, 'Neck Label Approval')">Neck Label Not Required</p>
+                  <img *ngIf="row.neckLabelId && row.hasNeckLabel && row.neckLabelImageUrl"
+                       class="img-thumbnail-none-wh"
+                       [src]="row.neckLabelImageUrl" width="50" height="50" imgZoomClick>
+                </div>
+              </div>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column [name]="'Print Location(s)'"
+                                [prop]="'printLocation'"
+                                [width]="myStyleColumns[myConfigStyle['font-size']].printLocation.width"
+                                [minWidth]="myStyleColumns[myConfigStyle['font-size']].printLocation.width"
+                                [cellClass]="myStyleColumns[myConfigStyle['font-size']].printLocation.cellClass"
+                                [resizeable]="false"
+                                [draggable]="false">
+            <ng-template let-row="row" let-sort="sortFn" ngx-datatable-header-template>
+              <div class="full-width center cursor" (click)="sort()">Print Location</div>
+            </ng-template>
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <div class="parent-border" *ngFor="let detail of row.printLocations; let i = index"
+                   [ngStyle]="detail.style">
+                <div class="img-child" [id]="row.orderId + '-' + detail.id + '-' + 'printLocation'">
+                  <p class="center p-link"
+                     (click)="goToPrintLocation(row.orderId, row.orderDetailId, detail.id)">
+                    {{detail.locationName}}</p>
+                  <img class="img-thumbnail-none-wh" *ngIf="detail.imageUrl"
+                       [src]="detail.imageUrl" width="50" height="50" imgZoomClick>
+                </div>
+              </div>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column [name]="'Emb. Type'"
+                                [prop]="'printMethod'"
+                                [width]="myStyleColumns[myConfigStyle['font-size']].printMethod.width"
+                                [minWidth]="myStyleColumns[myConfigStyle['font-size']].printMethod.width"
+                                [cellClass]="myStyleColumns[myConfigStyle['font-size']].printMethod.cellClass"
+                                [resizeable]="false"
+                                [draggable]="false">
+            <ng-template let-row="row" let-sort="sortFn" ngx-datatable-header-template>
+              <div class="full-width center cursor" (click)="sort()">Emb. Type</div>
+            </ng-template>
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <div class="parent-border"
+                   *ngFor="let detail of row.printLocations; let i = index" [ngStyle]="detail.style">
+                <div class="seperate-child" *ngIf="detail.id"
+                     [id]="row.orderId + '-' + detail.id + '-' + 'printMethod'">
+                  <p class="center">{{detail.printMethod}}</p>
+                </div>
+              </div>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column [name]="'Machine'"
+                                [prop]="printMachine"
+                                [width]="myStyleColumns[myConfigStyle['font-size']].printMachine.width"
+                                [minWidth]="myStyleColumns[myConfigStyle['font-size']].printMachine.width"
+                                [cellClass]="myStyleColumns[myConfigStyle['font-size']].printMachine.cellClass"
+                                [resizeable]="false"
+                                [draggable]="false">
+            <ng-template let-row="row" let-sort="sortFn" ngx-datatable-header-template>
+              <div class="full-width center cursor" (click)="sort()">Machine</div>
+            </ng-template>
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <div class="parent-border"
+                   *ngFor="let detail of row.printLocations; let i = index" [ngStyle]="detail.style">
+                <div class="seperate-child" *ngIf="detail.id"
+                     [id]="row.orderId + '-' + detail.id + '-' + 'printMachine'">
+                  <p class="center">{{detail.printMachine}}</p>
+                </div>
+              </div>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column [name]="'Dimensions'"
+                                [prop]="'dimensions'"
+                                [width]="myStyleColumns[myConfigStyle['font-size']].dimensions.width"
+                                [minWidth]="myStyleColumns[myConfigStyle['font-size']].dimensions.width"
+                                [cellClass]="myStyleColumns[myConfigStyle['font-size']].dimensions.cellClass"
+                                [resizeable]="false"
+                                [draggable]="false">
+            <ng-template let-row="row" let-sort="sortFn" ngx-datatable-header-template>
+              <div class="full-width center cursor" (click)="sort()">Dimensions</div>
+            </ng-template>
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <div class="parent-border"
+                   *ngFor="let detail of row.printLocations; let i = index" [ngStyle]="detail.style">
+                <div class="seperate-child" *ngIf="detail.id"
+                     [id]="row.orderId + '-' + detail.id + '-' + 'dimensions'">
+                  <p class="center">{{detail.dimensions}}</p>
+                </div>
+              </div>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column [name]="'Approved Date'"
+                                [prop]="'printApprovedDateOnUtc'"
+                                [width]="myStyleColumns[myConfigStyle['font-size']].printApprovedDateOnUtc.width"
+                                [minWidth]="myStyleColumns[myConfigStyle['font-size']].printApprovedDateOnUtc.width"
+                                [cellClass]="myStyleColumns[myConfigStyle['font-size']].printApprovedDateOnUtc.cellClass"
+                                [resizeable]="false"
+                                [draggable]="false">
+            <ng-template let-row="row" let-sort="sortFn" ngx-datatable-header-template>
+              <div class="full-width center cursor" (click)="sort()">Approved Date</div>
+            </ng-template>
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <div class="parent-border"
+                   *ngFor="let detail of row.printLocations; let i = index" [ngStyle]="detail.style">
+                <div class="seperate-child" *ngIf="detail.id"
+                     [id]="row.orderId + '-' + detail.id + '-' + 'printApprovedDateOnUtc'">
+                  <span *ngIf="detail.printApprovedDateOnUtc">
+                    {{detail.printApprovedDateOnUtc | amFromUtc | amLocal | amDateFormat: 'MM/DD/YY'}}</span>
+                </div>
+              </div>
+            </ng-template>
+          </ngx-datatable-column>
+        </ngx-datatable>
+      </div>
+    </perfect-scrollbar>
+    <ng-container *ngTemplateOutlet="paginationTop"></ng-container>
+  </div>
+  <ng-template #pagination>
+    <pagination-control [totalRecord]="artworkData.totalRecord" *ngIf="artworkData.data && artworkData.data.length"
+                        [pageName]="'artworkView'"
+                        [pageSize]="tableConfig.pageSize"
+                        [currentPage]="tableConfig.currentPage"
+                        (onSelectedPageSize)="onSelectedPageSize($event)"
+                        (onPageChange)="onPageChange($event)"></pagination-control>
+  </ng-template>
+  <ng-template #paginationTop>
+    <pagination-control [totalRecord]="artworkData.totalRecord" *ngIf="artworkData.data && artworkData.data.length"
+                        [pageName]="'artworkView'"
+                        [pageSize]="tableConfig.pageSize"
+                        [currentPage]="tableConfig.currentPage"
+                        [dropdownPosition]="'top-left'"
+                        (onSelectedPageSize)="onSelectedPageSize($event)"
+                        (onPageChange)="onPageChange($event)"></pagination-control>
+  </ng-template>
+</div>
